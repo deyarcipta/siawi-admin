@@ -46,7 +46,7 @@
                   <label for="id_guru">Nama Guru</label>
                   <select class="form-control" name="id_guru" id="id_guru">
                     @foreach ($guru as $gru)
-                    <option value="{{ $gru->id_guru }}" {{ $edit->id_guru == $gru->id ? 'selected' : '' }}> {{ $gru->nama_guru }}</option>
+                    <option value="{{ $gru->id_guru }}" {{ $edit->id_guru == $gru->id_guru ? 'selected' : '' }}> {{ $gru->nama_guru }}</option>
                     @endforeach
                   </select>
                   @error('id_guru')

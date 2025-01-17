@@ -21,6 +21,7 @@ class JadwalController extends Controller
         $siswa = Siswa::where('id_siswa', $idSiswa)->first();
         $jadwals = JadwalMapel::where('kelas', $siswa->kelas->nama_kelas)
         ->where('hari', $hari)
+        ->orderBy('jam_awal', 'asc')
         ->get();
 
         $groupedJadwals = $jadwals->groupBy('hari')->map(function ($jadwals) {

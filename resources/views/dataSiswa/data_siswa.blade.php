@@ -36,7 +36,7 @@
                 <th>Nama Siswa</th>
                 <th>Kelas</th>
                 <th>Username</th>
-                <th>Password</th>
+                {{-- <th>Password</th> --}}
                 <th>Action</th>
               </tr>
               </thead>
@@ -48,10 +48,11 @@
                 <td>{{$data->nama_siswa}}</td>
                 <td>{{$data->kelas->nama_kelas}}</td>
                 <td>{{$data->nis}}</td>
-                <td>{{$data->password}}</td>
+                {{-- <td>{{$data->password}}</td> --}}
                 <td>
                   <form action="/admin/siswa/{{$data->id_siswa}}" method="POST">
                     <a href="/admin/siswa/{{$data->id_siswa}}" class="btn btn-success"><i class="fa fa-eye"></i></a>
+                    <a href="{{route('admin.guru.reset', $data->id_siswa)}}" class="btn btn-primary"><i class="fa fa-key" style="color: white"></i></a>
                     <a href="/admin/siswa/{{$data->id_siswa}}/edit" class="btn btn-warning"><i class="fa fa-edit" style="color: white"></i></a>
                     @csrf
                     @method('DELETE')

@@ -47,6 +47,7 @@ class SiswaController extends Controller
      */
     public function store(Request $request)
     {
+        dd($request->all());
         $request->validate([
             'nis' => 'required',
             'nisn' => 'required',
@@ -72,6 +73,7 @@ class SiswaController extends Controller
             'kota' => 'required',
         ]);
 
+	$nama_file = 'avatar.jpg';
         // Periksa apakah file diunggah
         if ($request->hasFile('foto')) {
              // Proses file yang diunggah
@@ -171,7 +173,8 @@ class SiswaController extends Controller
         $request->validate([
             'nis' => 'required',
             'nisn' => 'required',
-            'password' => 'required',
+            'rfid' => 'required',
+            // 'password' => 'nullable|string|min:6',
             'nama_siswa' => 'required',
             'kode_level' => 'required',
             'kode_kelas' => 'required',
@@ -197,8 +200,8 @@ class SiswaController extends Controller
 
         // Periksa apakah file diunggah
         if ($request->hasFile('foto')) {
-            if ($siswa->foto) {
-                // Hapus foto lama dari penyimpanan (misalnya, menggunakan Storage di Laravel)
+            if ($siswa->foto && $siswa->foto != 'avatar.jpg') {
+                // Hapus foto lama dari penyimpanan jika bukan "avatar.jpg"
                 Storage::delete('foto-siswa/' . $siswa->foto);
             }
              // Proses file yang diunggah
@@ -215,17 +218,22 @@ class SiswaController extends Controller
             $foto = session('old_foto');
             $siswa->foto = $foto;
         }
-        dd($siswa->foto);
+        //dd($siswa->foto);
         // Proses penyimpanan data lainnya
 
         // Hapus nama file dari session setelah digunakan
         session()->forget('old_foto');
 
+        // if ($request->filled('password')) {
+        //     $siswa->password = Hash::make($request->password);
+        // }
+
         Siswa::where('id_siswa', $id_siswa)->update([
             'nis' => $request->nis,
             'nisn' => $request->nisn,
+            'rfid' => $request->rfid,
             'nama_siswa' => $request->nama_siswa,
-            'password' => $request->password,
+            // 'password' => $request->password,
             'id_level' => $request->kode_level,
             'id_kelas' => $request->kode_kelas,
             'id_jurusan' => $request->kode_jurusan,
@@ -276,6 +284,7 @@ class SiswaController extends Controller
      */
     public function destroy(string $id_siswa)
     {
+		DB::table('absensi')->where('id_siswa', $id_siswa)->delete();
         Siswa::destroy($id_siswa);
         return redirect('/admin/siswa');
     }

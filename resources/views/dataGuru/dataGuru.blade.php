@@ -34,7 +34,7 @@
                 <th style="width: 10px">No</th>
                 <th>Nama Guru</th>
                 <th>Username</th>
-                <th>Password</th>
+                {{-- <th>Password</th> --}}
                 <th>Role</th>
                 <th style="width: 160px">Action</th>
               </tr>
@@ -45,10 +45,11 @@
                 <td>{{$loop->iteration}}</td>
                 <td>{{$gru->nama_guru}}</td>
                 <td>{{$gru->username}}</td>
-                <td>{{ $gru->password }}</td>
+                {{-- <td>{{ $gru->password }}</td> --}}
                 <td>{{$gru->role}}</td>
                 <td>
                   <form action="guru/{{$gru->id_guru}}" method="POST">
+                    <a href="{{route('admin.guru.reset', $gru->id_guru)}}" class="btn btn-primary"><i class="fa fa-key" style="color: white"></i></a>
                     <a href="{{route('admin.guru.edit', $gru->id_guru)}}" class="btn btn-warning"><i class="fa fa-edit" style="color: white"></i></a>
                     @csrf
                     @method('DELETE')

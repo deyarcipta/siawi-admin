@@ -52,11 +52,11 @@
                 <tr>
                   <td>Kompetensi Keahlian</td>
                   <td>
-                    @if ($detail->jurusan == "PH")
+                    @if ($detail->id_jurusan == "2")
                       <p>Perhotelan</p>
-                    @elseif ($detail->jurusan == "KUL")
+                    @elseif ($detail->id_jurusan == "5")
                       <p>Kuliner</p>
-                    @elseif ($detail->jurusan == "TJKT")
+                    @elseif ($detail->id_jurusan == "1")
                       <p>Teknik Jaringan Komputer dan Telekomunikasi</p>
                     @else
                       <p>Tidak Ada</p>

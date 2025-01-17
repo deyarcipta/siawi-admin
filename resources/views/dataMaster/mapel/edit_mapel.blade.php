@@ -27,7 +27,7 @@
             </div>
             <!-- /.card-header -->
             <!-- form start -->
-            <form action="/admin/mapel/{{$edit->id  }}" method="POST">
+            <form action="/admin/mapel/{{$edit->id_mapel  }}" method="POST">
               @csrf
               @method('PUT')
               <div class="card-body">

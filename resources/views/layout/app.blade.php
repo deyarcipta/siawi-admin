@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="{{ asset("storage/gambar/$setting->logo") }}" type="image/x-icon">
     <title>{{ config('app.name', 'Sistem Informasi Akademik Wisata Indonesia') }}</title>
+	 <style>
+		.custom-search {
+		  text-align: right;
+		}
+
+		.custom-search label {
+		  width: 100%;
+		}
+
+		.custom-search input {
+		  width: auto;
+		  display: inline-block;
+		}
+	  </style>
     <script>
       // Fungsi untuk membuat judul bergerak
       function animateTitle() {
@@ -129,18 +143,42 @@
     <script src="{{ asset('lte/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
     <script src="{{ asset('lte/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<!-- Include SweetAlert2 JS -->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+	<script>
+		@if (session('success'))
+			Swal.fire({
+				icon: 'success',
+				title: 'Berhasil!',
+				html: '{!! session('success') !!}'
+			});
+		@endif
+
+		@if (session('failed'))
+			Swal.fire({
+				icon: 'error',
+				title: 'Gagal!',
+				html: '{!! session('failed') !!}'
+			});
+		@endif
+	</script>
     <script>
     $(function () {
-      $('#example2').DataTable({
-        "paging": true,
-        "lengthChange": false,
-        "searching": false,
-        "ordering": true,
-        "info": true,
-        "autoWidth": false,
-        "responsive": true,
-      });
-    });
+	  $('#example2').DataTable({
+		"paging": true,
+		"lengthChange": false,
+		"searching": true,
+		"ordering": true,
+		"info": true,
+		"autoWidth": false,
+		"responsive": true,
+		"dom": '<"top"f>rt<"bottom"lp><"clear">',
+		"initComplete": function () {
+		  $('#example2_filter').addClass('custom-search');
+		}
+	  });
+	});
   </script>
   </body>
 </html>

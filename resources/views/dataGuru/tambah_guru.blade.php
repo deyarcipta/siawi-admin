@@ -37,13 +37,13 @@
                     <div class="alert alert-danger">{{ $message }}</div>
                   @enderror
                 </div>
-                <div class="form-group">
+                {{-- <div class="form-group">
                   <label for="password">Password</label>
                   <input type="text" class="form-control" id="password" placeholder="Enter Password" name="password" value="{{old('password')}}">
                   @error('password')
                     <div class="alert alert-danger">{{ $message }}</div>
                   @enderror
-                </div>
+                </div> --}}
                 <div class="form-group">
                   <label for="nama_guru">Nama Guru</label>
                   <input type="text" class="form-control" id="nama_guru" placeholder="Enter Nama" name="nama_guru" value="{{old('nama_guru')}}">

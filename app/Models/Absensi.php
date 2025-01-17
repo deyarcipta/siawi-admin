@@ -24,4 +24,14 @@ class Absensi extends Model
     {
         return $this->belongsTo('App\Models\Kelas', 'id_kelas', 'id_kelas');
     }
+
+    // public function level()
+    // {
+    //     return $this->belongsTo('App\Models\Level', 'id_level', 'id_level');
+    // }
+
+    // public function jurusan()
+    // {
+    //     return $this->belongsTo('App\Models\Jurusan', 'id_jurusan', 'id_jurusan');
+    // }
 }

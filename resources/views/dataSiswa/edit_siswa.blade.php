@@ -33,44 +33,51 @@
               <div class="card-body">
                 <span style="font-size: 16; font-weight:bold;">Data Diri Siswa</span>
                 <div class="row mt-2">
-                  <div class="form-group col-6">
+                  <div class="form-group col-4">
                     <label for="nis">NIS</label>
                     <input type="text" readonly class="form-control" id="nis" placeholder="Enter Nis" name="nis" value="{{$edit->nis}}">
                     @error('nis')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>
-                  <div class="form-group col-6">
+                  <div class="form-group col-4">
                     <label for="nisn">NISN</label>
                     <input type="text" class="form-control" id="nisn" placeholder="Enter Nisn" name="nisn" value="{{$edit->nisn}}">
                     @error('nisn')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>
+                  <div class="form-group col-4">
+                    <label for="rfid">RFID</label>
+                    <input type="text" class="form-control" id="rfid" placeholder="Enter rfid" name="rfid" value="{{$edit->rfid}}" autocomplete="off">
+                    @error('rfid')
+                      <div class="alert alert-danger">{{ $message }}</div>
+                    @enderror
+                  </div>
                 </div>
                 <div class="row">
-                  <div class="form-group col-6">
+                  <div class="form-group col-12">
                     <label for="nama_siswa">Nama Siswa</label>
                     <input type="text" class="form-control" id="nama_siswa" placeholder="Enter Nama Siswa" name="nama_siswa" value="{{$edit->nama_siswa}}">
                     @error('nama_siswa')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>
-                  <div class="form-group col-6">
+                  {{-- <div class="form-group col-6">
                     <label for="password">Password</label>
-                    <input type="text" class="form-control" id="password" placeholder="Enter password" name="password" value="{{$edit->password}}">
+                    <input type="text" class="form-control" id="password" placeholder="Enter password" name="password" hidden>
                     @error('password')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
-                  </div>
+                  </div> --}}
                 </div>
                 <div class="row">
                   <div class="form-group col-4">
                     <label for="kode_level">Pilih Level</label>
                     <select class="form-control" name="kode_level" id="kode_level">
-                        <option value="{{$edit->level}}">{{$edit->level}}</option>
+                        
                       @foreach ($level as $lvl)
-                        <option value="{{$lvl->kode_level}}">{{$lvl->kode_level}}</option>
+                        <option value="{{ $lvl->id_level }}" {{ $edit->id_level == $lvl->id_level ? 'selected' : '' }}> {{ $lvl->nama_level }}</option>
                       @endforeach
                     </select>
                     @error('kode_level')
@@ -81,7 +88,7 @@
                     <label for="kode_kelas">Pilih Kelas</label>
                     <select class="form-control" name="kode_kelas" id="kode_kelas">
                       @foreach ($kelas as $kls)
-                      <option value="{{ $kls->id_kelas }}" {{ $edit->id_kelas == $kls->id ? 'selected' : '' }}> {{ $kls->nama_kelas }}</option>
+                      <option value="{{ $kls->id_kelas }}" {{ $edit->id_kelas == $kls->id_kelas ? 'selected' : '' }}> {{ $kls->nama_kelas }}</option>
                     @endforeach
                     </select>
                     @error('kode_kelas')
@@ -93,7 +100,7 @@
                     <select class="form-control" name="kode_jurusan" id="kode_jurusan">
                       <option value="{{$edit->jurusan}}">{{$edit->jurusan}}</option>
                       @foreach ($jurusan as $jur)
-                        <option value="{{$jur->kode_jurusan}}">{{$jur->kode_jurusan}}</option>
+                        <option value="{{ $jur->id_jurusan }}" {{ $edit->id_jurusan == $jur->id_jurusan ? 'selected' : '' }}> {{ $jur->nama_jurusan }}</option>
                       @endforeach
                     </select>
                     @error('kode_jurusan')
@@ -503,4 +510,41 @@
       </div>
     </div>
   </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+  // Fokuskan input RFID saat halaman dimuat
+  const rfidInput = document.getElementById("rfid");
+  rfidInput.focus(); // Fokus pada input RFID otomatis
+
+  // Menambahkan event listener untuk submit form
+  const form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', function (event) {
+      // Validasi input RFID sebelum submit
+      const rfidValue = rfidInput.value.trim();
+
+      if (!rfidValue) {
+        alert("RFID belum dipindai atau kosong.");
+        event.preventDefault(); // Mencegah pengiriman jika input kosong
+      }
+    });
+  }
+
+  // Event listener untuk input RFID
+  rfidInput.addEventListener("input", function () {
+    const rfidValue = rfidInput.value.trim();
+
+    // Log nilai RFID jika ada perubahan
+    console.log("Nilai RFID: ", rfidValue);
+  });
+
+  // Opsional: Tambahkan validasi saat input kehilangan fokus
+  rfidInput.addEventListener("blur", function () {
+    if (!rfidInput.value.trim()) {
+      alert("RFID belum dipindai");
+    }
+  });
+});
+
+  </script>
 @endsection

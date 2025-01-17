@@ -12,6 +12,9 @@ use App\Http\Controllers\SiswaController\PointController;
 use App\Http\Controllers\SiswaController\AbsensiController;
 use App\Http\Controllers\SiswaController\TagihanController;
 use App\Http\Controllers\SiswaController\ModulController;
+use App\Http\Controllers\SiswaController\UploadFotoController;
+use App\Http\Controllers\SiswaController\UpdateSiswaController;
+use App\Http\Controllers\SiswaController\QrCodeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,3 +44,6 @@ Route::get('/point/{idSiswa}',[PointController::class, 'index']);
 Route::get('/absensi/{idSiswa}',[AbsensiController::class, 'index']);
 Route::get('/tagihan',[TagihanController::class, 'index']);
 Route::get('/modul/{idSiswa}',[ModulController::class, 'index']);
+Route::post('/uploadFoto/{idSiswa}',[UploadFotoController::class, 'uploadFoto']);
+Route::post('/updateSiswa/{idSiswa}',[UpdateSiswaController::class, 'updateSiswa']);
+Route::get('/generate-qrcode', [QRCodeController::class, 'generate']);

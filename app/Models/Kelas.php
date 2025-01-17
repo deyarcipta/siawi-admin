@@ -14,4 +14,9 @@ class Kelas extends Model
     protected $guarded = [];
 
     protected $primaryKey = 'id_kelas';
+
+    public function absensis()
+    {
+        return $this->belongsTo('App\Models\Absensi', 'id_kelas', 'id_kelas');
+    }
 }

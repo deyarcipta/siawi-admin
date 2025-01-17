@@ -96,7 +96,7 @@ class KelasController extends Controller
             'kode_jurusan' => 'required',
         ]);
 
-        Kelas::where('id', $id_kelas)->update([
+        Kelas::where('id_kelas', $id_kelas)->update([
             'kode_kelas' => $request->kode_kelas,
             'kode_level' => $request->kode_level,
             'nama_kelas' => $request->nama_kelas,

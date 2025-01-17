@@ -36,6 +36,11 @@ class Siswa extends Model implements Authenticatable
     {
         return $this->belongsTo('App\Models\Level', 'id_level', 'id_level');
     }
+
+    public function absensi()
+    {
+        return $this->belongsTo('App\Models\Absensi', 'id_siswa', 'id_siswa');
+    }
     // public function jurusan()
     // {
     //     return $this->belongsTo('App\Models\Jurusan', 'kode_jurusan');

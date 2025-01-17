@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Guru;
 use App\Models\Setting;
-// use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Hash;
 use DB;
 
 class GuruController extends Controller
@@ -41,29 +41,23 @@ class GuruController extends Controller
     {
         $request->validate([
             'username' => 'required',
-            'password' => 'required',
+            // 'password' => 'required',
             'nama_guru' => 'required',
             'role' => 'required',
         ]);
+        $changPass = 'admin123';
+        $password = Hash::make($changPass);
         
         // $hashedPassword = Hash::make($request['password']);
 
         $guru = Guru::create([
             'username' => $request->username,
-            'password' => $request->password,
+            'password' => $password,
             'nama_guru' => $request->nama_guru,
             'role' => $request->role,
         ]);
 
-        return redirect('/admin/guru');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id_guru)
-    {
-        //
+        return redirect('/admin/guru')->with('success', 'Data Guru Berhasil Ditambah<br>password default adalah <b>admin123</b>');
     }
 
     /**
@@ -77,6 +71,7 @@ class GuruController extends Controller
         $edit = Guru::find($id_guru);
         return view('dataGuru.edit_guru', compact('layout','edit','setting','user'));
     }
+    
 
     /**
      * Update the specified resource in storage.
@@ -85,7 +80,7 @@ class GuruController extends Controller
     {
         $request->validate([
             'username' => 'required',
-            'password' => 'required',
+            // 'password' => 'required',
             'nama_guru' => 'required',
             'role' => 'required',
         ]);
@@ -94,7 +89,7 @@ class GuruController extends Controller
 
         Guru::where('id_guru', $id_guru)->update([
             'username' => $request->username,
-            'password' => $request->password,
+            // 'password' => $request->password,
             'nama_guru' => $request->nama_guru,
             'role' => $request->role,
         ]);
@@ -109,5 +104,17 @@ class GuruController extends Controller
     {
         Guru::destroy($id_guru);
         return redirect('/admin/guru');
+    }
+
+    public function reset(string $id_guru)
+    {
+        $layout = 'layout.app'; // Misalnya, layout default Anda adalah 'layouts.app'
+        $setting = Setting::find('1');
+        $user = Auth::user();
+        $guru = Guru::find($id_guru);
+        $changPass = 'admin123';
+        $guru->password = Hash::make($changPass);
+        $guru->save();
+        return redirect('/admin/guru')->with('success', 'Password berhasil direset<br>password default adalah <b>admin123</b>');
     }
 }

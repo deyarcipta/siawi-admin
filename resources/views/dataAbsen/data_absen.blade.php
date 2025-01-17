@@ -59,8 +59,12 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
-                    <div class="card-header d-flex align-items-center">
+                    <div class="card-header d-flex align-items-center justify-content-between">
                         <h3 class="card-title">Data Absensi</h3>
+                        <a href="{{ route('admin.absensi.download', ['kelas' => $kelasId]) }}" class="btn btn-success ml-auto">Unduh Data</a>
+
+
+
                     </div>
                     <div class="card-body">
                         <table style="font-size: 18px;">
@@ -99,14 +103,20 @@
                                         <td>{{$countAlfa[$data->id_siswa] + $countIzin[$data->id_siswa] + $countSakit[$data->id_siswa]}}</td>
                                         <td>
                                             @php
-                                            $presentase = ($countMasuk[$data->id_siswa]/$absensiSiswa[$data->id_siswa])*100; // Misalkan presentase diambil dari variabel $presentase
-                                            $badgeClass = '';
+                                            $totalAbsen = $absensiSiswa[$data->id_siswa];
+                                            if ($totalAbsen > 0) {
+                                                $presentase = ($countMasuk[$data->id_siswa] / $totalAbsen) * 100;
+                                                $badgeClass = '';
 
-                                            if ($presentase > 90) {
-                                                $badgeClass = 'badge-success';
-                                            } elseif ($presentase >= 80 && $presentase <= 90) {
-                                                $badgeClass = 'badge-warning';
+                                                if ($presentase > 90) {
+                                                    $badgeClass = 'badge-success';
+                                                } elseif ($presentase >= 80 && $presentase <= 90) {
+                                                    $badgeClass = 'badge-warning';
+                                                } else {
+                                                    $badgeClass = 'badge-danger';
+                                                }
                                             } else {
+                                                $presentase = 0;
                                                 $badgeClass = 'badge-danger';
                                             }
                                             @endphp
@@ -123,6 +133,26 @@
         </div>
     </div>
 </div>
+<!-- Include SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}'
+        });
+    @endif
+
+    @if (session('failed'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '{{ session('failed') }}'
+        });
+    @endif
+</script>
 @endif
 
 @endsection

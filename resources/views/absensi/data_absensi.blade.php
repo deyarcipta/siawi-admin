@@ -121,6 +121,26 @@
         </div>
     </div>
 </div>
+<!-- Include SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}'
+        });
+    @endif
+
+    @if (session('failed'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '{{ session('failed') }}'
+        });
+    @endif
+</script>
 @endif
 
 @endsection

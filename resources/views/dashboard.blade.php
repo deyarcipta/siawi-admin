@@ -56,12 +56,12 @@
               <!-- small box -->
               <div class="small-box bg-warning">
                 <div class="inner">
-                  <h3>{{$jumlahTidakHadir}}</h3>
+                  <h3>{{$jumlahHadir}}</h3>
   
-                  <p>Siswa Tidak Hadir</p>
+                  <p>Siswa Hadir</p>
                 </div>
                 <div class="icon">
-                  <i class="ion ion-android-exit"></i>
+                  <i class="ion ion-ios-person-add"></i>
                 </div>
                 <a href="/absensi" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
               </div>
@@ -71,12 +71,12 @@
               <!-- small box -->
               <div class="small-box bg-danger">
                 <div class="inner">
-                  <h3>{{$totalModul}}</h3>
+                  <h3>{{$jumlahTidakHadir}}</h3>
   
-                  <p>Jumlah Modul</p>
+                  <p>Siswa Tidak Hadir</p>
                 </div>
                 <div class="icon">
-                  <i class="ion ion-ios-bookmarks"></i>
+                  <i class="ion ion-ios-remove-circle"></i>
                 </div>
                 <a href="/modul" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
               </div>
@@ -85,29 +85,59 @@
             <div class="col-lg-6">
               <div class="card card-primary card-outline">
                 <div class="card-header">
-                  <h5 class="m-0">Siswa Tidak Hadir</h5>
+                  <h5 class="m-0">Data Kehadiran Kelas</h5>
                 </div>
                 <div class="card-body">
                   <table id="" class="table table-bordered table-hover mt-2">
                     <thead>
                         <tr>
                             <th style="width: 10px">No</th>
-                            <th>Nama Siswa</th>
-                            <th>Kelas</th>
-                            <th>Kehadiran</th>
+                            <th>Nama Kelas</th>
+                            <th>Jumlah Tidak Hadir</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($absensi as $data)
-                        <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td>{{$data->siswa->nama_siswa}}</td>
-                            <td>{{$data->kelas->nama_kelas}}</td>
-                            <td>{{$data->kehadiran}}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
+                      @foreach ($kelasData as $data)
+                      <tr>
+                          <td>{{ $loop->iteration }}</td>
+                          <td>{{ $data['kelas']->nama_kelas }}</td>
+                          <td>{{ $data['jumlahTidakHadir'] }}</td>
+                          <td>
+                              <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalSiswa{{$data['kelas']->id_kelas}}">
+                                  <i class="fa fa-eye"></i>
+                              </button>
+                  
+                              <!-- Modal -->
+                              <div class="modal fade" id="modalSiswa{{$data['kelas']->id_kelas}}" tabindex="-1" aria-labelledby="modalLabel{{$data['kelas']->id_kelas}}" aria-hidden="true">
+                                  <div class="modal-dialog">
+                                      <div class="modal-content">
+                                          <div class="modal-header">
+                                              <h5 class="modal-title" id="modalLabel{{$data['kelas']->id_kelas}}">Daftar Siswa Tidak Hadir - {{ $data['kelas']->nama_kelas }}</h5>
+                                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                  <span aria-hidden="true">&times;</span>
+                                              </button>
+                                          </div>
+                                          <div class="modal-body">
+                                              <ul>
+                                                  @foreach ($data['absensi'] as $absen)
+                                                      <li>{{ $absen->siswa->nama_siswa }} - {{ ucfirst($absen->kehadiran) }}</li>
+                                                  @endforeach
+                                              </ul>
+                                          </div>
+                                          <div class="modal-footer">
+                                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </td>
+                      </tr>
+                      @endforeach
+                  </tbody>
+                  
                 </table>
+                
                 </div>
               </div>
             </div>
@@ -115,25 +145,24 @@
             <div class="col-lg-6">
               <div class="card card-primary card-outline">
                 <div class="card-header">
-                  <h5 class="m-0">Point Siswa Terbaru</h5>
+                  <h5 class="m-0">Data Kelas Belum Absensi</h5>
                 </div>
                 <div class="card-body">
                   <table id="" class="table table-bordered table-hover mt-2">
                     <thead>
                         <tr>
                             <th style="width: 10px">No</th>
-                            <th>Nama Siswa</th>
-                            <th>Kelas</th>
-                            <th>Point</th>
+                            <th>Nama Kelas</th>
+                            <!--<th>Kelas</th>
+                            <th>Point</th>-->
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($point as $data)
+                        @foreach ($kelasBelumAbsensi as $data)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td>{{$data->siswa->nama_siswa}}</td>
-                            <td>{{$data->kelas->nama_kelas}}</td>
-                            <td>{{$data->skor_point}}</td>
+                            <td>{{$data->nama_kelas}}</td>
+
                         </tr>
                         @endforeach
                     </tbody>

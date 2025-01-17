@@ -33,7 +33,10 @@
           <div class="mt-2">{{$user->nama_guru}}</div>
           <div style="margin-top: -0.5rem;">NIP:-</div>
         </div>
-        <div class="text-center" style="background-color: white; padding: 7px;">
+        <div class="d-flex justify-content-between" style="background-color: white; padding: 7px;">
+          <a href="{{route('admin.guru.profile', $user->id_guru)}}" class="btn btn-light text-secondary border">
+            <i class="fas fa-user"></i> Profile
+          </a>
           <a href="{{route('logout')}}" class="btn btn-light text-secondary border">
             <i class="fas fa-sign-out-alt"></i> Keluar
           </a>

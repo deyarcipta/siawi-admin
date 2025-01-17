@@ -295,6 +295,22 @@
                 </p>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style=" font-size:14px"></i>
+                <p>
+                  Rekap Absensi Siswa
+                </p>
+              </a>
+            </li>
+            {{-- <li class="nav-item">
+              <a href="/admin/viewRfidAbsen" class="nav-link {{ Request::is('admin/viewRfidAbsen') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style="color: lightgreen; font-size:14px"></i>
+                <p>
+                  Rfid Absensi Siswa
+                </p>
+              </a>
+            </li> --}}
           </ul>
         </li>
         <li class="nav-item">
@@ -379,6 +395,14 @@
             </p>
           </a>
         </li>
+        {{-- <li class="nav-item">
+          <a href="/admin/rfid" class="nav-link {{ Request::is('admin/rfid') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-cog"></i>
+            <p>
+              rfid
+            </p>
+          </a>
+        </li> --}}
         @elseif($user->role == 'kurikulum')
         <li class="nav-item">
           <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa') ? 'active' : '' }}">
@@ -408,18 +432,26 @@
           Request::is('point*') || Request::is('admin/pointSiswa/*') ? 'menu-open' : '' }}">
             <a href="#" class="nav-link {{ 
               Request::is('point*') || Request::is('admin/pointSiswa/*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-th"></i>
+              <i class="nav-icon fas fa-edit"></i>
               <p>
-                Point Siswa
+                Data Abseni
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
             <ul class="nav nav-treeview">
             <li class="nav-item">
               <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-edit"></i>
+                <i class="fa fa-check nav-icon" style="font-size: 14px"></i>
                 <p>
-                  Absensi Siswa
+                  Input Absensi Siswa
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/dataAbsen" class="nav-link {{ Request::is('admin/dataAbsen') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style="color: lightgreen; font-size:14px"></i>
+                <p>
+                  Data Absensi Siswa
                 </p>
               </a>
             </li>
