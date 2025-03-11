@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Absensi;
+use App\Models\AbsensiGuru;
 use App\Models\Siswa;
 use App\Models\Guru;
 use App\Models\Kelas;
@@ -35,6 +36,11 @@ class DashboardController extends Controller
         // Menghitung total siswa yang hadir hari ini
         $totalHadir = Absensi::where('tanggal', $today)
                             ->where('kehadiran', 'hadir')
+                            ->count();
+        
+        $totalGuru = Guru::count();
+
+        $totalGuruHadir = AbsensiGuru::where('tanggal', $today)
                             ->count();
 
         // Kriteria untuk status kehadiran yang diinginkan
@@ -82,7 +88,7 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'layout', 'setting', 'absensiTidakHadir', 'totalSiswa', 
             'presentaseKehadiran', 'jumlahTidakHadir', 'totalModul', 
-            'point', 'user', 'jumlahHadir', 'kelasBelumAbsensi', 'kelasData'
+            'point', 'user', 'jumlahHadir', 'kelasBelumAbsensi', 'kelasData', 'totalGuruHadir', 'totalGuru'
         ));
     }
 

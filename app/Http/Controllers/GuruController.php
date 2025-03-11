@@ -45,12 +45,14 @@ class GuruController extends Controller
             'nama_guru' => 'required',
             'role' => 'required',
         ]);
+        $id_face = '0';
         $changPass = 'admin123';
         $password = Hash::make($changPass);
         
         // $hashedPassword = Hash::make($request['password']);
 
         $guru = Guru::create([
+            'id_face' => $id_face,
             'username' => $request->username,
             'password' => $password,
             'nama_guru' => $request->nama_guru,
@@ -82,15 +84,17 @@ class GuruController extends Controller
             'username' => 'required',
             // 'password' => 'required',
             'nama_guru' => 'required',
+            'id_face' => 'required',
             'role' => 'required',
         ]);
         
-        // $hashedPassword = Hash::make($request['password']);
+        $hashedPassword = Hash::make($request['password']);
 
         Guru::where('id_guru', $id_guru)->update([
             'username' => $request->username,
             // 'password' => $request->password,
             'nama_guru' => $request->nama_guru,
+            'id_face' => $request->id_face,
             'role' => $request->role,
         ]);
 

@@ -40,7 +40,7 @@
                 @foreach ($level as $lvl)
                 <tr>
                   <td>{{$loop->iteration}}</td>
-                  <td>{{$lvl->kode_level}}</td>
+                  <td>{{$lvl->id_level}}</td>
                   <td>{{$lvl->nama_level}}</td>
                   <td>
                     <form action="/admin/level/{{$lvl->id_level}}" method="POST">

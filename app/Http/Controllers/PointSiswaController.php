@@ -52,7 +52,7 @@ class PointSiswaController extends Controller
         $user = Auth::user();
         $carbonDate = Carbon::parse($tanggal)->formatLocalized('%d %B %Y %H:%M');
         $siswa = Siswa::where('id_siswa', $id_siswa)->first();
-        $point = Point::orderBy('skor_point', 'asc')->get();
+        $point = Point::orderBy('skor_point', 'asc')->orderByRaw("CASE WHEN jenis_point = 'KERAJINAN' THEN 0 ELSE 1 END")->get();
         return view('pointSiswa.tambah_point_siswa', compact('siswa', 'layout', 'setting', 'point', 'carbonDate','user'));
     }
 
@@ -158,8 +158,17 @@ class PointSiswaController extends Controller
      */
     public function destroy(string $id_point_siswa)
     {
-        // dd($id_point_siswa);
-        PointSiswa::destroy($id_point_siswa);
-        return redirect('/admin/pointSiswa')->with('success','Data Point Berhasil Dihapus');
+        // Cari data point yang akan dihapus
+        $pointSiswa = PointSiswa::findOrFail($id_point_siswa);
+
+        // Ambil id_siswa sebelum menghapus data
+        $id_siswa = $pointSiswa->id_siswa;
+
+        // Hapus data
+        $pointSiswa->delete();
+
+        // Redirect dengan membawa id_siswa
+        return redirect()->route('admin.pointSiswa.review_point_siswa', ['id_siswa' => $id_siswa])
+                        ->with('success', 'Data Point Berhasil Dihapus');
     }
 }

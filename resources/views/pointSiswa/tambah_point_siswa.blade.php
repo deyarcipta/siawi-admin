@@ -52,29 +52,18 @@
                       @foreach ($point as $data)
                       <tr>
                           <td>{{ $loop->iteration }}</td>
-                          <td>{{$data->nama_point}}</td>
-                          <td>{{$data->jenis_point}}</td>
-                          <td>{{$data->skor_point}}</td>
+                          <td>{{ $data->nama_point }}</td>
+                          <td>{{ $data->jenis_point }}</td>
+                          <td>{{ $data->skor_point }}</td>
                           <td>
-                            <form action="/admin/pointSiswa/inputPoint" method="POST">
-                              @csrf
                               <a href="{{ route('admin.pointSiswa.inputPoint', [
-                                'id_siswa' => $siswa->id_siswa,
-                                'id_point' => $data->id_point,
-                                'id_kelas' => $siswa->kelas->id_kelas,
-                                'id_jurusan' => $siswa->jurusan,
-                                'skor_point' => $data->skor_point,
-                                'tanggal' => $carbonDate,
-                            ]) }}" class="btn btn-danger ml-auto">Proses</a>
-                              {{-- <a href="{{ route('pointSiswa.inputPoint', [
-                                'id_siswa' => $siswa->id_siswa,
-                                'id_point' => $data->id_point,
-                                'id_kelas' => $siswa->kelas->id_kelas,
-                                'id_jurusan' => $siswa->jurusan,
-                                'skor_point' => $data->skor_point,
-                                'tanggal' => $carbonDate,
-                            ]) }}" class="btn btn-danger ml-auto">Proses</a> --}}
-                            </form>
+                                  'id_siswa' => $siswa->id_siswa,
+                                  'id_point' => $data->id_point,
+                                  'id_kelas' => $siswa->kelas->id_kelas,
+                                  'id_jurusan' => $siswa->jurusan,
+                                  'skor_point' => $data->skor_point,
+                                  'tanggal' => $carbonDate,
+                              ]) }}" class="btn btn-danger ml-auto">Proses</a>
                           </td>
                       </tr>
                       @endforeach

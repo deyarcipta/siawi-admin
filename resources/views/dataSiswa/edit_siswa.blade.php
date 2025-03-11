@@ -33,27 +33,27 @@
               <div class="card-body">
                 <span style="font-size: 16; font-weight:bold;">Data Diri Siswa</span>
                 <div class="row mt-2">
-                  <div class="form-group col-4">
+                  <div class="form-group col-6">
                     <label for="nis">NIS</label>
                     <input type="text" readonly class="form-control" id="nis" placeholder="Enter Nis" name="nis" value="{{$edit->nis}}">
                     @error('nis')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>
-                  <div class="form-group col-4">
+                  <div class="form-group col-6">
                     <label for="nisn">NISN</label>
                     <input type="text" class="form-control" id="nisn" placeholder="Enter Nisn" name="nisn" value="{{$edit->nisn}}">
                     @error('nisn')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>
-                  <div class="form-group col-4">
+                  <!-- <div class="form-group col-4">
                     <label for="rfid">RFID</label>
                     <input type="text" class="form-control" id="rfid" placeholder="Enter rfid" name="rfid" value="{{$edit->rfid}}" autocomplete="off">
                     @error('rfid')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
-                  </div>
+                  </div> -->
                 </div>
                 <div class="row">
                   <div class="form-group col-12">
@@ -510,7 +510,7 @@
       </div>
     </div>
   </div>
-  <script>
+  <!-- <script>
     document.addEventListener("DOMContentLoaded", function () {
   // Fokuskan input RFID saat halaman dimuat
   const rfidInput = document.getElementById("rfid");
@@ -546,5 +546,5 @@
   });
 });
 
-  </script>
+  </script> -->
 @endsection

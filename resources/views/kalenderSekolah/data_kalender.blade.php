@@ -24,7 +24,7 @@
         <div class="card">
           <div class="card-header d-flex align-items-center">
             <h3 class="card-title">Data Kalender</h3>
-            <a href="/kalender/create" class="btn btn-success ml-auto">Tambah Kalender</a>
+            <a href="/admin/kalender/create" class="btn btn-success ml-auto">Tambah Kalender</a>
           </div>
           <!-- /.card-header -->
           <div class="card-body">

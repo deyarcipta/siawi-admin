@@ -27,11 +27,11 @@ class UploadFotoController extends Controller
         if ($request->hasFile('foto')) {
             if ($siswa->foto && $siswa->foto != 'avatar.jpg') {
                 // Hapus foto lama dari penyimpanan jika bukan "avatar.jpg"
-                Storage::delete('foto-siswa/' . $siswa->foto);
+                Storage::delete('public/foto-siswa/' . $siswa->foto);
             }
             $file = $request->file('foto');
             $nama_file = $file->getClientOriginalName();
-            $tujuan_upload = 'foto-siswa';
+            $tujuan_upload = 'public/foto-siswa/';
             $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
 
             // Simpan nama file baru ke dalam data
@@ -48,7 +48,7 @@ class UploadFotoController extends Controller
         session()->forget('old_foto');
 
         $user = Siswa::where('id_siswa', $idSiswa)->update([
-                'foto' => $request->foto,
+                'foto' => $siswa->foto,
             ]);
             return response()->json([
                 'success' => true,

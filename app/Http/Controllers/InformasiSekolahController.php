@@ -53,7 +53,7 @@ class InformasiSekolahController extends Controller
             // Proses file yang diunggah
             $file = $request->file('file');
             $nama_file = $file->getClientOriginalName();
-            $tujuan_upload = 'file-informasi';
+            $tujuan_upload = 'public/file-informasi';
             $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
         }
 
@@ -108,13 +108,13 @@ class InformasiSekolahController extends Controller
         if ($request->hasFile('file')) {
             if ($informasi->file) {
                 // Hapus file lama dari penyimpanan (misalnya, menggunakan Storage di Laravel)
-                Storage::delete('file-informasi/' . $informasi->file);
+                Storage::delete('public/file-informasi/' . $informasi->file);
             }
              // Proses file yang diunggah
             // $imagePath = request()->file('file')->store('gambar');
             $file = $request->file('file');
             $nama_file = $file->getClientOriginalName();
-            $tujuan_upload = 'file-informasi';
+            $tujuan_upload = 'public/file-informasi';
             $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
 
             // Simpan nama file baru ke dalam data

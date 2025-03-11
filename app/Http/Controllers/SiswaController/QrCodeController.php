@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Siswa;
 use Carbon\Carbon;
 use DB;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+
 
 class QrCodeController extends Controller
 {

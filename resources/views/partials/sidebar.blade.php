@@ -269,12 +269,12 @@
           </a>
         </li>
         <li class="nav-item has-treeview {{ 
-          Request::is('point*') || Request::is('admin/pointSiswa/*') ? 'menu-open' : '' }}">
+          Request::is('data*') || Request::is('admin/dataSiswa/*') ? 'menu-open' : '' }}">
             <a href="#" class="nav-link {{ 
-              Request::is('point*') || Request::is('admin/pointSiswa/*') ? 'active' : '' }}">
+              Request::is('data*') || Request::is('admin/dataSiswa/*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-edit"></i>
               <p>
-                Data Abseni
+                Data Abseni Siswa
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
@@ -308,6 +308,43 @@
                 <i class="fa fa-check nav-icon" style="color: lightgreen; font-size:14px"></i>
                 <p>
                   Rfid Absensi Siswa
+                </p>
+              </a>
+            </li> --}}
+          </ul>
+        </li>
+        <li class="nav-item has-treeview {{ 
+          Request::is('data*') || Request::is('admin/dataGuru/*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ 
+              Request::is('data*') || Request::is('admin/dataGuru/*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-chalkboard-teacher"></i>
+              <p>
+                Data Abseni Guru
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="/admin/absensi_guru" class="nav-link {{ Request::is('admin/absensi_guru') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style="font-size: 14px"></i>
+                <p>
+                  Absensi Harian Guru
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/rekapAbsenGuru" class="nav-link {{ Request::is('admin/rekapAbsenGuru') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style="color: lightgreen; font-size:14px"></i>
+                <p>
+                  Rekap Absensi Guru
+                </p>
+              </a>
+            </li>
+            {{-- <li class="nav-item">
+              <a href="/admin/viewRfidAbsen" class="nav-link {{ Request::is('admin/viewRfidAbsen') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style="color: lightgreen; font-size:14px"></i>
+                <p>
+                  Rfid Absensi Guru
                 </p>
               </a>
             </li> --}}

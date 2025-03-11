@@ -8,7 +8,7 @@
     <script>
       // Fungsi untuk membuat judul bergerak
       function animateTitle() {
-          var title = "{{ config('app.name') }} | ";
+          var title = "{{ config('app.name') }} | Sistem Informasi Akademik SMK Wisata Indonesia";
           var speed = 200; // kecepatan pergerakan (ms)
           var charIndex = 0;
           setInterval(function() {

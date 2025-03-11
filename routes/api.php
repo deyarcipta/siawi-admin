@@ -15,6 +15,8 @@ use App\Http\Controllers\SiswaController\ModulController;
 use App\Http\Controllers\SiswaController\UploadFotoController;
 use App\Http\Controllers\SiswaController\UpdateSiswaController;
 use App\Http\Controllers\SiswaController\QrCodeController;
+use App\Http\Controllers\SiswaController\AppVersionController;
+use App\Http\Controllers\AbsensiGuruController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,3 +49,11 @@ Route::get('/modul/{idSiswa}',[ModulController::class, 'index']);
 Route::post('/uploadFoto/{idSiswa}',[UploadFotoController::class, 'uploadFoto']);
 Route::post('/updateSiswa/{idSiswa}',[UpdateSiswaController::class, 'updateSiswa']);
 Route::get('/generate-qrcode', [QRCodeController::class, 'generate']);
+Route::get('/latest-version', [AppVersionController::class, 'getLatestVersion']);
+
+Route::post('/face-presence', [AbsensiGuruController::class, 'store']);
+// Route::post('/face-presence', function () {
+//     $data = request()->all();
+//     $filePath = storage_path('data.txt');
+//     Log::info($data);
+// });

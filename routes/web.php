@@ -21,7 +21,10 @@ use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\JadwalMapelController;
 use App\Http\Controllers\SettingController;
-use App\Http\Controllers\RfidController;
+use App\Http\Controllers\AbsensiGuruController;
+use App\Exports\AbsensiGuruExport;
+use Maatwebsite\Excel\Facades\Excel;
+// use App\Http\Controllers\RfidController;
 
 // Auth Routes
 Route::get('/', [AuthController::class, 'index'])->name('login');
@@ -34,6 +37,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('/guru/profile/{id_guru}', [DashboardController::class, 'edit'])->name('guru.profile');
 
     Route::resource('importDataMaster', ImportDataMasterController::class);
+    Route::post('/import', [ImportDataMasterController::class, 'importData']);
     Route::resource('jurusan', JurusanController::class);
     Route::resource('level', LevelController::class);
     Route::resource('kelas', KelasController::class);
@@ -41,6 +45,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
 
     Route::resource('siswa', SiswaController::class);
     Route::get('siswa/{id}/edit', [SiswaController::class, 'edit'])->name('siswa.edit');
+    Route::get('siswa/{id_guru}/reset', [SiswaController::class, 'reset'])->name('siswa.reset');
 
     Route::resource('informasi', InformasiSekolahController::class);
     Route::resource('kalender', KalenderSekolahController::class);
@@ -50,13 +55,22 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('dataAbsen', [AbsensiController::class, 'dataAbsen'])->name('absensi.dataAbsen');
     Route::post('absensi/absen', [AbsensiController::class, 'absen'])->name('absensi.absen');
     Route::get('rekapAbsen', [AbsensiController::class, 'rekapAbsen'])->name('absensi.rekap');
-    Route::get('viewRfidAbsen', [AbsensiController::class, 'viewRfidAbsen'])->name('absensi.viewRfidAbsen');
-    Route::post('absensi/rfidAbsen', [AbsensiController::class, 'rfidAbsen'])->name('absensi.rfid');
+    // Route::get('viewRfidAbsen', [AbsensiController::class, 'viewRfidAbsen'])->name('absensi.viewRfidAbsen');
+    // Route::post('absensi/rfidAbsen', [AbsensiController::class, 'rfidAbsen'])->name('absensi.rfid');
 
     Route::get('absensi/download/{kelas}', [AbsensiController::class, 'download'])->name('absensi.download');
 
-    Route::get('rfid', [RfidController::class, 'index']); // Menampilkan halaman untuk input RFID
-    Route::post('rfid/store', [RfidController::class, 'store']); // Menyimpan data RFID
+    // Absensi Guru Routes
+    Route::resource('absensi_guru', AbsensiGuruController::class);
+    Route::get('/rekapAbsenGuru', [AbsensiGuruController::class, 'rekapAbsenGuru'])->name('rekap.guru');
+    Route::get('/downloadAbsensiHarian', [AbsensiGuruController::class, 'AbsensiGuruExport']);
+    Route::post('/tambah-kehadiran', [AbsensiGuruController::class, 'storeKehadiran']);
+    Route::get('/exportExcel', [AbsensiGuruController::class, 'exportExcel']);
+
+    // Route::post('absensi/absen', [AbsensiGuruController::class, 'absen'])->name('absensi.absen');
+
+    // Route::get('rfid', [RfidController::class, 'index']); // Menampilkan halaman untuk input RFID
+    // Route::post('rfid/store', [RfidController::class, 'store']); // Menyimpan data RFID
 
     Route::resource('jadwal', JadwalMapelController::class);
     Route::resource('rapot', RapotController::class);
@@ -69,7 +83,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('pointSiswa/proses/{id_siswa}/{tanggal}', [PointSiswaController::class, 'proses'])->name('pointSiswa.proses');
     Route::get('pointSiswa/inputPoint/{id_point}/{id_siswa}/{id_kelas}/{id_jurusan}/{tanggal}', [PointSiswaController::class, 'inputPoint'])->name('pointSiswa.inputPoint');
     Route::get('pointSiswa/reviewPointSiswa/{id_siswa}', [PointSiswaController::class, 'reviewPointSiswa'])->name('pointSiswa.review_point_siswa');
-    Route::delete('pointSiswa/{id}', [PointSiswaController::class, 'destroy'])->name('pointSiswa.destroy');
+    Route::delete('pointSiswa/{id_point_siswa}', [PointSiswaController::class, 'destroy'])
+        ->name('admin.pointSiswa.destroy');
 
     Route::resource('modul', ModulController::class);
     Route::resource('berita', BeritaController::class);
@@ -78,4 +93,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('guru/{id_guru}/reset', [GuruController::class, 'reset'])->name('guru.reset');
     
     Route::resource('setting', SettingController::class);
+    Route::put('/admin/setting-versi/{id_version}', [SettingController::class, 'updateVersiAplikasi'])
+    ->name('setting.updateVersiAplikasi');
+
 });

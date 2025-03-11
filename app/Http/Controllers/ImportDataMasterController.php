@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\MasterImport;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Setting;
 use DB;
@@ -19,6 +21,20 @@ class ImportDataMasterController extends Controller
         $user = Auth::user();
         // $informasi = InformasiSekolah::orderBy('created_at', 'desc')->get();
         return view('dataMaster.importDataMaster', compact('layout','setting','user'));
+    }
+
+    public function importData(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xls,xlsx'
+        ]);
+
+        try {
+            Excel::import(new MasterImport, $request->file('file'));
+            return redirect()->back()->with('success', 'Data berhasil diimport!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengimport data: ' . $e->getMessage());
+        }
     }
 
     /**

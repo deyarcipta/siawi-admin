@@ -18,4 +18,11 @@ class Guru extends Model implements Authenticatable
     protected $guarded = [];
 
     protected $primaryKey = 'id_guru';
+
+    public function absensi_guru()
+    {
+        return $this->hasMany(AbsensiGuru::class, 'id_guru', 'id_guru'); 
+    }
+
+    // protected $fillable = ['id_face'];
 }

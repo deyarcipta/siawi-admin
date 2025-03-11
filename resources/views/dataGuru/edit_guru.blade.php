@@ -52,22 +52,31 @@
                     <div class="alert alert-danger">{{ $message }}</div>
                   @enderror
                 </div>
-                <div class="form-group">
-                  <label for="username">Role</label>
-                  <select class="form-control" name="role" id="role">
-                    {{-- <option value="{{old('role')}}">Pilih Role</option> --}}
-                    <option value="admin" {{ old('role') == 'admin' || (isset($edit) && $edit->role == 'admin') ? 'selected' : '' }}>Admin</option>
-                    <option value="kurikulum" {{ old('role') == 'kurikulum' || (isset($edit) && $edit->role == 'kurikulum') ? 'selected' : '' }}>Kurikulum</option>
-                    <option value="kesiswaan" {{ old('role') == 'kesiswaan' || (isset($edit) && $edit->role == 'kesiswaan') ? 'selected' : '' }}>Kesiswaan</option>
-                    <option value="guru" {{ old('role') == 'guru' || (isset($edit) && $edit->role == 'guru') ? 'selected' : '' }}>Guru</option>
-                  </select>
-                  @error('role')
+                <div class="row">
+                  <div class="form-group col-6">
+                    <label for="id_face">Id Face</label>
+                    <input type="text" class="form-control" id="id_face" placeholder="Enter ID Face" name="id_face" value="{{$edit->id_face}}">
+                  @error('id_face')
                     <div class="alert alert-danger">{{ $message }}</div>
                   @enderror
-                  {{-- <input type="text" class="form-control" id="username" placeholder="Enter Username" name="username" value="{{old('username')}}">
-                  @error('username')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                  @enderror --}}
+                  </div>
+                  <div class="form-group col-6">
+                    <label for="username">Role</label>
+                    <select class="form-control" name="role" id="role">
+                      {{-- <option value="{{old('role')}}">Pilih Role</option> --}}
+                      <option value="admin" {{ old('role') == 'admin' || (isset($edit) && $edit->role == 'admin') ? 'selected' : '' }}>Admin</option>
+                      <option value="kurikulum" {{ old('role') == 'kurikulum' || (isset($edit) && $edit->role == 'kurikulum') ? 'selected' : '' }}>Kurikulum</option>
+                      <option value="kesiswaan" {{ old('role') == 'kesiswaan' || (isset($edit) && $edit->role == 'kesiswaan') ? 'selected' : '' }}>Kesiswaan</option>
+                      <option value="guru" {{ old('role') == 'guru' || (isset($edit) && $edit->role == 'guru') ? 'selected' : '' }}>Guru</option>
+                    </select>
+                    @error('role')
+                      <div class="alert alert-danger">{{ $message }}</div>
+                    @enderror
+                    {{-- <input type="text" class="form-control" id="username" placeholder="Enter Username" name="username" value="{{old('username')}}">
+                    @error('username')
+                      <div class="alert alert-danger">{{ $message }}</div>
+                    @enderror --}}
+                  </div>
                 </div>
               </div>
               <!-- /.card-body -->

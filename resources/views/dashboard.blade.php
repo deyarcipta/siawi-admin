@@ -56,9 +56,9 @@
               <!-- small box -->
               <div class="small-box bg-warning">
                 <div class="inner">
-                  <h3>{{$jumlahHadir}}</h3>
+                  <h3>{{$jumlahTidakHadir}}</h3>
   
-                  <p>Siswa Hadir</p>
+                  <p>Siswa Tidak Hadir Hadir</p>
                 </div>
                 <div class="icon">
                   <i class="ion ion-ios-person-add"></i>
@@ -71,9 +71,9 @@
               <!-- small box -->
               <div class="small-box bg-danger">
                 <div class="inner">
-                  <h3>{{$jumlahTidakHadir}}</h3>
+                  <h3>{{$totalGuruHadir}}/{{$totalGuru}}</h3>
   
-                  <p>Siswa Tidak Hadir</p>
+                  <p>Kehadiran Guru</p>
                 </div>
                 <div class="icon">
                   <i class="ion ion-ios-remove-circle"></i>

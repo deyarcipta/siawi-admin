@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\JadwalMapel;
 use App\Models\Siswa;
 use App\Models\Kelas;
+use App\Models\AbsensiGuru;
 use Carbon\Carbon;
 use DB;
 
@@ -71,6 +72,20 @@ class JadwalController extends Controller
         ->get();
         
         foreach ($jadwalToday as $item) {
+            // Cek apakah guru hadir di tabel AbsensiGuru berdasarkan tanggal hari ini
+            $absensiGuru = AbsensiGuru::where('id_guru', $item->guru->id_guru)
+                ->whereDate('tanggal', $today)
+                ->first();
+
+                // Jika ada data absensi, anggap guru hadir, jika tidak, anggap tidak hadir
+            // $status_kehadiran = $absensiGuru ? 'Hadir' : 'Tidak Hadir';
+            $status_kehadiran = match (optional($absensiGuru)->kehadiran) {
+                'Hadir' => 'Hadir',
+                'Sakit' => 'Sakit',
+                'Izin' => 'Izin',
+                default => 'Tidak Hadir'
+            };
+
             $jadwalTodayArray[] = [
                 'nama_mapel' => $item->mapel->nama_mapel,
                 'nama_guru' => $item->guru->nama_guru,
@@ -78,6 +93,7 @@ class JadwalController extends Controller
                 'jam_akhir' => $item->jam_akhir,
                 'waktu_awal' => $item->waktu_awal,
                 'waktu_akhir' => $item->waktu_akhir,
+                'status_kehadiran' => $status_kehadiran,
             ];
         }
 

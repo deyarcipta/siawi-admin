@@ -173,7 +173,7 @@ class SiswaController extends Controller
         $request->validate([
             'nis' => 'required',
             'nisn' => 'required',
-            'rfid' => 'required',
+            // 'rfid' => 'required',
             // 'password' => 'nullable|string|min:6',
             'nama_siswa' => 'required',
             'kode_level' => 'required',
@@ -231,7 +231,7 @@ class SiswaController extends Controller
         Siswa::where('id_siswa', $id_siswa)->update([
             'nis' => $request->nis,
             'nisn' => $request->nisn,
-            'rfid' => $request->rfid,
+            // 'rfid' => $request->rfid,
             'nama_siswa' => $request->nama_siswa,
             // 'password' => $request->password,
             'id_level' => $request->kode_level,
@@ -287,5 +287,17 @@ class SiswaController extends Controller
 		DB::table('absensi')->where('id_siswa', $id_siswa)->delete();
         Siswa::destroy($id_siswa);
         return redirect('/admin/siswa');
+    }
+
+    public function reset(string $id_siswa)
+    {
+        $layout = 'layout.app'; // Misalnya, layout default Anda adalah 'layouts.app'
+        $setting = Setting::find('1');
+        $user = Auth::user();
+        $siswa = Siswa::find($id_siswa);
+        $changPass = 'siswa123';
+        // $siswa->password = Hash::make($changPass);
+        $siswa->save();
+        return redirect('/admin/siswa')->with('success', 'Password berhasil direset<br>password default adalah <b>siswa123</b>');
     }
 }

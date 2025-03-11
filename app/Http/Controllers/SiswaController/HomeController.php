@@ -46,17 +46,21 @@ class HomeController extends Controller
         $rapotTerakhir = Rapot::where('id_siswa', $id_siswa)
                             ->latest()
                             ->first();
+        $dataRapot = null;
         
-
-        $semester = $rapotTerakhir->semester - 1;
-        $dataRapot = Rapot::where('id_siswa', $id_siswa)
+        if ($rapotTerakhir) { // Periksa apakah $rapotTerakhir tidak null
+            $semester = $rapotTerakhir->semester - 1;
+            $dataRapot = Rapot::where('id_siswa', $id_siswa)
                             ->where('semester', $semester)
                             ->first();
-
-        if($rapotTerakhir->rata_rata > $dataRapot->rata_rata){
-            $pesan = 'benar';
-        }else{
-            $pesan = 'salah';
+        
+            if ($dataRapot && $rapotTerakhir->rata_rata > $dataRapot->rata_rata) {
+                $pesan = 'benar';
+            } else {
+                $pesan = 'salah';
+            }
+        } else {
+            $pesan = 'Rapot terakhir tidak ditemukan.';
         }
 
         return response()->json([
@@ -81,13 +85,20 @@ class HomeController extends Controller
 
         $user = Siswa::where('nis', $request->nis)->first();
         // dd($user->password);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'NIS tidak ditemukan'
+            ], 200);
+        }
         
-        if (!$user || $request->password != $user->password) {
+        if ($request->password != $user->password) {
             // Pengguna tidak ditemukan atau kata sandi tidak cocok
             return response()->json([
                 'success' => false,
-                'message' => 'NIS atau password tidak valid'
-            ], 401);
+                'message' => 'Password Salah'
+            ], 200);
         }
     
         // Autentikasi berhasil, loginkan pengguna
