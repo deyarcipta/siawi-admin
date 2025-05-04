@@ -46,25 +46,33 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::resource('siswa', SiswaController::class);
     Route::get('siswa/{id}/edit', [SiswaController::class, 'edit'])->name('siswa.edit');
     Route::get('siswa/{id_guru}/reset', [SiswaController::class, 'reset'])->name('siswa.reset');
+    Route::get('/download-siswa', [SiswaController::class, 'download'])->name('siswa.download');
 
     Route::resource('informasi', InformasiSekolahController::class);
     Route::resource('kalender', KalenderSekolahController::class);
 
     // Absensi Routes
-    Route::resource('absensi', AbsensiController::class);
-    Route::get('dataAbsen', [AbsensiController::class, 'dataAbsen'])->name('absensi.dataAbsen');
     Route::post('absensi/absen', [AbsensiController::class, 'absen'])->name('absensi.absen');
     Route::get('rekapAbsen', [AbsensiController::class, 'rekapAbsen'])->name('absensi.rekap');
+    Route::get('/showRekapAbsen', [AbsensiController::class, 'showRekapAbsen']);
+    Route::get('/rekapAbsenSiswa', [AbsensiController::class, 'rekapAbsenSiswa'])->name('rekap.siswa');
+    Route::get('/siswa-tidak-hadir', [AbsensiController::class, 'siswaTidakHadir'])->name('siswa.tidak.hadir');
+    Route::post('/absensi/tambah-kehadiran', [AbsensiController::class, 'tambahKehadiran'])->name('absensi.tambah-kehadiran');
+    Route::get('/exportExcelRekapSiswa', [AbsensiController::class, 'exportRekapSiswa']);
+    Route::post('/absensi/simpan', [AbsensiController::class, 'simpan'])->name('absensi.simpan');
+    Route::get('/absensi/download', [AbsensiController::class, 'downloadShowRekap']);
+    Route::get('/get-siswa-by-kelas/{id_kelas}', [AbsensiController::class, 'getSiswaByKelas']);
+    Route::resource('absensi', AbsensiController::class);
+    // Route::get('dataAbsen', [AbsensiController::class, 'dataAbsen'])->name('absensi.dataAbsen');
     // Route::get('viewRfidAbsen', [AbsensiController::class, 'viewRfidAbsen'])->name('absensi.viewRfidAbsen');
     // Route::post('absensi/rfidAbsen', [AbsensiController::class, 'rfidAbsen'])->name('absensi.rfid');
-
-    Route::get('absensi/download/{kelas}', [AbsensiController::class, 'download'])->name('absensi.download');
 
     // Absensi Guru Routes
     Route::resource('absensi_guru', AbsensiGuruController::class);
     Route::get('/rekapAbsenGuru', [AbsensiGuruController::class, 'rekapAbsenGuru'])->name('rekap.guru');
     Route::get('/downloadAbsensiHarian', [AbsensiGuruController::class, 'AbsensiGuruExport']);
     Route::post('/tambah-kehadiran', [AbsensiGuruController::class, 'storeKehadiran']);
+    Route::put('/edit-kehadiran/{id_absensi}', [AbsensiController::class, 'update']);
     Route::get('/exportExcel', [AbsensiGuruController::class, 'exportExcel']);
 
     // Route::post('absensi/absen', [AbsensiGuruController::class, 'absen'])->name('absensi.absen');

@@ -77,20 +77,32 @@
                               </tr>
                           </thead>
                           <tbody>
-                              @foreach ($rekapKehadiran as $index => $kehadiran)
-                              <tr>
-                                  <td>{{$loop->iteration}}</td>
-                                  <td class="text-left">{{ $kehadiran->first()->guru->nama_guru }}</td>
-                                  @foreach (range(strtotime($tanggalAwal), strtotime($tanggalAkhir), 86400) as $date)
-                                      @php
-                                          $record = $kehadiran->firstWhere('tanggal', date('Y-m-d', $date));
-                                      @endphp
-                                      <td>{{ $record ? $record->jam_masuk : '-' }}</td>
-                                      <td>{{ $record ? $record->jam_pulang : '-' }}</td>
-                                  @endforeach
-                              </tr>
-                              @endforeach
-                          </tbody>
+                            @foreach ($rekapKehadiran as $index => $kehadiran)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td class="text-left">{{ $kehadiran->first()->guru->nama_guru }}</td>
+                                @foreach (range(strtotime($tanggalAwal), strtotime($tanggalAkhir), 86400) as $date)
+                                    @php
+                                        $currentDate = date('Y-m-d', $date);
+                                        $record = $kehadiran->firstWhere('tanggal', $currentDate);
+                                        // Jika record ditemukan, cek status absensinya
+                                        if ($record) {
+                                            $status = strtolower(trim($record->kehadiran));
+                                        } else {
+                                            $status = '';
+                                        }
+                                    @endphp
+                                    @if($record && in_array($status, ['sakit', 'izin', 'alfa']))
+                                        <!-- Gabungkan dua kolom jika status absensi masuk ke kategori tersebut -->
+                                        <td colspan="2">{{ $record ? $record->kehadiran : '-' }}</td>
+                                    @else
+                                        <td>{{ $record ? $record->jam_masuk : '-' }}</td>
+                                        <td>{{ $record ? $record->jam_pulang : '-' }}</td>
+                                    @endif
+                                @endforeach
+                            </tr>
+                            @endforeach
+                        </tbody>
                       </table>
                   </div>
               </div>

@@ -33,7 +33,7 @@
                 <div class="icon">
                   <i class="ion ion-android-people"></i>
                 </div>
-                <a href="/siswa" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                <a href="/admin/siswa" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
               </div>
             </div>
             <!-- ./col -->
@@ -41,14 +41,14 @@
               <!-- small box -->
               <div class="small-box bg-success">
                 <div class="inner">
-                  <h3>{{$presentaseKehadiran}}<sup style="font-size: 20px">%</sup></h3>
+                  <h3>{{$totalHadir}}/{{$totalSiswa}}</h3>
   
-                  <p>Kehadiran Hari Ini</p>
+                  <p>Kehadiran Siswa</p>
                 </div>
                 <div class="icon">
                   <i class="ion ion-stats-bars"></i>
                 </div>
-                <a href="/absensi" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                <a href="/admin/absensi" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
               </div>
             </div>
             <!-- ./col -->
@@ -56,14 +56,14 @@
               <!-- small box -->
               <div class="small-box bg-warning">
                 <div class="inner">
-                  <h3>{{$jumlahTidakHadir}}</h3>
+                  <h3>{{$jumlahTidakHadirAll}}</h3>
   
-                  <p>Siswa Tidak Hadir Hadir</p>
+                  <p>Siswa Tidak Hadir</p>
                 </div>
                 <div class="icon">
                   <i class="ion ion-ios-person-add"></i>
                 </div>
-                <a href="/absensi" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                <a href="/admin/siswa-tidak-hadir" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
               </div>
             </div>
             <!-- ./col -->
@@ -78,98 +78,117 @@
                 <div class="icon">
                   <i class="ion ion-ios-remove-circle"></i>
                 </div>
-                <a href="/modul" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                <a href="/admin/absensi_guru" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
               </div>
             </div>
             <!-- ./col -->
             <div class="col-lg-6">
-              <div class="card card-primary card-outline">
-                <div class="card-header">
-                  <h5 class="m-0">Data Kehadiran Kelas</h5>
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h5 class="m-0">Data Kehadiran Kelas</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered table-hover mt-2">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10px">No</th>
+                                    <th>Nama Kelas</th>
+                                    <th>Jumlah Siswa</th>
+                                    <th>Jumlah Belum Absen</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($kelasData as $data)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $data['kelas']->nama_kelas }}</td>
+                                    <td>{{ $data['totalSiswaKelas'] }}</td>
+                                    <td>{{ $data['jumlahBelumAbsen'] }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalSiswa{{$data['kelas']->id_kelas}}">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="modalSiswa{{$data['kelas']->id_kelas}}" tabindex="-1" aria-labelledby="modalLabel{{$data['kelas']->id_kelas}}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="modalLabel{{$data['kelas']->id_kelas}}">
+                                                            Daftar Siswa Belum Absen - {{ $data['kelas']->nama_kelas }}
+                                                        </h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <form action="{{ route('admin.absensi.simpan') }}" method="POST">
+                                                        @csrf
+                                                        <div class="modal-body">
+                                                            <ul class="list-group">
+                                                                @foreach ($data['siswaBelumAbsen'] as $siswa)
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        <span>{{ $siswa->nama_siswa }}</span>
+                                                                        <input type="hidden" name="id_siswa[]" value="{{ $siswa->id_siswa }}">
+                                                                        <input type="hidden" name="id_kelas[]" value="{{ $data['kelas']->id_kelas }}">
+                                                                        <input type="hidden" name="id_jurusan[]" value="{{ $data['id_jurusan'] }}">
+                                                                        <div class="w-25">
+                                                                        <select name="kehadiran[]" class="form-control">
+                                                                            <option value="hadir">Hadir</option>
+                                                                            <option value="sakit">Sakit</option>
+                                                                            <option value="izin">Izin</option>
+                                                                            <option value="alfa">Alfa</option>
+                                                                        </select>
+                                                                        </div>
+                                                                    </li>
+                                                                @endforeach
+                                                            </ul>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-primary">Simpan</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="card-body">
-                  <table id="" class="table table-bordered table-hover mt-2">
-                    <thead>
-                        <tr>
-                            <th style="width: 10px">No</th>
-                            <th>Nama Kelas</th>
-                            <th>Jumlah Tidak Hadir</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                      @foreach ($kelasData as $data)
-                      <tr>
-                          <td>{{ $loop->iteration }}</td>
-                          <td>{{ $data['kelas']->nama_kelas }}</td>
-                          <td>{{ $data['jumlahTidakHadir'] }}</td>
-                          <td>
-                              <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalSiswa{{$data['kelas']->id_kelas}}">
-                                  <i class="fa fa-eye"></i>
-                              </button>
-                  
-                              <!-- Modal -->
-                              <div class="modal fade" id="modalSiswa{{$data['kelas']->id_kelas}}" tabindex="-1" aria-labelledby="modalLabel{{$data['kelas']->id_kelas}}" aria-hidden="true">
-                                  <div class="modal-dialog">
-                                      <div class="modal-content">
-                                          <div class="modal-header">
-                                              <h5 class="modal-title" id="modalLabel{{$data['kelas']->id_kelas}}">Daftar Siswa Tidak Hadir - {{ $data['kelas']->nama_kelas }}</h5>
-                                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                  <span aria-hidden="true">&times;</span>
-                                              </button>
-                                          </div>
-                                          <div class="modal-body">
-                                              <ul>
-                                                  @foreach ($data['absensi'] as $absen)
-                                                      <li>{{ $absen->siswa->nama_siswa }} - {{ ucfirst($absen->kehadiran) }}</li>
-                                                  @endforeach
-                                              </ul>
-                                          </div>
-                                          <div class="modal-footer">
-                                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-                          </td>
-                      </tr>
-                      @endforeach
-                  </tbody>
-                  
-                </table>
-                
-                </div>
-              </div>
             </div>
             <!-- /.col-md-6 -->
             <div class="col-lg-6">
               <div class="card card-primary card-outline">
-                <div class="card-header">
-                  <h5 class="m-0">Data Kelas Belum Absensi</h5>
-                </div>
-                <div class="card-body">
-                  <table id="" class="table table-bordered table-hover mt-2">
-                    <thead>
-                        <tr>
-                            <th style="width: 10px">No</th>
-                            <th>Nama Kelas</th>
-                            <!--<th>Kelas</th>
-                            <th>Point</th>-->
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($kelasBelumAbsensi as $data)
-                        <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td>{{$data->nama_kelas}}</td>
-
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                </div>
+                  <div class="card-header">
+                      <h5 class="m-0">TOP 10 Kehadiran Siswa</h5>
+                  </div>
+                  <div class="card-body">
+                      <table class="table table-bordered table-hover mt-2">
+                          <thead>
+                              <tr>
+                                  <th style="width: 10px">No</th>
+                                  <th>Nama Siswa</th>
+                                  <th>Nama Kelas</th>
+                                  <th>Jam Datang</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              @foreach ($siswaTerajin as $index => $data)
+                              <tr>
+                                  <td>{{ $index + 1 }}</td>
+                                  <td>{{ $data->siswa->nama_siswa }}</td>
+                                  <td>{{ $data->kelas->nama_kelas }}</td>
+                                  <td>{{ $data->jam_masuk }}</td>
+                              </tr>
+                              @endforeach
+                          </tbody>
+                      </table>
+                  </div>
               </div><!-- /.card -->
-            </div>
+          </div>
             <!-- /.col-md-6 -->
           </div>
           <!-- /.row -->

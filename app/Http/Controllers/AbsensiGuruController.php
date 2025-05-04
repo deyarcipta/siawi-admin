@@ -58,18 +58,19 @@ class AbsensiGuruController extends Controller
             return response()->json(['message' => 'employeeNoString tidak ditemukan dalam data'], 400);
         }
 
-        // Cek apakah event sudah dicatat sebelumnya berdasarkan `serialNo`
+        $clientIp = $request->ip(); // Ambil IP pengirim
+        $uniqueSerial = "$serialNo-$clientIp"; // Gabungkan serialNo dengan IP
+
+        // Cek apakah event sudah dicatat sebelumnya berdasarkan kombinasi serialNo dan IP
         $filePath = storage_path('logs/data.txt');
-        if (file_exists($filePath) && strpos(file_get_contents($filePath), "SerialNo: $serialNo") !== false) {
+        if (file_exists($filePath) && strpos(file_get_contents($filePath), "SerialNo: $uniqueSerial") !== false) {
             return response()->json(["status" => "ignored", "message" => "Duplicate event"], 200);
         }
 
-        // Simpan log ke file
-        $logMessage = now() . " - SerialNo: $serialNo - DECODED DATA: " . print_r($decodedData, true) . "\n";
+        // Simpan log dengan IP Address agar unik
+        $logMessage = now() . " - SerialNo: $uniqueSerial - DECODED DATA: " . print_r($decodedData, true) . "\n";
         file_put_contents($filePath, $logMessage, FILE_APPEND);
-        Log::info('Data Absensi Diterima', $decodedData);
-
-        // Log::info('employeeId: ' . $employeeNoString);
+        // Log::info('Data Absensi Diterima', $decodedData);
 
         // Cari data guru berdasarkan `employeeNoString`
         $guru = Guru::where('id_face', $employeeNoString)->first();
@@ -77,10 +78,6 @@ class AbsensiGuruController extends Controller
             Log::info('Guru tidak ditemukan');
             return response()->json(['message' => 'Guru tidak ditemukan'], 404);
         }
-
-        // if (is_null($dateTime)) {
-        //     return response()->json(['message' => 'Tanggal dan waktu tidak ditemukan'], 400);
-        // }
 
         $carbonDate = \Carbon\Carbon::parse($dateTime);
         $jam = $carbonDate->format('H:i:s');
@@ -103,7 +100,7 @@ class AbsensiGuruController extends Controller
                     'kehadiran' => 'Hadir',
                     'keterangan' => 'Check Out',
                 ]);
-                Log::info("Absensi diperbarui untuk guru ID: " . $guru->id_guru);
+                // Log::info("Absensi diperbarui untuk guru ID: " . $guru->id_guru);
             }
         } else {
             AbsensiGuru::create([
@@ -114,124 +111,14 @@ class AbsensiGuruController extends Controller
                 'kehadiran' => 'Hadir',
                 'keterangan' => $label,
             ]);
-            Log::info("Absensi baru dibuat untuk guru ID: " . $guru->id_guru);
+            // Log::info("Absensi baru dibuat untuk guru ID: " . $guru->id_guru);
         }
 
         DB::commit();
-        Log::info("Transaksi database berhasil disimpan");
+        // Log::info("Transaksi database berhasil disimpan");
 
         return response()->json(['message' => 'Absensi berhasil disimpan'], 201);
     }
-
-    // Menampilkan form untuk menambahkan absensi baru
-    // public function storePresence(Request $request)
-    // {
-    //     try {
-    //         // Cek apakah IP address sesuai
-    //         $allowedIps = ['103.75.209.93', '103.75.209.94'];
-    //         $clientIp = $request->ip(); // Ambil IP client
-
-    //         if (!in_array($clientIp, $allowedIps)) {
-    //             return response()->json(['message' => 'Access Denied'], 403);
-    //         }
-
-    //         $data = $request->all();
-    //         Log::info($data);
-
-    //         $eventLog = $data['event_log'] ?? null;
-
-    //         if (is_string($eventLog)) {
-    //             // Decode JSON jika event_log berupa string
-    //             $eventLog = json_decode($eventLog, true);
-
-    //             if (json_last_error() === JSON_ERROR_NONE && is_array($eventLog)) {
-    //                 // Ambil employeeNoString jika decoding berhasil
-    //                 $employeeNoString = $eventLog['AccessControllerEvent']['employeeNoString'] ?? null;
-    //                 Log::info('employeeNoString: ' . ($employeeNoString ?? 'null'));
-    //             } else {
-    //                 Log::error('event_log JSON decoding error: ' . json_last_error_msg());
-    //             }
-    //         } else {
-    //             Log::error('event_log is not a string or is missing');
-    //         }
-
-    //         // Ambil data dari 'AccessControllerEvent'
-    //         $data = $eventLog['AccessControllerEvent'] ?? null;
-    //         if (is_null($data)) {
-    //             return response()->json(['message' => 'Data AccessControllerEvent tidak ditemukan'], 400);
-    //         }
-
-    //         if (empty($employeeNoString)) {
-    //             return response()->json(['message' => 'employeeNoString tidak ditemukan dalam data'], 400);
-    //         }
-
-    //         // Cari data guru berdasarkan `employeeNoString`
-    //         $guru = Guru::where('id_face', $employeeNoString)->first();
-    //         if (!$guru) {
-    //             return response()->json(['message' => 'Guru tidak ditemukan'], 404);
-    //         }
-
-    //         // Ambil dateTime dan konversi ke objek Carbon
-    //         $dateTime = $eventLog['dateTime'] ?? null;
-    //         if (is_null($dateTime)) {
-    //             return response()->json(['message' => 'Tanggal dan waktu tidak ditemukan'], 400);
-    //         }
-
-    //         // Konversi ke objek Carbon
-    //         $carbonDate = \Carbon\Carbon::parse($dateTime);
-
-    //         // Ambil jam masuk atau jam pulang
-    //         $jam = $carbonDate->format('H:i:s');
-
-    //         // Dapatkan tanggal, hari, dan jam sekarang
-    //         $now = Carbon::now('Asia/Jakarta');
-    //         $tanggal = $now->toDateString();
-    //         $hari = $now->locale('id')->dayName;
-    //         $jamNow = $now->toTimeString();
-
-    //         // Gunakan transaksi database
-    //         DB::beginTransaction();
-
-    //         // Cek absensi hari ini
-    //         $absensi = AbsensiGuru::where('id_guru', $guru->id_guru)
-    //             ->whereDate('tanggal', $tanggal)
-    //             ->first();
-
-    //         if ($absensi) {
-    //             // Cek keterangan dan status log
-    //             if ($absensi->jam_pulang < $jam) {
-    //                 if ($data['attendanceStatus'] === 'checkOut') {
-    //                 // if ($absensi->jam_pulang < $jam) {
-    //                     $absensi->update([
-    //                         'jam_pulang' => $jam,
-    //                         'kehadiran' => 'Hadir',
-    //                         'keterangan' => 'Check Out',
-    //                     ]);
-    //                 }
-    //             }
-    //         } else {
-    //             // Tambahkan absensi baru jika belum ada
-    //             AbsensiGuru::create([
-    //                 'id_guru' => $guru->id_guru,
-    //                 'hari' => $hari,
-    //                 'tanggal' => $tanggal,
-    //                 'jam_masuk' => $jam,
-    //                 'kehadiran' => 'Hadir',
-    //                 'keterangan' => $data['label'] ?? 'Check In',
-    //             ]);
-    //         }
-
-    //         DB::commit();
-    //         return response()->json(['message' => 'Absensi berhasil disimpan'], 201);
-
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-
-    //         // Log error
-    //         Log::error('Error processing absensi: ' . $e->getMessage());
-    //         return response()->json(['message' => 'Terjadi kesalahan saat memproses absensi'], 500);
-    //     }
-    // }
 
     public function storeKehadiran(Request $request)
     {
@@ -283,7 +170,10 @@ class AbsensiGuruController extends Controller
 
     public function exportExcel(Request $request)
     {
-        return Excel::download(new AbsensiGuruRekapExport($request->tanggal_awal, $request->tanggal_akhir), 'rekap_absensi.xlsx');
+        return Excel::download(
+            new AbsensiGuruRekapExport($request->tanggal_awal, $request->tanggal_akhir), 
+            'rekap_absensi_' . $request->tanggal_awal . '-' . $request->tanggal_akhir . '.xlsx'
+        );
     }
 
     // Menghapus data absensi

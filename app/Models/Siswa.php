@@ -39,7 +39,7 @@ class Siswa extends Model implements Authenticatable
 
     public function absensi()
     {
-        return $this->belongsTo('App\Models\Absensi', 'id_siswa', 'id_siswa');
+        return $this->hasMany('App\Models\Absensi', 'id_siswa', 'id_siswa');
     }
     // public function jurusan()
     // {

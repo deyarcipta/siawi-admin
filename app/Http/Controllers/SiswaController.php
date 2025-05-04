@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SiswaExport;
 use App\Models\Siswa;
 use App\Models\Kelas;
 use App\Models\Level;
@@ -299,5 +301,10 @@ class SiswaController extends Controller
         // $siswa->password = Hash::make($changPass);
         $siswa->save();
         return redirect('/admin/siswa')->with('success', 'Password berhasil direset<br>password default adalah <b>siswa123</b>');
+    }
+
+    public function download()
+    {
+        return Excel::download(new SiswaExport, 'data_siswa.xlsx');
     }
 }

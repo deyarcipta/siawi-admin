@@ -1,21 +1,22 @@
 @extends($layout)
 
 @section('content')
-<div class="content-header">
+<!-- Content Header (Page header) -->
+  <div class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0">Data Rekap Absensi Kelas</h1>
-            </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active">Data Rekap Absensi Kelas</li>
-                </ol>
-            </div>
-        </div>
-    </div>
-</div>
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="m-0">Data Rekap Absensi Siswa</h1>
+        </div><!-- /.col -->
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item active">Data Rekap Absensi Siswa</li>
+          </ol>
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
 
 <div class="content">
   <div class="container-fluid">
@@ -26,18 +27,27 @@
                       <h3 class="card-title">Pilih Data Rekap Kehadiran</h3>
                   </div>
                   <div class="card-body">
-                      <form action="/admin/rekapAbsen" method="GET">
+                      <form action="/admin/rekapAbsenSiswa" method="GET">
                           @csrf
                           <div class="row">
-                              <div class="form-group col-4">
-                                  <label for="tanggal_awal">Tanggal Awal</label>
-                                  <input type="date" class="form-control" id="tanggal_awal" name="tanggal_awal" required value="{{ $tanggal_awal ?? '' }}">
+                            <div class="form-group col-3">
+                                <label for="tanggal_akhir">Pilih Kelas</label>
+                                <select class="form-control" id="kelas" name="kelas" required>
+                                    <option value="">Pilih Kelas</option>
+                                    @foreach($kelas as $kls)
+                                    <option value="{{ $kls->id_kelas }}" {{ $kelasId == $kls->id_kelas ? 'selected' : '' }}>{{ $kls->nama_kelas }}</option>
+                                    @endforeach
+                                </select>
                               </div>
-                              <div class="form-group col-4">
+                              <div class="form-group col-3">
+                                  <label for="tanggal_awal">Tanggal Awal</label>
+                                  <input type="date" class="form-control" id="tanggal_awal" name="tanggal_awal" required value="{{ $tanggalAwal ?? '' }}">
+                              </div>
+                              <div class="form-group col-3">
                                 <label for="tanggal_akhir">Tanggal Akhir</label>
-                                <input type="date" class="form-control" id="tanggal_akhir" name="tanggal_akhir" required value="{{ $tanggal_akhir ?? '' }}">
+                                <input type="date" class="form-control" id="tanggal_akhir" name="tanggal_akhir" required value="{{ $tanggalAkhir ?? '' }}">
                             </div>
-                              <div class="col-md-2">
+                              <div class="col-md-3">
                                 <div class="form-group">
                                     <label>&nbsp;</label>
                                     <button type="submit" class="btn btn-primary btn-block">Tampilkan Data</button>
@@ -55,40 +65,53 @@
           <div class="col-lg-12">
               <div class="card">
                   <div class="card-header d-flex align-items-center">
-                      <h3 class="card-title">Data Rekap Absensi Kelas</h3>
+                      <h3 class="card-title">Data Rekap Absensi Siswa</h3>
+                      <a href="/admin/exportExcelRekapSiswa?id_kelas={{ $kelasId }}&tanggal_awal={{ $tanggalAwal }}&tanggal_akhir={{ $tanggalAkhir }}" class="btn btn-success ml-auto">Download Excel</a>
                   </div>
                   <div class="card-body">
-                      <table class="table table-bordered table-hover">
+                      <table class="table table-bordered table-hover text-center">
                           <thead>
                               <tr>
-                                  <th style="width: 10px">No</th>
-                                  <th>Nama Kelas</th>
-                                  <th>Presentase Kehadiran</th>
+                                  <th style="width: 10px" rowspan="2" class="align-middle">No</th>
+                                  <th rowspan="2" class="align-middle">Nama Guru</th>
+                                  @foreach (range(strtotime($tanggalAwal), strtotime($tanggalAkhir), 86400) as $date)
+                                      <th colspan="2">{{ date('d M', $date) }}</th>
+                                  @endforeach
+                              </tr>
+                              <tr>
+                                  @foreach (range(strtotime($tanggalAwal), strtotime($tanggalAkhir), 86400) as $date)
+                                      <th>In</th>
+                                      <th>Out</th>
+                                  @endforeach
                               </tr>
                           </thead>
                           <tbody>
-                              @foreach ($rekapKehadiran as $index => $data)
-                              <tr>
-                                  <td>{{ $index + 1 }}</td>
-                                  <td>{{ $data['nama_kelas'] }}</td>
-                                  <td>
-                                      @php
-                                      $presentase = $data['presentase'];
-                                      $badgeClass = '';
-
-                                      if ($presentase > 90) {
-                                          $badgeClass = 'badge-success';
-                                      } elseif ($presentase >= 80 && $presentase <= 90) {
-                                          $badgeClass = 'badge-warning';
-                                      } else {
-                                          $badgeClass = 'badge-danger';
-                                      }
-                                      @endphp
-                                      <span class="badge {{ $badgeClass }}">{{ $presentase }}%</span>
-                                  </td>
-                              </tr>
-                              @endforeach
-                          </tbody>
+                            @foreach ($rekapKehadiran as $index => $kehadiran)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td class="text-left">{{ $kehadiran->first()->siswa->nama_siswa }}</td>
+                                @foreach (range(strtotime($tanggalAwal), strtotime($tanggalAkhir), 86400) as $date)
+                                    @php
+                                        $currentDate = date('Y-m-d', $date);
+                                        $record = $kehadiran->firstWhere('tanggal', $currentDate);
+                                        // Jika record ditemukan, cek status absensinya
+                                        if ($record) {
+                                            $status = strtolower(trim($record->kehadiran));
+                                        } else {
+                                            $status = '';
+                                        }
+                                    @endphp
+                                    @if($record && in_array($status, ['sakit', 'izin', 'alfa']))
+                                        <!-- Gabungkan dua kolom jika status absensi masuk ke kategori tersebut -->
+                                        <td colspan="2">{{ $record ? $record->kehadiran : '-' }}</td>
+                                    @else
+                                        <td>{{ $record ? $record->jam_masuk : '-' }}</td>
+                                        <td>{{ $record ? $record->jam_pulang : '-' }}</td>
+                                    @endif
+                                @endforeach
+                            </tr>
+                            @endforeach
+                        </tbody>
                       </table>
                   </div>
               </div>
@@ -97,5 +120,4 @@
       @endif
   </div>
 </div>
-
 @endsection

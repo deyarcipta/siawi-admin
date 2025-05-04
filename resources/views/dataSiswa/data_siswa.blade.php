@@ -24,7 +24,10 @@
         <div class="card">
           <div class="card-header d-flex align-items-center">
             <h3 class="card-title">Data Siswa</h3>
-            <a href="/admin/siswa/create" class="btn btn-success ml-auto">Tambah Siswa</a>
+            <div class="ml-auto">
+              <a href="{{ route('admin.siswa.download') }}" class="btn btn-primary">Download Siswa</a>
+              <a href="/admin/siswa/create" class="btn btn-success">Tambah Siswa</a>
+            </div>
           </div>
           <!-- /.card-header -->
           <div class="card-body">

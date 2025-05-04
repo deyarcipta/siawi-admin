@@ -19,6 +19,7 @@ class RapotController extends Controller
         $rapot = Rapot::where('id_siswa', $id_siswa)
         ->get();
         
+        $rapotArray = [];
         foreach ($rapot as $item) {
             $rapotArray[] = [
                 'semester' => $item->semester,

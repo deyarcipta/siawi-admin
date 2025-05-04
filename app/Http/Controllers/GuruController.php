@@ -106,8 +106,13 @@ class GuruController extends Controller
      */
     public function destroy(string $id_guru)
     {
+        // Hapus data terkait di jadwal_mapel terlebih dahulu
+        // DB::table('jadwal_mapel')->where('id_guru', $id_guru)->delete();
+
+        // Hapus data guru setelah tidak ada referensi di jadwal_mapel
         Guru::destroy($id_guru);
-        return redirect('/admin/guru');
+
+        return redirect('/admin/guru')->with('success', 'Data guru berhasil dihapus.');
     }
 
     public function reset(string $id_guru)

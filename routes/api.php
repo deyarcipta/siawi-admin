@@ -52,6 +52,7 @@ Route::get('/generate-qrcode', [QRCodeController::class, 'generate']);
 Route::get('/latest-version', [AppVersionController::class, 'getLatestVersion']);
 
 Route::post('/face-presence', [AbsensiGuruController::class, 'store']);
+Route::post('/siswa-presence', [AbsensiController::class, 'store']);
 // Route::post('/face-presence', function () {
 //     $data = request()->all();
 //     $filePath = storage_path('data.txt');

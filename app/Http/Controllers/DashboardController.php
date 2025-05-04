@@ -24,9 +24,8 @@ class DashboardController extends Controller
     public function index()
     {
         $layout = 'layout.app';
-        $setting = Setting::find('1');
+        $setting = Setting::find(1);
         $user = Auth::user();
-
         $today = Carbon::now()->toDateString();
 
         // Mengambil total jumlah siswa
@@ -38,63 +37,117 @@ class DashboardController extends Controller
                             ->where('kehadiran', 'hadir')
                             ->count();
         
+        // Menghitung total guru
         $totalGuru = Guru::count();
+        $totalGuruHadir = AbsensiGuru::where('tanggal', $today)->count();
 
-        $totalGuruHadir = AbsensiGuru::where('tanggal', $today)
-                            ->count();
-
-        // Kriteria untuk status kehadiran yang diinginkan
+        // Mengambil absensi siswa yang tidak hadir (izin, sakit, alfa)
         $statusKehadiran = ['alfa', 'izin', 'sakit'];
-
-        // Mengambil absensi berdasarkan status yang diinginkan
         $absensiTidakHadir = Absensi::where('tanggal', $today)
                                 ->whereIn('kehadiran', $statusKehadiran)
-                                ->with('siswa', 'kelas') // Eager load related siswa and kelas
+                                ->with('siswa', 'kelas')
                                 ->get();
 
-    // Group absences by class and count absences per class
-    $kelasData = $absensiTidakHadir->groupBy('id_kelas')->map(function($item) {
+        // Menghitung jumlah ketidakhadiran berdasarkan kelas
+        $jumlahTidakHadir = $absensiTidakHadir->groupBy('id_kelas')->map->count();
+
+        $jumlahTidakHadirAll = $absensiTidakHadir->groupBy('id_kelas')->map->count()->sum();
+
+        // Menghitung presentase kehadiran
+        // $presentaseKehadiran = $totalSiswa > 0 ? ($totalHadir / $totalSiswa) * 100 : 0;
+        // $presentaseKehadiran = number_format($presentaseKehadiran, 2);
+
+        // Ambil 10 siswa yang paling cepat hadir hari ini
+        $siswaTerajin = Absensi::where('tanggal', $today)
+        ->where('kehadiran', 'hadir') // Filter hanya yang hadir
+        ->where('jam_masuk', '!=', '-') // Filter jam_masuk yang bukan tanda
+        ->orderBy('jam_masuk', 'asc') // Urutkan dari yang paling awal datang
+        ->with('siswa', 'kelas') // Ambil relasi siswa dan kelas
+        ->limit(10) // Ambil hanya 10 siswa
+        ->get();
+
+        // Mengambil semua kelas beserta jumlah siswa dan yang belum absen
+        $kelasData = Kelas::with('siswa','jurusan')->get()->map(function ($kelas) use ($today) {
+        $totalSiswaKelas = $kelas->siswa->count();
+
+        // Ambil ID siswa yang sudah absen hari ini
+        $siswaSudahAbsen = Absensi::where('tanggal', $today)
+            ->where('id_kelas', $kelas->id_kelas)
+            ->pluck('id_siswa')
+            ->toArray();
+
+        // Hitung jumlah siswa yang belum absen
+        $jumlahBelumAbsen = max(0, $totalSiswaKelas - count($siswaSudahAbsen));
+
+        // Ambil daftar siswa yang belum absen
+        $siswaBelumAbsen = $kelas->siswa->whereNotIn('id_siswa', $siswaSudahAbsen);
+
         return [
-            'kelas' => $item->first()->kelas,
-            'jumlahTidakHadir' => $item->count(),
-            'absensi' => $item
+            'kelas' => $kelas,
+            'jurusan' => $kelas->jurusan->nama_jurusan ?? 'Tidak Diketahui',
+            'id_jurusan' => optional($kelas->jurusan)->id_jurusan,
+            'totalSiswaKelas' => $totalSiswaKelas,
+            'jumlahBelumAbsen' => $jumlahBelumAbsen,
+            'siswaBelumAbsen' => $siswaBelumAbsen
         ];
     });
 
-        // Menghitung jumlah siswa yang tidak hadir
-        $jumlahTidakHadir = $absensiTidakHadir->count();
+    // Mengambil semua kelas beserta jumlah siswa dan yang belum absen
+        $kelasData = Kelas::with('siswa', 'jurusan')->get()->map(function ($kelas) use ($today) {
+            $totalSiswaKelas = $kelas->siswa->count();
 
-        // Menghitung jumlah siswa yang hadir hari ini
-        $jumlahHadir = $totalHadir - $jumlahTidakHadir;
+            // Ambil ID siswa yang sudah absen hari ini
+            $siswaSudahAbsen = Absensi::where('tanggal', $today)
+                ->where('id_kelas', $kelas->id_kelas)
+                ->pluck('id_siswa')
+                ->toArray();
 
-        // Menghitung presentase kehadiran
-        if ($totalSiswa > 0) {
-            $presentaseKehadiran = number_format(($jumlahHadir / $totalSiswa) * 100, 0);
-        } else {
-            $presentaseKehadiran = 0;
-        }
+            // Hitung jumlah siswa yang belum absen
+            $jumlahBelumAbsen = max(0, $totalSiswaKelas - count($siswaSudahAbsen));
 
-        // Data lain yang diperlukan untuk view
-        $point = PointSiswa::orderBy('tanggal', 'desc')->take(5)->get();
-        $allKelas = Kelas::orderBy('created_at', 'desc')->get();
-        $kelasSudahAbsensi = Absensi::where('tanggal', $today)
-                                    ->pluck('id_kelas')
-                                    ->unique();
+            // Ambil daftar siswa yang belum absen
+            $siswaBelumAbsen = $kelas->siswa->whereNotIn('id_siswa', $siswaSudahAbsen);
 
-        $kelasBelumAbsensi = $allKelas->filter(function($kelas) use ($kelasSudahAbsensi) {
-            return !$kelasSudahAbsensi->contains($kelas->id_kelas);
+            return [
+                'kelas' => $kelas,
+                'jurusan' => $kelas->jurusan->nama_jurusan ?? 'Tidak Diketahui',
+                'id_jurusan' => optional($kelas->jurusan)->id_jurusan,
+                'totalSiswaKelas' => $totalSiswaKelas,
+                'jumlahBelumAbsen' => $jumlahBelumAbsen,
+                'siswaBelumAbsen' => $siswaBelumAbsen
+            ];
+        })
+        // **Filter hanya kelas yang masih ada siswa yang belum absen**
+        ->filter(function ($data) {
+            return $data['jumlahBelumAbsen'] > 0;
+        })
+        // **Sorting berdasarkan jenjang kelas (X, XI, XII) terlebih dahulu**
+        ->sortBy(function ($data) {
+            $namaKelas = $data['kelas']->nama_kelas;
+
+            // Memisahkan angka kelas (X, XI, XII) dan nama setelah "-"
+            preg_match('/^(X{1,3})-(.*)$/', $namaKelas, $matches);
+
+            if (isset($matches[1]) && isset($matches[2])) {
+                // Konversi X, XI, XII ke angka untuk sorting
+                $tingkat = ['X' => 1, 'XI' => 2, 'XII' => 3][$matches[1]];
+                $namaLanjutan = $matches[2];
+            } else {
+                // Jika format tidak sesuai, anggap tingkat paling bawah
+                $tingkat = 4;
+                $namaLanjutan = $namaKelas;
+            }
+
+            return [$tingkat, $namaLanjutan];
         });
 
         return view('dashboard', compact(
-            'layout', 'setting', 'absensiTidakHadir', 'totalSiswa', 
-            'presentaseKehadiran', 'jumlahTidakHadir', 'totalModul', 
-            'point', 'user', 'jumlahHadir', 'kelasBelumAbsensi', 'kelasData', 'totalGuruHadir', 'totalGuru'
+            'layout', 'setting', 'absensiTidakHadir', 'totalSiswa', 'jumlahTidakHadir', 'totalModul', 'user', 'totalHadir', 'kelasData', 'totalGuruHadir', 'totalGuru', 'jumlahTidakHadirAll', 'siswaTerajin'
         ));
     }
 
-
-
-    public function login(){
+    public function login()
+    {
         return view('login');
     }
 

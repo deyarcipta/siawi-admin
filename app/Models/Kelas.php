@@ -19,4 +19,14 @@ class Kelas extends Model
     {
         return $this->belongsTo('App\Models\Absensi', 'id_kelas', 'id_kelas');
     }
+
+    public function siswa()
+    {
+        return $this->hasMany(Siswa::class, 'id_kelas');
+    }
+
+    public function jurusan()
+    {
+        return $this->belongsTo(Jurusan::class, 'kode_jurusan', 'kode_jurusan'); 
+    }
 }

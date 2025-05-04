@@ -269,34 +269,42 @@
           </a>
         </li>
         <li class="nav-item has-treeview {{ 
-          Request::is('data*') || Request::is('admin/dataSiswa/*') ? 'menu-open' : '' }}">
+          Request::is('admin/absensi') ||
+          Request::is('admin/rekapAbsen') || 
+          Request::is('admin/rekapAbsenSiswa') || 
+          Request::is('admin/dataAbsen') ? 'menu-open' : '' }}">
+          
             <a href="#" class="nav-link {{ 
-              Request::is('data*') || Request::is('admin/dataSiswa/*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-edit"></i>
-              <p>
-                Data Abseni Siswa
-                <i class="right fas fa-angle-left"></i>
-              </p>
+                Request::is('admin/absensi') || 
+                Request::is('admin/rekapAbsen') ||
+                Request::is('admin/rekapAbsenSiswa') || 
+                Request::is('admin/dataAbsen') ? 'active' : '' }}">
+                
+                <i class="nav-icon fas fa-chalkboard-teacher"></i>
+                <p>
+                    Data Abseni Siswa
+                    <i class="right fas fa-angle-left"></i>
+                </p>
             </a>
             <ul class="nav nav-treeview">
             <li class="nav-item">
               <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') ? 'active' : '' }}">
                 <i class="fa fa-check nav-icon" style="font-size: 14px"></i>
                 <p>
-                  Input Absensi Siswa
-                </p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/dataAbsen" class="nav-link {{ Request::is('admin/dataAbsen') ? 'active' : '' }}">
-                <i class="fa fa-check nav-icon" style="color: lightgreen; font-size:14px"></i>
-                <p>
-                  Data Absensi Siswa
+                  Absensi Harian Siswa
                 </p>
               </a>
             </li>
             <li class="nav-item">
               <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style="color: lightgreen; font-size:14px"></i>
+                <p>
+                  Data Absensi Kelas
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/rekapAbsenSiswa" class="nav-link {{ Request::is('admin/rekapAbsenSiswa') ? 'active' : '' }}">
                 <i class="fa fa-check nav-icon" style=" font-size:14px"></i>
                 <p>
                   Rekap Absensi Siswa
@@ -314,14 +322,18 @@
           </ul>
         </li>
         <li class="nav-item has-treeview {{ 
-          Request::is('data*') || Request::is('admin/dataGuru/*') ? 'menu-open' : '' }}">
+          Request::is('admin/absensi_guru') || 
+          Request::is('admin/rekapAbsenGuru') ? 'menu-open' : '' }}">
+          
             <a href="#" class="nav-link {{ 
-              Request::is('data*') || Request::is('admin/dataGuru/*') ? 'active' : '' }}">
-              <i class="nav-icon fas fa-chalkboard-teacher"></i>
-              <p>
-                Data Abseni Guru
-                <i class="right fas fa-angle-left"></i>
-              </p>
+                Request::is('admin/absensi_guru') || 
+                Request::is('admin/rekapAbsenGuru') ? 'active' : '' }}">
+                
+                <i class="nav-icon fas fa-chalkboard-teacher"></i>
+                <p>
+                    Data Abseni Guru
+                    <i class="right fas fa-angle-left"></i>
+                </p>
             </a>
             <ul class="nav nav-treeview">
             <li class="nav-item">
@@ -480,7 +492,7 @@
               <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') ? 'active' : '' }}">
                 <i class="fa fa-check nav-icon" style="font-size: 14px"></i>
                 <p>
-                  Input Absensi Siswa
+                  Absensi Harian Siswa
                 </p>
               </a>
             </li>
@@ -577,13 +589,50 @@
             </p>
           </a>
         </li>
-        <li class="nav-item">
-          <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-edit"></i>
-            <p>
-              Absensi Siswa
-            </p>
-          </a>
+        <li class="nav-item has-treeview {{ 
+          Request::is('admin/absensi') ||
+          Request::is('admin/rekapAbsen') || 
+          Request::is('admin/rekapAbsenSiswa') || 
+          Request::is('admin/dataAbsen') ? 'menu-open' : '' }}">
+          
+            <a href="#" class="nav-link {{ 
+                Request::is('admin/absensi') || 
+                Request::is('admin/rekapAbsen') ||
+                Request::is('admin/rekapAbsenSiswa') || 
+                Request::is('admin/dataAbsen') ? 'active' : '' }}">
+                
+                <i class="nav-icon fas fa-chalkboard-teacher"></i>
+                <p>
+                    Data Abseni Siswa
+                    <i class="right fas fa-angle-left"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style="font-size: 14px"></i>
+                <p>
+                  Absensi Harian Siswa
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style="color: lightgreen; font-size:14px"></i>
+                <p>
+                  Data Absensi Kelas
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/rekapAbsenSiswa" class="nav-link {{ Request::is('admin/rekapAbsenSiswa') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style=" font-size:14px"></i>
+                <p>
+                  Rekap Absensi Siswa
+                </p>
+              </a>
+            </li>
+          </ul>
         </li>
         <li class="nav-item">
           <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot') ? 'active' : '' }}">
@@ -635,14 +684,59 @@
             </p>
           </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item has-treeview {{ 
+          Request::is('admin/absensi') ||
+          Request::is('admin/rekapAbsen') || 
+          Request::is('admin/rekapAbsenSiswa') || 
+          Request::is('admin/dataAbsen') ? 'menu-open' : '' }}">
+          
+            <a href="#" class="nav-link {{ 
+                Request::is('admin/absensi') || 
+                Request::is('admin/rekapAbsen') ||
+                Request::is('admin/rekapAbsenSiswa') || 
+                Request::is('admin/dataAbsen') ? 'active' : '' }}">
+                
+                <i class="nav-icon fas fa-chalkboard-teacher"></i>
+                <p>
+                    Data Abseni Siswa
+                    <i class="right fas fa-angle-left"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style="font-size: 14px"></i>
+                <p>
+                  Absensi Harian Siswa
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style="color: lightgreen; font-size:14px"></i>
+                <p>
+                  Data Absensi Kelas
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/rekapAbsenSiswa" class="nav-link {{ Request::is('admin/rekapAbsenSiswa') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style=" font-size:14px"></i>
+                <p>
+                  Rekap Absensi Siswa
+                </p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <!-- <li class="nav-item">
           <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') ? 'active' : '' }}">
             <i class="nav-icon fas fa-edit"></i>
             <p>
               Absensi Siswa
             </p>
           </a>
-        </li>
+        </li> -->
         <li class="nav-item">
           <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot') ? 'active' : '' }}">
             <i class="nav-icon far fa-image"></i>

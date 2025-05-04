@@ -5,12 +5,12 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Data Absensi Siswa</h1>
+                <h1 class="m-0">Data Rekap Absensi Kelas</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active">Data Absensi Siswa</li>
+                    <li class="breadcrumb-item active">Data Rekap Absensi Kelas</li>
                 </ol>
             </div>
         </div>
@@ -18,141 +18,90 @@
 </div>
 
 <div class="content">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-header d-flex align-items-center">
-                        <h3 class="card-title">Pilih Kelas</h3>
-                    </div>
-                    <div class="card-body">
-                        <form action="/admin/dataAbsen" method="GET">
-                            @csrf
-                            <div class="row">
-                                <div class="form-group col-6">
-                                    <label for="kelas">Kelas</label>
-                                    <select class="form-control" id="kelas" name="kelas" required>
-                                        <option value="">Pilih Kelas</option>
-                                        @foreach($kelas as $kls)
-                                        <option value="{{ $kls->id_kelas }}" {{ $kelasId == $kls->id_kelas ? 'selected' : '' }}>{{ $kls->nama_kelas }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <label>&nbsp;</label> <!-- Label kosong untuk membuat tombol sejajar dengan input -->
-                                        <button type="submit" class="btn btn-primary btn-block">Tampilkan Data</button>
-                                    </div>
+  <div class="container-fluid">
+      <div class="row">
+          <div class="col-lg-12">
+              <div class="card">
+                  <div class="card-header d-flex align-items-center">
+                      <h3 class="card-title">Pilih Data Rekap Kehadiran</h3>
+                  </div>
+                  <div class="card-body">
+                      <form action="/admin/rekapAbsen" method="GET">
+                          @csrf
+                          <div class="row">
+                              <div class="form-group col-4">
+                                  <label for="tanggal_awal">Tanggal Awal</label>
+                                  <input type="date" class="form-control" id="tanggal_awal" name="tanggal_awal" required value="{{ $tanggal_awal ?? '' }}">
+                              </div>
+                              <div class="form-group col-4">
+                                <label for="tanggal_akhir">Tanggal Akhir</label>
+                                <input type="date" class="form-control" id="tanggal_akhir" name="tanggal_akhir" required value="{{ $tanggal_akhir ?? '' }}">
+                            </div>
+                              <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary btn-block">Tampilkan Data</button>
                                 </div>
                             </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      @if(isset($rekapKehadiran))
+      <div class="row mt-4">
+          <div class="col-lg-12">
+              <div class="card">
+                  <div class="card-header d-flex align-items-center">
+                      <h3 class="card-title">Data Rekap Absensi Kelas</h3>
+                  </div>
+                  <div class="card-body">
+                      <table class="table table-bordered table-hover">
+                          <thead>
+                              <tr>
+                                  <th style="width: 10px">No</th>
+                                  <th>Nama Kelas</th>
+                                  <th>Presentase Kehadiran</th>
+                                  <th>Action</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              @foreach ($rekapKehadiran as $index => $data)
+                              <tr>
+                                  <td>{{ $index + 1 }}</td>
+                                  <td>{{ $data['nama_kelas'] }}</td>
+                                  <td>
+                                      @php
+                                      $presentase = $data['presentase'];
+                                      $badgeClass = '';
+
+                                      if ($presentase > 90) {
+                                          $badgeClass = 'badge-success';
+                                      } elseif ($presentase >= 80 && $presentase <= 90) {
+                                          $badgeClass = 'badge-warning';
+                                      } else {
+                                          $badgeClass = 'badge-danger';
+                                      }
+                                      @endphp
+                                      <span class="badge {{ $badgeClass }}">{{ $presentase }}%</span>
+                                  </td>
+                                  <td>
+                                    <a href="/admin/showRekapAbsen?tanggal_awal={{ $tanggal_awal }}&tanggal_akhir={{ $tanggal_akhir }}&id_kelas={{ $data['id_kelas'] }}" class="btn btn-primary">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                </td>
+                              </tr>
+                              @endforeach
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+      </div>
+      @endif
+  </div>
 </div>
-
-@if(isset($siswa))
-<div class="content">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-header d-flex align-items-center justify-content-between">
-                        <h3 class="card-title">Data Absensi</h3>
-                        <a href="{{ route('admin.absensi.download', ['kelas' => $kelasId]) }}" class="btn btn-success ml-auto">Unduh Data</a>
-
-
-
-                    </div>
-                    <div class="card-body">
-                        <table style="font-size: 18px;">
-                          <tr>
-                            <td style="font-weight:bold" width="80">Kelas</td>
-                            <td width="10">:</td>
-                            <td>{{ $dataKelas->nama_kelas }}</td>
-                          </tr>
-                        </table>
-                        <form action="/admin/absensi/absen" method="POST">
-                            @csrf
-                            <table id="" class="table table-bordered table-hover mt-2">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 10px">No</th>
-                                        <th>Nama Siswa</th>
-                                        <th>Total Absen</th>
-                                        <th>Masuk</th>
-                                        <th>S</th>
-                                        <th>I</th>
-                                        <th>A</th>
-                                        <th>Total Tidak Hadir</th>
-                                        <th>Presentae</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($siswa as $data)
-                                    <tr>
-                                        <td>{{$loop->iteration}}</td>
-                                        <td>{{$data->nama_siswa}}</td>
-                                        <td>{{$absensiSiswa[$data->id_siswa]}}</td> <!-- Menampilkan total absensi -->
-                                        <td>{{ $countMasuk[$data->id_siswa]}}</td> <!-- Menampilkan jumlah masuk -->
-                                        <td>{{$countSakit[$data->id_siswa]}}</td> <!-- Menampilkan jumlah sakit -->
-                                        <td>{{$countIzin[$data->id_siswa]}}</td> <!-- Menampilkan jumlah izin -->
-                                        <td>{{$countAlfa[$data->id_siswa]}}</td> <!-- Menampilkan jumlah alfa -->
-                                        <td>{{$countAlfa[$data->id_siswa] + $countIzin[$data->id_siswa] + $countSakit[$data->id_siswa]}}</td>
-                                        <td>
-                                            @php
-                                            $totalAbsen = $absensiSiswa[$data->id_siswa];
-                                            if ($totalAbsen > 0) {
-                                                $presentase = ($countMasuk[$data->id_siswa] / $totalAbsen) * 100;
-                                                $badgeClass = '';
-
-                                                if ($presentase > 90) {
-                                                    $badgeClass = 'badge-success';
-                                                } elseif ($presentase >= 80 && $presentase <= 90) {
-                                                    $badgeClass = 'badge-warning';
-                                                } else {
-                                                    $badgeClass = 'badge-danger';
-                                                }
-                                            } else {
-                                                $presentase = 0;
-                                                $badgeClass = 'badge-danger';
-                                            }
-                                            @endphp
-                                            <span class="badge {{ $badgeClass }}">{{ $presentase }}%</span>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Include SweetAlert2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-    @if (session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: '{{ session('success') }}'
-        });
-    @endif
-
-    @if (session('failed'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Gagal!',
-            text: '{{ session('failed') }}'
-        });
-    @endif
-</script>
-@endif
 
 @endsection

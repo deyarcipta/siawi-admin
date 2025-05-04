@@ -70,7 +70,7 @@ class JadwalController extends Controller
         $jadwalToday = JadwalMapel::where('kelas', $namaKelas)
         ->where('hari', $namaHari)
         ->get();
-        
+        $jadwalTodayArray = [];
         foreach ($jadwalToday as $item) {
             // Cek apakah guru hadir di tabel AbsensiGuru berdasarkan tanggal hari ini
             $absensiGuru = AbsensiGuru::where('id_guru', $item->guru->id_guru)
