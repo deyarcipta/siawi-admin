@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Kelas;
 use App\Models\Level;
+use App\Models\Siswa;
+use App\Models\Alumni;
 use App\Models\Jurusan;
 use App\Models\Setting;
 use DB;
@@ -20,7 +22,7 @@ class KelasController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $kelas = Kelas::orderBy('created_at', 'desc')->get();
+        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         return view('dataMaster.kelas.data_kelas', compact('layout','kelas','setting','user'));
     }
 
@@ -57,6 +59,32 @@ class KelasController extends Controller
         ]);
 
         return redirect('/admin/kelas');
+    }
+
+    public function pindahKeAlumni(Request $request, $id)
+    {
+        $siswa = Siswa::findOrFail($id);
+
+        Alumni::create([
+            'nama' => $siswa->nama,
+            'nis' => $siswa->nis,
+            'nisn' => $siswa->nisn,
+            'id_jurusan' => $siswa->id_jurusan,
+            'tahun_lulus' => $request->tahun_lulus,
+            'foto' => $siswa->foto,
+            'status' => 'Alumni',
+            'tempat_lahir' => $siswa->tempat_lahir,
+            'tanggal_lahir' => $siswa->tanggal_lahir,
+            'alamat' => $siswa->alamat,
+            'no_hp' => $siswa->no_hp,
+            'email' => $siswa->email,
+            'jenis_kelamin' => $siswa->jenis_kelamin,
+            'agama' => $siswa->agama,
+        ]);
+
+        $siswa->delete(); // opsional: hapus dari tabel siswa
+
+        return redirect()->back()->with('success', 'Siswa berhasil dipindahkan ke alumni.');
     }
 
     /**

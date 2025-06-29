@@ -9,6 +9,7 @@ use App\Models\Siswa;
 use App\Models\Kelas;
 use App\Models\Setting;
 use App\Exports\AbsensiExport;
+use App\Exports\AbsensiSiswaExport;
 use App\Exports\AbsensiSiswaRekapExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
@@ -337,6 +338,16 @@ class AbsensiController extends Controller
         $filename = 'rekap_absen_' . $namaKelas . '_' . $tanggal_awal . '-' . $tanggal_akhir . '.xlsx';
 
         return Excel::download(new AbsensiSiswaRekapExport($id_kelas, $tanggal_awal, $tanggal_akhir), $filename);
+    }
+
+    public function AbsensiSiswaExport()
+    {
+        $tanggal = Carbon::now()->format('Y-m-d'); // Format: 2025-02-25
+        $hari = Carbon::now()->locale('id')->translatedFormat('l'); // Format: Selasa
+
+        $fileName = "Kehadiran_Siswa_{$hari}_{$tanggal}.xlsx"; // Contoh: Absensi_Selasa_2025-02-25.xlsx
+
+        return Excel::download(new AbsensiSiswaExport($tanggal), $fileName);
     }
 
     // Controller Untuk Menyimpan Kehadiran Siswa

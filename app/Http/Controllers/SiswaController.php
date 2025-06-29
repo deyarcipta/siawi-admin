@@ -12,6 +12,10 @@ use App\Models\Siswa;
 use App\Models\Kelas;
 use App\Models\Level;
 use App\Models\Jurusan;
+use App\Models\Alumni;
+use App\Models\Absensi; 
+use App\Models\PointSiswa;
+use App\Models\Rapot;
 use App\Models\Setting;
 use DB;
 
@@ -306,5 +310,67 @@ class SiswaController extends Controller
     public function download()
     {
         return Excel::download(new SiswaExport, 'data_siswa.xlsx');
+    }
+
+    public function pindahKeAlumni(Request $request, $id)
+    {
+        $siswa = Siswa::findOrFail($id);
+        $tahun_sekarang = date('Y');
+        Alumni::create([
+            'nama' => $siswa->nama_siswa,
+            'nis' => $siswa->nis,
+            'nisn' => $siswa->nisn,
+            'id_jurusan' => $siswa->id_jurusan,
+            'tahun_lulus' => $tahun_sekarang,
+            'foto' => $siswa->foto,
+            'status' => '-',
+            'tempat_lahir' => $siswa->tmpt_lahir,
+            'tanggal_lahir' => $siswa->tgl_lahir,
+            'alamat' => $siswa->alamat,
+            'no_hp' => $siswa->no_hp,
+            'email' => $siswa->email,
+            'jenis_kelamin' => $siswa->jenis_kelamin,
+            'agama' => $siswa->agama,
+        ]);
+
+        // Hapus seluruh data absensi terkait siswa
+        Absensi::where('id_siswa', $siswa->id_siswa)->delete();
+
+        // Hapus siswa dari tabel siswa
+        $siswa->delete();
+
+        return redirect()->back()->with('success', 'Siswa berhasil dipindahkan ke alumni.');
+    }
+
+    public function pindahSemuaKeAlumni(Request $request, $id_kelas)
+    {
+        $siswaList = Siswa::where('id_kelas', $id_kelas)->get();
+        $tahun_sekarang = date('Y');
+        foreach ($siswaList as $siswa) {
+           Alumni::create([
+                'nama' => $siswa->nama_siswa,
+                'nis' => $siswa->nis,
+                'nisn' => $siswa->nisn,
+                'id_jurusan' => $siswa->id_jurusan,
+                'tahun_lulus' => $tahun_sekarang,
+                'foto' => $siswa->foto,
+                'status' => '-',
+                'tempat_lahir' => $siswa->tmpt_lahir,
+                'tanggal_lahir' => $siswa->tgl_lahir,
+                'alamat' => $siswa->alamat,
+                'no_hp' => $siswa->no_hp,
+                'email' => $siswa->email,
+                'jenis_kelamin' => $siswa->jenis_kelamin,
+                'agama' => $siswa->agama,
+            ]);
+
+            // Hapus absensi & siswa
+            Rapot::where('id_siswa', $siswa->id_siswa)->delete();
+            PointSiswa::where('id_siswa', $siswa->id_siswa)->delete();
+            Absensi::where('id_siswa', $siswa->id_siswa)->delete();
+            $siswa->delete();
+        }
+
+        return redirect()->back()->with('success', 'Seluruh siswa dari kelas tersebut telah dipindahkan ke alumni.');
     }
 }

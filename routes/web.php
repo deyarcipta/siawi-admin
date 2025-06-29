@@ -9,6 +9,7 @@ use App\Http\Controllers\LevelController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\MapelController;
 use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\DataAlumniController;
 use App\Http\Controllers\InformasiSekolahController;
 use App\Http\Controllers\KalenderSekolahController;
 use App\Http\Controllers\AbsensiController;
@@ -48,6 +49,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('siswa/{id_guru}/reset', [SiswaController::class, 'reset'])->name('siswa.reset');
     Route::get('/download-siswa', [SiswaController::class, 'download'])->name('siswa.download');
 
+    Route::post('kelas/{id_kelas}/pindah-semua-alumni', [SiswaController::class, 'pindahSemuaKeAlumni']);
+    Route::post('siswa/{id}/alumni', [SiswaController::class, 'pindahKeAlumni']);
+
+    Route::resource('dataAlumni', DataAlumniController::class);
+
     Route::resource('informasi', InformasiSekolahController::class);
     Route::resource('kalender', KalenderSekolahController::class);
 
@@ -59,6 +65,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('/siswa-tidak-hadir', [AbsensiController::class, 'siswaTidakHadir'])->name('siswa.tidak.hadir');
     Route::post('/absensi/tambah-kehadiran', [AbsensiController::class, 'tambahKehadiran'])->name('absensi.tambah-kehadiran');
     Route::get('/exportExcelRekapSiswa', [AbsensiController::class, 'exportRekapSiswa']);
+    Route::get('/downloadAbsensiHarianSiswa', [AbsensiController::class, 'AbsensiSiswaExport']);
     Route::post('/absensi/simpan', [AbsensiController::class, 'simpan'])->name('absensi.simpan');
     Route::get('/absensi/download', [AbsensiController::class, 'downloadShowRekap']);
     Route::get('/get-siswa-by-kelas/{id_kelas}', [AbsensiController::class, 'getSiswaByKelas']);

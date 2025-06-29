@@ -24,7 +24,7 @@
         <div class="card">
           <div class="card-header d-flex align-items-center">
             <h3 class="card-title">Absensi Siswa Hari <b>{{$hari}}</b></h3>
-            <a href="{{ url('/admin/downloadAbsensiHarian') }}" class="btn btn-success ml-auto">Download Data</a>
+            <a href="{{ url('/admin/downloadAbsensiHarianSiswa') }}" class="btn btn-success ml-auto">Download Data</a>
             <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#tambahKehadiranModal">
                 Tambah Kehadiran
             </button>

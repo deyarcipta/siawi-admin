@@ -75,6 +75,14 @@
           </a>
         </li>
         <li class="nav-item">
+          <a href="/dataSiswa" class="nav-link">
+            <i class="nav-icon fas fa-tachometer-alt"></i>
+            <p>
+              Data Alumni
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
           <a href="#" class="nav-link">
             <i class="nav-icon fas fa-tachometer-alt"></i>
             <p>
@@ -253,6 +261,14 @@
           </a>
         </li>
         <li class="nav-item">
+          <a href="/admin/dataAlumni" class="nav-link {{ Request::is('admin/dataAlumni') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user-graduate"></i>
+            <p>
+              Data Alumni
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
           <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi') ? 'active' : '' }}">
             <i class="nav-icon fas fa-info-circle"></i>
             <p>
@@ -280,7 +296,7 @@
                 Request::is('admin/rekapAbsenSiswa') || 
                 Request::is('admin/dataAbsen') ? 'active' : '' }}">
                 
-                <i class="nav-icon fas fa-chalkboard-teacher"></i>
+                <i class="nav-icon fas fa-clipboard-list"></i>
                 <p>
                     Data Abseni Siswa
                     <i class="right fas fa-angle-left"></i>
