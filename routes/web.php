@@ -23,6 +23,7 @@ use App\Http\Controllers\GuruController;
 use App\Http\Controllers\JadwalMapelController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\AbsensiGuruController;
+use App\Http\Controllers\DokumenController;
 use App\Exports\AbsensiGuruExport;
 use Maatwebsite\Excel\Facades\Excel;
 // use App\Http\Controllers\RfidController;
@@ -49,6 +50,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('siswa/{id_guru}/reset', [SiswaController::class, 'reset'])->name('siswa.reset');
     Route::get('/download-siswa', [SiswaController::class, 'download'])->name('siswa.download');
 
+    Route::post('kelas/{id_kelas}/naik-kelas', [KelasController::class, 'naikKelas']);
+
     Route::post('kelas/{id_kelas}/pindah-semua-alumni', [SiswaController::class, 'pindahSemuaKeAlumni']);
     Route::post('siswa/{id}/alumni', [SiswaController::class, 'pindahKeAlumni']);
 
@@ -70,9 +73,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('/absensi/download', [AbsensiController::class, 'downloadShowRekap']);
     Route::get('/get-siswa-by-kelas/{id_kelas}', [AbsensiController::class, 'getSiswaByKelas']);
     Route::resource('absensi', AbsensiController::class);
-    // Route::get('dataAbsen', [AbsensiController::class, 'dataAbsen'])->name('absensi.dataAbsen');
-    // Route::get('viewRfidAbsen', [AbsensiController::class, 'viewRfidAbsen'])->name('absensi.viewRfidAbsen');
-    // Route::post('absensi/rfidAbsen', [AbsensiController::class, 'rfidAbsen'])->name('absensi.rfid');
 
     // Absensi Guru Routes
     Route::resource('absensi_guru', AbsensiGuruController::class);
@@ -82,14 +82,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::put('/edit-kehadiran/{id_absensi}', [AbsensiController::class, 'update']);
     Route::get('/exportExcel', [AbsensiGuruController::class, 'exportExcel']);
 
-    // Route::post('absensi/absen', [AbsensiGuruController::class, 'absen'])->name('absensi.absen');
-
-    // Route::get('rfid', [RfidController::class, 'index']); // Menampilkan halaman untuk input RFID
-    // Route::post('rfid/store', [RfidController::class, 'store']); // Menyimpan data RFID
-
     Route::resource('jadwal', JadwalMapelController::class);
     Route::resource('rapot', RapotController::class);
     Route::get('rapot/create/{kelasId}', [RapotController::class, 'create'])->name('rapot.create');
+
+    Route::resource('dokumen', DokumenController::class);
 
     Route::resource('tagihan', TagihanController::class);
     Route::resource('point', PointController::class);

@@ -72,7 +72,6 @@
 
 <!-- MODALS -->
 @foreach ($kelas as $kls)
-<!-- Modal Siswa -->
 <div class="modal fade" id="modalSiswa-{{ $kls->id_kelas }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel{{ $kls->id_kelas }}" aria-hidden="true">
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
@@ -80,7 +79,8 @@
         <h5 class="modal-title mb-0">Data Siswa - {{ $kls->nama_kelas }}</h5>
         <div>
           @if(strtoupper($kls->kode_level) === 'XII')
-          <form action="{{ url('/admin/kelas/'.$kls->id_kelas.'/pindah-semua-alumni') }}" method="POST" onsubmit="return confirm('Yakin ingin memindahkan semua siswa dari kelas ini ke alumni?')">
+          {{-- Tombol Pindah ke Alumni --}}
+          <form action="{{ url('/admin/kelas/'.$kls->id_kelas.'/pindah-semua-alumni') }}" method="POST" onsubmit="return confirm('Yakin ingin memindahkan semua siswa ke alumni?')">
             @csrf
             <input type="hidden" name="tahun_lulus" value="{{ date('Y') }}">
             <button type="submit" class="btn btn-danger btn-sm">
@@ -88,6 +88,7 @@
             </button>
           </form>
           @else
+          {{-- Tombol Naik Kelas --}}
           <form action="{{ url('/admin/kelas/'.$kls->id_kelas.'/naik-kelas') }}" method="POST" onsubmit="return confirm('Yakin ingin menaikkan semua siswa ke kelas berikutnya?')">
             @csrf
             <button type="submit" class="btn btn-info btn-sm">
@@ -104,38 +105,66 @@
         @endphp
 
         @if($siswaKelas->count())
-        <table class="table table-bordered table-hover">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Nama</th>
-              <th>NIS</th>
-              <th>NISN</th>
-              <th>Email</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            @foreach($siswaKelas as $sw)
-            <tr>
-              <td>{{ $loop->iteration }}</td>
-              <td>{{ $sw->nama_siswa }}</td>
-              <td>{{ $sw->nis }}</td>
-              <td>{{ $sw->nisn }}</td>
-              <td>{{ $sw->email }}</td>
-              <td>
-                <form action="{{ url('/admin/siswa/'.$sw->id_siswa.'/alumni') }}" method="POST">
-                  @csrf
-                  <input type="hidden" name="tahun_lulus" value="{{ date('Y') }}">
-                  <button type="submit" class="btn btn-warning btn-sm">
-                    <i class="fa fa-share"></i> Pindah ke Alumni
-                  </button>
-                </form>
-              </td>
-            </tr>
-            @endforeach
-          </tbody>
-        </table>
+        <form action="{{ url('/admin/kelas/proses-individual') }}" method="POST">
+          @csrf
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Nama</th>
+                <th>NIS</th>
+                <th>Email</th>
+                <th>Aksi</th>
+                <th>Pilih (jika ingin proses massal)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($siswaKelas as $sw)
+              <tr>
+                <td>{{ $loop->iteration }}</td>
+                <td>{{ $sw->nama_siswa }}</td>
+                <td>{{ $sw->nis }}</td>
+                <td>{{ $sw->email }}</td>
+                <td>
+                  @if(strtoupper($kls->kode_level) === 'XII')
+                  <form action="{{ url('/admin/siswa/'.$sw->id_siswa.'/alumni') }}" method="POST" style="display:inline-block">
+                    @csrf
+                    <input type="hidden" name="tahun_lulus" value="{{ date('Y') }}">
+                    <button type="submit" class="btn btn-warning btn-sm">
+                      <i class="fa fa-share"></i> Alumni
+                    </button>
+                  </form>
+                  @else
+                  <select name="tujuan_kelas[{{ $sw->id_siswa }}]" class="form-control form-control-sm">
+                    @php
+                      $kelasTujuan = \App\Models\Kelas::where('kode_level', strtoupper($kls->kode_level) === 'X' ? 'XI' : 'XII')
+                          ->where('kode_jurusan', $kls->kode_jurusan)->get();
+                    @endphp
+                    @foreach($kelasTujuan as $kt)
+                      <option value="{{ $kt->id_kelas }}">{{ $kt->nama_kelas }}</option>
+                    @endforeach
+                  </select>
+                  @endif
+                </td>
+                <td>
+                  <input type="checkbox" name="selected_siswa[]" value="{{ $sw->id_siswa }}">
+                </td>
+              </tr>
+              @endforeach
+            </tbody>
+          </table>
+
+          @if(strtoupper($kls->kode_level) === 'XII')
+            <input type="hidden" name="action" value="alumni">
+            <input type="hidden" name="tahun_lulus" value="{{ date('Y') }}">
+          @else
+            <input type="hidden" name="action" value="naik">
+          @endif
+
+          <button type="submit" class="btn btn-primary mt-3">
+            Proses Siswa Terpilih
+          </button>
+        </form>
         @else
           <div class="alert alert-info">Tidak ada siswa dalam kelas ini.</div>
         @endif
@@ -144,6 +173,7 @@
   </div>
 </div>
 @endforeach
+
 <!-- END MODALS -->
 
 @endsection

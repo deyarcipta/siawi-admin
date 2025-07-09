@@ -118,7 +118,7 @@
           <a href="#" class="nav-link">
             <i class="nav-icon fas fa-tachometer-alt"></i>
             <p>
-              E Rapot
+              Dokumen
             </p>
           </a>
         </li>
@@ -387,14 +387,47 @@
           </a>
         </li>
         {{-- <li class="nav-header">EXAMPLES</li> --}}
-        <li class="nav-item">
+        <li class="nav-item has-treeview {{ 
+          Request::is('admin/rapot') || 
+          Request::is('admin/dokumen') ? 'menu-open' : '' }}">
+          
+            <a href="#" class="nav-link {{ 
+                Request::is('admin/rapot') || 
+                Request::is('admin/dokumen') ? 'active' : '' }}">
+                
+                <i class="nav-icon far fa-image"></i>
+                <p>
+                    Dokumen
+                    <i class="right fas fa-angle-left"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="/admin/dokumen" class="nav-link {{ Request::is('admin/dokumen') ? 'active' : '' }}">
+                  <i class="fa fa-check nav-icon" style="font-size: 14px"></i>
+                  <p>
+                    Dokumen Siswa
+                  </p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style="color: lightgreen; font-size:14px"></i>
+                  <p>
+                    Rapot Siswa
+                  </p>
+                </a>
+              </li>
+            </ul>
+        </li>
+        <!-- <li class="nav-item">
           <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot') ? 'active' : '' }}">
             <i class="nav-icon far fa-image"></i>
             <p>
-              E - Rapot
+              Dokumen
             </p>
           </a>
-        </li>
+        </li> -->
         <li class="nav-item">
           <a href="/admin/tagihan" class="nav-link {{ Request::is('admin/tagihan') ? 'active' : '' }}">
             <i class="nav-icon fas fa-columns"></i>

@@ -41,6 +41,10 @@ class Siswa extends Model implements Authenticatable
     {
         return $this->hasMany('App\Models\Absensi', 'id_siswa', 'id_siswa');
     }
+
+    public function dokumen() {
+        return $this->hasMany('App\Models\Dokumen', 'id_siswa', 'id_siswa');
+    }
     // public function jurusan()
     // {
     //     return $this->belongsTo('App\Models\Jurusan', 'kode_jurusan');
