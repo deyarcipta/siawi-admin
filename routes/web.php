@@ -51,6 +51,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('/download-siswa', [SiswaController::class, 'download'])->name('siswa.download');
 
     Route::post('kelas/{id_kelas}/naik-kelas', [KelasController::class, 'naikKelas']);
+    Route::post('kelas/proses-individual', [KelasController::class, 'prosesIndividu']);
 
     Route::post('kelas/{id_kelas}/pindah-semua-alumni', [SiswaController::class, 'pindahSemuaKeAlumni']);
     Route::post('siswa/{id}/alumni', [SiswaController::class, 'pindahKeAlumni']);

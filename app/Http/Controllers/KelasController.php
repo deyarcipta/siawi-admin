@@ -87,6 +87,67 @@ class KelasController extends Controller
         return redirect()->back()->with('success', 'Siswa berhasil dipindahkan ke alumni.');
     }
 
+    public function naikKelas($id)
+    {
+        $kelas = Kelas::findOrFail($id);
+
+        // Tentukan level berikutnya
+        $naikLevel = [
+            'X' => 'XI',
+            'XI' => 'XII'
+        ];
+
+        $kelasBaru = Kelas::where('kode_level', $naikLevel[$kelas->kode_level] ?? null)
+            ->where('kode_jurusan', $kelas->kode_jurusan)
+            ->first();
+
+        if (!$kelasBaru) {
+            return back()->with('error', 'Kelas tujuan tidak ditemukan!');
+        }
+
+        Siswa::where('id_kelas', $kelas->id_kelas)->update([
+            'id_kelas' => $kelasBaru->id_kelas
+        ]);
+
+        return redirect()->back()->with('success', 'Semua siswa berhasil dinaikkan ke kelas ' . $kelasBaru->nama_kelas);
+    }
+
+    public function prosesIndividu(Request $request)
+    {
+        $action = $request->input('action');
+        $selectedSiswa = $request->input('selected_siswa', []);
+
+        if (empty($selectedSiswa)) {
+            return back()->with('error', 'Tidak ada siswa yang dipilih.');
+        }
+
+        if ($action === 'alumni') {
+            $tahun = $request->input('tahun_lulus', date('Y'));
+           Siswa::whereIn('id_siswa', $selectedSiswa)->update([
+                'status' => 'alumni',
+                'tahun_lulus' => $tahun,
+                'id_kelas' => null
+            ]);
+
+            return back()->with('success', 'Siswa berhasil dipindahkan ke alumni.');
+        }
+
+        if ($action === 'naik') {
+            $tujuanKelas = $request->input('tujuan_kelas', []);
+            foreach ($selectedSiswa as $idSiswa) {
+                if (isset($tujuanKelas[$idSiswa])) {
+                   Siswa::where('id_siswa', $idSiswa)->update([
+                        'id_kelas' => $tujuanKelas[$idSiswa]
+                    ]);
+                }
+            }
+
+            return back()->with('success', 'Siswa berhasil dinaikkan ke kelas tujuan.');
+        }
+
+        return back()->with('error', 'Aksi tidak dikenali.');
+    }
+
     /**
      * Display the specified resource.
      */
