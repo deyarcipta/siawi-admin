@@ -53,14 +53,15 @@
                 <td>{{$data->nis}}</td>
                 {{-- <td>{{$data->password}}</td> --}}
                 <td>
-                  <form action="/admin/siswa/{{$data->id_siswa}}" method="POST">
+                <form action="/admin/siswa/{{$data->id_siswa}}" method="POST" class="form-delete">
                     <a href="/admin/siswa/{{$data->id_siswa}}" class="btn btn-success"><i class="fa fa-eye"></i></a>
                     <a href="{{route('admin.siswa.reset', $data->id_siswa)}}" class="btn btn-primary"><i class="fa fa-key" style="color: white"></i></a>
                     <a href="/admin/siswa/{{$data->id_siswa}}/edit" class="btn btn-warning"><i class="fa fa-edit" style="color: white"></i></a>
+
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i></button>
-                  </form>
+                    <button type="button" class="btn btn-danger btn-delete"><i class="fa fa-trash"></i></button>
+                </form>
                 </td>
               </tr>
               @endforeach
@@ -75,3 +76,31 @@
     </div>
   </div>
 @endsection
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const deleteButtons = document.querySelectorAll('.btn-delete');
+
+  deleteButtons.forEach(function (button) {
+    button.addEventListener('click', function (e) {
+      const form = this.closest('form');
+
+      Swal.fire({
+        title: 'Yakin ingin menghapus?',
+        text: "Data yang dihapus tidak bisa dikembalikan!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit();
+        }
+      });
+    });
+  });
+});
+</script>
+@endpush

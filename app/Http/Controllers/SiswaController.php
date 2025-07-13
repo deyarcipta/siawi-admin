@@ -53,7 +53,7 @@ class SiswaController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
         $request->validate([
             'nis' => 'required',
             'nisn' => 'required',
