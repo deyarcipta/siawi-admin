@@ -135,6 +135,7 @@
                     </button>
                   </form>
                   @else
+                  <input name="tujuan_level[{{ $sw->id_siswa }}]" value="{{ $sw->level->id_level }}" type="hidden">
                   <select name="tujuan_kelas[{{ $sw->id_siswa }}]" class="form-control form-control-sm">
                     @php
                       $kelasTujuan = \App\Models\Kelas::where('kode_level', strtoupper($kls->kode_level) === 'X' ? 'XI' : 'XII')
@@ -144,10 +145,11 @@
                       <option value="{{ $kt->id_kelas }}">{{ $kt->nama_kelas }}</option>
                     @endforeach
                   </select>
+                  
                   @endif
                 </td>
                 <td>
-                  <input type="checkbox" name="selected_siswa[]" value="{{ $sw->id_siswa }}">
+                  <input type="checkbox" name="selected_siswa[$sw->id_siswa]" value="{{ $sw->id_siswa }}">
                 </td>
               </tr>
               @endforeach

@@ -29,4 +29,9 @@ class Kelas extends Model
     {
         return $this->belongsTo(Jurusan::class, 'kode_jurusan', 'kode_jurusan'); 
     }
+
+     public function level()
+    {
+        return $this->belongsTo(Level::class, 'kode_level', 'kode_level'); 
+    }
 }

@@ -64,7 +64,7 @@ class ModulController extends Controller
             $file = $request->file('file_modul');
             $nama_file = $file->getClientOriginalName();
             $tujuan_upload = 'file_modul';
-            $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
+            $file->storeAs($tujuan_upload, $nama_file, 'public');
         }
 
         $modul = Modul::create([

@@ -104,9 +104,10 @@ class KelasController extends Controller
         if (!$kelasBaru) {
             return back()->with('error', 'Kelas tujuan tidak ditemukan!');
         }
-
+        dd($kelasBaru->id_level);
         Siswa::where('id_kelas', $kelas->id_kelas)->update([
-            'id_kelas' => $kelasBaru->id_kelas
+            'id_kelas' => $kelasBaru->id_kelas,
+            'id_level' => $kelasBaru->id_level,
         ]);
 
         return redirect()->back()->with('success', 'Semua siswa berhasil dinaikkan ke kelas ' . $kelasBaru->nama_kelas);
@@ -133,16 +134,28 @@ class KelasController extends Controller
         }
 
         if ($action === 'naik') {
+            $selectedSiswa = $request->input('selected_siswa', []);
             $tujuanKelas = $request->input('tujuan_kelas', []);
+
             foreach ($selectedSiswa as $idSiswa) {
                 if (isset($tujuanKelas[$idSiswa])) {
-                   Siswa::where('id_siswa', $idSiswa)->update([
-                        'id_kelas' => $tujuanKelas[$idSiswa]
-                    ]);
+                    $kelas = Kelas::find($tujuanKelas[$idSiswa]);
+
+                    if ($kelas) {
+                        // Ambil id_level berdasarkan kode_level dari kelas
+                        $level = Level::where('kode_level', $kelas->kode_level)->first();
+
+                        if ($level) {
+                            Siswa::where('id_siswa', $idSiswa)->update([
+                                'id_kelas' => $kelas->id_kelas,
+                                'id_level' => $level->id_level // <-- diambil berdasarkan kode_level
+                            ]);
+                        }
+                    }
                 }
             }
 
-            return back()->with('success', 'Siswa berhasil dinaikkan ke kelas tujuan.');
+            return back()->with('success', 'Siswa berhasil dinaikkan ke kelas dan level tujuan.');
         }
 
         return back()->with('error', 'Aksi tidak dikenali.');
