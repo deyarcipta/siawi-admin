@@ -82,22 +82,7 @@
             </p>
           </a>
         </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-tachometer-alt"></i>
-            <p>
-              Informasi Sekolah
-            </p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-tachometer-alt"></i>
-            <p>
-              Kalender Sekolah
-            </p>
-          </a>
-        </li>
+        
         <li class="nav-item">
           <a href="#" class="nav-link">
             <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -111,6 +96,22 @@
             <i class="nav-icon fas fa-tachometer-alt"></i>
             <p>
               Jadwal Mata Pelajaran
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-tachometer-alt"></i>
+            <p>
+              Informasi Sekolah
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-tachometer-alt"></i>
+            <p>
+              Kalender Sekolah
             </p>
           </a>
         </li>
@@ -268,22 +269,7 @@
             </p>
           </a>
         </li>
-        <li class="nav-item">
-          <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-info-circle"></i>
-            <p>
-              Informasi Sekolah
-            </p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/admin/kalender" class="nav-link {{ Request::is('admin/kalender') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-calendar-alt"></i>
-            <p>
-              Kalender Sekolah
-            </p>
-          </a>
-        </li>
+        
         <li class="nav-item has-treeview {{ 
           Request::is('admin/absensi') ||
           Request::is('admin/rekapAbsen') || 
@@ -379,6 +365,22 @@
           </ul>
         </li>
         <li class="nav-item">
+          <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-info-circle"></i>
+            <p>
+              Informasi Sekolah
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/kalender" class="nav-link {{ Request::is('admin/kalender') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-calendar-alt"></i>
+            <p>
+              Kalender Sekolah
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
           <a href="/admin/jadwal" class="nav-link {{ Request::is('admin/jadwal') ? 'active' : '' }}">
             <i class="nav-icon fas fa-calendar-check"></i>
             <p>
@@ -386,13 +388,48 @@
             </p>
           </a>
         </li>
+        <li class="nav-item has-treeview {{ 
+          Request::is('admin/perusahaan') || 
+          Request::is('admin/siswaPkl') ? 'menu-open' : '' }}">
+          
+            <a href="#" class="nav-link {{ 
+                Request::is('admin/perusahaan') || 
+                Request::is('admin/siswaPkl') ? 'active' : '' }}">
+                
+                <i class="nav-icon fas fa-briefcase"></i>
+                <p>
+                    BKK
+                    <i class="right fas fa-angle-left"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="/admin/perusahaan" class="nav-link {{ Request::is('admin/perusahaan') ? 'active' : '' }}">
+                  <i class="fa fa-check nav-icon" style="font-size: 14px"></i>
+                  <p>
+                    Data Perusahaan
+                  </p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="/admin/siswaPkl" class="nav-link {{ Request::is('admin/siswaPkl') ? 'active' : '' }}">
+                <i class="fa fa-check nav-icon" style="color: lightgreen; font-size:14px"></i>
+                  <p>
+                    Data Siswa PKL
+                  </p>
+                </a>
+              </li>
+            </ul>
+        </li>
         {{-- <li class="nav-header">EXAMPLES</li> --}}
         <li class="nav-item has-treeview {{ 
           Request::is('admin/rapot') || 
+          Request::is('admin/modul') ||
           Request::is('admin/dokumen') ? 'menu-open' : '' }}">
           
             <a href="#" class="nav-link {{ 
                 Request::is('admin/rapot') || 
+                Request::is('admin/modul') ||
                 Request::is('admin/dokumen') ? 'active' : '' }}">
                 
                 <i class="nav-icon far fa-image"></i>
@@ -418,16 +455,16 @@
                   </p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="/admin/modul" class="nav-link {{ Request::is('admin/modul') ? 'active' : '' }}">
+                 <i class="fa fa-check nav-icon" style="font-size: 14px"></i>
+                  <p>
+                    Modul Siswa
+                  </p>
+                </a>
+              </li>
             </ul>
         </li>
-        <!-- <li class="nav-item">
-          <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot') ? 'active' : '' }}">
-            <i class="nav-icon far fa-image"></i>
-            <p>
-              Dokumen
-            </p>
-          </a>
-        </li> -->
         <li class="nav-item">
           <a href="/admin/tagihan" class="nav-link {{ Request::is('admin/tagihan') ? 'active' : '' }}">
             <i class="nav-icon fas fa-columns"></i>
@@ -461,14 +498,7 @@
             </li>
           </ul>
         </li>
-        <li class="nav-item">
-          <a href="/admin/modul" class="nav-link {{ Request::is('admin/modul') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-book"></i>
-            <p>
-              Modul Siswa
-            </p>
-          </a>
-        </li>
+        
         <li class="nav-item">
           <a href="/admin/berita" class="nav-link {{ Request::is('admin/berita') ? 'active' : '' }}">
             <i class="nav-icon far fa-plus-square"></i>
@@ -510,22 +540,7 @@
             </p>
           </a>
         </li>
-        <li class="nav-item">
-          <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-info-circle"></i>
-            <p>
-              Informasi Sekolah
-            </p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/admin/kalender" class="nav-link {{ Request::is('admin/kalender') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-calendar-alt"></i>
-            <p>
-              Kalender Sekolah
-            </p>
-          </a>
-        </li>
+        
         <li class="nav-item has-treeview {{ 
           Request::is('point*') || Request::is('admin/pointSiswa/*') ? 'menu-open' : '' }}">
             <a href="#" class="nav-link {{ 
@@ -554,6 +569,22 @@
               </a>
             </li>
           </ul>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-info-circle"></i>
+            <p>
+              Informasi Sekolah
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/kalender" class="nav-link {{ Request::is('admin/kalender') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-calendar-alt"></i>
+            <p>
+              Kalender Sekolah
+            </p>
+          </a>
         </li>
         <li class="nav-item">
           <a href="/admin/jadwal" class="nav-link {{ Request::is('admin/jadwal') ? 'active' : '' }}">
@@ -630,14 +661,6 @@
             </p>
           </a>
         </li>
-        <li class="nav-item">
-          <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-info-circle"></i>
-            <p>
-              Informasi Sekolah
-            </p>
-          </a>
-        </li>
         <li class="nav-item has-treeview {{ 
           Request::is('admin/absensi') ||
           Request::is('admin/rekapAbsen') || 
@@ -682,6 +705,14 @@
               </a>
             </li>
           </ul>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-info-circle"></i>
+            <p>
+              Informasi Sekolah
+            </p>
+          </a>
         </li>
         <li class="nav-item">
           <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot') ? 'active' : '' }}">

@@ -373,4 +373,10 @@ class SiswaController extends Controller
 
         return redirect()->back()->with('success', 'Seluruh siswa dari kelas tersebut telah dipindahkan ke alumni.');
     }
+
+    public function getSiswaByKelas($id_kelas)
+    {
+        $siswa = Siswa::where('id_kelas', $id_kelas)->select('id_siswa', 'nama_siswa')->get();
+        return response()->json($siswa);
+    }
 }

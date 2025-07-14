@@ -59,7 +59,7 @@ class BeritaController extends Controller
             $file = $request->file('cover');
             $nama_file = $file->getClientOriginalName();
             $tujuan_upload = 'berita';
-            $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
+            $file->storeAs($tujuan_upload, $nama_file, 'public');
         }
 
         $berita = Berita::create([

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="{{ asset("storage/gambar/$setting->logo") }}" type="image/x-icon">
-    <title>{{ config('app.name', 'Sistem Informasi Akademik Wisata Indonesia') }}</title>
+    <title>{{ config('app.name', 'Sistem Informasi Akademik Wisata Indonesia ') }}</title>
 	 <style>
 		.custom-search {
 		  text-align: right;

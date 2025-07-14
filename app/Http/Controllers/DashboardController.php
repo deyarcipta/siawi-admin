@@ -36,7 +36,7 @@ class DashboardController extends Controller
         $totalHadir = Absensi::where('tanggal', $today)
                             ->where('kehadiran', 'hadir')
                             ->count();
-        
+
         // Menghitung total guru
         $totalGuru = Guru::count();
         $totalGuruHadir = AbsensiGuru::where('tanggal', $today)->count();
@@ -53,47 +53,20 @@ class DashboardController extends Controller
 
         $jumlahTidakHadirAll = $absensiTidakHadir->groupBy('id_kelas')->map->count()->sum();
 
-        // Menghitung presentase kehadiran
-        // $presentaseKehadiran = $totalSiswa > 0 ? ($totalHadir / $totalSiswa) * 100 : 0;
-        // $presentaseKehadiran = number_format($presentaseKehadiran, 2);
-
         // Ambil 10 siswa yang paling cepat hadir hari ini
         $siswaTerajin = Absensi::where('tanggal', $today)
-        ->where('kehadiran', 'hadir') // Filter hanya yang hadir
-        ->where('jam_masuk', '!=', '-') // Filter jam_masuk yang bukan tanda
-        ->orderBy('jam_masuk', 'asc') // Urutkan dari yang paling awal datang
-        ->with('siswa', 'kelas') // Ambil relasi siswa dan kelas
-        ->limit(10) // Ambil hanya 10 siswa
-        ->get();
+            ->where('kehadiran', 'hadir') // Filter hanya yang hadir
+            ->where('jam_masuk', '!=', '-') // Filter jam_masuk yang bukan tanda
+            ->orderBy('jam_masuk', 'asc') // Urutkan dari yang paling awal datang
+            ->with('siswa', 'kelas') // Ambil relasi siswa dan kelas
+            ->limit(10) // Ambil hanya 10 siswa
+            ->get();
+
+        // Ambil daftar ID siswa yang sedang PKL (status = PKL)
+        $siswaSedangPKL = \App\Models\SiswaPkl::where('status', 'PKL')->pluck('id_siswa')->toArray();
 
         // Mengambil semua kelas beserta jumlah siswa dan yang belum absen
-        $kelasData = Kelas::with('siswa','jurusan')->get()->map(function ($kelas) use ($today) {
-        $totalSiswaKelas = $kelas->siswa->count();
-
-        // Ambil ID siswa yang sudah absen hari ini
-        $siswaSudahAbsen = Absensi::where('tanggal', $today)
-            ->where('id_kelas', $kelas->id_kelas)
-            ->pluck('id_siswa')
-            ->toArray();
-
-        // Hitung jumlah siswa yang belum absen
-        $jumlahBelumAbsen = max(0, $totalSiswaKelas - count($siswaSudahAbsen));
-
-        // Ambil daftar siswa yang belum absen
-        $siswaBelumAbsen = $kelas->siswa->whereNotIn('id_siswa', $siswaSudahAbsen);
-
-        return [
-            'kelas' => $kelas,
-            'jurusan' => $kelas->jurusan->nama_jurusan ?? 'Tidak Diketahui',
-            'id_jurusan' => optional($kelas->jurusan)->id_jurusan,
-            'totalSiswaKelas' => $totalSiswaKelas,
-            'jumlahBelumAbsen' => $jumlahBelumAbsen,
-            'siswaBelumAbsen' => $siswaBelumAbsen
-        ];
-    });
-
-    // Mengambil semua kelas beserta jumlah siswa dan yang belum absen
-        $kelasData = Kelas::with('siswa', 'jurusan')->get()->map(function ($kelas) use ($today) {
+        $kelasData = Kelas::with('siswa', 'jurusan')->get()->map(function ($kelas) use ($today, $siswaSedangPKL) {
             $totalSiswaKelas = $kelas->siswa->count();
 
             // Ambil ID siswa yang sudah absen hari ini
@@ -102,18 +75,17 @@ class DashboardController extends Controller
                 ->pluck('id_siswa')
                 ->toArray();
 
-            // Hitung jumlah siswa yang belum absen
-            $jumlahBelumAbsen = max(0, $totalSiswaKelas - count($siswaSudahAbsen));
-
-            // Ambil daftar siswa yang belum absen
-            $siswaBelumAbsen = $kelas->siswa->whereNotIn('id_siswa', $siswaSudahAbsen);
+            // Ambil daftar siswa yang belum absen dan tidak sedang PKL
+            $siswaBelumAbsen = $kelas->siswa->filter(function ($siswa) use ($siswaSudahAbsen, $siswaSedangPKL) {
+                return !in_array($siswa->id_siswa, $siswaSudahAbsen) && !in_array($siswa->id_siswa, $siswaSedangPKL);
+            });
 
             return [
                 'kelas' => $kelas,
                 'jurusan' => $kelas->jurusan->nama_jurusan ?? 'Tidak Diketahui',
                 'id_jurusan' => optional($kelas->jurusan)->id_jurusan,
                 'totalSiswaKelas' => $totalSiswaKelas,
-                'jumlahBelumAbsen' => $jumlahBelumAbsen,
+                'jumlahBelumAbsen' => $siswaBelumAbsen->count(),
                 'siswaBelumAbsen' => $siswaBelumAbsen
             ];
         })
@@ -142,7 +114,19 @@ class DashboardController extends Controller
         });
 
         return view('dashboard', compact(
-            'layout', 'setting', 'absensiTidakHadir', 'totalSiswa', 'jumlahTidakHadir', 'totalModul', 'user', 'totalHadir', 'kelasData', 'totalGuruHadir', 'totalGuru', 'jumlahTidakHadirAll', 'siswaTerajin'
+            'layout',
+            'setting',
+            'absensiTidakHadir',
+            'totalSiswa',
+            'jumlahTidakHadir',
+            'totalModul',
+            'user',
+            'totalHadir',
+            'kelasData',
+            'totalGuruHadir',
+            'totalGuru',
+            'jumlahTidakHadirAll',
+            'siswaTerajin'
         ));
     }
 

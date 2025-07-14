@@ -24,6 +24,8 @@ use App\Http\Controllers\JadwalMapelController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\AbsensiGuruController;
 use App\Http\Controllers\DokumenController;
+use App\Http\Controllers\PerusahaanController;
+use App\Http\Controllers\SiswaPklController;
 use App\Exports\AbsensiGuruExport;
 use Maatwebsite\Excel\Facades\Excel;
 // use App\Http\Controllers\RfidController;
@@ -102,6 +104,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::resource('modul', ModulController::class);
     Route::resource('berita', BeritaController::class);
     
+    Route::resource('perusahaan', PerusahaanController::class);
+    Route::resource('siswaPkl', SiswaPklController::class);
+
     Route::resource('guru', GuruController::class);
     Route::get('guru/{id_guru}/reset', [GuruController::class, 'reset'])->name('guru.reset');
     
