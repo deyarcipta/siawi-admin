@@ -20,7 +20,7 @@ class SiswaPklController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $kelasList = Kelas::orderBy('created_at', 'desc')->get();
+        $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
         $siswaList = Siswa::orderBy('created_at', 'desc')->get();
         $perusahaan = Perusahaan::orderBy('created_at', 'desc')->get();
         $data_siswa_pkl = SiswaPkl::orderBy('created_at', 'desc')->get();
@@ -73,9 +73,26 @@ class SiswaPklController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'id_kelas' => 'required',
+            'id_siswa' => 'required',
+            'id_perusahaan' => 'required',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'required|date',
+        ]);
+
+        $data = SiswaPkl::findOrFail($id);
+        $data->id_kelas = $request->id_kelas;
+        $data->id_siswa = $request->id_siswa;
+        $data->id_perusahaan = $request->id_perusahaan;
+        $data->tanggal_mulai = $request->tanggal_mulai;
+        $data->tanggal_selesai = $request->tanggal_selesai;
+        $data->status = $request->status;
+        $data->save();
+
+        return redirect()->back()->with('success', 'Data berhasil diupdate.');
     }
 
     /**

@@ -49,13 +49,32 @@
                   <td>{{ $data->nama_perusahaan }}</td>
                   <td>{{ $data->alamat_perusahaan }}</td>
                   <td>{{ $data->penanggung_jawab }}</td>
-                  <td>{{ $data->penanggung_jawab }}</td>
+                  <td>{{ $data->siswa_aktif_count }} Siswa</td>
                   <td>
                     <form action="{{ route('admin.perusahaan.destroy', $data->id_perusahaan) }}" method="POST">
-                      <a href="{{ route('admin.perusahaan.edit', $data->id_perusahaan) }}" class="btn btn-success"><i class="fa fa-edit"></i></a>
+                      <!-- Tombol Edit Modal -->
+                      <button 
+                        type="button" 
+                        class="btn btn-success btn-edit-perusahaan"
+                        data-toggle="modal"
+                        data-target="#modalEditPerusahaan"
+                        data-id="{{ $data->id_perusahaan }}"
+                        data-nama="{{ $data->nama_perusahaan }}"
+                        data-alamat="{{ $data->alamat_perusahaan }}"
+                        data-pj="{{ $data->penanggung_jawab }}"
+                      >
+                        <i class="fa fa-edit"></i>
+                      </button>
                       @csrf
                       @method('DELETE')
-                      <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i></button>
+                      <!-- Tombol Hapus dengan Swal -->
+                      <button 
+                        type="button" 
+                        class="btn btn-danger btn-delete-swal" 
+                        data-id="{{ $data->id_perusahaan }}"
+                        data-action="{{ route('admin.perusahaan.destroy', $data->id_perusahaan) }}">
+                        <i class="fa fa-trash"></i>
+                      </button>
                     </form>
                   </td>
                 </tr>
@@ -105,4 +124,104 @@
     </form>
   </div>
 </div>
+<!-- Modal Edit Perusahaan -->
+<div class="modal fade" id="modalEditPerusahaan" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form id="formEditPerusahaan" method="POST">
+      @csrf
+      @method('PUT')
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editModalLabel">Edit Perusahaan</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="edit_nama_perusahaan">Nama Perusahaan</label>
+            <input type="text" class="form-control" id="edit_nama_perusahaan" name="nama_perusahaan" required>
+          </div>
+          <div class="form-group">
+            <label for="edit_alamat_perusahaan">Alamat Perusahaan</label>
+            <input type="text" class="form-control" id="edit_alamat_perusahaan" name="alamat_perusahaan" required>
+          </div>
+          <div class="form-group">
+            <label for="edit_penanggung_jawab">Penanggung Jawab</label>
+            <input type="text" class="form-control" id="edit_penanggung_jawab" name="penanggung_jawab" required>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 @endsection
+@push('scripts')
+<script>
+$(document).ready(function () {
+  $('.btn-edit-perusahaan').on('click', function () {
+    let id = $(this).data('id');
+    let nama = $(this).data('nama');
+    let alamat = $(this).data('alamat');
+    let pj = $(this).data('pj');
+
+    // Isi form di modal
+    $('#edit_nama_perusahaan').val(nama);
+    $('#edit_alamat_perusahaan').val(alamat);
+    $('#edit_penanggung_jawab').val(pj);
+
+    // Set action form edit
+    $('#formEditPerusahaan').attr('action', '/admin/perusahaan/' + id);
+  });
+});
+// Script Delete With Swal
+$(document).ready(function () {
+    $('.btn-delete-swal').click(function (e) {
+      e.preventDefault();
+      let actionUrl = $(this).data('action');
+
+      Swal.fire({
+        title: 'Yakin ingin menghapus?',
+        text: "Data perusahaan dan siswa PKL terkait akan dihapus!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Buat form dinamis dan submit
+          let form = $('<form>', {
+            method: 'POST',
+            action: actionUrl
+          });
+
+          let token = '{{ csrf_token() }}';
+          let method = $('<input>', {
+            type: 'hidden',
+            name: '_method',
+            value: 'DELETE'
+          });
+
+          form.append($('<input>', {
+            type: 'hidden',
+            name: '_token',
+            value: token
+          })).append(method);
+
+          $('body').append(form);
+          form.submit();
+        }
+      });
+    });
+  });
+</script>
+@endpush
+
