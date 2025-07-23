@@ -76,6 +76,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('/absensi/download', [AbsensiController::class, 'downloadShowRekap']);
     Route::get('/get-siswa-by-kelas/{id_kelas}', [AbsensiController::class, 'getSiswaByKelas']);
     Route::resource('absensi', AbsensiController::class);
+    Route::delete('/absensi/{id_absensi}', [AbsensiController::class, 'destroy'])->name('absensi.destroy');
 
     // Absensi Guru Routes
     Route::resource('absensi_guru', AbsensiGuruController::class);

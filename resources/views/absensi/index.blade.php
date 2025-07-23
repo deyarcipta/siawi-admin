@@ -51,7 +51,14 @@
                 <td>{{$data->jam_pulang ?? '-'}}</td>
                 <td>{{$data->kehadiran}}</td>
                 <td>
-                  <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#editKehadiran{{$data->id_absensi}}"><i class="fa fa-edit" style="color: white"></i></button>
+                  <form action="{{ route('admin.absensi.destroy', $data->id_absensi) }}" method="POST">
+                    <button type="button" class="btn btn-success ml-2" data-toggle="modal" data-target="#editKehadiran{{$data->id_absensi}}"><i class="fa fa-edit" style="color: white"></i></button>
+                    @csrf
+                    @method('DELETE')
+                    <button type="button" class="btn btn-danger btn-delete">
+                      <i class="fa fa-trash"></i>
+                    </button>
+                  </form>
                 </td>
               </tr>
                 <!-- Modal Edit Kehadiran -->
@@ -136,6 +143,7 @@
                               <option value="Hadir">Hadir</option>
                               <option value="Izin">Izin</option>
                               <option value="Sakit">Sakit</option>
+                              <option value="Alfa">Alfa</option>
                           </select>
                       </div>
                       <button type="submit" class="btn btn-success">Simpan</button>
@@ -176,5 +184,30 @@
     setInterval(function() {
       window.location.href = window.location.href; // Reload halaman
     }, 60000);
-  </script>
+
+document.addEventListener('DOMContentLoaded', function () {
+  const deleteButtons = document.querySelectorAll('.btn-delete');
+
+  deleteButtons.forEach(function (button) {
+    button.addEventListener('click', function (e) {
+      const form = this.closest('form');
+
+      Swal.fire({
+        title: 'Yakin ingin menghapus?',
+        text: "Data yang dihapus tidak bisa dikembalikan!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit();
+        }
+      });
+    });
+  });
+});
+</script>
 @endpush

@@ -474,9 +474,11 @@
           </a>
         </li>
         <li class="nav-item has-treeview {{ 
-        Request::is('point*') || Request::is('admin/pointSiswa/*') ? 'menu-open' : '' }}">
+          Request::is('admin/point') || 
+          Request::is('admin/pointSiswa') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ 
-            Request::is('point*') || Request::is('admin/pointSiswa/*') ? 'active' : '' }}">
+            Request::is('admin/point') || 
+            Request::is('admin/pointSiswa') ? 'active' : '' }}">
             <i class="nav-icon fas fa-th"></i>
             <p>
               Point Siswa

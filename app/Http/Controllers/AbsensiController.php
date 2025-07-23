@@ -430,6 +430,12 @@ class AbsensiController extends Controller
         return view('dataAbsen.data_siswaTidakHadir', compact('layout', 'setting', 'user', 'dataTidakHadir'));
     }
 
+    public function destroy(string $id_absensi)
+    {
+        Absensi::where('id_absensi', $id_absensi)->delete();
+        return redirect()->back()->with('success', 'Data kehadiran berhasil dihapus.');
+    }
+
     // public function viewRfidAbsen(Request $request)
     // {
     //     $kelas = Kelas::orderBy('created_at', 'desc')->get();
