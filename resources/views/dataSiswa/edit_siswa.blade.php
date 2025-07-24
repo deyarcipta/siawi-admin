@@ -143,8 +143,10 @@
                       <option value="{{$edit->jenis_kelamin}}">
                         @if ($edit->jenis_kelamin == "L")
                           Laki - Laki
-                        @else
+                        @elseif ($edit->jenis_kelamin == "P")
                           Perempuan
+                        @else
+                          -
                         @endif
                       </option>
                       <option value="L">Laki-laki</option>

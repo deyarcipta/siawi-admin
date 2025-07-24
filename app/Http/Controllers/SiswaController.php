@@ -56,27 +56,27 @@ class SiswaController extends Controller
         // dd($request->all());
         $request->validate([
             'nis' => 'required',
-            'nisn' => 'required',
-            'password' => 'required',
+            // 'nisn' => 'required',
+            // 'password' => 'required',
             'nama_siswa' => 'required',
             'kode_level' => 'required',
             'kode_kelas' => 'required',
             'kode_jurusan' => 'required',
-            'tmpt_lahir' => 'required',
-            'tgl_lahir' => 'required',
-            'agama' => 'required',
-            'jenis_kelamin' => 'required',
-            'no_hp' => 'required',
-            'email' => 'required',
+            // 'tmpt_lahir' => 'required',
+            // 'tgl_lahir' => 'required',
+            // 'agama' => 'required',
+            // 'jenis_kelamin' => 'required',
+            // 'no_hp' => 'required',
+            // 'email' => 'required',
             'foto' => 'max:2048|mimes:png,PNG,jpg,JPG,jpeg,JPEG',
-            'alamat' => 'required',
-            'rt' => 'required',
-            'rw' => 'required',
-            'no_rumah' => 'required',
-            'kel' => 'required',
-            'kec' => 'required',
-            'prov' => 'required',
-            'kota' => 'required',
+            // 'alamat' => 'required',
+            // 'rt' => 'required',
+            // 'rw' => 'required',
+            // 'no_rumah' => 'required',
+            // 'kel' => 'required',
+            // 'kec' => 'required',
+            // 'prov' => 'required',
+            // 'kota' => 'required',
         ]);
 
 	$nama_file = 'avatar.jpg';
@@ -95,28 +95,28 @@ class SiswaController extends Controller
 
         $siswa = Siswa::create([
             'nis' => $request->nis,
-            'nisn' => $request->nisn,
+            'nisn' => $request->nisn ?? '-',
             'nama_siswa' => $request->nama_siswa,
-            'password' => $request->password,
+            'password' => $request->password ?? 'siswa123',
             'id_level' => $request->kode_level,
             'id_kelas' => $request->kode_kelas,
             'id_jurusan' => $request->kode_jurusan,
             'foto' => $nama_file,
-            'tmpt_lahir' => $request->tmpt_lahir,
-            'tgl_lahir' => $request->tgl_lahir,
-            'agama' => $request->agama,
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'no_hp' => $request->no_hp,
-            'no_tlpn' => $request->no_tlpn,
-            'email' => $request->email,
-            'alamat' => $request->alamat,
-            'rt' => $request->rt,
-            'rw' => $request->rw,
-            'no_rumah' => $request->no_rumah,
-            'kel' => $request->kel,
-            'kec' => $request->kec,
-            'kota' => $request->kota,
-            'prov' => $request->prov,
+            'tmpt_lahir' => $request->tmpt_lahir ?? '-',
+            'tgl_lahir' => $request->tgl_lahir ?? '-',
+            'agama' => $request->agama ?? '-',
+            'jenis_kelamin' => $request->jenis_kelamin ?? '-',
+            'no_hp' => $request->no_hp ?? '-',
+            'no_tlpn' => $request->no_tlpn ?? '-',
+            'email' => $request->email ?? '-',
+            'alamat' => $request->alamat ?? '-',
+            'rt' => $request->rt ?? '-',
+            'rw' => $request->rw ?? '-',
+            'no_rumah' => $request->no_rumah ?? '-',
+            'kel' => $request->kel ?? '-',
+            'kec' => $request->kec ?? '-',
+            'kota' => $request->kota ?? '-',
+            'prov' => $request->prov ?? '-',
             'nik_ayah' => $request->nik_ayah ?? '-',
             'nama_ayah' => $request->nama_ayah ?? '-',
             'tmpt_lahir_ayah' => $request->tmpt_lahir_ayah ?? '-',
@@ -165,7 +165,7 @@ class SiswaController extends Controller
         session(['old_foto' => $edit->foto]);
         $level = Level::orderBy('created_at', 'desc')->get();
         $jurusan = Jurusan::orderBy('created_at', 'desc')->get();
-        $kelas = Kelas::orderBy('created_at', 'desc')->get();
+        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $setting = Setting::find('1');
         $user = Auth::user();
         return view('dataSiswa.edit_siswa', compact('layout','edit','level','jurusan','kelas','setting','user'));
@@ -186,7 +186,7 @@ class SiswaController extends Controller
             'kode_kelas' => 'required',
             'kode_jurusan' => 'required',
             'tmpt_lahir' => 'required',
-            'tgl_lahir' => 'required',
+            // 'tgl_lahir' => 'required',
             'agama' => 'required',
             'jenis_kelamin' => 'required',
             'no_hp' => 'required',
@@ -215,8 +215,8 @@ class SiswaController extends Controller
             $file = $request->file('foto');
             $nama_file = $file->getClientOriginalName();
             $tujuan_upload = 'foto-siswa';
-            $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
-
+            // $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
+            $file->storeAs($tujuan_upload, $nama_file, 'public');
             // Simpan nama file baru ke dalam data
             $siswa->foto = $nama_file;
         } else {
@@ -245,7 +245,7 @@ class SiswaController extends Controller
             'id_jurusan' => $request->kode_jurusan,
             'foto' => $siswa->foto,
             'tmpt_lahir' => $request->tmpt_lahir,
-            'tgl_lahir' => $request->tgl_lahir,
+            'tgl_lahir' => $request->tgl_lahir ?? '-',
             'agama' => $request->agama,
             'jenis_kelamin' => $request->jenis_kelamin,
             'no_hp' => $request->no_hp,

@@ -56,7 +56,7 @@
                       <p>Perhotelan</p>
                     @elseif ($detail->id_jurusan == "5")
                       <p>Kuliner</p>
-                    @elseif ($detail->id_jurusan == "1")
+                    @elseif ($detail->id_jurusan == "3")
                       <p>Teknik Jaringan Komputer dan Telekomunikasi</p>
                     @else
                       <p>Tidak Ada</p>

@@ -101,7 +101,7 @@
 
       <div class="modal-body">
         @php
-          $siswaKelas = \App\Models\Siswa::where('id_kelas', $kls->id_kelas)->get();
+          $siswaKelas = \App\Models\Siswa::where('id_kelas', $kls->id_kelas)->orderBy('nama_siswa', 'asc')->get();
         @endphp
 
         @if($siswaKelas->count())
