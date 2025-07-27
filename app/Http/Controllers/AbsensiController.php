@@ -25,8 +25,8 @@ class AbsensiController extends Controller
         $now = Carbon::now('Asia/Jakarta');
         $tanggal = $now->toDateString();
         $hari = $now->locale('id')->dayName;
-        $siswaList = Siswa::all();
-        $kelasList = kelas::all();
+        $siswaList = Siswa::orderBy('nama_siswa', 'asc')->get();
+        $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
         // Ambil data absensi hanya untuk hari ini
         $absensiSiswa = Absensi::whereDate('tanggal', $tanggal)
                               ->orderBy('created_at', 'desc')
