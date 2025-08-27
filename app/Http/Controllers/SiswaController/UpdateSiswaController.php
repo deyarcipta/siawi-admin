@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SiswaController;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Siswa;
 
 class UpdateSiswaController extends Controller
 {

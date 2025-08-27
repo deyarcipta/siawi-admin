@@ -18,6 +18,7 @@ class InformasiController extends Controller
      */
     public function index()
     {
+        $informasiArray = [];
         $informasi = InformasiSekolah::orderBy('created_at', 'asc')->get();
 
         foreach ($informasi as $item) {
