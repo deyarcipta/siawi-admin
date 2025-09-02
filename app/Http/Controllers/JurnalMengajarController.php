@@ -1,0 +1,183 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use App\Models\JurnalMengajar;
+use App\Models\Guru;
+use App\Models\Kelas;
+use App\Models\Setting;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+class JurnalMengajarController extends Controller
+{
+    public function index(Request $request)
+    {
+        $kelas   = Kelas::orderBy('nama_kelas', 'asc')->get();
+        $guru    = Guru::orderBy('nama_guru', 'asc')->get();
+        $layout  = 'layout.app';
+        $setting = Setting::find(1);
+        $user    = Auth::user();
+
+        $query = JurnalMengajar::with(['guru','kelas']);
+
+        // Filter tanggal jika dipilih
+        if ($request->filled('tanggal_awal') && $request->filled('tanggal_akhir')) {
+            $query->whereBetween('tanggal', [$request->tanggal_awal, $request->tanggal_akhir]);
+        }
+
+        // Role admin bisa lihat semua data
+        if ($user->role !== 'admin') {
+            $query->where('id_guru', $user->id_guru);
+        }
+
+        $jurnals = $query->latest()->paginate(10);
+
+        return view('jurnal.index', compact('jurnals','kelas','guru','setting','layout','user'));
+    }
+
+    public function create()
+    {
+        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
+
+        if (auth()->user()->role === 'admin') {
+            $guru = Guru::orderBy('nama_guru', 'asc')->get();
+            return view('jurnal.create', compact('kelas','guru'));
+        }
+
+        return view('jurnal.create', compact('kelas'));
+    }
+
+    public function store(Request $request)
+    {
+        if (auth()->user()->role === 'admin') {
+            $request->validate([
+                'id_guru' => 'required|exists:guru,id_guru',
+                'id_kelas' => 'required|exists:kelas,id_kelas',
+                'jam_awal' => 'required|string',
+                'jam_akhir' => 'required|string',
+                'materi' => 'required|string|max:255',
+                'tanggal' => 'required|date',
+                'foto_kelas' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            ]);
+
+            $id_guru = $request->id_guru;
+            $tanggal = $request->tanggal;
+        } else {
+            $request->validate([
+                'id_kelas' => 'required|exists:kelas,id_kelas',
+                'jam_awal' => 'required|string',
+                'jam_akhir' => 'required|string',
+                'materi' => 'required|string|max:255',
+                'foto_kelas' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            ]);
+
+            $id_guru = auth()->user()->id_guru; // ambil id guru dari user login
+            $tanggal = now()->toDateString();   // otomatis hari ini
+        }
+
+        $fotoPath = null;
+        if ($request->hasFile('foto_kelas')) {
+            $fotoPath = $request->file('foto_kelas')->store('foto_kelas', 'public');
+        }
+
+        JurnalMengajar::create([
+            'id_guru'        => $id_guru,
+            'id_kelas'       => $request->id_kelas,
+            'jam_awal'       => $request->jam_awal,
+            'jam_akhir'      => $request->jam_akhir,
+            'materi'         => $request->materi,
+            'tanggal'        => $tanggal,
+            'foto_kelas'     => $fotoPath,
+        ]);
+
+        return redirect()->route('admin.jurnal.index')->with('success', 'Jurnal berhasil ditambahkan!');
+    }
+
+    public function update(Request $request, $id)
+    {
+        // Ambil data jurnal yang akan diupdate
+        $jurnal = JurnalMengajar::findOrFail($id);
+
+        // Validasi input
+        if (auth()->user()->role === 'admin') {
+            $request->validate([
+                'id_guru' => 'required|exists:guru,id_guru',
+                'id_kelas' => 'required|exists:kelas,id_kelas',
+                'jam_awal' => 'required|string',
+                'jam_akhir' => 'required|string',
+                'materi' => 'required|string|max:255',
+                'tanggal' => 'required|date',
+                'foto_kelas' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            ]);
+
+            $id_guru = $request->id_guru;
+            $tanggal = $request->tanggal;
+        } else {
+            $request->validate([
+                'id_kelas' => 'required|exists:kelas,id_kelas',
+                'jam_awal' => 'required|string',
+                'jam_akhir' => 'required|string',
+                'materi' => 'required|string|max:255',
+                'foto_kelas' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            ]);
+
+            $id_guru = auth()->user()->id_guru; // ambil id guru dari user login
+            $tanggal = $jurnal->tanggal;        // tanggal tidak diubah untuk guru
+        }
+
+        // Handle upload foto baru
+        if ($request->hasFile('foto_kelas')) {
+            // Hapus foto lama jika ada
+            if ($jurnal->foto_kelas && file_exists(storage_path('app/public/' . $jurnal->foto_kelas))) {
+                unlink(storage_path('app/public/' . $jurnal->foto_kelas));
+            }
+            // Simpan foto baru
+            $fotoPath = $request->file('foto_kelas')->store('foto_kelas', 'public');
+            $jurnal->foto_kelas = $fotoPath;
+        }
+
+        // Update data jurnal
+        $jurnal->id_guru   = $id_guru;
+        $jurnal->id_kelas  = $request->id_kelas;
+        $jurnal->jam_awal  = $request->jam_awal;
+        $jurnal->jam_akhir = $request->jam_akhir;
+        $jurnal->materi    = $request->materi;
+        $jurnal->tanggal   = $tanggal;
+
+        $jurnal->save();
+
+        return redirect()->route('admin.jurnal.index')->with('success', 'Jurnal berhasil diperbarui!');
+    }
+
+    public function downloadPdf(Request $request)
+    {
+        $tanggalAwal = $request->tanggal_awal;
+        $tanggalAkhir = $request->tanggal_akhir;
+
+        $jurnal = JurnalMengajar::when($tanggalAwal && $tanggalAkhir, function($q) use ($tanggalAwal, $tanggalAkhir) {
+                        $q->whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir]);
+                    })
+                    ->get();
+
+        $pdf = Pdf::loadView('jurnal.pdf', compact('jurnal', 'tanggalAwal', 'tanggalAkhir'))
+                ->setPaper('a4', 'landscape');
+
+        return $pdf->download('laporan_jurnal.pdf');
+    }
+
+    public function destroy($id)
+    {
+        $jurnal = JurnalMengajar::findOrFail($id);
+
+        // Hapus file foto jika ada
+        if ($jurnal->foto_kelas && \Storage::exists('public/' . $jurnal->foto_kelas)) {
+            \Storage::delete('public/' . $jurnal->foto_kelas);
+        }
+
+        $jurnal->delete();
+
+        return redirect()->route('admin.jurnal.index')->with('success', 'Jurnal berhasil dihapus!');
+    }
+}

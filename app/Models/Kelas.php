@@ -30,8 +30,13 @@ class Kelas extends Model
         return $this->belongsTo(Jurusan::class, 'kode_jurusan', 'kode_jurusan'); 
     }
 
-     public function level()
+    public function level()
     {
         return $this->belongsTo(Level::class, 'kode_level', 'kode_level'); 
+    }
+
+    public function jurnalMengajar()
+    {
+        return $this->hasMany(JurnalMengajar::class, 'id_kelas', 'id_kelas');
     }
 }

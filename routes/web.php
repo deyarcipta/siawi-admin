@@ -21,6 +21,7 @@ use App\Http\Controllers\ModulController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\JadwalMapelController;
+use App\Http\Controllers\JurnalMengajarController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\AbsensiGuruController;
 use App\Http\Controllers\DokumenController;
@@ -87,6 +88,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('/exportExcel', [AbsensiGuruController::class, 'exportExcel']);
 
     Route::resource('jadwal', JadwalMapelController::class);
+    Route::resource('jurnal', JurnalMengajarController::class)->except(['show']);
+    Route::get('/jurnal/download-pdf', [JurnalMengajarController::class, 'downloadPdf'])->name('jurnal.downloadPdf');
+
     Route::resource('rapot', RapotController::class);
     Route::get('rapot/create/{kelasId}', [RapotController::class, 'create'])->name('rapot.create');
 

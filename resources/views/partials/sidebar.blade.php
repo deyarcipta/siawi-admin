@@ -1,184 +1,4 @@
 <!-- Main Sidebar Container -->
-{{-- <aside class="main-sidebar sidebar-dark-primary elevation-4">
-  <!-- Brand Logo -->
-  <a href="index3.html" class="brand-link">
-    <img src="{{ asset('lte/dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-    <span class="brand-text font-weight-light">AdminLTE 3</span>
-  </a>
-
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <!-- Sidebar user panel (optional) -->
-    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-      <div class="image">
-        <img src="{{ asset('lte/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2" alt="User Image">
-      </div>
-      <div class="info">
-        <a href="#" class="d-block">Alexander Pierce</a>
-      </div>
-    </div>
-
-    <!-- Sidebar Menu -->
-    <nav class="mt-2">
-      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-        <!-- Add icons to the links using the .nav-icon class
-            with font-awesome or any other icon font library -->
-        <li class="nav-item">
-          <a href="#" class="nav-link active">
-            <i class="nav-icon fas fa-tachometer-alt"></i>
-            <p>
-              Dashboard
-            </p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>
-              Data Master
-              <i class="right fas fa-angle-left"></i>
-            </p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Import Data Master</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Data Jurusan</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Data Level</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Data Kelas</p>
-              </a>
-            </li>
-          </ul>
-        </li>
-        <li class="nav-item">
-          <a href="/dataSiswa" class="nav-link">
-            <i class="nav-icon fas fa-tachometer-alt"></i>
-            <p>
-              Data Siswa
-            </p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/dataSiswa" class="nav-link">
-            <i class="nav-icon fas fa-tachometer-alt"></i>
-            <p>
-              Data Alumni
-            </p>
-          </a>
-        </li>
-        
-        <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-tachometer-alt"></i>
-            <p>
-              Absensi Siswa
-            </p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-tachometer-alt"></i>
-            <p>
-              Jadwal Mata Pelajaran
-            </p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-tachometer-alt"></i>
-            <p>
-              Informasi Sekolah
-            </p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-tachometer-alt"></i>
-            <p>
-              Kalender Sekolah
-            </p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-tachometer-alt"></i>
-            <p>
-              Dokumen
-            </p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-tachometer-alt"></i>
-            <p>
-              Tagihan
-            </p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-tachometer-alt"></i>
-            <p>
-              Point Siswa
-            </p>
-          </a>
-        </li>
-      </ul>
-      <li class="nav-item">
-        <a href="#" class="nav-link">
-          <i class="nav-icon fas fa-tachometer-alt"></i>
-          <p>
-            Modul Siswa
-          </p>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="#" class="nav-link">
-          <i class="nav-icon fas fa-tachometer-alt"></i>
-          <p>
-            Berita
-          </p>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="#" class="nav-link">
-          <i class="nav-icon fas fa-tachometer-alt"></i>
-          <p>
-            Data Guru
-          </p>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="#" class="nav-link">
-          <i class="nav-icon fas fa-tachometer-alt"></i>
-          <p>
-            Pengaturan
-          </p>
-        </a>
-      </li>
-    </nav>
-    <!-- /.sidebar-menu -->
-  </div>
-  <!-- /.sidebar -->
-</aside> --}}
-
-<!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
   <!-- Brand Logo -->
   <a href="/admin/dashboard" class="brand-link">
@@ -401,13 +221,34 @@
               </li>
           </ul>
         </li>
-        <li class="nav-item">
-          <a href="/admin/jadwal" class="nav-link {{ Request::is('admin/jadwal') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-calendar-check"></i>
-            <p>
-              Jadwal Mata Pelajaran
-            </p>
-          </a>
+        <li class="nav-item has-treeview {{ 
+          Request::is('admin/jadwal') || Request::is('admin/jurnal') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ 
+              Request::is('admin/jadwal') || Request::is('admin/jurnal') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-book-open"></i>
+              <p>
+                Pembelajaran
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="/admin/jadwal" class="nav-link {{ Request::is('admin/jadwal') ? 'active' : '' }}">
+                  <i class="fa fa-check nav-icon" style="font-size:14px"></i>
+                  <p>
+                    Jadwal Mata Pelajaran
+                  </p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="/admin/jurnal" class="nav-link {{ Request::is('admin/jurnal') ? 'active' : '' }}">
+                  <i class="fa fa-check nav-icon" style="color: lightgreen; font-size:14px"></i>
+                  <p>
+                    Jurnal Mengajar
+                  </p>
+                </a>
+              </li>
+            </ul>
         </li>
         <li class="nav-item has-treeview {{ 
           Request::is('admin/perusahaan') || 
@@ -486,14 +327,6 @@
               </li>
             </ul>
         </li>
-        <li class="nav-item">
-          <a href="/admin/tagihan" class="nav-link {{ Request::is('admin/tagihan') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-columns"></i>
-            <p>
-              Tagihan
-            </p>
-          </a>
-        </li>
         <li class="nav-item has-treeview {{ 
           Request::is('admin/point') || 
           Request::is('admin/pointSiswa') ? 'menu-open' : '' }}">
@@ -522,6 +355,14 @@
           </ul>
         </li>
         <li class="nav-item">
+          <a href="/admin/tagihan" class="nav-link {{ Request::is('admin/tagihan') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-columns"></i>
+            <p>
+              Tagihan
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
           <a href="/admin/guru" class="nav-link {{ Request::is('admin/guru') ? 'active' : '' }}">
             <i class="nav-icon fas fa-search"></i>
             <p>
@@ -537,14 +378,6 @@
             </p>
           </a>
         </li>
-        {{-- <li class="nav-item">
-          <a href="/admin/rfid" class="nav-link {{ Request::is('admin/rfid') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-cog"></i>
-            <p>
-              rfid
-            </p>
-          </a>
-        </li> --}}
         @elseif($user->role == 'kurikulum')
         <li class="nav-item">
           <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa') ? 'active' : '' }}">
@@ -612,13 +445,34 @@
               </li>
             </ul>
         </li>
-        <li class="nav-item">
-          <a href="/admin/jadwal" class="nav-link {{ Request::is('admin/jadwal') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-calendar-check"></i>
-            <p>
-              Jadwal Mata Pelajaran
-            </p>
-          </a>
+        <li class="nav-item has-treeview {{ 
+          Request::is('admin/jadwal') || Request::is('admin/jurnal') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ 
+              Request::is('admin/jadwal') || Request::is('admin/jurnal') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-book-open"></i>
+              <p>
+                Pembelajaran
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="/admin/jadwal" class="nav-link {{ Request::is('admin/jadwal') ? 'active' : '' }}">
+                  <i class="fa fa-check nav-icon" style="font-size:14px"></i>
+                  <p>
+                    Jadwal Mata Pelajaran
+                  </p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="/admin/jurnal" class="nav-link {{ Request::is('admin/jurnal') ? 'active' : '' }}">
+                  <i class="fa fa-check nav-icon" style="color: lightgreen; font-size:14px"></i>
+                  <p>
+                    Jurnal Mengajar
+                  </p>
+                </a>
+              </li>
+            </ul>
         </li>
         {{-- <li class="nav-header">EXAMPLES</li> --}}
         <li class="nav-item">
@@ -733,6 +587,14 @@
           </ul>
         </li>
         <li class="nav-item">
+          <a href="/admin/jurnal" class="nav-link {{ Request::is('admin/jurnal') ? 'active' : '' }}">
+            <i class="fa fa-book-open nav-icon"></i>
+            <p>
+              Jurnal Mengajar
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
           <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi') ? 'active' : '' }}">
             <i class="nav-icon fas fa-info-circle"></i>
             <p>
@@ -835,14 +697,14 @@
             </li>
           </ul>
         </li>
-        <!-- <li class="nav-item">
-          <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-edit"></i>
+        <li class="nav-item">
+          <a href="/admin/jurnal" class="nav-link {{ Request::is('admin/jurnal') ? 'active' : '' }}">
+            <i class="fa fa-book-open nav-icon"></i>
             <p>
-              Absensi Siswa
+              Jurnal Mengajar
             </p>
           </a>
-        </li> -->
+        </li>
         <li class="nav-item">
           <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot') ? 'active' : '' }}">
             <i class="nav-icon far fa-image"></i>
