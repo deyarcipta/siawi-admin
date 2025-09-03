@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Carbon\Carbon;
 
 class AbsensiSiswaRekapExport implements FromCollection, WithHeadings, WithStyles, WithTitle, ShouldAutoSize, WithEvents
@@ -73,10 +74,8 @@ class AbsensiSiswaRekapExport implements FromCollection, WithHeadings, WithStyle
                             $row[] = $absen->kehadiran;
                             $row[] = '';
                         } else {
-                            $jamMasuk = $absen->jam_masuk ?? '-';
-                            $jamPulang = $absen->jam_pulang ?? '-';
-                            $row[] = !empty($jamMasuk) ? $jamMasuk : '-';
-                            $row[] = !empty($jamPulang) ? $jamPulang : '-';
+                            $row[] = $absen->jam_masuk ?: '-';
+                            $row[] = $absen->jam_pulang ?: '-';
                         }
                     } else {
                         $row[] = '-';
@@ -112,21 +111,23 @@ class AbsensiSiswaRekapExport implements FromCollection, WithHeadings, WithStyle
 
     public function styles(Worksheet $sheet)
     {
-        $columnCount = count($this->dates) * 2 + 2;
         $rowCount = Siswa::where('id_kelas', $this->idKelas)->count() + 4;
 
+        // Merge judul dan header
         $sheet->mergeCells("A1:" . $sheet->getHighestColumn() . "1");
         $sheet->mergeCells("A3:A4");
         $sheet->mergeCells("B3:B4");
 
+        // Merge tanggal
         $startCol = 3;
-        for ($i = 0; $i < count($this->dates); $i++) {
+        foreach ($this->dates as $date) {
             $col1 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($startCol);
             $col2 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($startCol + 1);
-            $sheet->mergeCells("$col1" . "3:" . "$col2" . "3");
+            $sheet->mergeCells("{$col1}3:{$col2}3");
             $startCol += 2;
         }
 
+        // Style isi tabel
         foreach ($sheet->toArray(null, true, true, true) as $rowIndex => $row) {
             if ($rowIndex >= 5) {
                 $colIndex = 3;
@@ -136,6 +137,7 @@ class AbsensiSiswaRekapExport implements FromCollection, WithHeadings, WithStyle
                     $val1 = strtolower(trim($cell1->getValue()));
                     $val2 = strtolower(trim($cell2->getValue()));
 
+                    // Merge untuk sakit/izin/alfa/pkl
                     if (in_array($val1, ['sakit', 'izin', 'alfa', 'pkl']) && $val2 == '') {
                         $col1 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
                         $col2 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
@@ -147,18 +149,22 @@ class AbsensiSiswaRekapExport implements FromCollection, WithHeadings, WithStyle
                         ]);
 
                         if ($val1 === 'pkl') {
-                            $sheet->getStyle("{$col1}{$rowIndex}")->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                                ->getStartColor()->setARGB('FFADD8E6'); // Biru muda
+                            $sheet->getStyle("{$col1}{$rowIndex}")->getFill()
+                                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                                ->getStartColor()->setARGB('FFADD8E6'); // biru muda
                         }
                     } else {
+                        // Kosong = merah
                         if (empty($val1) || $val1 === '-') {
                             $colName = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
-                            $sheet->getStyle("{$colName}{$rowIndex}")->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                            $sheet->getStyle("{$colName}{$rowIndex}")->getFill()
+                                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                                 ->getStartColor()->setARGB('FFFF0000');
                         }
                         if (empty($val2) || $val2 === '-') {
                             $colName = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
-                            $sheet->getStyle("{$colName}{$rowIndex}")->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                            $sheet->getStyle("{$colName}{$rowIndex}")->getFill()
+                                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                                 ->getStartColor()->setARGB('FFFF0000');
                         }
                     }
@@ -167,6 +173,7 @@ class AbsensiSiswaRekapExport implements FromCollection, WithHeadings, WithStyle
             }
         }
 
+        // Border tabel
         $sheet->getStyle("A3:" . $sheet->getHighestColumn() . $rowCount)->applyFromArray([
             'borders' => [
                 'allBorders' => [
@@ -200,8 +207,29 @@ class AbsensiSiswaRekapExport implements FromCollection, WithHeadings, WithStyle
     {
         return [
             \Maatwebsite\Excel\Events\AfterSheet::class => function (\Maatwebsite\Excel\Events\AfterSheet $event) {
-                $event->sheet->getPageSetup()->setOrientation(PageSetup::ORIENTATION_LANDSCAPE);
-                $event->sheet->getPageSetup()->setPaperSize(PageSetup::PAPERSIZE_A4);
+                $sheet = $event->sheet->getDelegate();
+
+                // Page setup
+                $sheet->getPageSetup()->setOrientation(PageSetup::ORIENTATION_LANDSCAPE);
+                $sheet->getPageSetup()->setPaperSize(PageSetup::PAPERSIZE_A4);
+
+                // Nama siswa isi rata kiri
+                $rowCount = Siswa::where('id_kelas', $this->idKelas)->count() + 4;
+                $sheet->getStyle("B5:B{$rowCount}")
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_LEFT)
+                    ->setVertical(Alignment::VERTICAL_CENTER);
+
+                // Kolom No + semua data Masuk/Pulang rata tengah
+                $lastCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(count($this->dates) * 2 + 2);
+                $sheet->getStyle("A5:A{$rowCount}")
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                    ->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->getStyle("C5:{$lastCol}{$rowCount}")
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                    ->setVertical(Alignment::VERTICAL_CENTER);
             },
         ];
     }
