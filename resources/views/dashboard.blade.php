@@ -163,7 +163,7 @@
             <div class="col-lg-6">
               <div class="card card-primary card-outline">
                   <div class="card-header">
-                      <h5 class="m-0">TOP 10 Kehadiran Siswa</h5>
+                      <h5 class="m-0">TOP 5 Kehadiran Siswa</h5>
                   </div>
                   <div class="card-body">
                       <table class="table table-bordered table-hover mt-2">
@@ -181,6 +181,31 @@
                                   <td>{{ $index + 1 }}</td>
                                   <td>{{ $data->siswa->nama_siswa }}</td>
                                   <td>{{ $data->kelas->nama_kelas }}</td>
+                                  <td>{{ $data->jam_masuk }}</td>
+                              </tr>
+                              @endforeach
+                          </tbody>
+                      </table>
+                  </div>
+              </div><!-- /.card -->
+              <div class="card card-primary card-outline">
+                  <div class="card-header">
+                      <h5 class="m-0">TOP 5 Kehadiran Guru</h5>
+                  </div>
+                  <div class="card-body">
+                      <table class="table table-bordered table-hover mt-2">
+                          <thead>
+                              <tr>
+                                  <th style="width: 10px">No</th>
+                                  <th>Nama Guru</th>
+                                  <th>Jam Datang</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              @foreach ($guruTerajin as $index => $data)
+                              <tr>
+                                  <td>{{ $index + 1 }}</td>
+                                  <td>{{ $data->guru->nama_guru }}</td>
                                   <td>{{ $data->jam_masuk }}</td>
                               </tr>
                               @endforeach

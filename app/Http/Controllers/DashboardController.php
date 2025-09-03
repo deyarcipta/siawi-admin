@@ -11,6 +11,7 @@ use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\PointSiswa;
 use App\Models\Modul;
+use App\Models\SiswaPkl;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Setting;
 use Carbon\Carbon;
@@ -59,11 +60,17 @@ class DashboardController extends Controller
             ->where('jam_masuk', '!=', '-') // Filter jam_masuk yang bukan tanda
             ->orderBy('jam_masuk', 'asc') // Urutkan dari yang paling awal datang
             ->with('siswa', 'kelas') // Ambil relasi siswa dan kelas
-            ->limit(10) // Ambil hanya 10 siswa
+            ->limit(5) // Ambil hanya 10 siswa
+            ->get();
+
+        $guruTerajin = AbsensiGuru::where('tanggal', $today)
+            ->where('kehadiran', 'hadir') // Filter hanya yang hadir
+            ->where('jam_masuk', '!=', '-') // Filter jam_masuk yang bukan tanda
+            ->orderBy('jam_masuk', 'asc') // Urutkan dari yang paling awal datang 
             ->get();
 
         // Ambil daftar ID siswa yang sedang PKL (status = PKL)
-        $siswaSedangPKL = \App\Models\SiswaPkl::where('status', 'PKL')->pluck('id_siswa')->toArray();
+        $siswaSedangPKL = SiswaPkl::where('status', 'PKL')->pluck('id_siswa')->toArray();
 
         // Mengambil semua kelas beserta jumlah siswa dan yang belum absen
         $kelasData = Kelas::with('siswa', 'jurusan')->get()->map(function ($kelas) use ($today, $siswaSedangPKL) {
@@ -126,7 +133,8 @@ class DashboardController extends Controller
             'totalGuruHadir',
             'totalGuru',
             'jumlahTidakHadirAll',
-            'siswaTerajin'
+            'siswaTerajin',
+            'guruTerajin'
         ));
     }
 
