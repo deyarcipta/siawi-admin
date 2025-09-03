@@ -60,13 +60,14 @@ class DashboardController extends Controller
             ->where('jam_masuk', '!=', '-') // Filter jam_masuk yang bukan tanda
             ->orderBy('jam_masuk', 'asc') // Urutkan dari yang paling awal datang
             ->with('siswa', 'kelas') // Ambil relasi siswa dan kelas
-            ->limit(5) // Ambil hanya 10 siswa
+            ->limit(5) // Ambil hanya 5 siswa
             ->get();
 
         $guruTerajin = AbsensiGuru::where('tanggal', $today)
             ->where('kehadiran', 'hadir') // Filter hanya yang hadir
             ->where('jam_masuk', '!=', '-') // Filter jam_masuk yang bukan tanda
             ->orderBy('jam_masuk', 'asc') // Urutkan dari yang paling awal datang 
+            ->limit(5) // Ambil hanya 5 guru
             ->get();
 
         // Ambil daftar ID siswa yang sedang PKL (status = PKL)
