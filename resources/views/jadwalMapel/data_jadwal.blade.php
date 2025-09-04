@@ -46,7 +46,7 @@
                   <td>{{$loop->iteration}}</td>
                   <td>{{$jdwl->mapel->nama_mapel}}</td>
                   <td>{{$jdwl->guru->nama_guru}}</td>
-                  <td>{{$jdwl->kelas}}</td>
+                  <td>{{$jdwl->kelas->nama_kelas}}</td>
                   <td>{{$jdwl->hari}}</td>
                   <td>{{$jdwl->jam_awal}} s/d {{$jdwl->jam_akhir}}</td>
                   <td>{{$jdwl->waktu_awal}} s/d {{$jdwl->waktu_akhir}}</td>

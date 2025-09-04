@@ -70,14 +70,14 @@
                     @enderror
                   </div>
                   <div class="form-group col-6">
-                    <label for="kelas">Kelas</label>
-                    <select class="form-control" name="kelas" id="kelas">
-                      <option value="{{old('kelas')}}">Pilih Kelas</option>
+                    <label for="id_kelas">Kelas</label>
+                    <select class="form-control" name="id_kelas" id="id_kelas">
+                      <option value="{{old('id_kelas')}}">Pilih Kelas</option>
                         @foreach ($kelas as $kls)
-                          <option value="{{$kls->kode_kelas}}">{{$kls->kode_kelas}}</option>
+                          <option value="{{$kls->id_kelas}}">{{$kls->nama_kelas}}</option>
                         @endforeach
                     </select>
-                    @error('kelas')
+                    @error('id_kelas')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>

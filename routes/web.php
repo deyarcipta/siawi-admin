@@ -22,6 +22,7 @@ use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\JadwalMapelController;
 use App\Http\Controllers\JurnalMengajarController;
+use App\Http\Controllers\RekapKehadiranGuruController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\AbsensiGuruController;
 use App\Http\Controllers\DokumenController;
@@ -90,6 +91,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::resource('jadwal', JadwalMapelController::class);
     Route::resource('jurnal', JurnalMengajarController::class)->except(['show']);
     Route::get('/jurnal/download-pdf', [JurnalMengajarController::class, 'downloadPdf'])->name('jurnal.downloadPdf');
+    Route::get('/get-jadwal', [JurnalMengajarController::class, 'getJadwal'])->name('jurnal.getJadwal');
+
+
+    Route::get('rekap-kehadiran-guru', [RekapKehadiranGuruController::class, 'index'])->name('rekapGuru.index');
+    Route::get('rekap-kehadiran-guru/export', [RekapKehadiranGuruController::class, 'export'])->name('rekapGuru.export');
+    Route::get('rekap-guru/pdf', [RekapKehadiranGuruController::class, 'downloadPdf'])->name('rekapGuru.downloadPdf');
 
     Route::resource('rapot', RapotController::class);
     Route::get('rapot/create/{kelasId}', [RapotController::class, 'create'])->name('rapot.create');

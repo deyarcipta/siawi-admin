@@ -248,6 +248,14 @@
                   </p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="/admin/rekap-kehadiran-guru" class="nav-link {{ Request::is('admin/rekap-kehadiran-guru') ? 'active' : '' }}">
+                  <i class="fa fa-check nav-icon" style="font-size:14px"></i>
+                  <p>
+                    Monitoring Kehadiran
+                  </p>
+                </a>
+              </li>
             </ul>
         </li>
         <li class="nav-item has-treeview {{ 

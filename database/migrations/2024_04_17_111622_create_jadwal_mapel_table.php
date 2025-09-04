@@ -13,15 +13,23 @@ return new class extends Migration
     {
         Schema::create('jadwal_mapel', function (Blueprint $table) {
             $table->bigIncrements('id_jadwal');
-            $table->string('id_mapel');
-            $table->string('id_guru');
+
+            // Kolom relasi
+            $table->unsignedBigInteger('id_mapel');
+            $table->unsignedBigInteger('id_guru');
+            $table->unsignedBigInteger('id_kelas');
+
             $table->string('hari');
-            $table->string('kelas');
             $table->string('jam_awal');
             $table->string('jam_akhir');
             $table->string('waktu_awal');
             $table->string('waktu_akhir');
             $table->timestamps();
+
+            // Foreign key constraints
+            $table->foreign('id_mapel')->references('id_mapel')->on('mapel')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreign('id_guru')->references('id_guru')->on('guru')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreign('id_kelas')->references('id_kelas')->on('kelas')->onUpdate('cascade')->onDelete('restrict');
         });
     }
 

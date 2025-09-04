@@ -17,6 +17,7 @@ class JurnalMengajar extends Model
     protected $fillable = [
         'id_guru',
         'id_kelas',
+        'id_jadwal',
         'jam_awal',
         'jam_akhir',
         'materi',
@@ -33,4 +34,10 @@ class JurnalMengajar extends Model
     {
         return $this->belongsTo(Kelas::class, 'id_kelas', 'id_kelas');
     }
+    
+    public function jadwal()
+    {
+        return $this->belongsTo(JadwalMapel::class, 'id_jadwal', 'id_jadwal');
+    }
+
 }

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Rekap Kehadiran Mengajar Guru</title>
+    <style>
+        body { font-family: sans-serif; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #000; padding: 5px; text-align: center; }
+        th { background: #ddd; }
+        h3 { margin: 0; text-align: center; }
+    </style>
+</head>
+<body>
+    <h3>Rekap Kehadiran Guru</h3>
+    <p style="text-align:center;">
+        Periode: {{ $tanggalAwal }} s/d {{ $tanggalAkhir }}
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Nama Guru</th>
+                <th>Mata Pelajaran</th>
+                <th>Kelas</th>
+                <th>Tanggal</th>
+                <th>Jam Absen</th>
+                <th>Jurnal</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($data as $row)
+            <tr>
+                <td>{{ $row['no'] }}</td>
+                <td>{{ $row['nama_guru'] }}</td>
+                <td>{{ $row['mapel'] }}</td>
+                <td>{{ $row['kelas'] }}</td>
+                <td>{{ $row['tanggal'] }}</td>
+                <td>{{ $row['jam_absen'] }}</td>
+                <td>{{ $row['jurnal'] }}</td>
+                <td>{{ $row['status'] }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</body>
+</html>

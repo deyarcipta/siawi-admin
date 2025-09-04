@@ -8,6 +8,7 @@ use App\Models\JurnalMengajar;
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\Setting;
+use App\Models\JadwalMapel;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class JurnalMengajarController extends Controller
@@ -33,40 +34,45 @@ class JurnalMengajarController extends Controller
         }
 
         $jurnals = $query->latest()->paginate(10);
+        $jadwal = JadwalMapel::with(['mapel','guru','kelas'])
+                ->orderBy('hari', 'asc')
+                ->get();
 
-        return view('jurnal.index', compact('jurnals','kelas','guru','setting','layout','user'));
+        return view('jurnal.index', compact('jurnals','kelas','guru','setting','layout','user', 'jadwal'));
     }
 
     public function create()
     {
         $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
+        $jadwal = JadwalMapel::with(['mapel','guru','kelas'])->get();
 
         if (auth()->user()->role === 'admin') {
             $guru = Guru::orderBy('nama_guru', 'asc')->get();
-            return view('jurnal.create', compact('kelas','guru'));
+            return view('jurnal.create', compact('kelas','guru','jadwal'));
         }
 
-        return view('jurnal.create', compact('kelas'));
+        return view('jurnal.create', compact('kelas','jadwal'));
     }
 
     public function store(Request $request)
     {
+        // dd($request->all());
         if (auth()->user()->role === 'admin') {
             $request->validate([
+                'id_jadwal' => 'required|exists:jadwal_mapel,id_jadwal',
                 'id_guru' => 'required|exists:guru,id_guru',
-                'id_kelas' => 'required|exists:kelas,id_kelas',
                 'jam_awal' => 'required|string',
                 'jam_akhir' => 'required|string',
                 'materi' => 'required|string|max:255',
                 'tanggal' => 'required|date',
                 'foto_kelas' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             ]);
-
+            
             $id_guru = $request->id_guru;
             $tanggal = $request->tanggal;
         } else {
             $request->validate([
-                'id_kelas' => 'required|exists:kelas,id_kelas',
+                'id_jadwal' => 'required|exists:jadwal_mapel,id_jadwal',
                 'jam_awal' => 'required|string',
                 'jam_akhir' => 'required|string',
                 'materi' => 'required|string|max:255',
@@ -77,14 +83,19 @@ class JurnalMengajarController extends Controller
             $tanggal = now()->toDateString();   // otomatis hari ini
         }
 
+         // 🔑 ambil id_kelas dari tabel jadwal_mapel
+        $jadwal = JadwalMapel::findOrFail($request->id_jadwal);
+        $id_kelas = $jadwal->id_kelas;
+
         $fotoPath = null;
         if ($request->hasFile('foto_kelas')) {
             $fotoPath = $request->file('foto_kelas')->store('foto_kelas', 'public');
         }
-
+        
         JurnalMengajar::create([
             'id_guru'        => $id_guru,
-            'id_kelas'       => $request->id_kelas,
+            'id_kelas'       => $id_kelas,
+            'id_jadwal'      => $request->id_jadwal,
             'jam_awal'       => $request->jam_awal,
             'jam_akhir'      => $request->jam_akhir,
             'materi'         => $request->materi,
@@ -99,24 +110,26 @@ class JurnalMengajarController extends Controller
     {
         // Ambil data jurnal yang akan diupdate
         $jurnal = JurnalMengajar::findOrFail($id);
+        $jadwal = JadwalMapel::with(['mapel','guru','kelas'])->get();
 
         // Validasi input
         if (auth()->user()->role === 'admin') {
             $request->validate([
                 'id_guru' => 'required|exists:guru,id_guru',
-                'id_kelas' => 'required|exists:kelas,id_kelas',
+                'id_jadwal' => 'required|exists:jadwal_mapel,id_jadwal',
                 'jam_awal' => 'required|string',
                 'jam_akhir' => 'required|string',
                 'materi' => 'required|string|max:255',
                 'tanggal' => 'required|date',
                 'foto_kelas' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             ]);
+            
 
             $id_guru = $request->id_guru;
             $tanggal = $request->tanggal;
         } else {
             $request->validate([
-                'id_kelas' => 'required|exists:kelas,id_kelas',
+                'id_jadwal' => 'required|exists:jadwal_mapel,id_jadwal',
                 'jam_awal' => 'required|string',
                 'jam_akhir' => 'required|string',
                 'materi' => 'required|string|max:255',
@@ -138,9 +151,14 @@ class JurnalMengajarController extends Controller
             $jurnal->foto_kelas = $fotoPath;
         }
 
+        // 🔑 ambil id_kelas dari tabel jadwal_mapel
+        $jadwal = JadwalMapel::findOrFail($request->id_jadwal);
+        $id_kelas = $jadwal->id_kelas;
+
         // Update data jurnal
         $jurnal->id_guru   = $id_guru;
-        $jurnal->id_kelas  = $request->id_kelas;
+        $jurnal->id_jadwal  = $request->id_jadwal;
+        $jurnal->id_kelas  = $id_kelas;
         $jurnal->jam_awal  = $request->jam_awal;
         $jurnal->jam_akhir = $request->jam_akhir;
         $jurnal->materi    = $request->materi;
@@ -180,4 +198,46 @@ class JurnalMengajarController extends Controller
 
         return redirect()->route('admin.jurnal.index')->with('success', 'Jurnal berhasil dihapus!');
     }
+
+public function getJadwal(Request $request)
+{
+    $tanggal = $request->tanggal;
+    $id_guru = $request->id_guru;
+
+    if (!$tanggal || !$id_guru) {
+        return response()->json(['error' => 'Tanggal atau guru tidak diisi']);
+    }
+
+    // Ambil nama hari dari tanggal
+    $hari = \Carbon\Carbon::parse($tanggal)->translatedFormat('l'); // ex: Monday
+    $mapHari = [
+        'Monday' => 'senin',
+        'Tuesday' => 'selasa',
+        'Wednesday' => 'rabu',
+        'Thursday' => 'kamis',
+        'Friday' => 'jumat',
+        'Saturday' => 'sabtu',
+        'Sunday' => 'minggu'
+    ];
+    $hariDb = $mapHari[$hari] ?? strtolower($hari);
+
+    // Ambil jadwal
+    $jadwal = JadwalMapel::with(['mapel','kelas','guru'])
+                ->whereRaw('LOWER(hari) = ?', [$hariDb])
+                ->where('id_guru', $id_guru)
+                ->orderBy('waktu_awal', 'asc')
+                ->get();
+
+    // DEBUG: tampilkan info
+    return response()->json([
+        'tanggal' => $tanggal,
+        'hari_didapat' => $hari,
+        'hari_db' => $hariDb,
+        'id_guru' => $id_guru,
+        'count' => $jadwal->count(),
+        'data' => $jadwal
+    ]);
+}
+
+
 }
