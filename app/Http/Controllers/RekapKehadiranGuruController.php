@@ -45,7 +45,7 @@ class RekapKehadiranGuruController extends Controller
             foreach ($tanggalRange as $tanggal) {
                 $hari = $tanggal->translatedFormat('l');
 
-                // ambil jadwal mapel sesuai hari, urutkan berdasarkan jam_mulai
+                // ambil jadwal mapel sesuai hari, urutkan berdasarkan jam_awal lalu jam_akhir
                 $jadwalHari = JadwalMapel::with(['guru', 'mapel', 'kelas'])
                     ->where('hari', $hari)
                     ->when($guruId, function ($q) use ($guruId) {
@@ -124,6 +124,7 @@ class RekapKehadiranGuruController extends Controller
         $tanggalAkhir = $request->tanggal_akhir ?? Carbon::now()->endOfMonth()->format('Y-m-d');
         $guruId = $request->guru_id;
 
+        $data = [];
         $tanggalRange = [];
         $start = Carbon::parse($tanggalAwal);
         $end = Carbon::parse($tanggalAkhir);
@@ -133,7 +134,6 @@ class RekapKehadiranGuruController extends Controller
             $start->addDay();
         }
 
-        $data = [];
         $no = 1;
 
         foreach ($tanggalRange as $tanggal) {
@@ -144,7 +144,8 @@ class RekapKehadiranGuruController extends Controller
                 ->when($guruId, function ($q) use ($guruId) {
                     $q->where('id_guru', $guruId);
                 })
-                ->orderBy('jam_mulai', 'asc')
+                ->orderByRaw('CAST(jam_awal AS UNSIGNED) ASC')
+                ->orderByRaw('CAST(jam_akhir AS UNSIGNED) ASC')
                 ->get();
 
             foreach ($jadwalHari as $item) {

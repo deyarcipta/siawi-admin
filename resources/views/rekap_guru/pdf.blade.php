@@ -25,9 +25,13 @@
                 <th>Mata Pelajaran</th>
                 <th>Kelas</th>
                 <th>Tanggal</th>
+                <th>Hari</th>
+                {{-- <th>Jam Jadwal</th> --}}
                 <th>Jam Absen</th>
-                <th>Jurnal</th>
-                <th>Status</th>
+                <th>Jam Jurnal</th>
+                <th>Materi Jurnal</th>
+                <th>Status Absensi</th>
+                <th>Status Jurnal</th>
             </tr>
         </thead>
         <tbody>
@@ -38,9 +42,13 @@
                 <td>{{ $row['mapel'] }}</td>
                 <td>{{ $row['kelas'] }}</td>
                 <td>{{ $row['tanggal'] }}</td>
+                <td>{{ $row['hari'] }}</td>
+                {{-- <td>{{ $row['jam_jadwal'] }}</td> --}}
                 <td>{{ $row['jam_absen'] }}</td>
+                <td>{{ $row['jam_jurnal'] }}</td>
                 <td>{{ $row['jurnal'] }}</td>
-                <td>{{ $row['status'] }}</td>
+                <td>{{ $row['status_absensi'] }}</td>
+                <td>{{ $row['status_jurnal'] }}</td>
             </tr>
             @endforeach
         </tbody>
