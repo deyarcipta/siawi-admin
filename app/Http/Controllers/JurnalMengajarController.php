@@ -59,28 +59,49 @@ class JurnalMengajarController extends Controller
         // dd($request->all());
         if (auth()->user()->role === 'admin') {
             $request->validate([
-                'id_jadwal' => 'required|exists:jadwal_mapel,id_jadwal',
-                'id_guru' => 'required|exists:guru,id_guru',
-                'jam_awal' => 'required|string',
-                'jam_akhir' => 'required|string',
-                'materi' => 'required|string|max:255',
-                'tanggal' => 'required|date',
-                'foto_kelas' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'id_jadwal'   => 'required|exists:jadwal_mapel,id_jadwal',
+                'jam_awal'    => 'required|string',
+                'jam_akhir'   => 'required|string',
+                'materi'      => 'required|string|max:255',
+                'tanggal'     => 'required|date',
+                'foto_kelas'  => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            ], [
+                'foto_kelas.required' => 'Silakan upload foto kelas terlebih dahulu!',
+                'foto_kelas.image'    => 'File harus berupa gambar.',
+                'foto_kelas.mimes'    => 'Format gambar harus jpg/jpeg/png.',
+                'foto_kelas.max'      => 'Ukuran gambar maksimal 2MB.',
             ]);
             
             $id_guru = $request->id_guru;
             $tanggal = $request->tanggal;
         } else {
             $request->validate([
-                'id_jadwal' => 'required|exists:jadwal_mapel,id_jadwal',
-                'jam_awal' => 'required|string',
-                'jam_akhir' => 'required|string',
-                'materi' => 'required|string|max:255',
-                'foto_kelas' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'id_jadwal'   => 'required|exists:jadwal_mapel,id_jadwal',
+                'jam_awal'    => 'required|string',
+                'jam_akhir'   => 'required|string',
+                'materi'      => 'required|string|max:255',
+                'foto_kelas'  => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            ], [
+                'foto_kelas.required' => 'Silakan upload foto kelas terlebih dahulu!',
+                'foto_kelas.image'    => 'File harus berupa gambar.',
+                'foto_kelas.mimes'    => 'Format gambar harus jpg/jpeg/png.',
+                'foto_kelas.max'      => 'Ukuran gambar maksimal 2MB.',
             ]);
 
             $id_guru = auth()->user()->id_guru; // ambil id guru dari user login
             $tanggal = now()->toDateString();   // otomatis hari ini
+        }
+
+        // 🔍 Cek apakah sudah ada jurnal dengan guru, jadwal, dan tanggal yang sama
+        $cek = JurnalMengajar::where('id_guru', $id_guru)
+                ->where('id_jadwal', $request->id_jadwal)
+                ->where('tanggal', $tanggal)
+                ->first();
+
+        if ($cek) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Jurnal untuk jadwal tersebut pada tanggal ini sudah ada!');
         }
 
          // 🔑 ambil id_kelas dari tabel jadwal_mapel
