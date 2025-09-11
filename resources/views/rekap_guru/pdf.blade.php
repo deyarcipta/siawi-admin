@@ -25,6 +25,7 @@
                 <th>Mata Pelajaran</th>
                 <th>Kelas</th>
                 <th>Tanggal</th>
+                <th>Tanggal Isi Jurnal</th>
                 <th>Hari</th>
                 {{-- <th>Jam Jadwal</th> --}}
                 <th>Jam Absen</th>
@@ -42,6 +43,10 @@
                 <td>{{ $row['mapel'] }}</td>
                 <td>{{ $row['kelas'] }}</td>
                 <td>{{ $row['tanggal'] }}</td>
+                <td>
+                    {{-- ✅ Format created_at --}}
+                    {{ \Carbon\Carbon::parse($row['created_at'])->format('d-m-Y H:i') }}
+                </td>
                 <td>{{ $row['hari'] }}</td>
                 {{-- <td>{{ $row['jam_jadwal'] }}</td> --}}
                 <td>{{ $row['jam_absen'] }}</td>

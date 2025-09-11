@@ -94,6 +94,7 @@
                       <th>Mata Pelajaran</th>
                       <th>Kelas</th>
                       <th>Tanggal</th>
+                      <th>Tanggal Isi Jurnal</th>
                       <th>Jam Pelajaran</th>
                       <th>Materi</th>
                       <th>Status</th>
@@ -107,6 +108,10 @@
                           <td>{{ $row['mapel'] }}</td>
                           <td>{{ $row['kelas'] }}</td>
                           <td>{{ $row['tanggal'] }}</td>
+                          <td>
+                            {{-- ✅ Format created_at --}}
+                            {{ \Carbon\Carbon::parse($row['created_at'])->format('d-m-Y H:i') }}
+                          </td>
                           <td>{{ $row['jam_jurnal'] }}</td>
                           <td>{{ $row['jurnal'] }}</td>
                           <td>

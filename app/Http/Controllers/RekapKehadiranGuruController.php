@@ -92,6 +92,7 @@ class RekapKehadiranGuruController extends Controller
                         'jam_jurnal' => $jurnal ? $jurnal->jam_awal . " s/d " . $jurnal->jam_akhir : "-",
                         'status_absensi' => $statusAbsensi,
                         'status_jurnal'  => $jurnal ? 'Isi Jurnal' : 'Tidak isi jurnal',
+                        'created_at'     => $jurnal ? $jurnal->created_at : null,
                     ];
                 }
             }
@@ -182,6 +183,7 @@ class RekapKehadiranGuruController extends Controller
                     'jam_jurnal' => $jurnal ? $jurnal->jam_awal . " s/d " . $jurnal->jam_akhir : "-",
                     'status_absensi' => $statusAbsensi,
                     'status_jurnal'  => $jurnal ? 'Isi Jurnal' : 'Tidak isi jurnal',
+                    'created_at'     => $jurnal ? $jurnal->created_at : null,
                 ];
             }
         }
