@@ -31,11 +31,13 @@
             <form method="GET" action="{{ route('admin.jurnal.index') }}" class="row g-3">
               <div class="col-md-4">
                 <label for="tanggal_awal" class="form-label">Tanggal Awal</label>
-                <input type="date" id="tanggal_awal" name="tanggal_awal" class="form-control" value="{{ request('tanggal_awal') }}">
+                <input type="date" id="tanggal_awal" name="tanggal_awal" class="form-control"
+                       value="{{ request('tanggal_awal') }}">
               </div>
               <div class="col-md-4">
                 <label for="tanggal_akhir" class="form-label">Tanggal Akhir</label>
-                <input type="date" id="tanggal_akhir" name="tanggal_akhir" class="form-control" value="{{ request('tanggal_akhir') }}">
+                <input type="date" id="tanggal_akhir" name="tanggal_akhir" class="form-control"
+                       value="{{ request('tanggal_akhir') }}">
               </div>
               <div class="col-md-4 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary w-100">Tampilkan Data</button>
@@ -59,8 +61,8 @@
               Tambah Jurnal
             </button>
           </div>
-          <div class="card-body">
-            <table id="example2" class="table table-bordered table-hover table-striped">
+          <div class="card-body table-responsive">
+            <table class="table table-bordered table-hover table-striped">
               <thead>
                 <tr>
                   <th>No</th>
@@ -93,12 +95,13 @@
                     </td>
                     <td>
                       <form action="{{ route('admin.jurnal.destroy', $data->id_jurnal) }}" method="POST">
-                        <button type="button" class="btn btn-success ml-2" data-toggle="modal" data-target="#editJurnal{{ $data->id_jurnal }}">
+                        <button type="button" class="btn btn-success btn-sm"
+                                data-toggle="modal" data-target="#editJurnal{{ $data->id_jurnal }}">
                           <i class="fa fa-edit text-white"></i>
                         </button>
                         @csrf
                         @method('DELETE')
-                        <button type="button" class="btn btn-danger btn-delete">
+                        <button type="button" class="btn btn-danger btn-sm btn-delete">
                           <i class="fa fa-trash"></i>
                         </button>
                       </form>
@@ -130,7 +133,8 @@
           @if($user->role === 'admin')
             <div class="form-group">
               <label for="tanggal">Tanggal</label>
-              <input type="date" id="tanggal" name="tanggal" class="form-control" value="{{ date('Y-m-d') }}" required>
+              <input type="date" id="tanggal" name="tanggal" class="form-control"
+                     value="{{ date('Y-m-d') }}" required>
             </div>
 
             <div class="form-group">
@@ -179,15 +183,13 @@
             @error('foto_kelas')
                 <div class="text-danger small">{{ $message }}</div>
             @enderror
-
             <input type="file" name="foto_kelas" 
-                  class="form-control @error('foto_kelas') is-invalid @enderror" 
-                  accept="image/*"  
-                  onchange="previewFoto(event, 'previewTambah')">
+                   class="form-control @error('foto_kelas') is-invalid @enderror" 
+                   accept="image/*" onchange="previewFoto(event, 'previewTambah')">
             <small class="text-muted">Upload Foto Menggunakan TimeStamp</small>
             <div class="mt-2">
               <img id="previewTambah" src="{{ asset('images/no-image.png') }}" 
-                  class="img-thumbnail" style="max-height:120px; display:none;">
+                   class="img-thumbnail" style="max-height:120px; display:none;">
             </div>
           </div>
 
@@ -279,15 +281,12 @@
   </div>
 </div>
 @endforeach
-
-
 @endsection
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
-  // ✅ Delegasi event untuk tombol hapus (aman desktop & mobile)
+  // ✅ Hapus data dengan konfirmasi SweetAlert
   $(document).on('click', '.btn-delete', function (e) {
     e.preventDefault();
     const form = $(this).closest('form');
@@ -308,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // ✅ Fungsi fetch jadwal
+  // ✅ Ambil jadwal via AJAX
   function fetchJadwal() {
     let guru = $('#id_guru').val()?.trim();
     let tanggal = $('#tanggal').val()?.trim();
@@ -323,13 +322,7 @@ document.addEventListener('DOMContentLoaded', function () {
         $select.empty().append('<option value="">-- Pilih Jadwal --</option>');
 
         if(res && res.count > 0 && Array.isArray(res.data)) {
-          // Urutkan berdasarkan waktu_awal
-          res.data.sort((a,b) => {
-            let timeA = a.waktu_awal || '';
-            let timeB = b.waktu_awal || '';
-            return timeA.localeCompare(timeB);
-          });
-
+          res.data.sort((a,b) => (a.waktu_awal || '').localeCompare(b.waktu_awal || ''));
           res.data.forEach(j => {
             let mapel = j.mapel?.nama_mapel ?? '-';
             let kelas = j.kelas?.nama_kelas ?? '-';
@@ -355,21 +348,19 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // ✅ Event change jadwal → isi jam otomatis
+  // ✅ Isi jam otomatis
   $(document).on('change', '#id_jadwal', function(){
     let selected = $(this).find('option:selected');
-    let jam_awal = selected.data('jam_awal') || '';
-    let jam_akhir = selected.data('jam_akhir') || '';
-    $('#jam_awal').val(jam_awal);
-    $('#jam_akhir').val(jam_akhir);
+    $('#jam_awal').val(selected.data('jam_awal') || '');
+    $('#jam_akhir').val(selected.data('jam_akhir') || '');
   });
 
-  // ✅ Event change untuk admin
+  // ✅ Event admin → pilih guru & tanggal
   @if($user->role === 'admin')
     $('#id_guru, #tanggal').on('change', fetchJadwal);
   @endif
 
-  // ✅ Panggil otomatis untuk guru
+  // ✅ Auto fetch untuk guru biasa
   $('#tambahJurnalModal').on('shown.bs.modal', function () {
     @if($user->role !== 'admin')
       fetchJadwal();
