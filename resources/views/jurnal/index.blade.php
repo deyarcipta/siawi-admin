@@ -182,9 +182,9 @@
 
             <input type="file" name="foto_kelas" 
                   class="form-control @error('foto_kelas') is-invalid @enderror" 
-                  accept="image/*" capture="camera" 
+                  accept="image/*"  
                   onchange="previewFoto(event, 'previewTambah')">
-
+            <small class="text-muted">Upload Foto Menggunakan TimeStamp</small>
             <div class="mt-2">
               <img id="previewTambah" src="{{ asset('images/no-image.png') }}" 
                   class="img-thumbnail" style="max-height:120px; display:none;">
@@ -269,7 +269,7 @@
             @if($data->foto_kelas)
               <img src="{{ asset('storage/'.$data->foto_kelas) }}" class="img-thumbnail mb-2" style="max-height:120px;">
             @endif
-            <input type="file" name="foto_kelas" class="form-control" accept="image/*" capture="camera">
+            <input type="file" name="foto_kelas" class="form-control" accept="image/*">
             <small class="text-muted">Kosongkan jika tidak ingin mengubah foto</small>
           </div>
 

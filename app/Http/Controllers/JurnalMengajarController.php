@@ -64,12 +64,12 @@ class JurnalMengajarController extends Controller
                 'jam_akhir'   => 'required|string',
                 'materi'      => 'required|string|max:255',
                 'tanggal'     => 'required|date',
-                'foto_kelas'  => 'required|image|mimes:jpg,jpeg,png|max:2048',
+                'foto_kelas'  => 'required|image|mimes:jpg,jpeg,png|max:3072',
             ], [
                 'foto_kelas.required' => 'Silakan upload foto kelas terlebih dahulu!',
                 'foto_kelas.image'    => 'File harus berupa gambar.',
                 'foto_kelas.mimes'    => 'Format gambar harus jpg/jpeg/png.',
-                'foto_kelas.max'      => 'Ukuran gambar maksimal 2MB.',
+                'foto_kelas.max'      => 'Ukuran gambar maksimal 3MB.',
             ]);
             
             $id_guru = $request->id_guru;
@@ -80,12 +80,12 @@ class JurnalMengajarController extends Controller
                 'jam_awal'    => 'required|string',
                 'jam_akhir'   => 'required|string',
                 'materi'      => 'required|string|max:255',
-                'foto_kelas'  => 'required|image|mimes:jpg,jpeg,png|max:2048',
+                'foto_kelas'  => 'required|image|mimes:jpg,jpeg,png|max:3072',
             ], [
                 'foto_kelas.required' => 'Silakan upload foto kelas terlebih dahulu!',
                 'foto_kelas.image'    => 'File harus berupa gambar.',
                 'foto_kelas.mimes'    => 'Format gambar harus jpg/jpeg/png.',
-                'foto_kelas.max'      => 'Ukuran gambar maksimal 2MB.',
+                'foto_kelas.max'      => 'Ukuran gambar maksimal 3MB.',
             ]);
 
             $id_guru = auth()->user()->id_guru; // ambil id guru dari user login
@@ -142,7 +142,7 @@ class JurnalMengajarController extends Controller
                 'jam_akhir' => 'required|string',
                 'materi' => 'required|string|max:255',
                 'tanggal' => 'required|date',
-                'foto_kelas' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'foto_kelas' => 'nullable|image|mimes:jpg,jpeg,png|max:3072',
             ]);
             
 
@@ -154,7 +154,7 @@ class JurnalMengajarController extends Controller
                 'jam_awal' => 'required|string',
                 'jam_akhir' => 'required|string',
                 'materi' => 'required|string|max:255',
-                'foto_kelas' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'foto_kelas' => 'nullable|image|mimes:jpg,jpeg,png|max:3072',
             ]);
 
             $id_guru = auth()->user()->id_guru; // ambil id guru dari user login
