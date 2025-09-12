@@ -31,11 +31,13 @@
             <form method="GET" action="{{ route('admin.jurnal.index') }}" class="row g-3">
               <div class="col-md-4">
                 <label for="tanggal_awal" class="form-label">Tanggal Awal</label>
-                <input type="date" id="tanggal_awal" name="tanggal_awal" class="form-control" value="{{ request('tanggal_awal') }}">
+                <input type="date" id="tanggal_awal" name="tanggal_awal"
+                       class="form-control" value="{{ request('tanggal_awal') }}">
               </div>
               <div class="col-md-4">
                 <label for="tanggal_akhir" class="form-label">Tanggal Akhir</label>
-                <input type="date" id="tanggal_akhir" name="tanggal_akhir" class="form-control" value="{{ request('tanggal_akhir') }}">
+                <input type="date" id="tanggal_akhir" name="tanggal_akhir"
+                       class="form-control" value="{{ request('tanggal_akhir') }}">
               </div>
               <div class="col-md-4 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary w-100">Tampilkan Data</button>
@@ -48,17 +50,21 @@
         <div class="card">
           <div class="card-header d-flex align-items-center">
             <h3 class="card-title">Daftar Jurnal Mengajar</h3>
+
             <a href="{{ route('admin.jurnal.downloadPdf', [
                     'tanggal_awal' => request('tanggal_awal'),
                     'tanggal_akhir' => request('tanggal_akhir')
-                ]) }}" 
-                class="btn btn-danger ml-auto" target="_blank">
-                <i class="fas fa-file-pdf"></i> Download PDF
+                ]) }}"
+               class="btn btn-danger ml-auto" target="_blank">
+              <i class="fas fa-file-pdf"></i> Download PDF
             </a>
-            <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#tambahJurnalModal">
+
+            <button type="button" class="btn btn-primary ml-2"
+                    data-toggle="modal" data-target="#tambahJurnalModal">
               Tambah Jurnal
             </button>
           </div>
+
           <div class="card-body">
             <table id="example2" class="table table-bordered table-hover table-striped">
               <thead>
@@ -86,14 +92,17 @@
                     <td>{{ $data->materi }}</td>
                     <td>
                       @if($data->foto_kelas)
-                        <img src="{{ asset('storage/'.$data->foto_kelas) }}" class="img-thumbnail" style="max-height:80px;">
+                        <img src="{{ asset('storage/'.$data->foto_kelas) }}"
+                             class="img-thumbnail" style="max-height:80px;">
                       @else
                         -
                       @endif
                     </td>
                     <td>
                       <form action="{{ route('admin.jurnal.destroy', $data->id_jurnal) }}" method="POST">
-                        <button type="button" class="btn btn-success ml-2" data-toggle="modal" data-target="#editJurnal{{ $data->id_jurnal }}">
+                        <button type="button" class="btn btn-success ml-2"
+                                data-toggle="modal"
+                                data-target="#editJurnal{{ $data->id_jurnal }}">
                           <i class="fa fa-edit text-white"></i>
                         </button>
                         @csrf
@@ -107,16 +116,19 @@
                 @endforeach
               </tbody>
             </table>
+
             {{ $jurnals->links() }}
           </div>
         </div>
+
       </div>
     </div>
   </div>
 </div>
 
 <!-- Modal Tambah Jurnal -->
-<div class="modal fade" id="tambahJurnalModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+<div class="modal fade" id="tambahJurnalModal" tabindex="-1"
+     aria-labelledby="modalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -126,11 +138,12 @@
       <div class="modal-body">
         <form action="{{ route('admin.jurnal.store') }}" method="POST" enctype="multipart/form-data">
           @csrf
-          
+
           @if($user->role === 'admin')
             <div class="form-group">
               <label for="tanggal">Tanggal</label>
-              <input type="date" id="tanggal" name="tanggal" class="form-control" value="{{ date('Y-m-d') }}" required>
+              <input type="date" id="tanggal" name="tanggal"
+                     class="form-control" value="{{ date('Y-m-d') }}" required>
             </div>
 
             <div class="form-group">
@@ -177,17 +190,15 @@
           <div class="form-group">
             <label for="foto_kelas">Foto Kelas</label>
             @error('foto_kelas')
-                <div class="text-danger small">{{ $message }}</div>
+              <div class="text-danger small">{{ $message }}</div>
             @enderror
-
-            <input type="file" name="foto_kelas" 
-                  class="form-control @error('foto_kelas') is-invalid @enderror" 
-                  accept="image/*"  
-                  onchange="previewFoto(event, 'previewTambah')">
+            <input type="file" name="foto_kelas"
+                   class="form-control @error('foto_kelas') is-invalid @enderror"
+                   accept="image/*" onchange="previewFoto(event, 'previewTambah')">
             <small class="text-muted">Upload Foto Menggunakan TimeStamp</small>
             <div class="mt-2">
-              <img id="previewTambah" src="{{ asset('images/no-image.png') }}" 
-                  class="img-thumbnail" style="max-height:120px; display:none;">
+              <img id="previewTambah" src="{{ asset('images/no-image.png') }}"
+                   class="img-thumbnail" style="max-height:120px; display:none;">
             </div>
           </div>
 
@@ -200,22 +211,27 @@
 
 {{-- Modal Edit Jurnal --}}
 @foreach ($jurnals as $data)
-<div class="modal fade" id="editJurnal{{ $data->id_jurnal }}" tabindex="-1" aria-labelledby="editLabel{{ $data->id_jurnal }}" aria-hidden="true">
+<div class="modal fade" id="editJurnal{{ $data->id_jurnal }}" tabindex="-1"
+     aria-labelledby="editLabel{{ $data->id_jurnal }}" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="editLabel{{ $data->id_jurnal }}">Edit Jurnal Mengajar</h5>
+        <h5 class="modal-title" id="editLabel{{ $data->id_jurnal }}">
+          Edit Jurnal Mengajar
+        </h5>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
-        <form action="{{ route('admin.jurnal.update', $data->id_jurnal) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.jurnal.update', $data->id_jurnal) }}"
+              method="POST" enctype="multipart/form-data">
           @csrf
           @method('PUT')
 
           @if($user->role === 'admin')
             <div class="form-group">
               <label for="tanggal">Tanggal</label>
-              <input type="date" name="tanggal" class="form-control" value="{{ $data->tanggal }}" required>
+              <input type="date" name="tanggal" class="form-control"
+                     value="{{ $data->tanggal }}" required>
             </div>
 
             <div class="form-group">
@@ -247,26 +263,30 @@
             <div class="col-md-6">
               <div class="form-group">
                 <label for="jam_awal">Jam Awal</label>
-                <input type="text" name="jam_awal" class="form-control" value="{{ $data->jam_awal }}" readonly>
+                <input type="text" name="jam_awal" class="form-control"
+                       value="{{ $data->jam_awal }}" readonly>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
                 <label for="jam_akhir">Jam Akhir</label>
-                <input type="text" name="jam_akhir" class="form-control" value="{{ $data->jam_akhir }}" readonly>
+                <input type="text" name="jam_akhir" class="form-control"
+                       value="{{ $data->jam_akhir }}" readonly>
               </div>
             </div>
           </div>
 
           <div class="form-group">
             <label for="materi">Materi</label>
-            <input type="text" name="materi" class="form-control" value="{{ $data->materi }}" required>
+            <input type="text" name="materi" class="form-control"
+                   value="{{ $data->materi }}" required>
           </div>
 
           <div class="form-group">
             <label for="foto_kelas">Foto Kelas</label><br>
             @if($data->foto_kelas)
-              <img src="{{ asset('storage/'.$data->foto_kelas) }}" class="img-thumbnail mb-2" style="max-height:120px;">
+              <img src="{{ asset('storage/'.$data->foto_kelas) }}"
+                   class="img-thumbnail mb-2" style="max-height:120px;">
             @endif
             <input type="file" name="foto_kelas" class="form-control" accept="image/*">
             <small class="text-muted">Kosongkan jika tidak ingin mengubah foto</small>
@@ -279,14 +299,12 @@
   </div>
 </div>
 @endforeach
-
-
 @endsection
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // SweetAlert Hapus
+  // ✅ SweetAlert Hapus
   const deleteButtons = document.querySelectorAll('.btn-delete');
   deleteButtons.forEach(button => {
     button.addEventListener('click', function () {
@@ -300,7 +318,9 @@ document.addEventListener('DOMContentLoaded', function () {
         cancelButtonColor: '#3085d6',
         confirmButtonText: 'Ya, hapus!',
         cancelButtonText: 'Batal'
-      }).then(result => { if(result.isConfirmed) form.submit(); });
+      }).then(result => {
+        if(result.isConfirmed) form.submit();
+      });
     });
   });
 
@@ -335,13 +355,13 @@ document.addEventListener('DOMContentLoaded', function () {
             let jam_awal = j.jam_awal ?? '';
             let jam_akhir = j.jam_akhir ?? '';
 
-            $select.append(
-              `<option value="${j.id_jadwal}" 
-                data-jam_awal="${jam_awal}" 
-                data-jam_akhir="${jam_akhir}">
-                 ${mapel} - ${kelas} ([${jam_awal} = ${awal}] - [${jam_akhir} = ${akhir}]) | ${guru}
-              </option>`
-            );
+            $select.append(`
+              <option value="${j.id_jadwal}"
+                      data-jam_awal="${jam_awal}"
+                      data-jam_akhir="${jam_akhir}">
+                ${mapel} - ${kelas} ([${jam_awal} = ${awal}] - [${jam_akhir} = ${akhir}]) | ${guru}
+              </option>
+            `);
           });
         }
       },
