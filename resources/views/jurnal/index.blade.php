@@ -81,9 +81,10 @@
                 </tr>
               </thead>
               <tbody>
-                @forelse ($jurnals as $data)
+                @forelse ($jurnals as $index => $data)
                   <tr>
-                    <td>{{ $loop->iteration }}</td>
+                    <!-- nomor urut pakai firstItem() agar tetap benar di pagination -->
+                    <td>{{ $jurnals->firstItem() + $index }}</td>
                     <td>{{ $data->tanggal }}</td>
                     <td>{{ $data->guru->nama_guru ?? '-' }}</td>
                     <td>{{ $data->kelas->nama_kelas ?? '-' }}</td>
@@ -122,7 +123,8 @@
             </table>
 
             <div class="d-flex justify-content-center mt-3">
-              {{ $jurnals->links() }}
+              <!-- bawa query string filter agar tetap nyala -->
+              {{ $jurnals->appends(request()->all())->links() }}
             </div>
           </div>
         </div>

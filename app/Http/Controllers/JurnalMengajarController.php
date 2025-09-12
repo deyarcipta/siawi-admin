@@ -33,7 +33,7 @@ class JurnalMengajarController extends Controller
             $query->where('id_guru', $user->id_guru);
         }
 
-        $jurnals = $query->latest()->get();
+        $jurnals = $query->latest()->paginate(10);
         $jadwal = JadwalMapel::with(['mapel','guru','kelas'])
                 ->orderBy('hari', 'asc')
                 ->get();
