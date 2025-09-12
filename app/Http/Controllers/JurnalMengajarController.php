@@ -14,35 +14,32 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class JurnalMengajarController extends Controller
 {
     public function index(Request $request)
-{
-    $kelas   = Kelas::orderBy('nama_kelas', 'asc')->get();
-    $guru    = Guru::orderBy('nama_guru', 'asc')->get();
-    $layout  = 'layout.app';
-    $setting = Setting::find(1);
-    $user    = Auth::user();
+    {
+        $kelas   = Kelas::orderBy('nama_kelas', 'asc')->get();
+        $guru    = Guru::orderBy('nama_guru', 'asc')->get();
+        $layout  = 'layout.app';
+        $setting = Setting::find(1);
+        $user    = Auth::user();
 
-    $query = JurnalMengajar::with(['guru','kelas']);
+        $query = JurnalMengajar::with(['guru','kelas']);
 
-    // Filter tanggal jika dipilih
-    if ($request->filled('tanggal_awal') && $request->filled('tanggal_akhir')) {
-        $query->whereBetween('tanggal', [$request->tanggal_awal, $request->tanggal_akhir]);
+        // Filter tanggal jika dipilih
+        if ($request->filled('tanggal_awal') && $request->filled('tanggal_akhir')) {
+            $query->whereBetween('tanggal', [$request->tanggal_awal, $request->tanggal_akhir]);
+        }
+
+        // Role admin bisa lihat semua data
+        if ($user->role !== 'admin') {
+            $query->where('id_guru', $user->id_guru);
+        }
+
+        $jurnals = $query->latest()->get();
+        $jadwal = JadwalMapel::with(['mapel','guru','kelas'])
+                ->orderBy('hari', 'asc')
+                ->get();
+
+        return view('jurnal.index', compact('jurnals','kelas','guru','setting','layout','user', 'jadwal'));
     }
-
-    // Role admin bisa lihat semua data
-    if ($user->role !== 'admin') {
-        $query->where('id_guru', $user->id_guru);
-    }
-
-    // 👉 Jangan paginate, cukup ambil semua data
-    $jurnals = $query->latest()->get();
-
-    $jadwal = JadwalMapel::with(['mapel','guru','kelas'])
-            ->orderBy('hari', 'asc')
-            ->get();
-
-    return view('jurnal.index', compact('jurnals','kelas','guru','setting','layout','user','jadwal'));
-}
-
 
     public function create()
     {
