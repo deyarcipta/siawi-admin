@@ -191,7 +191,6 @@
             </div>
           </div>
 
-
           <button type="submit" class="btn btn-success">Simpan</button>
         </form>
       </div>
@@ -287,25 +286,29 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // SweetAlert Hapus
-  const deleteButtons = document.querySelectorAll('.btn-delete');
-  deleteButtons.forEach(button => {
-    button.addEventListener('click', function () {
-      const form = this.closest('form');
-      Swal.fire({
-        title: 'Yakin ingin menghapus?',
-        text: "Data yang dihapus tidak bisa dikembalikan!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, hapus!',
-        cancelButtonText: 'Batal'
-      }).then(result => { if(result.isConfirmed) form.submit(); });
+
+  // ✅ Delegasi event untuk tombol hapus (aman desktop & mobile)
+  $(document).on('click', '.btn-delete', function (e) {
+    e.preventDefault();
+    const form = $(this).closest('form');
+
+    Swal.fire({
+      title: 'Yakin ingin menghapus?',
+      text: "Data yang dihapus tidak bisa dikembalikan!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Batal'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit();
+      }
     });
   });
 
-  // Fungsi fetch jadwal
+  // ✅ Fungsi fetch jadwal
   function fetchJadwal() {
     let guru = $('#id_guru').val()?.trim();
     let tanggal = $('#tanggal').val()?.trim();
@@ -352,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Event change jadwal → isi jam otomatis
+  // ✅ Event change jadwal → isi jam otomatis
   $(document).on('change', '#id_jadwal', function(){
     let selected = $(this).find('option:selected');
     let jam_awal = selected.data('jam_awal') || '';
@@ -361,12 +364,12 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#jam_akhir').val(jam_akhir);
   });
 
-  // Event change untuk admin
+  // ✅ Event change untuk admin
   @if($user->role === 'admin')
     $('#id_guru, #tanggal').on('change', fetchJadwal);
   @endif
 
-  // Panggil otomatis untuk guru
+  // ✅ Panggil otomatis untuk guru
   $('#tambahJurnalModal').on('shown.bs.modal', function () {
     @if($user->role !== 'admin')
       fetchJadwal();
@@ -374,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-// Preview Foto
+// ✅ Preview Foto
 function previewFoto(event, targetId) {
   const [file] = event.target.files;
   if(file) {
@@ -383,7 +386,6 @@ function previewFoto(event, targetId) {
     preview.style.display = 'block';
   }
 }
-
 </script>
 
 @if ($errors->any())
@@ -404,5 +406,4 @@ function previewFoto(event, targetId) {
   });
 </script>
 @endif
-
 @endpush
