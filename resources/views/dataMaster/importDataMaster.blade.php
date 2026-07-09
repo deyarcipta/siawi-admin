@@ -45,12 +45,17 @@
                                         <label class="custom-file-label" for="file">Choose file</label>
                                     </div>
                                 </div>
+                                <div class="mt-3 mb-3">
+                                    <a href="{{ asset('template_import_master.xlsx') }}" class="btn btn-success btn-sm" download>
+                                        <i class="fa fa-download"></i> Download Template Excel
+                                    </a>
+                                </div>
                                 <p class="mt-2" style="font-size: 14px">
                                     Menu ini berfungsi untuk import data Master
                                     <br><br>
                                     <strong>*Import Data Siswa, Jurusan, Level, dan Kelas</strong>
                                     <br><br>
-                                    Sebelum meng-import pastikan file yang akan anda import sudah dalam bentuk Ms. Excel 97-2003 Workbook (.xls) atau (.xlsx) dan format penulisan harus sesuai dengan yang telah ditentukan.
+                                    Sebelum meng-import pastikan file yang akan anda import sudah dalam bentuk Ms. Excel 97-2003 Workbook (.xls) atau (.xlsx) dan format penulisan harus sesuai dengan template yang telah disediakan. Silakan download template di atas untuk memastikan format yang benar.
                                 </p>
                             </div>
                         </div>

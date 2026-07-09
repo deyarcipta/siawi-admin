@@ -87,14 +87,6 @@
               <i class="fa fa-share-square"></i> Pindahkan Semua ke Alumni
             </button>
           </form>
-          @else
-          {{-- Tombol Naik Kelas --}}
-          <form action="{{ url('/admin/kelas/'.$kls->id_kelas.'/naik-kelas') }}" method="POST" onsubmit="return confirm('Yakin ingin menaikkan semua siswa ke kelas berikutnya?')">
-            @csrf
-            <button type="submit" class="btn btn-info btn-sm">
-              <i class="fa fa-level-up"></i> Naik Kelas
-            </button>
-          </form>
           @endif
         </div>
       </div>
@@ -115,7 +107,12 @@
                 <th>NIS</th>
                 <th>Email</th>
                 <th>Aksi</th>
-                <th>Pilih (jika ingin proses massal)</th>
+                 <th class="text-center">
+                   Pilih (jika ingin proses massal)
+                   <br>
+                   <input type="checkbox" id="checkAll-{{ $kls->id_kelas }}" onclick="toggleSelectAll({{ $kls->id_kelas }}, this)">
+                   <label for="checkAll-{{ $kls->id_kelas }}" style="font-weight: normal; cursor: pointer;" class="mb-0">Pilih Semua</label>
+                 </th>
               </tr>
             </thead>
             <tbody>
@@ -148,9 +145,9 @@
                   
                   @endif
                 </td>
-                <td>
-                  <input type="checkbox" name="selected_siswa[$sw->id_siswa]" value="{{ $sw->id_siswa }}">
-                </td>
+                 <td class="text-center">
+                   <input type="checkbox" name="selected_siswa[]" class="checkbox-siswa-{{ $kls->id_kelas }}" value="{{ $sw->id_siswa }}">
+                 </td>
               </tr>
               @endforeach
             </tbody>
@@ -177,5 +174,14 @@
 @endforeach
 
 <!-- END MODALS -->
+
+<script>
+function toggleSelectAll(kelasId, headerCheckbox) {
+    const checkboxes = document.querySelectorAll('.checkbox-siswa-' + kelasId);
+    checkboxes.forEach(cb => {
+        cb.checked = headerCheckbox.checked;
+    });
+}
+</script>
 
 @endsection

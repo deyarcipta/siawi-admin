@@ -13,46 +13,71 @@ class MasterImport implements ToModel, WithHeadingRow
 {
     public function model(array $row)
     {
-        // Simpan data ke tabel jurusan
+        // 1. Resolve or Create Jurusan
+        $kodeJurusan = $row['kode_jurusan'] ?? $row['nama_jurusan'] ?? null;
+        if (!$kodeJurusan) {
+            return null; // Skip if no jurusan info
+        }
+
         $jurusan = Jurusan::updateOrCreate(
-            ['kode_jurusan' => $row['kode_jurusan']], // Kondisi pencarian
+            ['kode_jurusan' => $kodeJurusan],
             [
-                'kode_jurusan' => $row['nama_jurusan'],
-                'nama_jurusan' => $row['nama_jurusan']
+                'kode_jurusan' => $kodeJurusan,
+                'nama_jurusan' => $row['nama_jurusan'] ?? $kodeJurusan
             ]
         );
 
-        // Simpan data ke tabel level
+        // 2. Resolve or Create Level
+        $kodeLevel = $row['kode_level'] ?? null;
+        if (!$kodeLevel) {
+            return null; // Skip if no level info
+        }
+
         $level = Level::updateOrCreate(
-            ['kode_level' => $row['kode_level']],
+            ['kode_level' => $kodeLevel],
             [
-                'nama_level' => $row['kode_level'],
-                'kode_level' => $row['kode_level']
+                'kode_level' => $kodeLevel,
+                'nama_level' => $kodeLevel
             ]
-            
         );
 
-        // Simpan data ke tabel kelas
+        // 3. Resolve or Create Kelas
+        $idKelas = $row['id_kelas'] ?? null;
+        $namaKelas = $row['nama_kelas'] ?? null;
+        if (!$namaKelas && !$idKelas) {
+            return null; // Skip if no class info
+        }
+
+        $kelasSearch = [];
+        if ($idKelas) {
+            $kelasSearch = ['id_kelas' => $idKelas];
+        } else {
+            $kelasSearch = ['nama_kelas' => $namaKelas];
+        }
+
         $kelas = Kelas::updateOrCreate(
-            ['id_kelas' => $row['id_kelas']], // Kondisi pencarian
+            $kelasSearch,
             [
-                'kode_kelas' => $row['nama_kelas'],
-                'kode_level' => $row['kode_level'],
-                'kode_jurusan' => $row['nama_jurusan'],
-                'nama_kelas' => $row['nama_kelas']
-            ] // Data yang diperbarui atau dibuat
+                'kode_kelas' => $row['kode_kelas'] ?? $namaKelas,
+                'kode_level' => $level->kode_level,
+                'kode_jurusan' => $jurusan->kode_jurusan,
+                'nama_kelas' => $namaKelas
+            ]
         );
 
-        // Simpan data ke tabel siswa
-        Siswa::updateOrCreate(
+        // 4. Update or Create Siswa
+        if (empty($row['nis'])) {
+            return null; // Skip if no NIS
+        }
+
+        return Siswa::updateOrCreate(
             ['nis' => $row['nis']],
             [
-                'nisn' => $row['nisn'],
-                'nama_siswa' => $row['nama'],
-                'id_kelas' => $row['id_kelas'],
-                'id_kelas' => $row['id_kelas'],
-                'id_jurusan' => $row['id_jurusan'],
-                'id_level' => $row['id_level'],
+                'nisn' => $row['nisn'] ?? '-',
+                'nama_siswa' => $row['nama'] ?? '-',
+                'id_kelas' => $kelas->id_kelas,
+                'id_jurusan' => $jurusan->id_jurusan,
+                'id_level' => $level->id_level,
                 'foto' => 'avatar.jpg',
                 'tmpt_lahir' => '-',
                 'tgl_lahir' => '-',
@@ -90,7 +115,7 @@ class MasterImport implements ToModel, WithHeadingRow
                 'tgl_lahir_wali' => '-',
                 'pendidikan_wali' => '-',
                 'pekerjaan_wali' => '-',
-                'penghasilan_wali' => '-', 
+                'penghasilan_wali' => '-',
             ]
         );
     }
