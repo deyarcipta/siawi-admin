@@ -30,7 +30,7 @@
           </div>
           <div class="card-body">
             <table id="example2" class="table table-bordered table-hover table-striped">
-              <thead>
+              <thead class="bg-primary text-white">
                 <tr>
                   <th style="width: 10px">No</th>
                   <th>Kode Kelas</th>
@@ -99,8 +99,8 @@
         @if($siswaKelas->count())
         <form action="{{ url('/admin/kelas/proses-individual') }}" method="POST">
           @csrf
-          <table class="table table-bordered table-hover">
-            <thead>
+          <table class="table table-bordered table-hover table-striped">
+            <thead class="bg-primary text-white">
               <tr>
                 <th>No</th>
                 <th>Nama</th>

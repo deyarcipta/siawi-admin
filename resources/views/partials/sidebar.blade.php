@@ -133,6 +133,14 @@
                 </p>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="/admin/rekap-belum-absen" class="nav-link {{ Request::is('admin/rekap-belum-absen') ? 'active' : '' }}">
+                <i class="fa fa-exclamation-triangle nav-icon" style="color: #ffc107; font-size:14px"></i>
+                <p>
+                  Rekap Kelalaian Absen
+                </p>
+              </a>
+            </li>
             {{-- <li class="nav-item">
               <a href="/admin/viewRfidAbsen" class="nav-link {{ Request::is('admin/viewRfidAbsen') ? 'active' : '' }}">
                 <i class="fa fa-check nav-icon" style="color: lightgreen; font-size:14px"></i>
@@ -379,6 +387,14 @@
           </a>
         </li>
         <li class="nav-item">
+          <a href="/admin/guruPiket" class="nav-link {{ Request::is('admin/guruPiket*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user-clock"></i>
+            <p>
+              Guru Piket
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
           <a href="/admin/setting" class="nav-link {{ Request::is('admin/setting') ? 'active' : '' }}">
             <i class="nav-icon fas fa-cog"></i>
             <p>
@@ -548,6 +564,14 @@
             </p>
           </a>
         </li>
+        <li class="nav-item">
+          <a href="/admin/guruPiket" class="nav-link {{ Request::is('admin/guruPiket*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user-clock"></i>
+            <p>
+              Guru Piket
+            </p>
+          </a>
+        </li>
         @elseif($user->role == 'kesiswaan')
         <li class="nav-item">
           <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa') ? 'active' : '' }}">
@@ -597,6 +621,14 @@
                 <i class="fa fa-check nav-icon" style=" font-size:14px"></i>
                 <p>
                   Rekap Absensi Siswa
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/rekap-belum-absen" class="nav-link {{ Request::is('admin/rekap-belum-absen') ? 'active' : '' }}">
+                <i class="fa fa-exclamation-triangle nav-icon" style="color: #ffc107; font-size:14px"></i>
+                <p>
+                  Rekap Kelalaian Absen
                 </p>
               </a>
             </li>

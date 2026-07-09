@@ -63,6 +63,13 @@
     .dataTables_wrapper .dataTables_paginate .pagination {
       margin: 0;
     }
+
+    table thead,
+    table thead th,
+    table thead tr th {
+      background-color: #007bff !important;
+      color: #ffffff !important;
+    }
   </style>
 </head>
   <body class="hold-transition sidebar-mini">

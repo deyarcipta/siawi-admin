@@ -29,6 +29,22 @@ class DashboardController extends Controller
         $user = Auth::user();
         $today = Carbon::now()->toDateString();
 
+        $daysInIndonesian = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu'
+        ];
+        $todayDayEng = Carbon::now()->format('l');
+        $todayDayInd = $daysInIndonesian[$todayDayEng] ?? 'Senin';
+
+        $guruPiketHariIni = \App\Models\GuruPiket::with('guru')
+            ->where('hari', $todayDayInd)
+            ->get();
+
         // Mengambil total jumlah siswa
         $totalSiswa = Siswa::count();
         $totalModul = Modul::count();
@@ -135,7 +151,9 @@ class DashboardController extends Controller
             'totalGuru',
             'jumlahTidakHadirAll',
             'siswaTerajin',
-            'guruTerajin'
+            'guruTerajin',
+            'guruPiketHariIni',
+            'todayDayInd'
         ));
     }
 

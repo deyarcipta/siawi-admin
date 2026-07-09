@@ -23,6 +23,8 @@ use App\Http\Controllers\GuruController;
 use App\Http\Controllers\JadwalMapelController;
 use App\Http\Controllers\JurnalMengajarController;
 use App\Http\Controllers\RekapKehadiranGuruController;
+use App\Http\Controllers\GuruPiketController;
+use App\Http\Controllers\RekapBelumAbsenController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\AbsensiGuruController;
 use App\Http\Controllers\DokumenController;
@@ -96,6 +98,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
 
     Route::get('rekap-kehadiran-guru', [RekapKehadiranGuruController::class, 'index'])->name('rekapGuru.index');
     Route::get('rekap-kehadiran-guru/export', [RekapKehadiranGuruController::class, 'export'])->name('rekapGuru.export');
+    Route::get('rekap-belum-absen', [RekapBelumAbsenController::class, 'index'])->name('rekapBelumAbsen.index');
+    Route::get('rekap-belum-absen/export', [RekapBelumAbsenController::class, 'export'])->name('rekapBelumAbsen.export');
     Route::get('rekap-guru/pdf', [RekapKehadiranGuruController::class, 'downloadPdf'])->name('rekapGuru.downloadPdf');
 
     Route::resource('rapot', RapotController::class);
@@ -121,6 +125,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
 
     Route::resource('guru', GuruController::class);
     Route::get('guru/{id_guru}/reset', [GuruController::class, 'reset'])->name('guru.reset');
+    Route::resource('guruPiket', GuruPiketController::class);
     
     Route::resource('setting', SettingController::class);
     Route::put('/admin/setting-versi/{id_version}', [SettingController::class, 'updateVersiAplikasi'])

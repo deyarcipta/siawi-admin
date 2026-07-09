@@ -161,7 +161,38 @@
             </div>
             <!-- /.col-md-6 -->
             <div class="col-lg-6">
-              <div class="card card-primary card-outline">
+                <!-- Card Guru Piket Hari Ini -->
+                <div class="card card-info card-outline">
+                    <div class="card-header">
+                        <h5 class="m-0">Guru Piket Hari Ini ({{ $todayDayInd }})</h5>
+                    </div>
+                    <div class="card-body">
+                        @if($guruPiketHariIni->count() > 0)
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10px">No</th>
+                                    <th>Nama Guru</th>
+                                    <th>Waktu Tugas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($guruPiketHariIni as $gp)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $gp->guru->nama_guru }}</td>
+                                    <td><span class="badge badge-info">{{ $gp->waktu_awal }} - {{ $gp->waktu_akhir }}</span></td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        @else
+                        <div class="alert alert-light text-center mb-0">Tidak ada jadwal guru piket untuk hari ini.</div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="card card-primary card-outline">
                   <div class="card-header">
                       <h5 class="m-0">TOP 5 Kehadiran Siswa</h5>
                   </div>
