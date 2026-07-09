@@ -300,9 +300,8 @@ class SiswaController extends Controller
         $layout = 'layout.app'; // Misalnya, layout default Anda adalah 'layouts.app'
         $setting = Setting::find('1');
         $user = Auth::user();
-        $siswa = Siswa::find($id_siswa);
-        $changPass = 'siswa123';
-        // $siswa->password = Hash::make($changPass);
+        $siswa = Siswa::findOrFail($id_siswa);
+        $siswa->password = 'siswa123';
         $siswa->save();
         return redirect('/admin/siswa')->with('success', 'Password berhasil direset<br>password default adalah <b>siswa123</b>');
     }

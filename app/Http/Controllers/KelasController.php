@@ -104,10 +104,15 @@ class KelasController extends Controller
         if (!$kelasBaru) {
             return back()->with('error', 'Kelas tujuan tidak ditemukan!');
         }
-        dd($kelasBaru->id_level);
+
+        $level = Level::where('kode_level', $kelasBaru->kode_level)->first();
+        if (!$level) {
+            return back()->with('error', 'Level kelas tujuan tidak ditemukan!');
+        }
+
         Siswa::where('id_kelas', $kelas->id_kelas)->update([
             'id_kelas' => $kelasBaru->id_kelas,
-            'id_level' => $kelasBaru->id_level,
+            'id_level' => $level->id_level,
         ]);
 
         return redirect()->back()->with('success', 'Semua siswa berhasil dinaikkan ke kelas ' . $kelasBaru->nama_kelas);
