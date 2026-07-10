@@ -57,16 +57,34 @@ class AbsensiController extends Controller
             if ($item->kehadiran == 'sakit' || $item->kehadiran == 'izin' || $item->kehadiran == 'alfa') {
                 // Jika status kehadiran adalah sakit, izin, atau alfa, tetapkan warna sebagai Colors.red
                 $warna = 'red';
-            }else{
+            } else {
                 $warna = 'blue';
             }
-            $tanggalBaru = Carbon::createFromFormat('Y-m-d', $item->tanggal)->format('d F Y');
+            
+            $keteranganLower = strtolower($item->keterangan);
+            if (in_array(strtolower($item->kehadiran), ['sakit', 'izin', 'alfa'])) {
+                $tipeAbsen = 'Manual oleh Guru';
+            } elseif (str_contains($keteranganLower, 'check in') || str_contains($keteranganLower, 'check out') || str_contains($keteranganLower, 'face') || str_contains($keteranganLower, 'presence')) {
+                $tipeAbsen = 'Otomatis (Face Recognition)';
+            } else {
+                $tipeAbsen = 'Manual oleh Guru';
+            }
+
+            try {
+                $tanggalBaru = Carbon::createFromFormat('Y-m-d', $item->tanggal)->format('d F Y');
+            } catch (\Exception $e) {
+                $tanggalBaru = $item->tanggal;
+            }
+
             $absenArray[] = [
                 'tanggal' => $tanggalBaru, 
                 'kehadiran' => $item->kehadiran,
                 'hari' => $item->hari,
                 'ket' => $item->keterangan,
-                'warna' => $warna
+                'warna' => $warna,
+                'jam_masuk' => $item->jam_masuk ?? '-',
+                'jam_pulang' => $item->jam_pulang ?? '-',
+                'tipe_absen' => $tipeAbsen
             ];
         }
 
