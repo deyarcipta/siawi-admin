@@ -83,14 +83,22 @@ class AbsensiController extends Controller
         ]);
 
         $siswaData = $request->input('siswa');
+        $jam = now()->format('H:i:s');
         foreach ($siswaData as $siswaId => $data) {
 
             $kehadiran = $data['kehadiran'];
             $keterangan = $data['keterangan'];
             
+            $isHadir = strtolower($kehadiran) === 'hadir';
+            $jamMasuk = $isHadir ? $jam : '-';
+            
             Absensi::updateOrCreate(
                 ['id_siswa' => $siswaId, 'tanggal' => $request->input('tanggal'), 'hari' => $request->input('hari'), 'id_kelas' => $request->kelas_id, 'id_jurusan' => $siswaId],
-                ['kehadiran' => $kehadiran, 'keterangan' => $keterangan ?? '-']
+                [
+                    'kehadiran' => $kehadiran, 
+                    'keterangan' => $keterangan ?? '-',
+                    'jam_masuk' => $jamMasuk
+                ]
             );
 
             // Fetch student and send push notification
@@ -130,10 +138,14 @@ class AbsensiController extends Controller
         // Ambil tanggal dan hari sekarang
         $tanggal = Carbon::today()->toDateString(); // contoh hasil: 2025-04-28
         $hari = Carbon::today()->isoFormat('dddd'); // contoh hasil: Senin, Selasa, dst.
+        $jam = now()->format('H:i:s');
 
         // Ambil id_jurusan dari data siswa
         $siswa = Siswa::findOrFail($siswaId);
         $jurusanId = $siswa->id_jurusan;
+
+        $isHadir = $kehadiran === 'hadir';
+        $jamMasuk = $isHadir ? $jam : '-';
 
         // Simpan absensi
         Absensi::updateOrCreate(
@@ -147,6 +159,7 @@ class AbsensiController extends Controller
                 'id_jurusan' => $jurusanId,
                 'kehadiran' => $kehadiran,
                 'keterangan' => $keterangan,
+                'jam_masuk' => $jamMasuk,
             ]
         );
 
