@@ -52,7 +52,6 @@ class FcmService
                     'title' => $title,
                     'body' => $body,
                 ],
-                'data' => array_map('strval', $data),
                 'android' => [
                     'notification' => [
                         'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
@@ -61,6 +60,10 @@ class FcmService
                 ],
             ]
         ];
+
+        if (!empty($data)) {
+            $payload['message']['data'] = array_map('strval', $data);
+        }
 
         try {
             $response = Http::withHeaders([
