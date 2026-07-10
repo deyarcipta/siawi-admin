@@ -18,18 +18,21 @@ class JadwalController extends Controller
      */
     public function index(String $idSiswa, String $hari)
     {
-
         $siswa = Siswa::where('id_siswa', $idSiswa)->first();
-        $jadwals = JadwalMapel::where('kelas', $siswa->kelas->nama_kelas)
-        ->where('hari', $hari)
-        ->orderBy('jam_awal', 'asc')
-        ->get();
+        if (!$siswa) {
+            return response()->json(['data' => []]);
+        }
+        
+        $jadwals = JadwalMapel::where('id_kelas', $siswa->id_kelas)
+            ->where('hari', $hari)
+            ->orderBy('jam_awal', 'asc')
+            ->get();
 
         $groupedJadwals = $jadwals->groupBy('hari')->map(function ($jadwals) {
             return $jadwals->map(function ($jadwal) {
                 return [
-                    'nama_mapel' => $jadwal->mapel->nama_mapel,
-                    'nama_guru' => $jadwal->guru->nama_guru,
+                    'nama_mapel' => $jadwal->mapel?->nama_mapel ?? 'Mata Pelajaran Tidak Diketahui',
+                    'nama_guru' => $jadwal->guru?->nama_guru ?? 'Guru Tidak Diketahui',
                     'jam_awal' => $jadwal->jam_awal,
                     'jam_akhir' => $jadwal->jam_akhir,
                     'waktu_awal' => $jadwal->waktu_awal,
@@ -77,7 +80,7 @@ class JadwalController extends Controller
                 $namaHari =  $indonesianDays[$index];
             }
 
-            $jadwalToday = JadwalMapel::where('kelas', $namaKelas)
+            $jadwalToday = JadwalMapel::where('id_kelas', $id_kelas)
                 ->where('hari', $namaHari)
                 ->get();
                 
