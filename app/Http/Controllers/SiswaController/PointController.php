@@ -17,36 +17,54 @@ class PointController extends Controller
      */
     public function index(String $id_siswa)
     {
-        $point = PointSiswa::where('id_siswa', $id_siswa)
-        ->get();
-        $siswa = Siswa::where('id_siswa', $id_siswa)
-        ->with('kelas')
-        ->with('jurusan')
-        ->first();
-        $totalSkor = 0;
-        $pointArray = []; 
-        foreach ($point as $item) {
-            $totalSkor += $item->skor_point;
-            $dateTimeParts = explode(' ', $item->tanggal);
-            $tanggal = implode(' ', array_slice($dateTimeParts, 0, 3)); // Bagian pertama adalah tanggal
-            $waktu = implode(' ', array_slice($dateTimeParts, 3, 5)); 
-            $hari = Carbon::parse($item->tanggal)->translatedFormat('l');
-            $pointArray[] = [
-                'nama_point' => $item->point?->nama_point ?? 'Pelanggaran/Prestasi Tidak Diketahui',
-                'skor_point' => $item->skor_point,
-                'tanggal' => $tanggal, 
-                'waktu' => $waktu,
-                'hari' => $hari
-            ];
-        }
+        try {
+            $point = PointSiswa::where('id_siswa', $id_siswa)->get();
+            $siswa = Siswa::where('id_siswa', $id_siswa)
+                ->with('kelas')
+                ->with('jurusan')
+                ->first();
+            $totalSkor = 0;
+            $pointArray = []; 
+            foreach ($point as $item) {
+                $totalSkor += $item->skor_point;
+                $dateTimeParts = explode(' ', $item->tanggal);
+                $tanggal = implode(' ', array_slice($dateTimeParts, 0, 3)); // Bagian pertama adalah tanggal
+                $waktu = implode(' ', array_slice($dateTimeParts, 3, 5)); 
+                
+                $hari = 'Senin';
+                if (!empty($item->tanggal)) {
+                    try {
+                        $hari = Carbon::parse($item->tanggal)->translatedFormat('l');
+                    } catch (\Exception $e) {
+                        // ignore carbon parsing error
+                    }
+                }
+                
+                $pointArray[] = [
+                    'nama_point' => $item->point?->nama_point ?? 'Pelanggaran/Prestasi Tidak Diketahui',
+                    'skor_point' => $item->skor_point,
+                    'tanggal' => $tanggal, 
+                    'waktu' => $waktu,
+                    'hari' => $hari
+                ];
+            }
 
-        return response()->json([
-            'success' => true,
-            'data' => $pointArray,
-            'dataSiswa' => $siswa,
-            'totalSkor' => $totalSkor,
-            'message' => 'Berhasil Ambil Data'
-        ]);
+            return response()->json([
+                'success' => true,
+                'data' => $pointArray,
+                'dataSiswa' => $siswa,
+                'totalSkor' => $totalSkor,
+                'message' => 'Berhasil Ambil Data'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan pada server (PointSiswa)',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
+        }
     }
 
     /**
