@@ -139,6 +139,30 @@ class HomeController extends Controller
     
     }
 
+    public function updateFcmToken(Request $request)
+    {
+        $request->validate([
+            'idSiswa' => 'required',
+            'fcm_token' => 'required'
+        ]);
+
+        $siswa = Siswa::where('id_siswa', $request->idSiswa)->first();
+        if ($siswa) {
+            $siswa->update([
+                'fcm_token' => $request->fcm_token
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'FCM Token updated successfully'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Siswa not found'
+        ], 404);
+    }
+
     /**
      * Show the form for creating a new resource.
      */

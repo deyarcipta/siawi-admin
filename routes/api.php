@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/home/{idSiswa}',[HomeController::class, 'index']);
 Route::post('/ubahPassword',[HomeController::class, 'ubahPassword']);
+Route::post('/update-fcm-token',[HomeController::class, 'updateFcmToken']);
 Route::post('/login',[HomeController::class, 'login']);
 Route::get('/berita',[BeritaController::class, 'index']);
 Route::get('/jadwal/{idSiswa}/{hari}',[JadwalController::class, 'index']);

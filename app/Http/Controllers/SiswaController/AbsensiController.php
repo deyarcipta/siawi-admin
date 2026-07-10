@@ -163,7 +163,14 @@ class AbsensiController extends Controller
                     'kehadiran' => 'hadir',
                     'keterangan' => 'Check Out',
                 ]);
-                // Log::info("Absensi diperbarui untuk siswa ID: " . $siswa->id_siswa);
+                
+                if (!empty($siswa->fcm_token)) {
+                    \App\Services\FcmService::sendNotification(
+                        $siswa->fcm_token,
+                        'Absensi Pulang Berhasil',
+                        "Kamu telah melakukan absensi pulang (Check Out) pada jam $jam."
+                    );
+                }
             }
         } else {
             Absensi::create([
@@ -176,7 +183,14 @@ class AbsensiController extends Controller
                 'kehadiran' => 'hadir',
                 'keterangan' => $label,
             ]);
-            // Log::info("Absensi baru dibuat untuk siswa ID: " . $siswa->id_siswa);
+            
+            if (!empty($siswa->fcm_token)) {
+                \App\Services\FcmService::sendNotification(
+                    $siswa->fcm_token,
+                    'Absensi Masuk Berhasil',
+                    "Kamu telah melakukan absensi masuk (Check In) pada jam $jam."
+                );
+            }
         }
 
         DB::commit();

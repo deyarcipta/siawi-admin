@@ -92,6 +92,16 @@ class AbsensiController extends Controller
                 ['id_siswa' => $siswaId, 'tanggal' => $request->input('tanggal'), 'hari' => $request->input('hari'), 'id_kelas' => $request->kelas_id, 'id_jurusan' => $siswaId],
                 ['kehadiran' => $kehadiran, 'keterangan' => $keterangan ?? '-']
             );
+
+            // Fetch student and send push notification
+            $siswa = Siswa::find($siswaId);
+            if ($siswa && !empty($siswa->fcm_token)) {
+                \App\Services\FcmService::sendNotification(
+                    $siswa->fcm_token,
+                    'Absensi Hari Ini',
+                    "Status absensi kamu hari ini (" . date('d-m-Y') . ") telah diperbarui: " . ucfirst($kehadiran)
+                );
+            }
         }
         return redirect('/admin/absensi');
         // return response()->json(['success' => true, 'message' => 'Absensi berhasil disimpan.']);
@@ -139,6 +149,15 @@ class AbsensiController extends Controller
                 'keterangan' => $keterangan,
             ]
         );
+
+        // Fetch student and notify
+        if ($siswa && !empty($siswa->fcm_token)) {
+            \App\Services\FcmService::sendNotification(
+                $siswa->fcm_token,
+                'Absensi Hari Ini',
+                "Status absensi kamu hari ini (" . date('d-m-Y') . ") telah dicatat: " . ucfirst($kehadiran)
+            );
+        }
 
         return back()->with('success', 'Data kehadiran berhasil disimpan.');
     }
@@ -386,6 +405,16 @@ class AbsensiController extends Controller
                     'keterangan' => $keterangan
                 ]
             );
+
+            // Fetch student and notify
+            $siswa = Siswa::find($siswaId);
+            if ($siswa && !empty($siswa->fcm_token)) {
+                \App\Services\FcmService::sendNotification(
+                    $siswa->fcm_token,
+                    'Absensi Hari Ini',
+                    "Status absensi kamu hari ini (" . date('d-m-Y') . ") telah disimpan: " . ucfirst($kehadiran[$index])
+                );
+            }
         }
 
         return redirect()->back()->with('success', 'Absensi berhasil disimpan!');
@@ -424,6 +453,16 @@ class AbsensiController extends Controller
 
         $absensi->kehadiran = $newKehadiran;
         $absensi->save();
+
+        // Notify student about attendance update
+        $siswa = Siswa::find($absensi->id_siswa);
+        if ($siswa && !empty($siswa->fcm_token)) {
+            \App\Services\FcmService::sendNotification(
+                $siswa->fcm_token,
+                'Perubahan Absensi',
+                "Status absensi kamu pada tanggal " . $absensi->tanggal . " telah diubah menjadi: " . ucfirst($newKehadiran)
+            );
+        }
 
         return redirect()->back()->with('success', 'Data kehadiran berhasil diperbarui.');
     }
