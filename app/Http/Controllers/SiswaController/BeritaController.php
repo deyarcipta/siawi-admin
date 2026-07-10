@@ -18,6 +18,7 @@ class BeritaController extends Controller
     public function index()
     {
         $berita = Berita::orderBy('created_at', 'asc')->get();
+        $beritaArray = [];
 
         foreach ($berita as $item) {
             $beritaArray[] = [

@@ -16,6 +16,7 @@ class KalenderController extends Controller
     public function index()
     {
         $kalender = KalenderSekolah::all();
+        $kalenderArray = [];
         
         foreach ($kalender as $item) {
             $kalenderArray[] = [

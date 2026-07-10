@@ -43,11 +43,22 @@ class JadwalController extends Controller
 
     public function jadwalToday(String $id_siswa)
     {
-        
         $siswa = Siswa::where('id_siswa', $id_siswa)->first();
+        if (!$siswa) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Siswa tidak ditemukan'
+            ], 404);
+        }
+        
         $id_kelas = $siswa->id_kelas;
-
         $kelas = Kelas::where('id_kelas', $id_kelas)->first();
+        if (!$kelas) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kelas tidak ditemukan'
+            ], 404);
+        }
         $namaKelas = $kelas->kode_kelas;
 
         $today = Carbon::now()->toDateString();
@@ -60,25 +71,25 @@ class JadwalController extends Controller
         $index = array_search($dayName, $englishDays);
 
         // Jika ditemukan, kembalikan nama hari dalam bahasa Indonesia
+        $namaHari = 'senin'; // default fallback
         if ($index !== false) {
             $namaHari =  $indonesianDays[$index];
         }
 
-        // Jika tidak ditemukan, kembalikan nama hari dalam bahasa Inggris
-        // return $dayName;
-
         $jadwalToday = JadwalMapel::where('kelas', $namaKelas)
-        ->where('hari', $namaHari)
-        ->get();
+            ->where('hari', $namaHari)
+            ->get();
+            
         $jadwalTodayArray = [];
         foreach ($jadwalToday as $item) {
             // Cek apakah guru hadir di tabel AbsensiGuru berdasarkan tanggal hari ini
-            $absensiGuru = AbsensiGuru::where('id_guru', $item->guru->id_guru)
-                ->whereDate('tanggal', $today)
-                ->first();
+            $absensiGuru = null;
+            if ($item->guru) {
+                $absensiGuru = AbsensiGuru::where('id_guru', $item->guru->id_guru)
+                    ->whereDate('tanggal', $today)
+                    ->first();
+            }
 
-                // Jika ada data absensi, anggap guru hadir, jika tidak, anggap tidak hadir
-            // $status_kehadiran = $absensiGuru ? 'Hadir' : 'Tidak Hadir';
             $status_kehadiran = match (optional($absensiGuru)->kehadiran) {
                 'Hadir' => 'Hadir',
                 'Sakit' => 'Sakit',
@@ -87,8 +98,8 @@ class JadwalController extends Controller
             };
 
             $jadwalTodayArray[] = [
-                'nama_mapel' => $item->mapel->nama_mapel,
-                'nama_guru' => $item->guru->nama_guru,
+                'nama_mapel' => $item->mapel?->nama_mapel ?? 'Mata Pelajaran Tidak Diketahui',
+                'nama_guru' => $item->guru?->nama_guru ?? 'Guru Tidak Diketahui',
                 'jam_awal' => $item->jam_awal,
                 'jam_akhir' => $item->jam_akhir,
                 'waktu_awal' => $item->waktu_awal,

@@ -61,7 +61,7 @@ class UpdateSiswaController extends Controller
                 'message' => 'Password yang anda masukan tidak cocok'
             ], 401);
         }
-            $user = Siswa::where('id_siswa', $request->idSiswa)->update([
+            $user = Siswa::where('id_siswa', $idSiswa)->update([
                 'nis'=> $request->nis,
                 'nisn'=> $request->nisn,
                 'nama_siswa'=> $request->nama_siswa,

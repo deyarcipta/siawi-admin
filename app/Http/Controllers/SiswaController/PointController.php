@@ -32,7 +32,7 @@ class PointController extends Controller
             $waktu = implode(' ', array_slice($dateTimeParts, 3, 5)); 
             $hari = Carbon::parse($item->tanggal)->translatedFormat('l');
             $pointArray[] = [
-                'nama_point' => $item->point->nama_point,
+                'nama_point' => $item->point?->nama_point ?? 'Pelanggaran/Prestasi Tidak Diketahui',
                 'skor_point' => $item->skor_point,
                 'tanggal' => $tanggal, 
                 'waktu' => $waktu,

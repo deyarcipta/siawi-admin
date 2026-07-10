@@ -17,21 +17,29 @@ class ModulController extends Controller
     public function index(String $id_siswa)
     {
         $siswa = Siswa::where('id_siswa', $id_siswa)->first();
+        if (!$siswa) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Siswa tidak ditemukan'
+            ], 404);
+        }
+
         $modul = Modul::where('id_level', $siswa->id_level)
-        ->where('id_jurusan', $siswa->id_jurusan)
-        ->get();
+            ->where('id_jurusan', $siswa->id_jurusan)
+            ->get();
         
         $modulArray = [];
         foreach ($modul as $item) {
+            $namaMapel = $item->mapel?->nama_mapel ?? 'Mata Pelajaran Tidak Diketahui';
             // Jika belum ada array untuk nama mapel tersebut, inisialisasikan
-            if (!isset($modulArray[$item->mapel->nama_mapel])) {
-                $modulArray[$item->mapel->nama_mapel] = [
-                    'namaMapel' => $item->mapel->nama_mapel,
+            if (!isset($modulArray[$namaMapel])) {
+                $modulArray[$namaMapel] = [
+                    'namaMapel' => $namaMapel,
                     'modul' => [],
                 ];
             }
             // Tambahkan data modul ke dalam array nama mapel yang sesuai
-            $modulArray[$item->mapel->nama_mapel]['modul'][] = [
+            $modulArray[$namaMapel]['modul'][] = [
                 'namaModul' => $item->nama_modul,
                 'file_modul' => $item->file_modul,
             ];
@@ -39,7 +47,7 @@ class ModulController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $modulArray,
+            'data' => array_values($modulArray), // Make sure it is indexed list
             'message' => 'Berhasil Ambil Data'
         ]);
     }
