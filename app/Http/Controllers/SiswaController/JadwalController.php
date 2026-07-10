@@ -43,76 +43,86 @@ class JadwalController extends Controller
 
     public function jadwalToday(String $id_siswa)
     {
-        $siswa = Siswa::where('id_siswa', $id_siswa)->first();
-        if (!$siswa) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Siswa tidak ditemukan'
-            ], 404);
-        }
-        
-        $id_kelas = $siswa->id_kelas;
-        $kelas = Kelas::where('id_kelas', $id_kelas)->first();
-        if (!$kelas) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Kelas tidak ditemukan'
-            ], 404);
-        }
-        $namaKelas = $kelas->kode_kelas;
-
-        $today = Carbon::now()->toDateString();
-        $dayName = Carbon::parse($today)->format('l');
-
-        $englishDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        $indonesianDays = ['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu'];
-
-        // Cari indeks dari nama hari dalam bahasa Inggris
-        $index = array_search($dayName, $englishDays);
-
-        // Jika ditemukan, kembalikan nama hari dalam bahasa Indonesia
-        $namaHari = 'senin'; // default fallback
-        if ($index !== false) {
-            $namaHari =  $indonesianDays[$index];
-        }
-
-        $jadwalToday = JadwalMapel::where('kelas', $namaKelas)
-            ->where('hari', $namaHari)
-            ->get();
+        try {
+            $siswa = Siswa::where('id_siswa', $id_siswa)->first();
+            if (!$siswa) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Siswa tidak ditemukan'
+                ], 404);
+            }
             
-        $jadwalTodayArray = [];
-        foreach ($jadwalToday as $item) {
-            // Cek apakah guru hadir di tabel AbsensiGuru berdasarkan tanggal hari ini
-            $absensiGuru = null;
-            if ($item->guru) {
-                $absensiGuru = AbsensiGuru::where('id_guru', $item->guru->id_guru)
-                    ->whereDate('tanggal', $today)
-                    ->first();
+            $id_kelas = $siswa->id_kelas;
+            $kelas = Kelas::where('id_kelas', $id_kelas)->first();
+            if (!$kelas) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Kelas tidak ditemukan'
+                ], 404);
+            }
+            $namaKelas = $kelas->kode_kelas;
+
+            $today = Carbon::now()->toDateString();
+            $dayName = Carbon::parse($today)->format('l');
+
+            $englishDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            $indonesianDays = ['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu'];
+
+            // Cari indeks dari nama hari dalam bahasa Inggris
+            $index = array_search($dayName, $englishDays);
+
+            // Jika ditemukan, kembalikan nama hari dalam bahasa Indonesia
+            $namaHari = 'senin'; // default fallback
+            if ($index !== false) {
+                $namaHari =  $indonesianDays[$index];
             }
 
-            $status_kehadiran = match (optional($absensiGuru)->kehadiran) {
-                'Hadir' => 'Hadir',
-                'Sakit' => 'Sakit',
-                'Izin' => 'Izin',
-                default => 'Tidak Hadir'
-            };
+            $jadwalToday = JadwalMapel::where('kelas', $namaKelas)
+                ->where('hari', $namaHari)
+                ->get();
+                
+            $jadwalTodayArray = [];
+            foreach ($jadwalToday as $item) {
+                // Cek apakah guru hadir di tabel AbsensiGuru berdasarkan tanggal hari ini
+                $absensiGuru = null;
+                if ($item->guru) {
+                    $absensiGuru = AbsensiGuru::where('id_guru', $item->guru->id_guru)
+                        ->whereDate('tanggal', $today)
+                        ->first();
+                }
 
-            $jadwalTodayArray[] = [
-                'nama_mapel' => $item->mapel?->nama_mapel ?? 'Mata Pelajaran Tidak Diketahui',
-                'nama_guru' => $item->guru?->nama_guru ?? 'Guru Tidak Diketahui',
-                'jam_awal' => $item->jam_awal,
-                'jam_akhir' => $item->jam_akhir,
-                'waktu_awal' => $item->waktu_awal,
-                'waktu_akhir' => $item->waktu_akhir,
-                'status_kehadiran' => $status_kehadiran,
-            ];
+                $status_kehadiran = match (optional($absensiGuru)->kehadiran) {
+                    'Hadir' => 'Hadir',
+                    'Sakit' => 'Sakit',
+                    'Izin' => 'Izin',
+                    default => 'Tidak Hadir'
+                };
+
+                $jadwalTodayArray[] = [
+                    'nama_mapel' => $item->mapel?->nama_mapel ?? 'Mata Pelajaran Tidak Diketahui',
+                    'nama_guru' => $item->guru?->nama_guru ?? 'Guru Tidak Diketahui',
+                    'jam_awal' => $item->jam_awal,
+                    'jam_akhir' => $item->jam_akhir,
+                    'waktu_awal' => $item->waktu_awal,
+                    'waktu_akhir' => $item->waktu_akhir,
+                    'status_kehadiran' => $status_kehadiran,
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $jadwalTodayArray,
+                'message' => 'Berhasil Ambil Data'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan pada server (JadwalToday)',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => $jadwalTodayArray,
-            'message' => 'Berhasil Ambil Data'
-        ]);
     }
 
     /**
