@@ -92,17 +92,26 @@ class AbsensiController extends Controller
             $isHadir = strtolower($kehadiran) === 'hadir';
             $jamMasuk = $isHadir ? $jam : '-';
             
+            // Fetch student first to get correct id_jurusan and send push notification
+            $siswa = Siswa::find($siswaId);
+            $idJurusan = $siswa ? $siswa->id_jurusan : $siswaId;
+            
             Absensi::updateOrCreate(
-                ['id_siswa' => $siswaId, 'tanggal' => $request->input('tanggal'), 'hari' => $request->input('hari'), 'id_kelas' => $request->kelas_id, 'id_jurusan' => $siswaId],
                 [
+                    'id_siswa' => $siswaId, 
+                    'tanggal' => $request->input('tanggal'), 
+                    'hari' => $request->input('hari'), 
+                    'id_kelas' => $request->kelas_id
+                ],
+                [
+                    'id_jurusan' => $idJurusan,
                     'kehadiran' => $kehadiran, 
                     'keterangan' => $keterangan ?? '-',
                     'jam_masuk' => $jamMasuk
                 ]
             );
 
-            // Fetch student and send push notification
-            $siswa = Siswa::find($siswaId);
+            // Send push notification if student exists and has FCM token
             if ($siswa && !empty($siswa->fcm_token)) {
                 \App\Services\FcmService::sendNotification(
                     $siswa->fcm_token,
