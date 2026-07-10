@@ -114,6 +114,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('pointSiswa/proses/{id_siswa}/{tanggal}', [PointSiswaController::class, 'proses'])->name('pointSiswa.proses');
     Route::get('pointSiswa/inputPoint/{id_point}/{id_siswa}/{id_kelas}/{id_jurusan}/{tanggal}', [PointSiswaController::class, 'inputPoint'])->name('pointSiswa.inputPoint');
     Route::get('pointSiswa/reviewPointSiswa/{id_siswa}', [PointSiswaController::class, 'reviewPointSiswa'])->name('pointSiswa.review_point_siswa');
+    Route::get('pointSiswa/sp-pdf/{id_siswa}', [PointSiswaController::class, 'downloadSpPdf'])->name('pointSiswa.sp_pdf');
     Route::delete('pointSiswa/{id_point_siswa}', [PointSiswaController::class, 'destroy'])
         ->name('admin.pointSiswa.destroy');
 
@@ -125,6 +126,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
 
     Route::resource('guru', GuruController::class);
     Route::get('guru/{id_guru}/reset', [GuruController::class, 'reset'])->name('guru.reset');
+    Route::get('guruPiket/panel', [GuruPiketController::class, 'panel'])->name('guruPiket.panel');
+    Route::post('guruPiket/catat-terlambat', [GuruPiketController::class, 'catatTerlambat'])->name('guruPiket.catatTerlambat');
+    Route::delete('guruPiket/hapus-terlambat/{id_absensi}', [GuruPiketController::class, 'hapusTerlambat'])->name('guruPiket.hapusTerlambat');
     Route::resource('guruPiket', GuruPiketController::class);
     
     Route::resource('setting', SettingController::class);

@@ -126,15 +126,19 @@ class AbsensiController extends Controller
         $jurusanId = $siswa->id_jurusan;
 
         // Simpan absensi
-        Absensi::create([
-            'id_siswa' => $siswaId,
-            'tanggal' => $tanggal,
-            'hari' => $hari,
-            'id_kelas' => $kelasId,
-            'id_jurusan' => $jurusanId,
-            'kehadiran' => $kehadiran,
-            'keterangan' => $keterangan,
-        ]);
+        Absensi::updateOrCreate(
+            [
+                'id_siswa' => $siswaId,
+                'tanggal' => $tanggal,
+            ],
+            [
+                'hari' => $hari,
+                'id_kelas' => $kelasId,
+                'id_jurusan' => $jurusanId,
+                'kehadiran' => $kehadiran,
+                'keterangan' => $keterangan,
+            ]
+        );
 
         return back()->with('success', 'Data kehadiran berhasil disimpan.');
     }
@@ -368,16 +372,20 @@ class AbsensiController extends Controller
             $isHadir = $status === 'hadir';
             $jamMasuk = $isHadir ? $jam : '-';
             $keterangan = $isHadir ? 'Masuk' : 'Tidak Masuk';
-            Absensi::create([
-                'id_siswa' => $siswaId,
-                'id_kelas' => $kelasIds[$index],
-                'id_jurusan' => $jurusanIds[$index],
-                'hari' => $hari,
-                'tanggal' => $today,
-                'jam_masuk' => $jamMasuk,
-                'kehadiran' => $kehadiran[$index],
-                'keterangan' => $keterangan
-            ]);
+            Absensi::updateOrCreate(
+                [
+                    'id_siswa' => $siswaId,
+                    'tanggal' => $today,
+                ],
+                [
+                    'id_kelas' => $kelasIds[$index],
+                    'id_jurusan' => $jurusanIds[$index],
+                    'hari' => $hari,
+                    'jam_masuk' => $jamMasuk,
+                    'kehadiran' => $kehadiran[$index],
+                    'keterangan' => $keterangan
+                ]
+            );
         }
 
         return redirect()->back()->with('success', 'Absensi berhasil disimpan!');
@@ -392,14 +400,29 @@ class AbsensiController extends Controller
 
         $absensi = Absensi::findOrFail($id_absensi);
         $jam = now()->format('H:i:s');
+        
+        $oldKehadiran = $absensi->kehadiran;
+        $oldKeterangan = $absensi->keterangan;
+        $newKehadiran = $request->kehadiran;
 
-        // Cek jika status sebelumnya bukan 'Hadir' dan akan diubah menjadi 'Hadir'
-        if ($absensi->kehadiran !== 'Hadir' && $request->kehadiran === 'Hadir') {
+        // Cek jika status sebelumnya bukan 'Hadir' (case-insensitive) dan akan diubah menjadi 'Hadir'
+        if (strtolower($oldKehadiran) !== 'hadir' && strtolower($newKehadiran) === 'hadir') {
             $absensi->jam_masuk = $jam; // isi jam masuk sekarang
             $absensi->keterangan = 'Masuk'; // set keterangan masuk
         }
 
-        $absensi->kehadiran = $request->kehadiran;
+        // JIKA diubah dari Hadir (Terlambat) menjadi Sakit/Izin/Alfa, hapus poin pelanggaran keterlambatannya
+        if (strtolower($oldKehadiran) === 'hadir' && str_contains(strtolower($oldKeterangan), 'terlambat') && strtolower($newKehadiran) !== 'hadir') {
+            // Hapus poin pelanggaran hari ini untuk siswa tersebut (ID Point 1)
+            \App\Models\PointSiswa::where('id_siswa', $absensi->id_siswa)
+                ->where('id_point', 1)
+                ->whereDate('created_at', $absensi->tanggal)
+                ->delete();
+            
+            $absensi->keterangan = '-'; // Reset keterangan agar tidak mengandung kata "Terlambat"
+        }
+
+        $absensi->kehadiran = $newKehadiran;
         $absensi->save();
 
         return redirect()->back()->with('success', 'Data kehadiran berhasil diperbarui.');

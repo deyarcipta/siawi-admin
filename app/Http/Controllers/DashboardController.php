@@ -137,6 +137,52 @@ class DashboardController extends Controller
             return [$tingkat, $namaLanjutan];
         });
 
+        // --- DATA ANALYTICS ---
+        // 1. Trend Kehadiran Mingguan (7 hari aktif terakhir)
+        $recentDates = Absensi::select('tanggal')
+            ->groupBy('tanggal')
+            ->orderBy('tanggal', 'desc')
+            ->limit(7)
+            ->pluck('tanggal')
+            ->reverse()
+            ->toArray();
+
+        $weeklyAttendance = [];
+        $dateLabels = [];
+        foreach ($recentDates as $date) {
+            $hadirCount = Absensi::where('tanggal', $date)->where('kehadiran', 'hadir')->count();
+            $rate = $totalSiswa > 0 ? round(($hadirCount / $totalSiswa) * 100) : 0;
+            
+            try {
+                $formattedDate = Carbon::parse($date)->locale('id')->translatedFormat('d M');
+            } catch (\Exception $e) {
+                $formattedDate = $date;
+            }
+            $dateLabels[] = $formattedDate;
+            $weeklyAttendance[] = $rate;
+        }
+
+        // 2. Distribusi Kategori Pelanggaran
+        $violationStats = PointSiswa::join('point', 'point_siswa.id_point', '=', 'point.id_point')
+            ->select('point.jenis_point', DB::raw('count(*) as total'))
+            ->groupBy('point.jenis_point')
+            ->get();
+
+        $violationCategories = [];
+        $violationCounts = [];
+        foreach ($violationStats as $stat) {
+            $violationCategories[] = $stat->jenis_point;
+            $violationCounts[] = $stat->total;
+        }
+
+        // 3. Radar Siswa Kritis (5 siswa dengan point terbanyak)
+        $siswaKritis = PointSiswa::select('id_siswa', DB::raw('SUM(skor_point) as total_skor'))
+            ->groupBy('id_siswa')
+            ->orderBy('total_skor', 'desc')
+            ->with('siswa.kelas')
+            ->limit(5)
+            ->get();
+
         return view('dashboard', compact(
             'layout',
             'setting',
@@ -153,7 +199,12 @@ class DashboardController extends Controller
             'siswaTerajin',
             'guruTerajin',
             'guruPiketHariIni',
-            'todayDayInd'
+            'todayDayInd',
+            'weeklyAttendance',
+            'dateLabels',
+            'violationCategories',
+            'violationCounts',
+            'siswaKritis'
         ));
     }
 

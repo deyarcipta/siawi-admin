@@ -117,4 +117,150 @@ class GuruPiketController extends Controller
 
         return redirect('/admin/guruPiket')->with('success', 'Jadwal piket guru berhasil dihapus.');
     }
+
+    /**
+     * Tampilkan halaman panel khusus Guru Piket
+     */
+    public function panel()
+    {
+        $layout = 'layout.app';
+        $setting = \App\Models\Setting::find('1');
+        $user = Auth::user();
+        
+        $daysInIndonesian = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu'
+        ];
+        $todayDayEng = \Carbon\Carbon::now()->format('l');
+        $todayDayInd = $daysInIndonesian[$todayDayEng] ?? 'Senin';
+        
+        // Ambil jadwal piket hari ini
+        $piketHariIni = GuruPiket::with('guru')
+            ->where('hari', $todayDayInd)
+            ->get();
+            
+        // Ambil data siswa untuk dropdown
+        $siswa = \App\Models\Siswa::with('kelas', 'jurusan')->orderBy('nama_siswa', 'asc')->get();
+        
+        // Ambil absensi hari ini yang terlambat
+        $today = \Carbon\Carbon::now()->toDateString();
+        $absensiTerlambat = \App\Models\Absensi::where('tanggal', $today)
+            ->where('kehadiran', 'hadir')
+            ->where('keterangan', 'like', '%Terlambat%')
+            ->with('siswa', 'kelas')
+            ->get();
+            
+        return view('dataPiket.piket_panel', compact('layout', 'setting', 'user', 'piketHariIni', 'siswa', 'absensiTerlambat', 'todayDayInd'));
+    }
+
+    /**
+     * Catat keterlambatan siswa dan tambahkan poin pelanggaran otomatis
+     */
+    public function catatTerlambat(Request $request)
+    {
+        $request->validate([
+            'id_siswa' => 'required|exists:siswa,id_siswa',
+        ]);
+        
+        $siswa = \App\Models\Siswa::findOrFail($request->id_siswa);
+        $now = \Carbon\Carbon::now('Asia/Jakarta');
+        $today = $now->toDateString();
+        $jam = $now->format('H:i');
+        
+        $daysInIndonesian = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu'
+        ];
+        $todayDayEng = $now->format('l');
+        $hari = $daysInIndonesian[$todayDayEng] ?? 'Senin';
+        
+        // Cek apakah siswa sudah dicatat terlambat hari ini untuk mencegah pencatatan ganda
+        $isAlreadyLate = \App\Models\Absensi::where('id_siswa', $siswa->id_siswa)
+            ->where('tanggal', $today)
+            ->where('keterangan', 'like', '%Terlambat%')
+            ->exists();
+            
+        if ($isAlreadyLate) {
+            return redirect()->route('admin.guruPiket.panel')->with('failed', 'Siswa ini sudah dicatat terlambat hari ini!');
+        }
+        
+        // 1. Cek atau buat absensi hari ini
+        $absensi = \App\Models\Absensi::where('id_siswa', $siswa->id_siswa)
+            ->where('tanggal', $today)
+            ->first();
+            
+        if ($absensi) {
+            $absensi->update([
+                'kehadiran' => 'hadir',
+                'keterangan' => 'Terlambat (Dicatat Guru Piket pada ' . $jam . ')',
+                'jam_masuk' => $jam
+            ]);
+        } else {
+            \App\Models\Absensi::create([
+                'id_siswa' => $siswa->id_siswa,
+                'id_kelas' => $siswa->id_kelas,
+                'id_jurusan' => $siswa->id_jurusan,
+                'hari' => $hari,
+                'tanggal' => $today,
+                'jam_masuk' => $jam,
+                'kehadiran' => 'hadir',
+                'keterangan' => 'Terlambat (Dicatat Guru Piket)',
+            ]);
+        }
+        
+        // 2. Tambahkan Point Pelanggaran "Terlambat Masuk Sekolah" (id_point = 1, skor = 5)
+        $point = \App\Models\Point::find(1);
+        if (!$point) {
+            $point = \App\Models\Point::where('nama_point', 'like', '%Terlambat%')->first();
+        }
+        
+        $skor = $point ? $point->skor_point : 5;
+        $id_point = $point ? $point->id_point : 1;
+        
+        $guru = Auth::user();
+        
+        \App\Models\PointSiswa::create([
+            'id_siswa' => $siswa->id_siswa,
+            'id_point' => $id_point,
+            'id_kelas' => $siswa->id_kelas,
+            'id_jurusan' => $siswa->id_jurusan,
+            'id_guru' => $guru->id_guru,
+            'role' => $guru->role,
+            'skor_point' => $skor,
+            'tanggal' => $now->locale('id')->translatedFormat('d F Y') . ' ' . $jam
+        ]);
+        
+        return redirect()->route('admin.guruPiket.panel')->with('success', 'Keterlambatan siswa ' . $siswa->nama_siswa . ' berhasil dicatat dan poin pelanggaran (+5) ditambahkan.');
+    }
+
+    /**
+     * Hapus data keterlambatan siswa pada hari ini (menghapus absensi dan poin pelanggaran terkait)
+     */
+    public function hapusTerlambat($id_absensi)
+    {
+        $absensi = \App\Models\Absensi::findOrFail($id_absensi);
+        $id_siswa = $absensi->id_siswa;
+        $tanggal = $absensi->tanggal; // Format: Yyyy-mm-dd
+        
+        // Hapus absensi harian
+        $absensi->delete();
+        
+        // Hapus point_siswa keterlambatan terkait (id_point = 1) yang diinput hari ini
+        \App\Models\PointSiswa::where('id_siswa', $id_siswa)
+            ->where('id_point', 1)
+            ->whereDate('created_at', $tanggal)
+            ->delete();
+            
+        return redirect()->route('admin.guruPiket.panel')->with('success', 'Data keterlambatan siswa berhasil dihapus dan poin pelanggaran dikembalikan.');
+    }
 }

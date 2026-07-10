@@ -28,8 +28,8 @@ class PointSiswaController extends Controller
         $kelasId = '';
 
         // Jika form sudah diisi, ambil data siswa berdasarkan kelas yang dipilih
-        if ($request->filled('tanggal') && $request->filled('kelas')) {
-            $tanggal = $request->tanggal;
+        if ($request->filled('kelas')) {
+            $tanggal = $request->filled('tanggal') ? $request->tanggal : Carbon::now('Asia/Jakarta')->toDateTimeString();
             $kelasId = $request->kelas;
             $carbonDate = Carbon::parse($tanggal);
             $carbonDate->locale('id');
@@ -67,7 +67,7 @@ class PointSiswaController extends Controller
         $siswa = Siswa::where('id_siswa', $id_siswa)->first();
         $request->session()->put('siswa', $siswa);
         $point = Point::where('id_point', $id_point)->first();
-        $guru = Guru::where('id_guru', '1')->first();
+        $guru = Auth::user(); // Gunakan user yang sedang login
 
         PointSiswa::create([
             'id_siswa' => $id_siswa,
@@ -80,13 +80,24 @@ class PointSiswaController extends Controller
             'tanggal' => $tanggal
         ]);
 
-        // $pointSiswa = PointSiswa::orderBy('tanggal', 'desc')->get();
-        // dd($siswa);
-        // $total_point = 0;
-
         return redirect()->route('admin.pointSiswa.review_point_siswa', ['id_siswa' => $id_siswa])->with('success','Data Point Berhasil Ditambah');
+    }
+
+    public function downloadSpPdf(string $id_siswa, Request $request)
+    {
+        $spType = $request->query('sp', 1); // 1, 2, atau 3
+        $siswa = Siswa::with('kelas', 'jurusan')->findOrFail($id_siswa);
+        $setting = Setting::find(1);
         
-        // return view('pointSiswa.review_point_siswa', compact('siswa', 'layout', 'setting', 'pointSiswa', 'total_point'));
+        $pointSiswa = PointSiswa::where('id_siswa', $id_siswa)->with('point', 'guru')->get();
+        $total_point = 0;
+        foreach ($pointSiswa as $data) {
+            $total_point += $data->skor_point;
+        }
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pointSiswa.sp_pdf', compact('siswa', 'setting', 'pointSiswa', 'total_point', 'spType'));
+        
+        return $pdf->stream('Surat_Peringatan_' . $spType . '_' . str_replace(' ', '_', $siswa->nama_siswa) . '.pdf');
     }
 
     public function reviewPointSiswa(Request $request, $id_siswa)

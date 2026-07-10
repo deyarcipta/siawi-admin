@@ -21,67 +21,70 @@
       <!-- Main content -->
       <div class="content">
         <div class="container-fluid">
+          <!-- Row 1: Summary Boxes -->
           <div class="row">
             <div class="col-lg-3 col-6">
               <!-- small box -->
-              <div class="small-box bg-info">
+              <div class="small-box text-white" style="background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%); box-shadow: 0 4px 6px rgba(0,0,0,0.15); border-radius: 8px; border: none;">
                 <div class="inner">
                   <h3>{{$totalSiswa}}</h3>
   
-                  <p>Jumlah Siswa</p>
+                  <p class="text-white-50">Jumlah Siswa</p>
                 </div>
-                <div class="icon">
-                  <i class="ion ion-android-people"></i>
+                <div class="icon" style="color: rgba(255,255,255,0.15);">
+                  <i class="fas fa-id-card"></i>
                 </div>
-                <a href="/admin/siswa" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                <a href="/admin/siswa" class="small-box-footer" style="background-color: rgba(0,0,0,0.15);">More info <i class="fas fa-arrow-circle-right"></i></a>
               </div>
             </div>
             <!-- ./col -->
             <div class="col-lg-3 col-6">
               <!-- small box -->
-              <div class="small-box bg-success">
+              <div class="small-box text-white" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); box-shadow: 0 4px 6px rgba(0,0,0,0.15); border-radius: 8px; border: none;">
                 <div class="inner">
                   <h3>{{$totalHadir}}/{{$totalSiswa}}</h3>
   
-                  <p>Kehadiran Siswa</p>
+                  <p class="text-white-50">Kehadiran Siswa</p>
                 </div>
-                <div class="icon">
-                  <i class="ion ion-stats-bars"></i>
+                <div class="icon" style="color: rgba(255,255,255,0.15);">
+                  <i class="fas fa-user-check"></i>
                 </div>
-                <a href="/admin/absensi" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                <a href="/admin/absensi" class="small-box-footer" style="background-color: rgba(0,0,0,0.15);">More info <i class="fas fa-arrow-circle-right"></i></a>
               </div>
             </div>
             <!-- ./col -->
             <div class="col-lg-3 col-6">
               <!-- small box -->
-              <div class="small-box bg-warning">
+              <div class="small-box text-white" style="background: linear-gradient(135deg, #fd7e14 0%, #d36b00 100%); box-shadow: 0 4px 6px rgba(0,0,0,0.15); border-radius: 8px; border: none;">
                 <div class="inner">
                   <h3>{{$jumlahTidakHadirAll}}</h3>
   
-                  <p>Siswa Tidak Hadir</p>
+                  <p class="text-white-50">Siswa Tidak Hadir</p>
                 </div>
-                <div class="icon">
-                  <i class="ion ion-ios-person-add"></i>
+                <div class="icon" style="color: rgba(255,255,255,0.15);">
+                  <i class="fas fa-user-times"></i>
                 </div>
-                <a href="/admin/siswa-tidak-hadir" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                <a href="/admin/siswa-tidak-hadir" class="small-box-footer" style="background-color: rgba(0,0,0,0.15);">More info <i class="fas fa-arrow-circle-right"></i></a>
               </div>
             </div>
             <!-- ./col -->
             <div class="col-lg-3 col-6">
               <!-- small box -->
-              <div class="small-box bg-danger">
+              <div class="small-box text-white" style="background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%); box-shadow: 0 4px 6px rgba(0,0,0,0.15); border-radius: 8px; border: none;">
                 <div class="inner">
                   <h3>{{$totalGuruHadir}}/{{$totalGuru}}</h3>
   
-                  <p>Kehadiran Guru</p>
+                  <p class="text-white-50">Kehadiran Guru</p>
                 </div>
-                <div class="icon">
-                  <i class="ion ion-ios-remove-circle"></i>
+                <div class="icon" style="color: rgba(255,255,255,0.15);">
+                  <i class="fas fa-chalkboard-teacher"></i>
                 </div>
-                <a href="/admin/absensi_guru" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                <a href="/admin/absensi_guru" class="small-box-footer" style="background-color: rgba(0,0,0,0.15);">More info <i class="fas fa-arrow-circle-right"></i></a>
               </div>
             </div>
-            <!-- ./col -->
+          </div>
+
+          <div class="row">
             <div class="col-lg-6">
                 <div class="card card-primary card-outline">
                     <div class="card-header">
@@ -156,6 +159,53 @@
                                 @endforeach
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Radar Siswa Kritis Card -->
+                <div class="card card-danger card-outline" style="box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-radius: 8px;">
+                    <div class="card-header border-0">
+                        <h5 class="card-title font-weight-bold text-dark"><i class="fas fa-exclamation-triangle text-danger mr-2"></i> Radar Siswa Kritis (Pelanggaran Tertinggi)</h5>
+                    </div>
+                    <div class="card-body">
+                        @if($siswaKritis->count() > 0)
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10px">No</th>
+                                    <th>Nama Siswa</th>
+                                    <th>Kelas</th>
+                                    <th>Poin</th>
+                                    <th>Status SP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($siswaKritis as $sk)
+                                @if($sk->siswa)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td><strong>{{ $sk->siswa->nama_siswa }}</strong></td>
+                                    <td>{{ $sk->siswa->kelas->nama_kelas ?? '-' }}</td>
+                                    <td><span class="badge badge-danger">{{ $sk->total_skor }} Poin</span></td>
+                                    <td>
+                                        @if($sk->total_skor >= 75)
+                                            <span class="badge badge-danger">SP 3 (Orang Tua)</span>
+                                        @elseif($sk->total_skor >= 50)
+                                            <span class="badge badge-warning" style="background-color: #fd7e14; color: white;">SP 2</span>
+                                        @elseif($sk->total_skor >= 25)
+                                            <span class="badge badge-info">SP 1</span>
+                                        @else
+                                            <span class="badge badge-success">Aman</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                        @else
+                        <div class="alert alert-light text-center mb-0">Tidak ada data pelanggaran siswa yang tercatat.</div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -255,7 +305,6 @@
 <script src="{{ asset('lte/dist/js/adminlte.min.js') }}"></script>
 <!-- SweetAlert2 -->
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
   @if ($message = Session::get('success'))
       Swal.fire({

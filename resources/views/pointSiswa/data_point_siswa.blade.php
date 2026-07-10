@@ -30,8 +30,8 @@
                             @csrf
                             <div class="row">
                                 <div class="form-group col-6">
-                                    <label for="tanggal">Tanggal</label>
-                                    <input type="datetime-local" class="form-control" id="tanggal" name="tanggal" required value="{{ $tanggal ?? '' }}">
+                                    <label for="tanggal">Tanggal (Opsional)</label>
+                                    <input type="datetime-local" class="form-control" id="tanggal" name="tanggal" value="{{ $tanggal ?? '' }}">
                                 </div>
                                 <div class="form-group col-6">
                                     <label for="kelas">Kelas</label>
@@ -80,8 +80,12 @@
                                             <input type="hidden" name="siswa[{{ $data->id_siswa }}][id_siswa]" value="{{ $data->id_siswa }}">{{ $data->nama_siswa }}
                                         </td>
                                         <td>
-                                            <a href="/admin/pointSiswa/proses/{{$data->id_siswa}}/{{$tanggal}}" class="btn btn-danger ml-auto">Proses</a>
-                                            {{-- <input class="form-control" type="text" name="siswa[{{ $data->id_siswa }}][keterangan]" value="{{ $absensiSiswa[$data->id_siswa]->keterangan ?? '' }}"> --}}
+                                            <a href="{{ route('admin.pointSiswa.review_point_siswa', ['id_siswa' => $data->id_siswa]) }}" class="btn btn-info mr-1">
+                                                <i class="fas fa-eye mr-1"></i> Lihat Poin
+                                            </a>
+                                            <a href="/admin/pointSiswa/proses/{{$data->id_siswa}}/{{$tanggal}}" class="btn btn-danger">
+                                                <i class="fas fa-plus mr-1"></i> Input Poin
+                                            </a>
                                         </td>
                                     </tr>
                                     @endforeach

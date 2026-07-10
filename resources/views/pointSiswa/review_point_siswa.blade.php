@@ -27,7 +27,30 @@
                         <p style="margin:0">Nama Siswa : {{ $siswa->nama_siswa }}</p>
                         <p style="margin:0">No. Induk Siswa : {{ $siswa->nis }}</p>
                         <p style="margin:0">Kelas : {{ $siswa->kelas->nama_kelas }}</p>
-                        <p style="margin:0">Total Point : {{ $total_point }}</p>
+                        <p style="margin:0">Total Point : <strong class="{{ $total_point >= 75 ? 'text-danger' : ($total_point >= 50 ? 'text-warning' : ($total_point >= 25 ? 'text-info' : 'text-success')) }}">{{ $total_point }}</strong></p>
+                        
+                        @if ($total_point >= 25)
+                        <div class="alert {{ $total_point >= 75 ? 'alert-danger' : ($total_point >= 50 ? 'alert-warning' : 'alert-info') }} mt-3">
+                            <h5><i class="icon fas fa-exclamation-triangle"></i> Status Kritis Poin Pelanggaran!</h5>
+                            Siswa ini telah mengumpulkan <strong>{{ $total_point }}</strong> poin pelanggaran. Batas toleransi terlewati. Anda dapat mengunduh Surat Peringatan resmi di bawah ini:
+                            <div class="mt-2">
+                                <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => 1]) }}" class="btn btn-dark btn-sm mt-1" target="_blank">
+                                    <i class="fas fa-file-pdf mr-1"></i> Cetak SP 1 (Min. 25 Poin)
+                                </a>
+                                @if ($total_point >= 50)
+                                <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => 2]) }}" class="btn btn-dark btn-sm mt-1 ml-2" target="_blank">
+                                    <i class="fas fa-file-pdf mr-1"></i> Cetak SP 2 (Min. 50 Poin)
+                                </a>
+                                @endif
+                                @if ($total_point >= 75)
+                                <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => 3]) }}" class="btn btn-dark btn-sm mt-1 ml-2" target="_blank">
+                                    <i class="fas fa-file-pdf mr-1"></i> Cetak SP 3 (Min. 75 Poin)
+                                </a>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
+
                         <table id="siswaTable" class="table table-bordered table-hover mt-2">
                             <thead>
                                 <tr>
