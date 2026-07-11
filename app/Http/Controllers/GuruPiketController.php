@@ -170,7 +170,7 @@ class GuruPiketController extends Controller
         $siswa = \App\Models\Siswa::findOrFail($request->id_siswa);
         $now = \Carbon\Carbon::now('Asia/Jakarta');
         $today = $now->toDateString();
-        $jam = $now->format('H:i');
+        $jam = $now->format('H.i');
         
         $daysInIndonesian = [
             'Sunday' => 'Minggu',
