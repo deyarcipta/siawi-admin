@@ -170,7 +170,7 @@ class GuruPiketController extends Controller
         $siswa = \App\Models\Siswa::findOrFail($request->id_siswa);
         $now = \Carbon\Carbon::now('Asia/Jakarta');
         $today = $now->toDateString();
-        $jam = $now->format('H.i');
+        $jam = $now->format('H:i:s');
         
         $daysInIndonesian = [
             'Sunday' => 'Minggu',
@@ -214,7 +214,7 @@ class GuruPiketController extends Controller
                 'tanggal' => $today,
                 'jam_masuk' => $jam,
                 'kehadiran' => 'hadir',
-                'keterangan' => 'Terlambat (Dicatat Guru Piket)',
+                'keterangan' => 'Terlambat (Dicatat Guru Piket pada ' . $jam . ')',
             ]);
         }
         
@@ -239,6 +239,15 @@ class GuruPiketController extends Controller
             'skor_point' => $skor,
             'tanggal' => $now->locale('id')->translatedFormat('d F Y') . ' ' . $jam
         ]);
+        
+        // Send push notification if student has FCM token
+        if ($siswa && !empty($siswa->fcm_token)) {
+            \App\Services\FcmService::sendNotification(
+                $siswa->fcm_token,
+                'Absensi Hari Ini',
+                "Status absensi kamu hari ini (" . $now->format('d-m-Y') . ") telah dicatat: Hadir (Terlambat)"
+            );
+        }
         
         return redirect()->route('admin.guruPiket.panel')->with('success', 'Keterlambatan siswa ' . $siswa->nama_siswa . ' berhasil dicatat dan poin pelanggaran (+5) ditambahkan.');
     }
