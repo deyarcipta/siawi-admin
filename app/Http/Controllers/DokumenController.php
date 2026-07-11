@@ -56,7 +56,13 @@ class DokumenController extends Controller
         // Periksa apakah file diunggah
         if ($request->hasFile('file_dokumen')) {
             $file = $request->file('file_dokumen');
-            $nama_file = $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
+            
+            // Bersihkan nama dari karakter berbahaya untuk penamaan file
+            $safe_jenis = preg_replace('/[\\/\\\?\*:\(\)"<>|]/', '', $request->jenis_dokumen);
+            $safe_siswa = preg_replace('/[\\/\\\?\*:\(\)"<>|]/', '', $siswa->nama_siswa);
+            
+            $nama_file = $safe_jenis . '_' . $safe_siswa . '.' . $extension;
             $tujuan_upload = 'file_dokumen';
         
             // Simpan ke storage/app/public/file_dokumen
@@ -98,22 +104,41 @@ class DokumenController extends Controller
             'file_dokumen' => 'nullable|mimes:pdf,PDF',
         ]);
 
-        $dokumen = Dokumen::findOrFail($id_dokumen);
-        $nama_file = $dokumen->file_dokumen;
+        $dokumen = Dokumen::with('siswa')->findOrFail($id_dokumen);
+        $siswa = $dokumen->siswa;
+        
+        // Bersihkan nama dari karakter berbahaya untuk penamaan file
+        $safe_jenis = preg_replace('/[\\/\\\?\*:\(\)"<>|]/', '', $request->jenis_dokumen);
+        $safe_siswa = preg_replace('/[\\/\\\?\*:\(\)"<>|]/', '', $siswa->nama_siswa);
+
+        $nama_file_lama = $dokumen->file_dokumen;
+        $nama_file_baru = $nama_file_lama;
 
         if ($request->hasFile('file_dokumen')) {
-            if ($dokumen->file_dokumen) {
-                Storage::delete('public/file_dokumen/' . $dokumen->file_dokumen);
+            if ($nama_file_lama) {
+                Storage::delete('public/file_dokumen/' . $nama_file_lama);
             }
 
             $file = $request->file('file_dokumen');
-            $nama_file = $file->getClientOriginalName();
-            $file->storeAs('file_dokumen', $nama_file, 'public');
+            $extension = $file->getClientOriginalExtension();
+            $nama_file_baru = $safe_jenis . '_' . $safe_siswa . '.' . $extension;
+            $file->storeAs('file_dokumen', $nama_file_baru, 'public');
+        } else {
+            // Jika tidak mengunggah file baru, tetapi jenis dokumen berubah
+            if ($nama_file_lama && $request->jenis_dokumen != $dokumen->jenis_dokumen) {
+                $extension = pathinfo($nama_file_lama, PATHINFO_EXTENSION);
+                $nama_file_baru = $safe_jenis . '_' . $safe_siswa . '.' . $extension;
+
+                // Rename file di storage jika berbeda
+                if ($nama_file_baru !== $nama_file_lama && Storage::disk('public')->exists('file_dokumen/' . $nama_file_lama)) {
+                    Storage::disk('public')->move('file_dokumen/' . $nama_file_lama, 'file_dokumen/' . $nama_file_baru);
+                }
+            }
         }
 
         $dokumen->update([
             'jenis_dokumen' => $request->jenis_dokumen,
-            'file_dokumen' => $nama_file,
+            'file_dokumen' => $nama_file_baru,
         ]);
 
         return redirect('/admin/dokumen/' . $dokumen->id_siswa)->with('success', 'Dokumen berhasil diubah.');
