@@ -412,7 +412,7 @@ class AbsensiController extends Controller
 
             $isHadir = $status === 'hadir';
             $jamMasuk = $isHadir ? $jam : '-';
-            $keterangan = $isHadir ? 'Masuk' : 'Tidak Masuk';
+            $keterangan = '-';
             Absensi::updateOrCreate(
                 [
                     'id_siswa' => $siswaId,
@@ -459,7 +459,7 @@ class AbsensiController extends Controller
         // Cek jika status sebelumnya bukan 'Hadir' (case-insensitive) dan akan diubah menjadi 'Hadir'
         if (strtolower($oldKehadiran) !== 'hadir' && strtolower($newKehadiran) === 'hadir') {
             $absensi->jam_masuk = $jam; // isi jam masuk sekarang
-            $absensi->keterangan = 'Masuk'; // set keterangan masuk
+            $absensi->keterangan = '-'; // set keterangan to '-'
         }
 
         // JIKA diubah dari Hadir (Terlambat) menjadi Sakit/Izin/Alfa, hapus poin pelanggaran keterlambatannya
