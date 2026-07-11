@@ -54,17 +54,25 @@ class AbsensiController extends Controller
         $warna = '';
         $absenArray = []; 
         foreach ($absen as $item) {
-            if ($item->kehadiran == 'sakit' || $item->kehadiran == 'izin' || $item->kehadiran == 'alfa') {
+            $kehadiranLower = strtolower($item->kehadiran);
+            if ($kehadiranLower == 'sakit' || $kehadiranLower == 'izin' || $kehadiranLower == 'alfa') {
                 // Jika status kehadiran adalah sakit, izin, atau alfa, tetapkan warna sebagai Colors.red
                 $warna = 'red';
             } else {
                 $warna = 'blue';
             }
             
-            $keteranganLower = strtolower($item->keterangan);
-            if (in_array(strtolower($item->kehadiran), ['sakit', 'izin', 'alfa'])) {
+            $keteranganLower = trim(strtolower($item->keterangan));
+            if (in_array($kehadiranLower, ['sakit', 'izin', 'alfa'])) {
                 $tipeAbsen = 'Manual oleh Guru';
-            } elseif (str_contains($keteranganLower, 'check in') || str_contains($keteranganLower, 'check out') || str_contains($keteranganLower, 'face') || str_contains($keteranganLower, 'presence')) {
+            } elseif (
+                str_contains($keteranganLower, 'check in') || 
+                str_contains($keteranganLower, 'check out') || 
+                str_contains($keteranganLower, 'face') || 
+                str_contains($keteranganLower, 'presence') ||
+                $keteranganLower === 'masuk' ||
+                $keteranganLower === 'pulang'
+            ) {
                 $tipeAbsen = 'Otomatis (Face Recognition)';
             } else {
                 $tipeAbsen = 'Manual oleh Guru';
