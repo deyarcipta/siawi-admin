@@ -114,7 +114,6 @@
               @endforeach
             </select>
           </div>
-          <input type="text" name="id_kelas" id="id_kelas" value="{{$kelasId}}" hidden>
           <div class="form-group">
             <label for="jenis_dokumen">Jenis Dokumen</label>
             <input type="text" name="jenis_dokumen" class="form-control" placeholder="Contoh: Kartu Pelajar" required>

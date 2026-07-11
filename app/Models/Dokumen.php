@@ -14,15 +14,10 @@ class Dokumen extends Model
     protected $guarded = [];
 
     protected $fillable = [
-        'id_siswa', 'id_kelas', 'jenis_dokumen', 'file_dokumen'
+        'id_siswa', 'jenis_dokumen', 'file_dokumen'
     ];
 
     protected $primaryKey = 'id_dokumen';
-
-    public function kelas()
-    {
-        return $this->belongsTo('App\Models\Kelas', 'id_kelas', 'id_kelas');
-    }
 
     public function siswa()
     {

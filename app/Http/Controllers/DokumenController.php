@@ -45,13 +45,14 @@ class DokumenController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
         $request->validate([
             'id_siswa' => 'required',
-            'id_kelas' => 'required',
             'jenis_dokumen' => 'required',
             'file_dokumen' => 'required|mimes:pdf,PDF',
         ]);
+
+        $siswa = Siswa::findOrFail($request->id_siswa);
+
         // Periksa apakah file diunggah
         if ($request->hasFile('file_dokumen')) {
             $file = $request->file('file_dokumen');
@@ -64,12 +65,11 @@ class DokumenController extends Controller
 
         $dokumen = Dokumen::create([
             'id_siswa' => $request->id_siswa,
-            'id_kelas' => $request->id_kelas,
             'jenis_dokumen' => $request->jenis_dokumen,
             'file_dokumen' => $nama_file,
         ]);
 
-        return redirect()->route('admin.dokumen.index', ['kelas' => $request->id_kelas])->with('success', 'Dokumen berhasil ditambahkan.');
+        return redirect()->route('admin.dokumen.index', ['kelas' => $siswa->id_kelas])->with('success', 'Dokumen berhasil ditambahkan.');
     }
 
     public function show(string $id_siswa)
@@ -82,14 +82,52 @@ class DokumenController extends Controller
         return view('dokumen.review_dokumen', compact('dokumen','layout','setting','user'));
     }
 
+    public function edit(string $id_dokumen)
+    {
+        $layout = 'layout.app';
+        $setting = Setting::find('1');
+        $user = Auth::user();
+        $dokumen = Dokumen::with('siswa')->findOrFail($id_dokumen);
+        return view('dokumen.edit', compact('dokumen', 'layout', 'setting', 'user'));
+    }
+
+    public function update(Request $request, string $id_dokumen)
+    {
+        $request->validate([
+            'jenis_dokumen' => 'required',
+            'file_dokumen' => 'nullable|mimes:pdf,PDF',
+        ]);
+
+        $dokumen = Dokumen::findOrFail($id_dokumen);
+        $nama_file = $dokumen->file_dokumen;
+
+        if ($request->hasFile('file_dokumen')) {
+            if ($dokumen->file_dokumen) {
+                Storage::delete('public/file_dokumen/' . $dokumen->file_dokumen);
+            }
+
+            $file = $request->file('file_dokumen');
+            $nama_file = $file->getClientOriginalName();
+            $file->storeAs('file_dokumen', $nama_file, 'public');
+        }
+
+        $dokumen->update([
+            'jenis_dokumen' => $request->jenis_dokumen,
+            'file_dokumen' => $nama_file,
+        ]);
+
+        return redirect('/admin/dokumen/' . $dokumen->id_siswa)->with('success', 'Dokumen berhasil diubah.');
+    }
+
     public function destroy(string $id_dokumen)
     {
         $dokumen = Dokumen::findOrFail($id_dokumen);
+        $id_siswa = $dokumen->id_siswa;
         if ($dokumen->file_dokumen) {
             // Hapus file lama dari penyimpanan (misalnya, menggunakan Storage di Laravel)
             Storage::delete('public/file_dokumen/' . $dokumen->file_dokumen);
         }
         Dokumen::destroy($id_dokumen);
-        return redirect('/admin/dokumen');
+        return redirect('/admin/dokumen/' . $id_siswa)->with('success', 'Dokumen berhasil dihapus.');
     }
 }
