@@ -26,6 +26,10 @@
   <link rel="stylesheet" href="{{ asset('lte/plugins/fontawesome-free/css/all.min.css') }}">
   
   <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
     :root {
       --primary-gradient: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
       --accent-color: #3b82f6;
