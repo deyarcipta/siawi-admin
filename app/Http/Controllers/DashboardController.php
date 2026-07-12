@@ -183,6 +183,19 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // 4. Data Siswa Terlambat Hari Ini
+        $totalTerlambat = Absensi::where('tanggal', $today)
+            ->where('kehadiran', 'hadir')
+            ->where('keterangan', 'like', '%Terlambat%')
+            ->count();
+
+        $siswaTerlambat = Absensi::where('tanggal', $today)
+            ->where('kehadiran', 'hadir')
+            ->where('keterangan', 'like', '%Terlambat%')
+            ->with('siswa', 'kelas')
+            ->orderBy('jam_masuk', 'desc')
+            ->get();
+
         return view('dashboard', compact(
             'layout',
             'setting',
@@ -204,7 +217,9 @@ class DashboardController extends Controller
             'dateLabels',
             'violationCategories',
             'violationCounts',
-            'siswaKritis'
+            'siswaKritis',
+            'totalTerlambat',
+            'siswaTerlambat'
         ));
     }
 

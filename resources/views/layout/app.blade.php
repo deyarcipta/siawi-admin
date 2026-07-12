@@ -64,11 +64,137 @@
       margin: 0;
     }
 
-    table thead,
-    table thead th,
-    table thead tr th {
-      background-color: #007bff !important;
-      color: #ffffff !important;
+    /* Global Modern Table Style */
+    table.table,
+    .table {
+      border-collapse: separate !important;
+      border-spacing: 0 !important;
+      width: 100% !important;
+      margin-top: 5px !important;
+      border: none !important;
+    }
+
+    table.table thead th,
+    .table thead th,
+    .table thead tr th {
+      background-color: #f8fafc !important;
+      color: #4a5568 !important;
+      font-weight: 700 !important;
+      text-transform: uppercase !important;
+      font-size: 0.75rem !important;
+      letter-spacing: 0.05em !important;
+      border-bottom: 2px solid #edf2f7 !important;
+      border-top: none !important;
+      border-left: none !important;
+      border-right: none !important;
+      padding: 12px 16px !important;
+    }
+
+    table.table tbody td,
+    .table tbody td {
+      padding: 12px 16px !important;
+      vertical-align: middle !important;
+      border-bottom: 1px solid #edf2f7 !important;
+      border-top: none !important;
+      border-left: none !important;
+      border-right: none !important;
+      color: #4a5568 !important;
+      font-size: 0.88rem !important;
+      background-color: transparent !important;
+    }
+
+    /* Clear default thick borders from table-bordered */
+    .table-bordered {
+      border: none !important;
+    }
+    .table-bordered td, 
+    .table-bordered th {
+      border: none !important;
+      border-bottom: 1px solid #edf2f7 !important;
+    }
+    .table-bordered thead th {
+      border-bottom: 2px solid #edf2f7 !important;
+    }
+
+    .table tbody tr:last-child td {
+      border-bottom: none !important;
+    }
+
+    .table tbody tr:hover td {
+      background-color: #f7fafc !important;
+    }
+
+    /* Global Pagination Premium Style */
+    .pagination .page-item .page-link {
+      border: none !important;
+      color: #718096 !important;
+      font-weight: 600 !important;
+      padding: 8px 16px !important;
+      margin: 0 3px !important;
+      border-radius: 6px !important;
+      font-size: 0.85rem !important;
+      background-color: transparent !important;
+      transition: all 0.2s ease;
+      box-shadow: none !important;
+    }
+
+    .pagination .page-item.active .page-link {
+      background-color: #ebf8ff !important;
+      color: #3182ce !important;
+    }
+
+    .pagination .page-item .page-link:hover:not(.active) {
+      background-color: #f7fafc !important;
+      color: #4a5568 !important;
+    }
+
+    .pagination .page-item.disabled .page-link {
+      color: #cbd5e0 !important;
+      background-color: transparent !important;
+    }
+
+    /* Table responsive wrapper */
+    .table-responsive {
+      border: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    /* Global Soft Badges */
+    .badge-soft-danger {
+      background-color: #fed7d7 !important;
+      color: #9b2c2c !important;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+    .badge-soft-warning {
+      background-color: #feebc8 !important;
+      color: #c05621 !important;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+    .badge-soft-success {
+      background-color: #c6f6d5 !important;
+      color: #22543d !important;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+    .badge-soft-info {
+      background-color: #e2e8f0 !important;
+      color: #4a5568 !important;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+    .badge-soft-purple {
+      background-color: #e9d8fd !important;
+      color: #553c9a !important;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
     }
   </style>
 </head>
