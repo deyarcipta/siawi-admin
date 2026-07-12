@@ -57,26 +57,25 @@
                   <div class="form-group col-6">
                     <label for="hari">Hari</label>
                     <select class="form-control" name="hari" id="hari">
-                      <option value="{{$edit->hari}}">{{$edit->hari}}</option>
-                        <option value="senin">Senin</option>
-                        <option value="selasa">Selasa</option>
-                        <option value="rabu">Rabu</option>
-                        <option value="kamis">Kamis</option>
-                        <option value="jumat">Jumat</option>
+                        <option value="senin" {{ strtolower($edit->hari) == 'senin' ? 'selected' : '' }}>Senin</option>
+                        <option value="selasa" {{ strtolower($edit->hari) == 'selasa' ? 'selected' : '' }}>Selasa</option>
+                        <option value="rabu" {{ strtolower($edit->hari) == 'rabu' ? 'selected' : '' }}>Rabu</option>
+                        <option value="kamis" {{ strtolower($edit->hari) == 'kamis' ? 'selected' : '' }}>Kamis</option>
+                        <option value="jumat" {{ strtolower($edit->hari) == 'jumat' ? 'selected' : '' }}>Jumat</option>
                     </select>
                     @error('hari')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>
                   <div class="form-group col-6">
-                    <label for="kelas">Kelas</label>
-                    <select class="form-control" name="kelas" id="kelas">
-                      <option value="{{$edit->kelas}}">{{$edit->kelas}}</option>
-                        @foreach ($kelas as $kls)
-                          <option value="{{$kls->kode_kelas}}">{{$kls->kode_kelas}}</option>
-                        @endforeach
+                    <label for="id_kelas">Kelas</label>
+                    <select class="form-control" name="id_kelas" id="id_kelas">
+                      <option value="">Pilih Kelas</option>
+                      @foreach ($kelas as $kls)
+                        <option value="{{$kls->id_kelas}}" {{ $edit->id_kelas == $kls->id_kelas ? 'selected' : '' }}>{{$kls->nama_kelas}}</option>
+                      @endforeach
                     </select>
-                    @error('kelas')
+                    @error('id_kelas')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>
@@ -85,17 +84,9 @@
                   <div class="form-group col-6">
                     <label for="jam_awal">Jam Awal</label>
                     <select class="form-control" name="jam_awal" id="jam_awal">
-                      <option value="{{$edit->jam_awal}}">{{$edit->jam_awal}}</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                        <option value="10">10</option>
+                        @for ($i = 1; $i <= 10; $i++)
+                          <option value="{{ $i }}" {{ $edit->jam_awal == $i ? 'selected' : '' }}>{{ $i }}</option>
+                        @endfor
                     </select>
                     @error('jam_awal')
                       <div class="alert alert-danger">{{ $message }}</div>
@@ -104,17 +95,9 @@
                   <div class="form-group col-6">
                     <label for="jam_akhir">Jam Akhir</label>
                     <select class="form-control" name="jam_akhir" id="jam_akhir">
-                      <option value="{{$edit->jam_akhir}}">{{$edit->jam_akhir}}</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                        <option value="10">10</option>
+                        @for ($i = 1; $i <= 10; $i++)
+                          <option value="{{ $i }}" {{ $edit->jam_akhir == $i ? 'selected' : '' }}>{{ $i }}</option>
+                        @endfor
                     </select>
                     @error('jam_akhir')
                       <div class="alert alert-danger">{{ $message }}</div>
@@ -149,4 +132,31 @@
       </div>
     </div>
   </div>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const jamPelajaran = @json($setting->jam_pelajaran ?? []);
+
+      const jamAwalSelect = document.getElementById('jam_awal');
+      const jamAkhirSelect = document.getElementById('jam_akhir');
+      const waktuAwalInput = document.getElementById('waktu_awal');
+      const waktuAkhirInput = document.getElementById('waktu_akhir');
+
+      function updateWaktuAwal() {
+          const jamAwal = jamAwalSelect.value;
+          if (jamPelajaran[jamAwal] && jamPelajaran[jamAwal].mulai) {
+              waktuAwalInput.value = jamPelajaran[jamAwal].mulai;
+          }
+      }
+
+      function updateWaktuAkhir() {
+          const jamAkhir = jamAkhirSelect.value;
+          if (jamPelajaran[jamAkhir] && jamPelajaran[jamAkhir].selesai) {
+              waktuAkhirInput.value = jamPelajaran[jamAkhir].selesai;
+          }
+      }
+
+      jamAwalSelect.addEventListener('change', updateWaktuAwal);
+      jamAkhirSelect.addEventListener('change', updateWaktuAkhir);
+  });
+  </script>
 @endsection

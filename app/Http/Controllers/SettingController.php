@@ -198,6 +198,19 @@ class SettingController extends Controller
             return redirect()->back()->with('success', 'Versi aplikasi berhasil diperbarui.');
         }
 
+        // Cek apakah request mengandung 'jam_pelajaran' (berarti update jam pelajaran)
+        if ($request->has('jam_pelajaran')) {
+            $request->validate([
+                'jam_pelajaran' => 'required|array',
+            ]);
+
+            $setting->update([
+                'jam_pelajaran' => json_encode($request->jam_pelajaran),
+            ]);
+
+            return redirect('/admin/setting')->with('success', 'Pengaturan jam pelajaran berhasil diperbarui.');
+        }
+
         return redirect('/admin/setting')->with('success', 'Pengaturan berhasil diperbarui.');
         
     }

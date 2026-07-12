@@ -32,7 +32,7 @@ class JadwalMapelController extends Controller
     {
         $layout = 'layout.app';
         $setting = Setting::find('1');
-        $kelas = Kelas::orderBy('created_at', 'desc')->get();
+        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $mapel = Mapel::orderBy('created_at', 'desc')->get();
         $guru = Guru::orderBy('created_at', 'desc')->get();
         $user = Auth::user();
@@ -87,7 +87,7 @@ class JadwalMapelController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $kelas = Kelas::orderBy('created_at', 'desc')->get();
+        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $mapel = Mapel::orderBy('created_at', 'desc')->get();
         $guru = Guru::orderBy('created_at', 'desc')->get();
         $edit = JadwalMapel::find($id_jadwal);

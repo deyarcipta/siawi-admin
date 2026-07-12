@@ -150,4 +150,31 @@
       </div>
     </div>
   </div>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const jamPelajaran = @json($setting->jam_pelajaran ?? []);
+
+      const jamAwalSelect = document.getElementById('jam_awal');
+      const jamAkhirSelect = document.getElementById('jam_akhir');
+      const waktuAwalInput = document.getElementById('waktu_awal');
+      const waktuAkhirInput = document.getElementById('waktu_akhir');
+
+      function updateWaktuAwal() {
+          const jamAwal = jamAwalSelect.value;
+          if (jamPelajaran[jamAwal] && jamPelajaran[jamAwal].mulai) {
+              waktuAwalInput.value = jamPelajaran[jamAwal].mulai;
+          }
+      }
+
+      function updateWaktuAkhir() {
+          const jamAkhir = jamAkhirSelect.value;
+          if (jamPelajaran[jamAkhir] && jamPelajaran[jamAkhir].selesai) {
+              waktuAkhirInput.value = jamPelajaran[jamAkhir].selesai;
+          }
+      }
+
+      jamAwalSelect.addEventListener('change', updateWaktuAwal);
+      jamAkhirSelect.addEventListener('change', updateWaktuAkhir);
+  });
+  </script>
 @endsection

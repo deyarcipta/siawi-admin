@@ -36,6 +36,9 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#settingVersiAplikasi">Versi Aplikasi</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#settingJamPelajaran">Setting Jam Pelajaran</a>
+                        </li>
                     </ul>
 
                     <div class="card-body">
@@ -297,6 +300,34 @@
                                         @enderror
                                     </div>
                                     <button type="submit" class="btn btn-primary">Simpan Versi Aplikasi</button>
+                                </form>
+                            </div>
+
+                            <!-- Form Setting Jam Pelajaran -->
+                            <div class="tab-pane fade" id="settingJamPelajaran">
+                                <form action="/admin/setting/{{$setting->id}}" method="POST">
+                                    @method('PUT')
+                                    @csrf
+                                    <div class="row">
+                                        @for ($i = 1; $i <= 10; $i++)
+                                            <div class="col-md-6 mb-3">
+                                                <div class="card p-3 border shadow-sm">
+                                                    <h5 class="font-weight-bold">Jam Ke-{{ $i }}</h5>
+                                                    <div class="row">
+                                                        <div class="form-group col-6 mb-0">
+                                                            <label for="jam_pelajaran_{{ $i }}_mulai">Waktu Mulai</label>
+                                                            <input type="time" class="form-control" id="jam_pelajaran_{{ $i }}_mulai" name="jam_pelajaran[{{ $i }}][mulai]" value="{{ isset($setting->jam_pelajaran[$i]['mulai']) ? $setting->jam_pelajaran[$i]['mulai'] : '' }}">
+                                                        </div>
+                                                        <div class="form-group col-6 mb-0">
+                                                            <label for="jam_pelajaran_{{ $i }}_selesai">Waktu Selesai</label>
+                                                            <input type="time" class="form-control" id="jam_pelajaran_{{ $i }}_selesai" name="jam_pelajaran[{{ $i }}][selesai]" value="{{ isset($setting->jam_pelajaran[$i]['selesai']) ? $setting->jam_pelajaran[$i]['selesai'] : '' }}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endfor
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-3">Simpan Setting Jam Pelajaran</button>
                                 </form>
                             </div>
                         </div>

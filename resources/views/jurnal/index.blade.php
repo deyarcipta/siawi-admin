@@ -71,7 +71,7 @@
                   <th>Jam</th>
                   <th>Materi</th>
                   <th>Foto Kelas</th>
-                  <th>Aksi</th>
+                  <th class="text-center" style="width: 120px;">Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -91,14 +91,14 @@
                         -
                       @endif
                     </td>
-                    <td>
-                      <form action="{{ route('admin.jurnal.destroy', $data->id_jurnal) }}" method="POST">
-                        <button type="button" class="btn btn-success ml-2" data-toggle="modal" data-target="#editJurnal{{ $data->id_jurnal }}">
-                          <i class="fa fa-edit text-white"></i>
-                        </button>
+                    <td class="text-center">
+                      <form action="{{ route('admin.jurnal.destroy', $data->id_jurnal) }}" method="POST" class="d-inline-block mb-0">
                         @csrf
                         @method('DELETE')
-                        <button type="button" class="btn btn-danger btn-delete">
+                        <button type="button" class="btn btn-success btn-sm mr-1" data-toggle="modal" data-target="#editJurnal{{ $data->id_jurnal }}" title="Edit Jurnal">
+                          <i class="fa fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm btn-delete" title="Hapus Jurnal">
                           <i class="fa fa-trash"></i>
                         </button>
                       </form>
