@@ -24,6 +24,7 @@ use App\Http\Controllers\JadwalMapelController;
 use App\Http\Controllers\JurnalMengajarController;
 use App\Http\Controllers\RekapKehadiranGuruController;
 use App\Http\Controllers\GuruPiketController;
+use App\Http\Controllers\PiketPembiasaanPagiController;
 use App\Http\Controllers\RekapBelumAbsenController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\AbsensiGuruController;
@@ -130,6 +131,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::post('guruPiket/catat-terlambat', [GuruPiketController::class, 'catatTerlambat'])->name('guruPiket.catatTerlambat');
     Route::delete('guruPiket/hapus-terlambat/{id_absensi}', [GuruPiketController::class, 'hapusTerlambat'])->name('guruPiket.hapusTerlambat');
     Route::resource('guruPiket', GuruPiketController::class);
+    Route::resource('piketPembiasaanPagi', PiketPembiasaanPagiController::class);
     
     Route::resource('setting', SettingController::class);
     Route::put('/admin/setting-versi/{id_version}', [SettingController::class, 'updateVersiAplikasi'])

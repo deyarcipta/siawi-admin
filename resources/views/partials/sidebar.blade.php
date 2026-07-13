@@ -187,8 +187,8 @@
         </li>
 
         <!-- 5. Guru Piket -->
-        <li class="nav-item has-treeview {{ Request::is('admin/guruPiket*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/guruPiket*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/guruPiket*') || Request::is('admin/piketPembiasaanPagi*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/guruPiket*') || Request::is('admin/piketPembiasaanPagi*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-clock"></i>
             <p>
               Guru Piket
@@ -206,6 +206,12 @@
               <a href="/admin/guruPiket" class="nav-link {{ Request::is('admin/guruPiket') || Request::is('admin/guruPiket/*') && !Request::is('admin/guruPiket/panel*') ? 'active' : '' }}">
                 <i class="fas fa-calendar-check nav-icon" style="color: lightgreen; font-size: 14px"></i>
                 <p>Jadwal Guru Piket</p>
+              </a>
+            </li>
+            <li class="nav-item" style="font-size: 14px">
+              <a href="/admin/piketPembiasaanPagi" class="nav-link {{ Request::is('admin/piketPembiasaanPagi*') ? 'active' : '' }}">
+                <i class="fas fa-sun nav-icon" style="color: #ffc107; font-size: 14px"></i>
+                <p>Jadwal Pembiasaan Pagi</p>
               </a>
             </li>
           </ul>
@@ -421,8 +427,8 @@
         </li>
 
         <!-- 4. Guru Piket -->
-        <li class="nav-item has-treeview {{ Request::is('admin/guruPiket*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/guruPiket*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/guruPiket*') || Request::is('admin/piketPembiasaanPagi*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/guruPiket*') || Request::is('admin/piketPembiasaanPagi*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-clock"></i>
             <p>
               Guru Piket
@@ -440,6 +446,12 @@
               <a href="/admin/guruPiket" class="nav-link {{ Request::is('admin/guruPiket') || Request::is('admin/guruPiket/*') && !Request::is('admin/guruPiket/panel*') ? 'active' : '' }}">
                 <i class="fas fa-calendar-check nav-icon" style="color: lightgreen; font-size: 14px"></i>
                 <p>Jadwal Guru Piket</p>
+              </a>
+            </li>
+            <li class="nav-item" style="font-size: 14px">
+              <a href="/admin/piketPembiasaanPagi" class="nav-link {{ Request::is('admin/piketPembiasaanPagi*') ? 'active' : '' }}">
+                <i class="fas fa-sun nav-icon" style="color: #ffc107; font-size: 14px"></i>
+                <p>Jadwal Pembiasaan Pagi</p>
               </a>
             </li>
           </ul>

@@ -45,6 +45,10 @@ class DashboardController extends Controller
             ->where('hari', $todayDayInd)
             ->get();
 
+        $piketPembiasaanHariIni = \App\Models\PiketPembiasaanPagi::with('guru')
+            ->where('hari', $todayDayInd)
+            ->get();
+
         // Mengambil total jumlah siswa
         $totalSiswa = Siswa::count();
         $totalModul = Modul::count();
@@ -212,6 +216,7 @@ class DashboardController extends Controller
             'siswaTerajin',
             'guruTerajin',
             'guruPiketHariIni',
+            'piketPembiasaanHariIni',
             'todayDayInd',
             'weeklyAttendance',
             'dateLabels',

@@ -410,38 +410,83 @@
 
             <!-- Kolom Kanan -->
             <div class="col-lg-6">
-                <!-- Card Guru Piket Hari Ini -->
+                <!-- Card Jadwal Piket Hari Ini (Tabbed: Piket Harian & Pembiasaan Pagi) -->
                 <div class="card dashboard-card">
-                    <div class="card-header">
-                        <h5 class="card-title"><i class="fas fa-user-shield text-info mr-2"></i> Guru Piket Hari Ini ({{ $todayDayInd }})</h5>
+                    <div class="card-header d-flex flex-wrap align-items-center justify-content-between p-2">
+                        <h3 class="card-title font-weight-bold text-dark m-0 p-2" style="font-size: 1.1rem;">
+                            <i class="fas fa-user-clock text-info mr-2"></i> Jadwal Piket Hari Ini ({{ $todayDayInd }})
+                        </h3>
+                        <ul class="nav nav-pills custom-tabs flex-nowrap p-1 m-0">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#tab_piket_harian" data-toggle="tab">👮 Piket Harian</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#tab_piket_pembiasaan" data-toggle="tab">☀️ Pembiasaan Pagi</a>
+                            </li>
+                        </ul>
                     </div>
                     <div class="card-body">
-                        @if($guruPiketHariIni->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-custom table-hover">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 10px">No</th>
-                                        <th>Nama Guru</th>
-                                        <th>Waktu Tugas</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($guruPiketHariIni as $gp)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td><strong>{{ $gp->guru->nama_guru }}</strong></td>
-                                        <td><span class="badge badge-soft-info"><i class="far fa-clock mr-1"></i> {{ $gp->waktu_awal }} - {{ $gp->waktu_akhir }}</span></td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                        <div class="tab-content">
+                            <!-- Tab Piket Harian -->
+                            <div class="tab-pane active" id="tab_piket_harian">
+                                @if($guruPiketHariIni->count() > 0)
+                                <div class="table-responsive">
+                                    <table class="table table-custom table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 10px">No</th>
+                                                <th>Nama Guru</th>
+                                                <th>Waktu Tugas</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($guruPiketHariIni as $gp)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td><strong>{{ $gp->guru->nama_guru }}</strong></td>
+                                                <td><span class="badge badge-soft-info"><i class="far fa-clock mr-1"></i> {{ $gp->waktu_awal }} - {{ $gp->waktu_akhir }}</span></td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                @else
+                                <div class="alert alert-light text-center text-muted mb-0" style="border: 1px dashed #e2e8f0; border-radius: 8px;">
+                                    Tidak ada jadwal guru piket untuk hari ini.
+                                </div>
+                                @endif
+                            </div>
+                            
+                            <!-- Tab Piket Pembiasaan Pagi -->
+                            <div class="tab-pane" id="tab_piket_pembiasaan">
+                                @if($piketPembiasaanHariIni->count() > 0)
+                                <div class="table-responsive">
+                                    <table class="table table-custom table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 10px">No</th>
+                                                <th>Nama Guru</th>
+                                                <th>Waktu Tugas</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($piketPembiasaanHariIni as $pp)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td><strong>{{ $pp->guru->nama_guru }}</strong></td>
+                                                <td><span class="badge badge-soft-warning"><i class="far fa-clock mr-1"></i> {{ $pp->waktu_awal }} - {{ $pp->waktu_akhir }}</span></td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                @else
+                                <div class="alert alert-light text-center text-muted mb-0" style="border: 1px dashed #e2e8f0; border-radius: 8px;">
+                                    Tidak ada jadwal piket pembiasaan pagi untuk hari ini.
+                                </div>
+                                @endif
+                            </div>
                         </div>
-                        @else
-                        <div class="alert alert-light text-center text-muted mb-0" style="border: 1px dashed #e2e8f0; border-radius: 8px;">
-                            Tidak ada jadwal guru piket untuk hari ini.
-                        </div>
-                        @endif
                     </div>
                 </div>
 
@@ -498,11 +543,11 @@
 
                 <!-- Combined TOP 5 Kehadiran Card (Siswa & Guru) -->
                 <div class="card dashboard-card">
-                    <div class="card-header d-flex p-0 align-items-center">
-                        <h3 class="card-title p-3 font-weight-bold text-dark">
+                    <div class="card-header d-flex flex-wrap align-items-center justify-content-between p-2">
+                        <h3 class="card-title font-weight-bold text-dark m-0 p-2" style="font-size: 1.1rem;">
                             <i class="fas fa-trophy text-warning mr-2"></i> Kehadiran Terawal
                         </h3>
-                        <ul class="nav nav-pills ml-auto p-2 custom-tabs">
+                        <ul class="nav nav-pills custom-tabs flex-nowrap p-1 m-0">
                             <li class="nav-item">
                                 <a class="nav-link active" href="#tab_siswa" data-toggle="tab">🏆 Siswa</a>
                             </li>
