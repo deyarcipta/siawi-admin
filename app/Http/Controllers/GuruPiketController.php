@@ -206,7 +206,7 @@ class GuruPiketController extends Controller
                 'jam_masuk' => $jam
             ]);
         } else {
-            \App\Models\Absensi::create([
+            $absensi = \App\Models\Absensi::create([
                 'id_siswa' => $siswa->id_siswa,
                 'id_kelas' => $siswa->id_kelas,
                 'id_jurusan' => $siswa->id_jurusan,
@@ -217,6 +217,8 @@ class GuruPiketController extends Controller
                 'keterangan' => 'Terlambat (Dicatat Guru Piket pada ' . $jam . ')',
             ]);
         }
+
+        \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
         
         // 2. Tambahkan Point Pelanggaran "Terlambat Masuk Sekolah" (id_point = 1, skor = 5)
         $point = \App\Models\Point::find(1);

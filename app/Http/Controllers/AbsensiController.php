@@ -109,7 +109,7 @@ class AbsensiController extends Controller
             $siswa = Siswa::find($siswaId);
             $idJurusan = $siswa ? $siswa->id_jurusan : $siswaId;
             
-            Absensi::updateOrCreate(
+            $absensi = Absensi::updateOrCreate(
                 [
                     'id_siswa' => $siswaId, 
                     'tanggal' => $request->input('tanggal'), 
@@ -123,6 +123,8 @@ class AbsensiController extends Controller
                     'jam_masuk' => $jamMasuk
                 ]
             );
+
+            \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
 
             // Send push notification if student exists and has FCM token
             if ($siswa && !empty($siswa->fcm_token)) {
@@ -170,7 +172,7 @@ class AbsensiController extends Controller
         $jamMasuk = $isHadir ? $jam : '-';
 
         // Simpan absensi
-        Absensi::updateOrCreate(
+        $absensi = Absensi::updateOrCreate(
             [
                 'id_siswa' => $siswaId,
                 'tanggal' => $tanggal,
@@ -184,6 +186,8 @@ class AbsensiController extends Controller
                 'jam_masuk' => $jamMasuk,
             ]
         );
+
+        \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
 
         // Fetch student and notify
         if ($siswa && !empty($siswa->fcm_token)) {
@@ -439,7 +443,7 @@ class AbsensiController extends Controller
                 $keterangan = '-';
             }
 
-            Absensi::updateOrCreate(
+            $absensi = Absensi::updateOrCreate(
                 [
                     'id_siswa' => $siswaId,
                     'tanggal' => $today,
@@ -453,6 +457,8 @@ class AbsensiController extends Controller
                     'keterangan' => $keterangan
                 ]
             );
+
+            \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
 
             // Fetch student and notify
             $siswa = Siswa::find($siswaId);
@@ -501,6 +507,8 @@ class AbsensiController extends Controller
 
         $absensi->kehadiran = $newKehadiran;
         $absensi->save();
+
+        \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
 
         // Notify student about attendance update
         $siswa = Siswa::find($absensi->id_siswa);

@@ -194,6 +194,8 @@ class AbsensiController extends Controller
                     'keterangan' => $newKeterangan,
                 ]);
                 
+                \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
+                
                 if (!empty($siswa->fcm_token)) {
                     \App\Services\FcmService::sendNotification(
                         $siswa->fcm_token,
@@ -203,7 +205,7 @@ class AbsensiController extends Controller
                 }
             }
         } else {
-            Absensi::create([
+            $absensi = Absensi::create([
                 'id_siswa' => $siswa->id_siswa,
                 'id_kelas' => $siswa->id_kelas,
                 'id_jurusan' => $siswa->id_jurusan,
@@ -213,6 +215,8 @@ class AbsensiController extends Controller
                 'kehadiran' => 'hadir',
                 'keterangan' => $label,
             ]);
+            
+            \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
             
             if (!empty($siswa->fcm_token)) {
                 \App\Services\FcmService::sendNotification(
