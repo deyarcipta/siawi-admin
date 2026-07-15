@@ -27,26 +27,41 @@
                         <p style="margin:0">Nama Siswa : {{ $siswa->nama_siswa }}</p>
                         <p style="margin:0">No. Induk Siswa : {{ $siswa->nis }}</p>
                         <p style="margin:0">Kelas : {{ $siswa->kelas->nama_kelas }}</p>
-                        <p style="margin:0">Total Point : <strong class="{{ $total_point >= 75 ? 'text-danger' : ($total_point >= 50 ? 'text-warning' : ($total_point >= 25 ? 'text-info' : 'text-success')) }}">{{ $total_point }}</strong></p>
+                        @php
+                            $spRules = $setting->sp_settings['sp_rules'] ?? [];
+                            ksort($spRules);
+                            $minSpThreshold = count($spRules) > 0 ? reset($spRules) : 25;
+                            $maxSpThreshold = count($spRules) > 0 ? end($spRules) : 75;
+                            
+                            $textClass = 'text-success';
+                            if ($total_point >= $maxSpThreshold) {
+                                $textClass = 'text-danger';
+                            } elseif ($total_point >= $minSpThreshold) {
+                                $textClass = 'text-warning';
+                            }
+                        @endphp
+                        <p style="margin:0">Total Point : <strong class="{{ $textClass }}">{{ $total_point }}</strong></p>
                         
-                        @if ($total_point >= 25)
-                        <div class="alert {{ $total_point >= 75 ? 'alert-danger' : ($total_point >= 50 ? 'alert-warning' : 'alert-info') }} mt-3">
+                        @if ($total_point >= $minSpThreshold)
+                        @php
+                            $alertClass = 'alert-info';
+                            if ($total_point >= $maxSpThreshold) {
+                                $alertClass = 'alert-danger';
+                            } elseif (count($spRules) > 1) {
+                                $alertClass = 'alert-warning';
+                            }
+                        @endphp
+                        <div class="alert {{ $alertClass }} mt-3">
                             <h5><i class="icon fas fa-exclamation-triangle"></i> Status Kritis Poin Pelanggaran!</h5>
                             Siswa ini telah mengumpulkan <strong>{{ $total_point }}</strong> poin pelanggaran. Batas toleransi terlewati. Anda dapat mengunduh Surat Peringatan resmi di bawah ini:
                             <div class="mt-2">
-                                <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => 1]) }}" class="btn btn-dark btn-sm mt-1" target="_blank">
-                                    <i class="fas fa-file-pdf mr-1"></i> Cetak SP 1 (Min. 25 Poin)
-                                </a>
-                                @if ($total_point >= 50)
-                                <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => 2]) }}" class="btn btn-dark btn-sm mt-1 ml-2" target="_blank">
-                                    <i class="fas fa-file-pdf mr-1"></i> Cetak SP 2 (Min. 50 Poin)
-                                </a>
-                                @endif
-                                @if ($total_point >= 75)
-                                <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => 3]) }}" class="btn btn-dark btn-sm mt-1 ml-2" target="_blank">
-                                    <i class="fas fa-file-pdf mr-1"></i> Cetak SP 3 (Min. 75 Poin)
-                                </a>
-                                @endif
+                                @foreach ($spRules as $spLevel => $threshold)
+                                    @if ($total_point >= $threshold)
+                                        <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => $spLevel]) }}" class="btn btn-dark btn-sm mt-1 mr-2" target="_blank">
+                                            <i class="fas fa-file-pdf mr-1"></i> Cetak SP {{ $spLevel }} (Min. {{ $threshold }} Poin)
+                                        </a>
+                                    @endif
+                                @endforeach
                             </div>
                         </div>
                         @endif

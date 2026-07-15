@@ -90,7 +90,20 @@ class AbsensiController extends Controller
             $keterangan = $data['keterangan'];
             
             $isHadir = strtolower($kehadiran) === 'hadir';
-            $jamMasuk = $isHadir ? $jam : '-';
+            
+            // Periksa apakah sudah ada absensi hari ini yang memiliki status 'Terlambat'
+            $existingAbsensi = Absensi::where('id_siswa', $siswaId)
+                ->where('tanggal', $request->input('tanggal'))
+                ->first();
+
+            if ($existingAbsensi && $isHadir && str_contains(strtolower($existingAbsensi->keterangan), 'terlambat')) {
+                // Pertahankan jam masuk dan keterangan terlambat asli
+                $jamMasuk = $existingAbsensi->jam_masuk;
+                $keterangan = $existingAbsensi->keterangan;
+            } else {
+                $jamMasuk = $isHadir ? $jam : '-';
+                $keterangan = $keterangan ?? '-';
+            }
             
             // Fetch student first to get correct id_jurusan and send push notification
             $siswa = Siswa::find($siswaId);
@@ -106,7 +119,7 @@ class AbsensiController extends Controller
                 [
                     'id_jurusan' => $idJurusan,
                     'kehadiran' => $kehadiran, 
-                    'keterangan' => $keterangan ?? '-',
+                    'keterangan' => $keterangan,
                     'jam_masuk' => $jamMasuk
                 ]
             );
@@ -411,8 +424,21 @@ class AbsensiController extends Controller
             $status = strtolower($kehadiran[$index]);
 
             $isHadir = $status === 'hadir';
-            $jamMasuk = $isHadir ? $jam : '-';
-            $keterangan = '-';
+            
+            // Periksa apakah sudah ada absensi hari ini yang memiliki status 'Terlambat'
+            $existingAbsensi = Absensi::where('id_siswa', $siswaId)
+                ->where('tanggal', $today)
+                ->first();
+
+            if ($existingAbsensi && $isHadir && str_contains(strtolower($existingAbsensi->keterangan), 'terlambat')) {
+                // Pertahankan jam masuk dan keterangan terlambat asli
+                $jamMasuk = $existingAbsensi->jam_masuk;
+                $keterangan = $existingAbsensi->keterangan;
+            } else {
+                $jamMasuk = $isHadir ? $jam : '-';
+                $keterangan = '-';
+            }
+
             Absensi::updateOrCreate(
                 [
                     'id_siswa' => $siswaId,

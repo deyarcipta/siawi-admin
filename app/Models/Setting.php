@@ -31,4 +31,39 @@ class Setting extends Model
         }
         return json_decode($value, true);
     }
+
+    public function getSpSettingsAttribute($value)
+    {
+        if (!$value) {
+            return [
+                'jumlah_sp' => 3,
+                'sp_rules' => [
+                    1 => 25,
+                    2 => 50,
+                    3 => 75
+                ]
+            ];
+        }
+        return json_decode($value, true);
+    }
+
+    public function getSpStatus($score)
+    {
+        $spSettings = $this->sp_settings;
+        $rules = $spSettings['sp_rules'] ?? [];
+        
+        // Urutkan key SP secara terbalik (cth: SP 4, SP 3, SP 2, SP 1)
+        krsort($rules);
+        
+        foreach ($rules as $spLevel => $threshold) {
+            if ($score >= $threshold) {
+                if ($spLevel == max(array_keys($rules))) {
+                    return "SP {$spLevel} (Orang Tua)";
+                }
+                return "SP {$spLevel}";
+            }
+        }
+        
+        return "Aman";
+    }
 }

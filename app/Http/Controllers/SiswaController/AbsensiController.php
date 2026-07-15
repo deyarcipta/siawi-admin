@@ -184,10 +184,14 @@ class AbsensiController extends Controller
 
         if ($absensi) {
             if ($attendanceStatus === 'checkOut' && (empty($absensi->jam_pulang) || $absensi->jam_pulang < $jam)) {
+                $newKeterangan = 'Check Out';
+                if (str_contains(strtolower($absensi->keterangan), 'terlambat')) {
+                    $newKeterangan = $absensi->keterangan . ' & Check Out';
+                }
                 $absensi->update([
                     'jam_pulang' => $jam,
                     'kehadiran' => 'hadir',
-                    'keterangan' => 'Check Out',
+                    'keterangan' => $newKeterangan,
                 ]);
                 
                 if (!empty($siswa->fcm_token)) {

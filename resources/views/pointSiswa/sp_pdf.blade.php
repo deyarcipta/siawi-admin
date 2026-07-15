@@ -157,7 +157,7 @@
 
     <!-- Isi Surat -->
     <div class="content">
-        <p>Surat Peringatan {{ $spType }} (SP-{{ $spType }}) ini diterbitkan sehubungan dengan akumulasi pelanggaran tata tertib sekolah yang dilakukan oleh siswa di atas. Siswa telah melebihi batas toleransi akumulasi poin pelanggaran kedisiplinan tingkat {{ $spType }} (minimal {{ $spType == 1 ? '25' : ($spType == 2 ? '50' : '75') }} poin).</p>
+        <p>Surat Peringatan {{ $spType }} (SP-{{ $spType }}) ini diterbitkan sehubungan dengan akumulasi pelanggaran tata tertib sekolah yang dilakukan oleh siswa di atas. Siswa telah melebihi batas toleransi akumulasi poin pelanggaran kedisiplinan tingkat {{ $spType }} (minimal {{ $threshold }} poin).</p>
         
         <p>Berikut adalah rincian pelanggaran kedisiplinan yang telah tercatat dalam sistem:</p>
     </div>
@@ -188,8 +188,8 @@
 
     <div class="content">
         <p>Pihak sekolah mengimbau kepada siswa yang bersangkutan untuk segera memperbaiki sikap dan perilaku serta tidak mengulangi tindakan pelanggaran tata tertib sekolah di kemudian hari. Kepada Orang Tua / Wali murid diharapkan memberikan bimbingan dan pengawasan yang lebih intensif di rumah demi kebaikan siswa.</p>
-        @if($spType == 3)
-            <p><strong>Peringatan Keras:</strong> Dikarenakan siswa telah mencapai Surat Peringatan 3 (SP-3), maka Orang Tua / Wali murid diwajibkan untuk hadir di sekolah guna melakukan pertemuan khusus dengan pihak Kesiswaan dan Kepala Sekolah.</p>
+        @if($spType == $maxSp)
+            <p><strong>Peringatan Keras:</strong> Dikarenakan siswa telah mencapai Surat Peringatan {{ $spType }} (SP-{{ $spType }}), maka Orang Tua / Wali murid diwajibkan untuk hadir di sekolah guna melakukan pertemuan khusus dengan pihak Kesiswaan dan Kepala Sekolah.</p>
         @endif
     </div>
 

@@ -211,6 +211,19 @@ class SettingController extends Controller
             return redirect('/admin/setting')->with('success', 'Pengaturan jam pelajaran berhasil diperbarui.');
         }
 
+        // Cek apakah request mengandung 'sp_settings'
+        if ($request->has('sp_settings')) {
+            $request->validate([
+                'sp_settings' => 'required|array',
+            ]);
+
+            $setting->update([
+                'sp_settings' => json_encode($request->sp_settings),
+            ]);
+
+            return redirect('/admin/setting')->with('success', 'Pengaturan Surat Peringatan (SP) berhasil diperbarui.');
+        }
+
         return redirect('/admin/setting')->with('success', 'Pengaturan berhasil diperbarui.');
         
     }

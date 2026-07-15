@@ -517,15 +517,18 @@
                                         <td>{{ $sk->siswa->kelas->nama_kelas ?? '-' }}</td>
                                         <td><span class="badge badge-soft-danger">{{ $sk->total_skor }} Poin</span></td>
                                         <td>
-                                            @if($sk->total_skor >= 75)
-                                                <span class="badge badge-soft-danger">SP 3 (Orang Tua)</span>
-                                            @elseif($sk->total_skor >= 50)
-                                                <span class="badge badge-soft-warning">SP 2</span>
-                                            @elseif($sk->total_skor >= 25)
-                                                <span class="badge badge-soft-info">SP 1</span>
-                                            @else
-                                                <span class="badge badge-soft-success">Aman</span>
-                                            @endif
+                                            @php
+                                                $statusSp = $setting->getSpStatus($sk->total_skor);
+                                                $badgeClass = 'badge-soft-success';
+                                                if (str_contains($statusSp, 'SP')) {
+                                                    if (str_contains($statusSp, 'Orang Tua') || str_contains($statusSp, 'SP 3') || str_contains($statusSp, 'SP 4')) {
+                                                        $badgeClass = 'badge-soft-danger';
+                                                    } else {
+                                                        $badgeClass = 'badge-soft-warning';
+                                                    }
+                                                }
+                                            @endphp
+                                            <span class="badge {{ $badgeClass }}">{{ $statusSp }}</span>
                                         </td>
                                     </tr>
                                     @endif

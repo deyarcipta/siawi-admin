@@ -39,6 +39,9 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#settingJamPelajaran">Setting Jam Pelajaran</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#settingSp">Setting SP</a>
+                        </li>
                     </ul>
 
                     <div class="card-body">
@@ -330,6 +333,26 @@
                                     <button type="submit" class="btn btn-primary mt-3">Simpan Setting Jam Pelajaran</button>
                                 </form>
                             </div>
+
+                            <!-- Form Setting SP -->
+                            <div class="tab-pane fade" id="settingSp">
+                                <form action="/admin/setting/{{$setting->id}}" method="POST">
+                                    @method('PUT')
+                                    @csrf
+                                    <div class="form-group col-md-6 px-0">
+                                        <label for="jumlah_sp">Jumlah SP yang Ditampilkan</label>
+                                        <select class="form-control" id="jumlah_sp" name="sp_settings[jumlah_sp]" onchange="renderSpInputs()">
+                                            @for ($i = 1; $i <= 10; $i++)
+                                                <option value="{{ $i }}" {{ (isset($setting->sp_settings['jumlah_sp']) && $setting->sp_settings['jumlah_sp'] == $i) ? 'selected' : '' }}>{{ $i }} SP</option>
+                                            @endfor
+                                        </select>
+                                    </div>
+                                    <div id="sp_inputs_container" class="row">
+                                        <!-- Kolom input dinamis akan dirender di sini via JavaScript -->
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-3">Simpan Setting SP</button>
+                                </form>
+                            </div>
                         </div>
                     </div> <!-- /.card-body -->
                 </div> <!-- /.card -->
@@ -355,6 +378,34 @@
             colorPicker.value = colorValue; // Update color picker dengan warna yang diketik
         }
     }
+
+    function renderSpInputs() {
+        const jumlahSp = document.getElementById('jumlah_sp').value;
+        const container = document.getElementById('sp_inputs_container');
+        const existingRules = @json($setting->sp_settings['sp_rules'] ?? []);
+        
+        container.innerHTML = '';
+        
+        for (let i = 1; i <= jumlahSp; i++) {
+            const val = existingRules[i] !== undefined ? existingRules[i] : (i * 25);
+            const div = document.createElement('div');
+            div.className = 'col-md-6 mb-3';
+            div.innerHTML = `
+                <div class="card p-3 border shadow-sm">
+                    <h5 class="font-weight-bold">Surat Peringatan ${i} (SP ${i})</h5>
+                    <div class="form-group mb-0">
+                        <label for="sp_rules_${i}">Poin Minimal Pemicu</label>
+                        <input type="number" class="form-control" id="sp_rules_${i}" name="sp_settings[sp_rules][${i}]" value="${val}" required min="1">
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        renderSpInputs();
+    });
 </script>
 
 @endsection

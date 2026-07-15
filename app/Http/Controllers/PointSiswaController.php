@@ -89,13 +89,18 @@ class PointSiswaController extends Controller
         $siswa = Siswa::with('kelas', 'jurusan')->findOrFail($id_siswa);
         $setting = Setting::find(1);
         
+        $spSettings = $setting->sp_settings;
+        $rules = $spSettings['sp_rules'] ?? [];
+        $threshold = $rules[$spType] ?? ($spType * 25);
+        $maxSp = count($rules) > 0 ? max(array_keys($rules)) : 3;
+
         $pointSiswa = PointSiswa::where('id_siswa', $id_siswa)->with('point', 'guru')->get();
         $total_point = 0;
         foreach ($pointSiswa as $data) {
             $total_point += $data->skor_point;
         }
         
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pointSiswa.sp_pdf', compact('siswa', 'setting', 'pointSiswa', 'total_point', 'spType'));
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pointSiswa.sp_pdf', compact('siswa', 'setting', 'pointSiswa', 'total_point', 'spType', 'threshold', 'maxSp'));
         
         return $pdf->stream('Surat_Peringatan_' . $spType . '_' . str_replace(' ', '_', $siswa->nama_siswa) . '.pdf');
     }
