@@ -17,7 +17,6 @@ class WhatsAppNotificationService
             // Periksa apakah notifikasi WA diaktifkan di pengaturan
             $setting = \App\Models\Setting::first();
             if ($setting && !$setting->wa_status) {
-                Log::info("WA Notification: Pengiriman notifikasi WA dinonaktifkan di pengaturan.");
                 return;
             }
 
@@ -77,7 +76,6 @@ class WhatsAppNotificationService
 
             // Dispatch job to Laravel queue
             SendWhatsAppAttendanceNotification::dispatch($phone, $message);
-            Log::info("WA Notification: Dispatching SendWhatsAppAttendanceNotification untuk Siswa {$siswa->nama_siswa} ke nomor {$phone}");
 
         } catch (\Exception $e) {
             Log::error("WA Notification Error: " . $e->getMessage());

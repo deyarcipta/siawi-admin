@@ -51,7 +51,6 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
         }
 
         try {
-            \Illuminate\Support\Facades\Log::info("WA Queue: Mengirim pesan ke {$this->phoneNumber} via OpenWA session: {$sessionId}");
             $response = \Illuminate\Support\Facades\Http::withHeaders($headers)
                 ->post("{$baseUrl}/sessions/{$sessionId}/messages/send-text", [
                     'chatId' => $this->phoneNumber,
@@ -60,8 +59,6 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
 
             if ($response->failed()) {
                 \Illuminate\Support\Facades\Log::error("WA Queue: Gagal mengirim pesan ke {$this->phoneNumber}. Response: " . $response->body());
-            } else {
-                \Illuminate\Support\Facades\Log::info("WA Queue: Berhasil mengirim pesan ke {$this->phoneNumber}");
             }
 
         } catch (\Exception $e) {
