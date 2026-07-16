@@ -86,37 +86,53 @@ class AbsensiGuruController extends Controller
         $tanggal = $now->toDateString();
         $hari = $now->locale('id')->dayName;
 
-        DB::beginTransaction();    
+        DB::beginTransaction();
 
-        // Cek absensi hari ini berdasarkan `id_guru`
-        $absensi = AbsensiGuru::where('id_guru', $guru->id_guru)
-            ->whereDate('tanggal', $tanggal)
-            ->first();
+        $sendNotification = false;
+        $isCheckOut = false;
 
-        if ($absensi) {
-            if ($attendanceStatus === 'checkOut' && (empty($absensi->jam_pulang) || $absensi->jam_pulang < $jam)) {
-                $absensi->update([
-                    'jam_pulang' => $jam,
+        try {
+            // Cek absensi hari ini berdasarkan `id_guru`
+            $absensi = AbsensiGuru::where('id_guru', $guru->id_guru)
+                ->whereDate('tanggal', $tanggal)
+                ->first();
+
+            if ($absensi) {
+                if ($attendanceStatus === 'checkOut' && (empty($absensi->jam_pulang) || $absensi->jam_pulang < $jam)) {
+                    $absensi->update([
+                        'jam_pulang' => $jam,
+                        'kehadiran' => 'Hadir',
+                        'keterangan' => 'Check Out',
+                    ]);
+                    $sendNotification = true;
+                    $isCheckOut = true;
+                }
+            } else {
+                $absensi = AbsensiGuru::create([
+                    'id_guru' => $guru->id_guru,
+                    'hari' => $hari,
+                    'tanggal' => $tanggal,
+                    'jam_masuk' => $jam,
                     'kehadiran' => 'Hadir',
-                    'keterangan' => 'Check Out',
+                    'keterangan' => $label,
                 ]);
-                // Log::info("Absensi diperbarui untuk guru ID: " . $guru->id_guru);
-                \App\Services\WhatsAppNotificationService::sendTeacherAttendanceNotification($absensi);
+                $sendNotification = true;
             }
-        } else {
-            $newAbsensi = AbsensiGuru::create([
-                'id_guru' => $guru->id_guru,
-                'hari' => $hari,
-                'tanggal' => $tanggal,
-                'jam_masuk' => $jam,
-                'kehadiran' => 'Hadir',
-                'keterangan' => $label,
-            ]);
-            // Log::info("Absensi baru dibuat untuk guru ID: " . $guru->id_guru);
-            \App\Services\WhatsAppNotificationService::sendTeacherAttendanceNotification($newAbsensi);
-        }
 
-        DB::commit();
+            DB::commit();
+
+            if ($sendNotification) {
+                try {
+                    \App\Services\WhatsAppNotificationService::sendTeacherAttendanceNotification($absensi);
+                } catch (\Throwable $e) {
+                    Log::error('Gagal mengirim notifikasi absensi guru: ' . $e->getMessage());
+                }
+            }
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Gagal menyimpan absensi guru: ' . $e->getMessage());
+            return response()->json(['message' => 'Gagal menyimpan absensi'], 500);
+        }
         // Log::info("Transaksi database berhasil disimpan");
 
         return response()->json(['message' => 'Absensi berhasil disimpan'], 201);

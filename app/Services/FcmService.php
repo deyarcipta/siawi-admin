@@ -18,54 +18,54 @@ class FcmService
      */
     public static function sendNotification($deviceToken, $title, $body, $data = [])
     {
-        if (empty($deviceToken)) {
-            return false;
-        }
-
-        $keyPath = storage_path('app/firebase_credentials.json');
-
-        if (!file_exists($keyPath)) {
-            Log::warning('FCM: firebase_credentials.json file not found at ' . $keyPath . '. Skip sending notification.');
-            return false;
-        }
-
-        $accessToken = self::getGoogleAccessToken($keyPath);
-        if (!$accessToken) {
-            Log::error('FCM: Failed to retrieve Google Access Token.');
-            return false;
-        }
-
-        $key = json_decode(file_get_contents($keyPath), true);
-        $projectId = $key['project_id'] ?? null;
-
-        if (!$projectId) {
-            Log::error('FCM: project_id not found in credentials.');
-            return false;
-        }
-
-        $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
-
-        $payload = [
-            'message' => [
-                'token' => $deviceToken,
-                'notification' => [
-                    'title' => $title,
-                    'body' => $body,
-                ],
-                'android' => [
-                    'notification' => [
-                        'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                        'sound' => 'default',
-                    ]
-                ],
-            ]
-        ];
-
-        if (!empty($data)) {
-            $payload['message']['data'] = array_map('strval', $data);
-        }
-
         try {
+            if (empty($deviceToken)) {
+                return false;
+            }
+
+            $keyPath = storage_path('app/firebase_credentials.json');
+
+            if (!file_exists($keyPath)) {
+                Log::warning('FCM: firebase_credentials.json file not found at ' . $keyPath . '. Skip sending notification.');
+                return false;
+            }
+
+            $accessToken = self::getGoogleAccessToken($keyPath);
+            if (!$accessToken) {
+                Log::error('FCM: Failed to retrieve Google Access Token.');
+                return false;
+            }
+
+            $key = json_decode(file_get_contents($keyPath), true);
+            $projectId = $key['project_id'] ?? null;
+
+            if (!$projectId) {
+                Log::error('FCM: project_id not found in credentials.');
+                return false;
+            }
+
+            $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
+
+            $payload = [
+                'message' => [
+                    'token' => $deviceToken,
+                    'notification' => [
+                        'title' => $title,
+                        'body' => $body,
+                    ],
+                    'android' => [
+                        'notification' => [
+                            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                            'sound' => 'default',
+                        ]
+                    ],
+                ]
+            ];
+
+            if (!empty($data)) {
+                $payload['message']['data'] = array_map('strval', $data);
+            }
+
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $accessToken,
                 'Content-Type' => 'application/json',
@@ -77,7 +77,7 @@ class FcmService
             }
 
             Log::error('FCM Send Error: ' . $response->body());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('FCM Send Exception: ' . $e->getMessage());
         }
 

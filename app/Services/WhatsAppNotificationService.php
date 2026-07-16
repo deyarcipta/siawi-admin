@@ -86,7 +86,7 @@ class WhatsAppNotificationService
             // Dispatch job to Laravel queue
             SendWhatsAppAttendanceNotification::dispatch($phone, $message);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error("WA Notification Error: " . $e->getMessage());
         }
     }
@@ -157,7 +157,7 @@ class WhatsAppNotificationService
             // Dispatch job to Laravel queue
             SendWhatsAppAttendanceNotification::dispatch($phone, $message);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error("WA Teacher Notification Error: " . $e->getMessage());
         }
     }

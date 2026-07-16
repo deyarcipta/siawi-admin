@@ -175,59 +175,73 @@ class AbsensiController extends Controller
         $tanggal = $now->toDateString();
         $hari = $now->locale('id')->dayName;
 
-        DB::beginTransaction();    
+        DB::beginTransaction();
 
-        // Cek absensi hari ini berdasarkan `id_siswa`
-        $absensi = Absensi::where('id_siswa', $siswa->id_siswa)
-            ->whereDate('tanggal', $tanggal)
-            ->first();
+        $sendNotification = false;
+        $isCheckOut = false;
 
-        if ($absensi) {
-            if ($attendanceStatus === 'checkOut' && (empty($absensi->jam_pulang) || $absensi->jam_pulang < $jam)) {
-                $newKeterangan = 'Check Out';
-                if (str_contains(strtolower($absensi->keterangan), 'terlambat')) {
-                    $newKeterangan = $absensi->keterangan . ' & Check Out';
+        try {
+            // Cek absensi hari ini berdasarkan `id_siswa`
+            $absensi = Absensi::where('id_siswa', $siswa->id_siswa)
+                ->whereDate('tanggal', $tanggal)
+                ->first();
+
+            if ($absensi) {
+                if ($attendanceStatus === 'checkOut' && (empty($absensi->jam_pulang) || $absensi->jam_pulang < $jam)) {
+                    $newKeterangan = 'Check Out';
+                    if (str_contains(strtolower($absensi->keterangan), 'terlambat')) {
+                        $newKeterangan = $absensi->keterangan . ' & Check Out';
+                    }
+                    $absensi->update([
+                        'jam_pulang' => $jam,
+                        'kehadiran' => 'hadir',
+                        'keterangan' => $newKeterangan,
+                    ]);
+                    $sendNotification = true;
+                    $isCheckOut = true;
                 }
-                $absensi->update([
-                    'jam_pulang' => $jam,
+            } else {
+                $absensi = Absensi::create([
+                    'id_siswa' => $siswa->id_siswa,
+                    'id_kelas' => $siswa->id_kelas,
+                    'id_jurusan' => $siswa->id_jurusan,
+                    'hari' => $hari,
+                    'tanggal' => $tanggal,
+                    'jam_masuk' => $jam,
                     'kehadiran' => 'hadir',
-                    'keterangan' => $newKeterangan,
+                    'keterangan' => $label,
                 ]);
-                
-                \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
-                
+                $sendNotification = true;
+            }
+
+            DB::commit();
+
+            if ($sendNotification) {
+                try {
+                    \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
+                } catch (\Throwable $e) {
+                    Log::error('Gagal mengirim notifikasi absensi siswa: ' . $e->getMessage());
+                }
+
                 if (!empty($siswa->fcm_token)) {
-                    \App\Services\FcmService::sendNotification(
-                        $siswa->fcm_token,
-                        'Absensi Pulang Berhasil',
-                        "Kamu telah melakukan absensi pulang (Check Out) pada jam $jam."
-                    );
+                    try {
+                        \App\Services\FcmService::sendNotification(
+                            $siswa->fcm_token,
+                            $isCheckOut ? 'Absensi Pulang Berhasil' : 'Absensi Masuk Berhasil',
+                            $isCheckOut
+                                ? "Kamu telah melakukan absensi pulang (Check Out) pada jam $jam."
+                                : "Kamu telah melakukan absensi masuk (Check In) pada jam $jam."
+                        );
+                    } catch (\Throwable $e) {
+                        Log::error('Gagal mengirim notifikasi FCM siswa: ' . $e->getMessage());
+                    }
                 }
             }
-        } else {
-            $absensi = Absensi::create([
-                'id_siswa' => $siswa->id_siswa,
-                'id_kelas' => $siswa->id_kelas,
-                'id_jurusan' => $siswa->id_jurusan,
-                'hari' => $hari,
-                'tanggal' => $tanggal,
-                'jam_masuk' => $jam,
-                'kehadiran' => 'hadir',
-                'keterangan' => $label,
-            ]);
-            
-            \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
-            
-            if (!empty($siswa->fcm_token)) {
-                \App\Services\FcmService::sendNotification(
-                    $siswa->fcm_token,
-                    'Absensi Masuk Berhasil',
-                    "Kamu telah melakukan absensi masuk (Check In) pada jam $jam."
-                );
-            }
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Gagal menyimpan absensi siswa: ' . $e->getMessage());
+            return response()->json(['message' => 'Gagal menyimpan absensi'], 500);
         }
-
-        DB::commit();
         // Log::info("Transaksi database berhasil disimpan");
 
         return response()->json(['message' => 'Absensi berhasil disimpan'], 201);
