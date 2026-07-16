@@ -47,17 +47,26 @@ class WhatsAppNotificationService
             
             $namaKelas = $siswa->kelas->nama_kelas ?? '-';
             
-            // Format pesan berdasarkan status kehadiran
+            // Format pesan berdasarkan status kehadiran (Masuk vs Pulang)
             if (strtolower($absensi->kehadiran) === 'hadir') {
-                if (str_contains(strtolower($absensi->keterangan), 'terlambat')) {
-                    $message = "Informasi Kehadiran Siswa SMK Wisata Indonesia:\n\n" .
+                $isPulang = !empty($absensi->jam_pulang) && $absensi->jam_pulang !== '-';
+                
+                if ($isPulang) {
+                    $jamPulang = $absensi->jam_pulang;
+                    $message = "Informasi Kepulangan Siswa SMK Wisata Indonesia:\n\n" .
                                "Yth. Orang Tua/Wali,\n" .
-                               "Siswa atas nama *{$siswa->nama_siswa}* (Kelas: {$namaKelas}) telah dicatat *Hadir (Terlambat)* pada hari {$hari}, {$tanggal} jam {$jam}.\n\n" .
-                               "Keterangan: {$absensi->keterangan}";
+                               "Siswa atas nama *{$siswa->nama_siswa}* (Kelas: {$namaKelas}) telah dicatat *Pulang* pada hari {$hari}, {$tanggal} jam {$jamPulang}.";
                 } else {
-                    $message = "Informasi Kehadiran Siswa SMK Wisata Indonesia:\n\n" .
-                               "Yth. Orang Tua/Wali,\n" .
-                               "Siswa atas nama *{$siswa->nama_siswa}* (Kelas: {$namaKelas}) telah dicatat *Hadir* pada hari {$hari}, {$tanggal} jam {$jam}.";
+                    if (str_contains(strtolower($absensi->keterangan), 'terlambat')) {
+                        $message = "Informasi Kehadiran Siswa SMK Wisata Indonesia:\n\n" .
+                                   "Yth. Orang Tua/Wali,\n" .
+                                   "Siswa atas nama *{$siswa->nama_siswa}* (Kelas: {$namaKelas}) telah dicatat *Hadir (Terlambat)* pada hari {$hari}, {$tanggal} jam {$jam}.\n\n" .
+                                   "Keterangan: {$absensi->keterangan}";
+                    } else {
+                        $message = "Informasi Kehadiran Siswa SMK Wisata Indonesia:\n\n" .
+                                   "Yth. Orang Tua/Wali,\n" .
+                                   "Siswa atas nama *{$siswa->nama_siswa}* (Kelas: {$namaKelas}) telah dicatat *Hadir* pada hari {$hari}, {$tanggal} jam {$jam}.";
+                    }
                 }
             } else {
                 $statusIndo = [
