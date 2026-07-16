@@ -57,12 +57,22 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
                     'text' => $this->message,
                 ]);
 
-            if ($response->failed()) {
-                \Illuminate\Support\Facades\Log::error("WA Queue: Gagal mengirim pesan ke {$this->phoneNumber}. Response: " . $response->body());
+            $responseData = $response->json();
+            $isSuccess = $response->successful();
+            $isOpenWaTimeout = isset($responseData['statusCode']) && $responseData['statusCode'] == 500;
+
+            if ($isSuccess || $isOpenWaTimeout) {
+                if ($isOpenWaTimeout) {
+                    \Illuminate\Support\Facades\Log::info("WA Queue: Pesan diproses OpenWA dengan status Pending/Timeout dari server WhatsApp (Pesan biasanya tetap terkirim).");
+                }
+            } else {
+                \Illuminate\Support\Facades\Log::error("WA Queue: Gagal total mengirim pesan ke {$this->phoneNumber}. Response: " . $response->body());
+                throw new \Exception("Gagal mengirim pesan WhatsApp via OpenWA: " . $response->body());
             }
 
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("WA Queue Exception: " . $e->getMessage());
+            throw $e;
         }
     }
 
