@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('absensi', function (Blueprint $table) {
-            $table->bigIncrements('id_absensi');
-            $table->string('id_siswa');
-            $table->string('id_kelas');
-            $table->string('id_jurusan');
+        Schema::create('absensi_guru', function (Blueprint $table) {
+            $table->bigIncrements('id_absenguru');
+            $table->unsignedBigInteger('id_guru');
             $table->string('hari');
             $table->string('tanggal');
+            $table->string('jam_masuk')->nullable();
+            $table->string('jam_pulang')->nullable();
             $table->string('kehadiran');
-            $table->string('keterangan');
-            $table->string('jam_masuk')->nullable()->default('-');
-            $table->string('jam_pulang')->nullable()->default('-');
+            $table->string('keterangan')->nullable();
             $table->timestamps();
+
+            $table->foreign('id_guru')->references('id_guru')->on('guru')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('absensi');
+        Schema::dropIfExists('absensi_guru');
     }
 };

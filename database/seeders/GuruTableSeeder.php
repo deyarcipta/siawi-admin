@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class GuruTableSeeder extends Seeder
 {
@@ -12,9 +14,9 @@ class GuruTableSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('setting')->insert([
+        DB::table('guru')->insert([
             'username' => 'deyarcipta',
-            'password' => 'admin123',
+            'password' => Hash::make('admin123'),
             'nama_guru' => 'Deyar Cipta Rizky',
             'role' => 'admin',
         ]);

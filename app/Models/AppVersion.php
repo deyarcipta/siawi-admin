@@ -9,4 +9,5 @@ class AppVersion extends Model
 {
     use HasFactory;
     protected $table = 'versi_siawi';
+    protected $primaryKey = 'id_versi';
 }

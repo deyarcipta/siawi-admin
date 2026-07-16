@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class SettingTableSeeder extends Seeder
 {
@@ -23,6 +24,14 @@ class SettingTableSeeder extends Seeder
             'prov' => 'DKI Jakarta',
             'kota' => 'Jakarta Selatan',
             'logo' => 'logo-wi.png',
+        ]);
+
+        DB::table('versi_siawi')->insert([
+            'id_versi' => 1,
+            'versi' => '1.0.0',
+            'download_url' => 'https://example.com/siawi.apk',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 }
