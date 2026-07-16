@@ -42,6 +42,9 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#settingSp">Setting SP</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#settingWhatsapp">Setting WhatsApp</a>
+                        </li>
                     </ul>
 
                     <div class="card-body">
@@ -353,6 +356,54 @@
                                     <button type="submit" class="btn btn-primary mt-3">Simpan Setting SP</button>
                                 </form>
                             </div>
+
+                            <!-- Form Setting WhatsApp -->
+                            <div class="tab-pane fade" id="settingWhatsapp">
+                                <form action="/admin/setting/{{$setting->id}}" method="POST">
+                                    @method('PUT')
+                                    @csrf
+                                    <input type="hidden" name="wa_settings" value="1">
+                                    
+                                    <div class="form-group">
+                                        <label for="wa_status">Status Notifikasi WhatsApp</label>
+                                        <select class="form-control" id="wa_status" name="wa_status">
+                                            <option value="1" {{ $setting->wa_status ? 'selected' : '' }}>Aktif</option>
+                                            <option value="0" {{ !$setting->wa_status ? 'selected' : '' }}>Nonaktif</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="wa_api_url">OpenWA API URL</label>
+                                        <input type="text" class="form-control" id="wa_api_url" name="wa_api_url" 
+                                               value="{{ $setting->wa_api_url ?? env('OPEN_WA_API_URL', 'http://localhost:2785/api') }}" 
+                                               placeholder="http://localhost:2785/api">
+                                        <small class="form-text text-muted">URL Gateway OpenWA API.</small>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="wa_api_key">OpenWA API Key</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="wa_api_key" name="wa_api_key" 
+                                                   value="{{ $setting->wa_api_key ?? env('OPEN_WA_API_KEY') }}"
+                                                   placeholder="Masukkan API Key">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
+                                                    <i class="fas fa-eye" id="toggleIcon"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="wa_session_id">OpenWA Session ID (UUID)</label>
+                                        <input type="text" class="form-control" id="wa_session_id" name="wa_session_id" 
+                                               value="{{ $setting->wa_session_id ?? env('OPEN_WA_SESSION_ID', 'default') }}"
+                                               placeholder="79355abc-2aed-4d98-a394-0ea79ddf9f49">
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Simpan Setting WhatsApp</button>
+                                </form>
+                            </div>
                         </div>
                     </div> <!-- /.card-body -->
                 </div> <!-- /.card -->
@@ -405,6 +456,24 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         renderSpInputs();
+        
+        // Toggle view/hide API Key
+        const toggleBtn = document.getElementById('toggleApiKey');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                const apiKeyInput = document.getElementById('wa_api_key');
+                const icon = document.getElementById('toggleIcon');
+                if (apiKeyInput.type === 'password') {
+                    apiKeyInput.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    apiKeyInput.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        }
     });
 </script>
 

@@ -224,6 +224,25 @@ class SettingController extends Controller
             return redirect('/admin/setting')->with('success', 'Pengaturan Surat Peringatan (SP) berhasil diperbarui.');
         }
 
+        // Cek apakah request mengandung 'wa_settings'
+        if ($request->has('wa_settings')) {
+            $request->validate([
+                'wa_status' => 'required|boolean',
+                'wa_api_url' => 'nullable|url',
+                'wa_api_key' => 'nullable|string',
+                'wa_session_id' => 'nullable|string',
+            ]);
+
+            $setting->update([
+                'wa_status' => $request->wa_status,
+                'wa_api_url' => $request->wa_api_url,
+                'wa_api_key' => $request->wa_api_key,
+                'wa_session_id' => $request->wa_session_id,
+            ]);
+
+            return redirect('/admin/setting')->with('success', 'Pengaturan WhatsApp berhasil diperbarui.');
+        }
+
         return redirect('/admin/setting')->with('success', 'Pengaturan berhasil diperbarui.');
         
     }

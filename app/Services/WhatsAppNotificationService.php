@@ -14,6 +14,13 @@ class WhatsAppNotificationService
     public static function sendAttendanceNotification(Absensi $absensi)
     {
         try {
+            // Periksa apakah notifikasi WA diaktifkan di pengaturan
+            $setting = \App\Models\Setting::first();
+            if ($setting && !$setting->wa_status) {
+                Log::info("WA Notification: Pengiriman notifikasi WA dinonaktifkan di pengaturan.");
+                return;
+            }
+
             // Eager load siswa and kelas relations if not loaded
             if (!$absensi->relationLoaded('siswa')) {
                 $absensi->load('siswa');

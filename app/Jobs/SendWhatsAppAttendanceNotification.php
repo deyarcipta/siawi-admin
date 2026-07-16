@@ -29,8 +29,17 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
      */
     public function handle(): void
     {
-        $baseUrl = env('OPEN_WA_API_URL', 'http://localhost:2000');
-        $apiKey = env('OPEN_WA_API_KEY');
+        $setting = \App\Models\Setting::first();
+        
+        // Periksa kembali status toggle di queue worker sebelum eksekusi
+        if ($setting && !$setting->wa_status) {
+            \Illuminate\Support\Facades\Log::info("WA Queue: Notifikasi WA dinonaktifkan di pengaturan. Menolak pekerjaan.");
+            return;
+        }
+
+        $baseUrl = ($setting && $setting->wa_api_url) ? $setting->wa_api_url : env('OPEN_WA_API_URL', 'http://localhost:2785/api');
+        $apiKey = ($setting && $setting->wa_api_key) ? $setting->wa_api_key : env('OPEN_WA_API_KEY');
+        $sessionId = ($setting && $setting->wa_session_id) ? $setting->wa_session_id : env('OPEN_WA_SESSION_ID', 'default');
         
         $headers = [
             'Content-Type' => 'application/json',
@@ -42,42 +51,11 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
         }
 
         try {
-            // 1. Mulai simulasi mengetik (typing)
-            \Illuminate\Support\Facades\Log::info("WA Queue: Mengirim sinyal typing ke {$this->phoneNumber}");
-            \Illuminate\Support\Facades\Http::withHeaders($headers)
-                ->post("{$baseUrl}/simulateTyping", [
-                    'chatId' => $this->phoneNumber,
-                    'on' => true,
-                    'args' => [
-                        $this->phoneNumber,
-                        true
-                    ]
-                ]);
-
-            // 2. Durasi mengetik (typing) selama 3 detik
-            sleep(3);
-
-            // 3. Hentikan simulasi mengetik (typing)
-            \Illuminate\Support\Facades\Http::withHeaders($headers)
-                ->post("{$baseUrl}/simulateTyping", [
-                    'chatId' => $this->phoneNumber,
-                    'on' => false,
-                    'args' => [
-                        $this->phoneNumber,
-                        false
-                    ]
-                ]);
-
-            // 4. Kirim pesan text
-            \Illuminate\Support\Facades\Log::info("WA Queue: Mengirim pesan ke {$this->phoneNumber}");
+            \Illuminate\Support\Facades\Log::info("WA Queue: Mengirim pesan ke {$this->phoneNumber} via OpenWA session: {$sessionId}");
             $response = \Illuminate\Support\Facades\Http::withHeaders($headers)
-                ->post("{$baseUrl}/sendText", [
+                ->post("{$baseUrl}/sessions/{$sessionId}/messages/send-text", [
                     'chatId' => $this->phoneNumber,
                     'text' => $this->message,
-                    'args' => [
-                        $this->phoneNumber,
-                        $this->message
-                    ]
                 ]);
 
             if ($response->failed()) {
