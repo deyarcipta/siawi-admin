@@ -90,4 +90,75 @@ class WhatsAppNotificationService
             Log::error("WA Notification Error: " . $e->getMessage());
         }
     }
+
+    /**
+     * Send teacher attendance notification via WhatsApp
+     */
+    public static function sendTeacherAttendanceNotification(\App\Models\AbsensiGuru $absensiGuru)
+    {
+        try {
+            // Periksa apakah notifikasi WA diaktifkan di pengaturan
+            $setting = \App\Models\Setting::first();
+            if ($setting && !$setting->wa_status) {
+                return;
+            }
+
+            // Eager load guru relation if not loaded
+            if (!$absensiGuru->relationLoaded('guru')) {
+                $absensiGuru->load('guru');
+            }
+
+            $guru = $absensiGuru->guru;
+            if (!$guru) {
+                Log::warning("WA Notification: Guru tidak ditemukan untuk absensi ID {$absensiGuru->id_absenguru}");
+                return;
+            }
+
+            $phone = $guru->no_hp;
+            if (empty($phone) || strlen(trim($phone)) < 5) {
+                Log::warning("WA Notification: Nomor HP/Telepon tidak valid untuk Guru {$guru->nama_guru} (ID {$guru->id_guru})");
+                return;
+            }
+
+            $tanggal = $absensiGuru->tanggal;
+            $hari = $absensiGuru->hari ?? now()->locale('id')->isoFormat('dddd');
+            $jam = $absensiGuru->jam_masuk ?? '-';
+            $kehadiran = strtoupper($absensiGuru->kehadiran);
+            
+            // Format pesan berdasarkan status kehadiran (Masuk vs Pulang)
+            if (strtolower($absensiGuru->kehadiran) === 'hadir') {
+                $isPulang = !empty($absensiGuru->jam_pulang) && $absensiGuru->jam_pulang !== '-';
+                
+                if ($isPulang) {
+                    $jamPulang = $absensiGuru->jam_pulang;
+                    $message = "Informasi Kehadiran Guru SMK Wisata Indonesia:\n\n" .
+                               "Yth. Bapak/Ibu *{$guru->nama_guru}*,\n" .
+                               "Anda telah dicatat *Pulang* pada hari {$hari}, {$tanggal} jam {$jamPulang}.";
+                } else {
+                    $message = "Informasi Kehadiran Guru SMK Wisata Indonesia:\n\n" .
+                               "Yth. Bapak/Ibu *{$guru->nama_guru}*,\n" .
+                               "Anda telah dicatat *Hadir (Masuk)* pada hari {$hari}, {$tanggal} jam {$jam}.";
+                }
+            } else {
+                $statusIndo = [
+                    'SAKIT' => 'Sakit',
+                    'IZIN' => 'Izin',
+                    'ALFA' => 'Alfa / Tanpa Keterangan'
+                ];
+                $statusText = $statusIndo[$kehadiran] ?? $kehadiran;
+                $keteranganText = (!empty($absensiGuru->keterangan) && $absensiGuru->keterangan !== '-') ? "Keterangan: {$absensiGuru->keterangan}" : "";
+                
+                $message = "Informasi Ketidakhadiran Guru SMK Wisata Indonesia:\n\n" .
+                           "Yth. Bapak/Ibu *{$guru->nama_guru}*,\n" .
+                           "Anda telah dicatat *{$statusText}* pada hari {$hari}, {$tanggal}.\n" .
+                           ($keteranganText ? "\n{$keteranganText}" : "");
+            }
+
+            // Dispatch job to Laravel queue
+            SendWhatsAppAttendanceNotification::dispatch($phone, $message);
+
+        } catch (\Exception $e) {
+            Log::error("WA Teacher Notification Error: " . $e->getMessage());
+        }
+    }
 }

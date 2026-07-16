@@ -101,9 +101,10 @@ class AbsensiGuruController extends Controller
                     'keterangan' => 'Check Out',
                 ]);
                 // Log::info("Absensi diperbarui untuk guru ID: " . $guru->id_guru);
+                \App\Services\WhatsAppNotificationService::sendTeacherAttendanceNotification($absensi);
             }
         } else {
-            AbsensiGuru::create([
+            $newAbsensi = AbsensiGuru::create([
                 'id_guru' => $guru->id_guru,
                 'hari' => $hari,
                 'tanggal' => $tanggal,
@@ -112,6 +113,7 @@ class AbsensiGuruController extends Controller
                 'keterangan' => $label,
             ]);
             // Log::info("Absensi baru dibuat untuk guru ID: " . $guru->id_guru);
+            \App\Services\WhatsAppNotificationService::sendTeacherAttendanceNotification($newAbsensi);
         }
 
         DB::commit();
@@ -131,13 +133,15 @@ class AbsensiGuruController extends Controller
         $tanggal = Carbon::now()->toDateString();
         $hari = Carbon::now()->locale('id')->translatedFormat('l');
 
-        AbsensiGuru::create([
+        $absensi = AbsensiGuru::create([
             'id_guru' => $request->id_guru,
             'hari' => $hari,
             'tanggal' => $tanggal,
             'kehadiran' => $request->kehadiran,
             'keterangan' => 'Manual Entry',
         ]);
+
+        \App\Services\WhatsAppNotificationService::sendTeacherAttendanceNotification($absensi);
 
         return redirect()->back()->with('success', 'Kehadiran berhasil ditambahkan!');
     }

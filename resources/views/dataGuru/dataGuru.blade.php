@@ -35,6 +35,7 @@
                 <th>Nama Guru</th>
                 <th>Username</th>
                 {{-- <th>Password</th> --}}
+                <th>No HP / WhatsApp</th>
                 <th>Role</th>
                 <th style="width: 160px">Action</th>
               </tr>
@@ -46,6 +47,7 @@
                 <td>{{$gru->nama_guru}}</td>
                 <td>{{$gru->username}}</td>
                 {{-- <td>{{ $gru->password }}</td> --}}
+                <td>{{$gru->no_hp ?? '-'}}</td>
                 <td>{{$gru->role}}</td>
                 <td>
                   <form action="guru/{{$gru->id_guru}}" method="POST">

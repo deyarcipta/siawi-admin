@@ -52,6 +52,13 @@
                   @enderror
                 </div>
                 <div class="form-group">
+                  <label for="no_hp">No HP / WhatsApp</label>
+                  <input type="text" class="form-control" id="no_hp" placeholder="Enter No HP / WhatsApp (e.g. 08123456789)" name="no_hp" value="{{old('no_hp')}}">
+                  @error('no_hp')
+                    <div class="alert alert-danger">{{ $message }}</div>
+                  @enderror
+                </div>
+                <div class="form-group">
                   <label for="username">Role</label>
                   <select class="form-control" name="role" id="role">
                     <option value="{{old('role')}}">Pilih Role</option>

@@ -44,6 +44,7 @@ class GuruController extends Controller
             // 'password' => 'required',
             'nama_guru' => 'required',
             'role' => 'required',
+            'no_hp' => 'nullable|string',
         ]);
         $id_face = '0';
         $changPass = 'admin123';
@@ -57,6 +58,7 @@ class GuruController extends Controller
             'password' => $password,
             'nama_guru' => $request->nama_guru,
             'role' => $request->role,
+            'no_hp' => $request->no_hp,
         ]);
 
         return redirect('/admin/guru')->with('success', 'Data Guru Berhasil Ditambah<br>password default adalah <b>admin123</b>');
@@ -86,6 +88,7 @@ class GuruController extends Controller
             'nama_guru' => 'required',
             'id_face' => 'required',
             'role' => 'required',
+            'no_hp' => 'nullable|string',
         ]);
         
         $hashedPassword = Hash::make($request['password']);
@@ -96,6 +99,7 @@ class GuruController extends Controller
             'nama_guru' => $request->nama_guru,
             'id_face' => $request->id_face,
             'role' => $request->role,
+            'no_hp' => $request->no_hp,
         ]);
 
         return redirect('/admin/guru');

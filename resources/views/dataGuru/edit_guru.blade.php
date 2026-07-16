@@ -52,6 +52,13 @@
                     <div class="alert alert-danger">{{ $message }}</div>
                   @enderror
                 </div>
+                <div class="form-group">
+                  <label for="no_hp">No HP / WhatsApp</label>
+                  <input type="text" class="form-control" id="no_hp" placeholder="Enter No HP / WhatsApp (e.g. 08123456789)" name="no_hp" value="{{$edit->no_hp}}">
+                  @error('no_hp')
+                    <div class="alert alert-danger">{{ $message }}</div>
+                  @enderror
+                </div>
                 <div class="row">
                   <div class="form-group col-6">
                     <label for="id_face">Id Face</label>
