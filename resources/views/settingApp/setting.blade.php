@@ -395,15 +395,71 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="wa_session_id">OpenWA Session ID (UUID)</label>
-                                        <input type="text" class="form-control" id="wa_session_id" name="wa_session_id" 
-                                               value="{{ $setting->wa_session_id ?? env('OPEN_WA_SESSION_ID', 'default') }}"
-                                               placeholder="79355abc-2aed-4d98-a394-0ea79ddf9f49">
-                                    </div>
+                                         <label for="wa_session_id">OpenWA Session ID (UUID)</label>
+                                         <input type="text" class="form-control" id="wa_session_id" name="wa_session_id" 
+                                                value="{{ $setting->wa_session_id ?? env('OPEN_WA_SESSION_ID', 'default') }}"
+                                                placeholder="79355abc-2aed-4d98-a394-0ea79ddf9f49">
+                                     </div>
 
-                                    <button type="submit" class="btn btn-primary">Simpan Setting WhatsApp</button>
-                                </form>
-                            </div>
+                                     <div class="form-group">
+                                         <label for="wa_rate_limit">Batas Kirim Pesan (Pesan per Menit)</label>
+                                         <input type="number" class="form-control" id="wa_rate_limit" name="wa_rate_limit" 
+                                                value="{{ $setting->wa_rate_limit ?? 10 }}"
+                                                min="1" placeholder="10">
+                                         <small class="form-text text-muted">Batas maksimal pesan WhatsApp yang dikirim per menit untuk menghindari pemblokiran nomor.</small>
+                                     </div>
+
+                                     <button type="submit" class="btn btn-primary mb-3">Simpan Setting WhatsApp</button>
+                                 </form>
+
+                                 <hr class="my-4">
+                                 
+                                 <div class="card card-outline card-info shadow-sm">
+                                     <div class="card-header">
+                                         <h4 class="card-title font-weight-bold text-info">
+                                             <i class="fab fa-whatsapp mr-1"></i> Status Koneksi WhatsApp Gateway
+                                         </h4>
+                                     </div>
+                                     <div class="card-body text-center">
+                                         <div id="wa_status_loading" class="py-3">
+                                             <div class="spinner-border text-info" role="status">
+                                                 <span class="sr-only">Loading...</span>
+                                             </div>
+                                             <p class="mt-2 text-muted">Mengecek status koneksi ke server...</p>
+                                         </div>
+
+                                         <div id="wa_status_wrapper" class="d-none">
+                                             <div class="mb-3">
+                                                 <span id="wa_status_badge" class="badge p-2 px-3 text-sm">Unknown</span>
+                                             </div>
+                                             
+                                             <div id="wa_status_details" class="alert alert-light border p-3 rounded d-inline-block text-left mb-3" style="min-width: 300px;">
+                                                 <p class="mb-1"><strong>Pesan:</strong> <span id="wa_status_message">-</span></p>
+                                                 <p class="mb-0"><strong>Status Sesi:</strong> <code id="wa_status_raw_state">-</code></p>
+                                             </div>
+                                             
+                                             <div id="wa_qr_container" class="my-4 d-none">
+                                                 <p class="text-warning font-weight-bold mb-2">
+                                                     <i class="fas fa-qrcode mr-1"></i> Scan QR Code berikut dengan WhatsApp Anda:
+                                                 </p>
+                                                 <div class="bg-white p-3 d-inline-block rounded border shadow-sm">
+                                                     <img id="wa_qr_image" src="" alt="WhatsApp QR Code" class="img-fluid" style="width: 250px; height: 250px;">
+                                                 </div>
+                                                 <p class="small text-muted mt-2">QR Code akan diperbarui secara otomatis setiap beberapa detik.</p>
+                                             </div>
+
+                                             <div class="mt-2">
+                                                 <button type="button" id="btn_check_wa" class="btn btn-outline-info mr-2">
+                                                     <i class="fas fa-sync mr-1"></i> Cek Koneksi
+                                                 </button>
+                                                 <button type="button" id="btn_start_wa" class="btn btn-primary d-none">
+                                                     <i class="fas fa-play mr-1"></i> Mulai Sesi Baru
+                                                 </button>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
                         </div>
                     </div> <!-- /.card-body -->
                 </div> <!-- /.card -->
@@ -472,6 +528,181 @@
                     icon.classList.remove('fa-eye-slash');
                     icon.classList.add('fa-eye');
                 }
+            });
+        }
+
+        // Pemantau Sesi dan Status Koneksi WhatsApp AJAX
+        const waStatusTab = document.querySelector('a[href="#settingWhatsapp"]');
+        let waPollInterval = null;
+
+        function checkWhatsAppStatus() {
+            const loadingEl = document.getElementById('wa_status_loading');
+            const wrapperEl = document.getElementById('wa_status_wrapper');
+            const badgeEl = document.getElementById('wa_status_badge');
+            const messageEl = document.getElementById('wa_status_message');
+            const stateEl = document.getElementById('wa_status_raw_state');
+            const qrContainer = document.getElementById('wa_qr_container');
+            const qrImage = document.getElementById('wa_qr_image');
+            const btnStart = document.getElementById('btn_start_wa');
+
+            if (!loadingEl || !wrapperEl) return;
+
+            fetch('/admin/setting-whatsapp-status')
+                .then(response => response.json())
+                .then(data => {
+                    loadingEl.classList.add('d-none');
+                    wrapperEl.classList.remove('d-none');
+
+                    if (data.success) {
+                        messageEl.textContent = data.message;
+                        stateEl.textContent = data.status;
+
+                        // Reset badge classes
+                        badgeEl.className = 'badge p-2 px-3 text-sm';
+                        
+                        if (data.connected) {
+                            badgeEl.classList.add('badge-success');
+                            badgeEl.textContent = 'Terhubung';
+                            qrContainer.classList.add('d-none');
+                            btnStart.classList.add('d-none');
+                            
+                            // Hentikan polling jika sudah terhubung
+                            if (waPollInterval) {
+                                clearInterval(waPollInterval);
+                                waPollInterval = null;
+                            }
+                        } else {
+                            if (data.status === 'NOT_STARTED') {
+                                badgeEl.classList.add('badge-danger');
+                                badgeEl.textContent = 'Offline';
+                                qrContainer.classList.add('d-none');
+                                btnStart.classList.remove('d-none');
+                                
+                                if (waPollInterval) {
+                                    clearInterval(waPollInterval);
+                                    waPollInterval = null;
+                                }
+                            } else {
+                                badgeEl.classList.add('badge-warning');
+                                badgeEl.textContent = 'Butuh Scan QR';
+                                btnStart.classList.add('d-none');
+
+                                if (data.qrCode) {
+                                    qrContainer.classList.remove('d-none');
+                                    const qrSrc = data.qrCode.startsWith('data:') ? data.qrCode : 'data:image/png;base64,' + data.qrCode;
+                                    qrImage.src = qrSrc;
+                                } else {
+                                    qrContainer.classList.add('d-none');
+                                }
+
+                                // Jalankan polling jika statusnya butuh scan QR
+                                if (!waPollInterval) {
+                                    waPollInterval = setInterval(checkWhatsAppStatus, 5000);
+                                }
+                            }
+                        }
+                    } else {
+                        badgeEl.className = 'badge p-2 px-3 text-sm badge-danger';
+                        badgeEl.textContent = 'Error Gateway';
+                        messageEl.textContent = data.message;
+                        stateEl.textContent = 'ERROR';
+                        qrContainer.classList.add('d-none');
+                        btnStart.classList.add('d-none');
+                        
+                        if (waPollInterval) {
+                            clearInterval(waPollInterval);
+                            waPollInterval = null;
+                        }
+                    }
+                })
+                .catch(error => {
+                    loadingEl.classList.add('d-none');
+                    wrapperEl.classList.remove('d-none');
+                    badgeEl.className = 'badge p-2 px-3 text-sm badge-danger';
+                    badgeEl.textContent = 'Server Error';
+                    messageEl.textContent = 'Gagal menghubungi server aplikasi.';
+                    stateEl.textContent = 'SERVER_ERROR';
+                    qrContainer.classList.add('d-none');
+                    btnStart.classList.add('d-none');
+                    
+                    if (waPollInterval) {
+                        clearInterval(waPollInterval);
+                        waPollInterval = null;
+                    }
+                });
+        }
+
+        // Cek status saat tab WhatsApp diklik (dukungan jQuery dan Vanilla JS)
+        if (typeof $ !== 'undefined') {
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                if (e.target.hash === '#settingWhatsapp') {
+                    const loading = document.getElementById('wa_status_loading');
+                    const wrapper = document.getElementById('wa_status_wrapper');
+                    if (loading && wrapper) {
+                        loading.classList.remove('d-none');
+                        wrapper.classList.add('d-none');
+                    }
+                    checkWhatsAppStatus();
+                }
+            });
+            $('a[data-toggle="tab"]').on('hidden.bs.tab', function (e) {
+                if (e.target.hash === '#settingWhatsapp' && waPollInterval) {
+                    clearInterval(waPollInterval);
+                    waPollInterval = null;
+                }
+            });
+        } else if (waStatusTab) {
+            waStatusTab.addEventListener('shown.bs.tab', function () {
+                const loading = document.getElementById('wa_status_loading');
+                const wrapper = document.getElementById('wa_status_wrapper');
+                if (loading && wrapper) {
+                    loading.classList.remove('d-none');
+                    wrapper.classList.add('d-none');
+                }
+                checkWhatsAppStatus();
+            });
+        }
+
+        // Cek status manual dengan tombol
+        const btnCheck = document.getElementById('btn_check_wa');
+        if (btnCheck) {
+            btnCheck.addEventListener('click', function() {
+                const loading = document.getElementById('wa_status_loading');
+                const wrapper = document.getElementById('wa_status_wrapper');
+                if (loading && wrapper) {
+                    loading.classList.remove('d-none');
+                    wrapper.classList.add('d-none');
+                }
+                checkWhatsAppStatus();
+            });
+        }
+
+        // Mulai sesi baru via tombol
+        const btnStartSession = document.getElementById('btn_start_wa');
+        if (btnStartSession) {
+            btnStartSession.addEventListener('click', function() {
+                btnStartSession.disabled = true;
+                btnStartSession.innerHTML = '<span class="spinner-border spinner-border-sm mr-1" role="status"></span> Memproses Sesi...';
+
+                fetch('/admin/setting-whatsapp-start', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    btnStartSession.disabled = false;
+                    btnStartSession.innerHTML = '<i class="fas fa-play mr-1"></i> Mulai Sesi Baru';
+                    checkWhatsAppStatus();
+                })
+                .catch(error => {
+                    alert('Gagal menghubungi server untuk memulai sesi.');
+                    btnStartSession.disabled = false;
+                    btnStartSession.innerHTML = '<i class="fas fa-play mr-1"></i> Mulai Sesi Baru';
+                });
             });
         }
     });

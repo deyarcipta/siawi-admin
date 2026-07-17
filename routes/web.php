@@ -133,6 +133,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::resource('guruPiket', GuruPiketController::class);
     Route::resource('piketPembiasaanPagi', PiketPembiasaanPagiController::class);
     
+    Route::get('/setting-whatsapp-status', [SettingController::class, 'checkWhatsAppStatus'])->name('setting.whatsapp-status');
+    Route::post('/setting-whatsapp-start', [SettingController::class, 'startWhatsAppSession'])->name('setting.whatsapp-start');
     Route::resource('setting', SettingController::class);
     Route::put('/admin/setting-versi/{id_version}', [SettingController::class, 'updateVersiAplikasi'])
     ->name('setting.updateVersiAplikasi');
