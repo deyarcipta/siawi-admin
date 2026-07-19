@@ -135,6 +135,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     
     Route::get('/setting-whatsapp-status', [SettingController::class, 'checkWhatsAppStatus'])->name('setting.whatsapp-status');
     Route::post('/setting-whatsapp-start', [SettingController::class, 'startWhatsAppSession'])->name('setting.whatsapp-start');
+    
+    // Multi-session WhatsApp routes
+    Route::get('/whatsapp-sessions', [SettingController::class, 'listWhatsAppSessions'])->name('whatsapp-sessions.index');
+    Route::post('/whatsapp-sessions', [SettingController::class, 'addWhatsAppSession'])->name('whatsapp-sessions.store');
+    Route::put('/whatsapp-sessions/{id}/toggle', [SettingController::class, 'toggleWhatsAppSession'])->name('whatsapp-sessions.toggle');
+    Route::delete('/whatsapp-sessions/{id}', [SettingController::class, 'deleteWhatsAppSession'])->name('whatsapp-sessions.destroy');
+    Route::get('/whatsapp-sessions/{id}/status', [SettingController::class, 'getWhatsAppSessionStatus'])->name('whatsapp-sessions.status');
+    Route::post('/whatsapp-sessions/{id}/start', [SettingController::class, 'startWhatsAppSessionSpec'])->name('whatsapp-sessions.start');
+
     Route::resource('setting', SettingController::class);
     Route::put('/admin/setting-versi/{id_version}', [SettingController::class, 'updateVersiAplikasi'])
     ->name('setting.updateVersiAplikasi');

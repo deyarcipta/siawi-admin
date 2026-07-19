@@ -14,9 +14,9 @@ class WhatsAppNotificationService
     public static function sendAttendanceNotification(Absensi $absensi)
     {
         try {
-            // Periksa apakah notifikasi WA diaktifkan di pengaturan
+            // Periksa apakah notifikasi WA diaktifkan untuk siswa (status 1 atau 3)
             $setting = \App\Models\Setting::first();
-            if ($setting && !$setting->wa_status) {
+            if ($setting && $setting->wa_status != 1 && $setting->wa_status != 3) {
                 return;
             }
 
@@ -97,9 +97,9 @@ class WhatsAppNotificationService
     public static function sendTeacherAttendanceNotification(\App\Models\AbsensiGuru $absensiGuru)
     {
         try {
-            // Periksa apakah notifikasi WA diaktifkan di pengaturan
+            // Periksa apakah notifikasi WA diaktifkan untuk guru (status 1 atau 2)
             $setting = \App\Models\Setting::first();
-            if ($setting && !$setting->wa_status) {
+            if ($setting && $setting->wa_status != 1 && $setting->wa_status != 2) {
                 return;
             }
 

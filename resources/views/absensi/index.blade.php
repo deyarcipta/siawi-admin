@@ -117,7 +117,7 @@
                   </button>
               </div>
               <div class="modal-body">
-                  <form action="{{ route('admin.absensi.tambah-kehadiran') }}" method="POST">
+                  <form action="{{ route('admin.absensi.tambah-kehadiran') }}" method="POST" id="form-tambah-kehadiran-siswa">
                       @csrf
                       <div class="form-group">
                           <label for="id_kelas">Kelas</label>
@@ -146,7 +146,7 @@
                               <option value="Alfa">Alfa</option>
                           </select>
                       </div>
-                      <button type="submit" class="btn btn-success">Simpan</button>
+                      <button type="submit" class="btn btn-success" id="btn-submit-kehadiran-siswa">Simpan</button>
                   </form>
               </div>
           </div>
@@ -180,10 +180,25 @@
           }
       });
   });
-    // Melakukan refresh setiap 30 detik (30000 milidetik)
+    // Melakukan refresh setiap 60 detik (60000 milidetik)
     setInterval(function() {
-      window.location.href = window.location.href; // Reload halaman
+      // Hanya reload jika modal tidak sedang terbuka agar tidak merusak input user
+      if (!$('#tambahKehadiran').hasClass('show')) {
+          window.location.reload();
+      }
     }, 60000);
+
+    // Mencegah double submit/double click
+    const formKehadiranSiswa = document.getElementById('form-tambah-kehadiran-siswa');
+    if (formKehadiranSiswa) {
+        formKehadiranSiswa.addEventListener('submit', function() {
+            const btnSubmit = document.getElementById('btn-submit-kehadiran-siswa');
+            if (btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm mr-1" role="status"></span> Menyimpan...';
+            }
+        });
+    }
 
 document.addEventListener('DOMContentLoaded', function () {
   const deleteButtons = document.querySelectorAll('.btn-delete');

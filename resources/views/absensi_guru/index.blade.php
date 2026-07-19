@@ -73,7 +73,7 @@
                   </button>
               </div>
               <div class="modal-body">
-                  <form action="{{ url('/admin/tambah-kehadiran') }}" method="POST">
+                  <form action="{{ url('/admin/tambah-kehadiran') }}" method="POST" id="form-tambah-kehadiran">
                       @csrf
                       <div class="form-group">
                           <label for="id_guru">Nama Guru</label>
@@ -92,7 +92,7 @@
                               <option value="Sakit">Sakit</option>
                           </select>
                       </div>
-                      <button type="submit" class="btn btn-success">Simpan</button>
+                      <button type="submit" class="btn btn-success" id="btn-submit-kehadiran">Simpan</button>
                   </form>
               </div>
           </div>
@@ -102,9 +102,24 @@
 
 @push('scripts')
   <script>
-    // Melakukan refresh setiap 30 detik (30000 milidetik)
+    // Melakukan refresh setiap 10 detik
     setInterval(function() {
-      window.location.href = window.location.href; // Reload halaman
+      // Hanya reload jika modal tidak sedang terbuka agar tidak merusak input user
+      if (!$('#tambahKehadiran').hasClass('show')) {
+          window.location.reload();
+      }
     }, 10000);
+
+    // Mencegah double submit/double click
+    const formKehadiran = document.getElementById('form-tambah-kehadiran');
+    if (formKehadiran) {
+        formKehadiran.addEventListener('submit', function() {
+            const btnSubmit = document.getElementById('btn-submit-kehadiran');
+            if (btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm mr-1" role="status"></span> Menyimpan...';
+            }
+        });
+    }
   </script>
 @endpush
