@@ -60,6 +60,48 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
             ->where('status', 'CONNECTED')
             ->get();
 
+        // Self-healing: Cek sesi aktif yang berstatus offline jika sudah lebih dari 5 menit sejak update terakhir
+        $needsHealingSessions = \App\Models\WhatsAppSession::where('is_active', true)
+            ->where('status', '!=', 'CONNECTED')
+            ->where('updated_at', '<', now()->subMinutes(5))
+            ->get();
+
+        if ($needsHealingSessions->isNotEmpty()) {
+            $headers = [
+                'Content-Type' => 'application/json',
+            ];
+            if ($apiKey) {
+                $headers['Authorization'] = 'Bearer ' . $apiKey;
+                $headers['X-API-Key'] = $apiKey;
+            }
+
+            foreach ($needsHealingSessions as $s) {
+                try {
+                    $statusResponse = \Illuminate\Support\Facades\Http::withHeaders($headers)
+                        ->timeout(3)
+                        ->get("{$baseUrl}/sessions/{$s->session_id}");
+
+                    if ($statusResponse->successful()) {
+                        $statusData = $statusResponse->json();
+                        $rawStatus = $statusData['status'] ?? 'CONNECTED';
+                        $isConnected = in_array(strtolower($rawStatus), ['connected', 'working', 'ready']);
+                        
+                        $newStatus = $isConnected ? 'CONNECTED' : $rawStatus;
+                        $s->update(['status' => $newStatus]);
+                        
+                        if ($isConnected) {
+                            \Illuminate\Support\Facades\Log::info("WA Queue Self-Healing: Sesi '{$s->label}' ({$s->session_id}) berhasil terhubung kembali secara otomatis.");
+                            $activeSessions->push($s);
+                        }
+                    } else {
+                        $s->touch(); // Update updated_at agar tidak dicek lagi selama 5 menit berikutnya
+                    }
+                } catch (\Exception $e) {
+                    $s->touch(); // Update updated_at agar tidak dicek lagi selama 5 menit berikutnya
+                }
+            }
+        }
+
         $session = null;
         $sessionId = null;
         $delaySeconds = rand(12, 18); // Jeda acak 12-18 detik per pesan untuk menghindari pembatasan WhatsApp & timeout OpenWA
