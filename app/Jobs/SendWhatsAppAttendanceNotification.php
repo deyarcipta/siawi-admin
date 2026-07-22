@@ -123,6 +123,53 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
                             $this->release($session ? 10 : 300);
                             return;
                         }
+
+                        // Sesi aktif/terhubung, mari kita cek history chat untuk memastikan apakah pesan ini sebenarnya sudah terkirim
+                        try {
+                            $historyResponse = \Illuminate\Support\Facades\Http::withHeaders($headers)
+                                ->timeout(5)
+                                ->get("{$baseUrl}/sessions/{$sessionId}/messages/" . urlencode($this->phoneNumber) . "/history", [
+                                    'limit' => 5
+                                ]);
+
+                            if ($historyResponse->successful()) {
+                                $messages = $historyResponse->json();
+                                $alreadySent = false;
+                                
+                                if (is_array($messages)) {
+                                    foreach ($messages as $msg) {
+                                        $msgBody = $msg['body'] ?? '';
+                                        $fromMe = $msg['fromMe'] ?? false;
+                                        $timestamp = $msg['t'] ?? $msg['timestamp'] ?? 0;
+                                        
+                                        // Periksa jika pesan berasal dari kita sendiri, isinya sama, dan dikirim dalam 2 menit terakhir (120 detik)
+                                        if ($fromMe && $msgBody === $this->message && (time() - $timestamp) < 120) {
+                                            $alreadySent = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if ($alreadySent) {
+                                    \Illuminate\Support\Facades\Log::info("WA Queue: Pesan diproses OpenWA dengan status Pending/Timeout, tetapi verifikasi history menyatakan PESAN SUDAH TERKIRIM. Menghindari duplikat.");
+                                    // Berlanjut ke proses sukses (sleep tracker, dll.)
+                                } else {
+                                    \Illuminate\Support\Facades\Log::warning("WA Queue: Terjadi error 500 dan verifikasi history menyatakan PESAN BELUM TERKIRIM. Merilis ulang pekerjaan untuk dicoba lagi.");
+                                    $this->release(30);
+                                    return;
+                                }
+                            } else {
+                                // Jika API history gagal diakses, cari aman dengan melakukan retry setelah 30 detik
+                                \Illuminate\Support\Facades\Log::warning("WA Queue: Terjadi error 500, gagal memverifikasi history chat (HTTP {$historyResponse->status()}). Merilis ulang pekerjaan demi keamanan.");
+                                $this->release(30);
+                                return;
+                            }
+                        } catch (\Exception $historyEx) {
+                            \Illuminate\Support\Facades\Log::warning("WA Queue: Gagal memproses verifikasi history chat setelah error 500. Error: " . $historyEx->getMessage() . ". Merilis ulang pekerjaan demi keamanan.");
+                            $this->release(30);
+                            return;
+                        }
+
                     } else {
                         // Jika gagal mengecek status sesi (misal API merespon error), anggap sesi bermasalah dan lempar exception
                         throw new \Exception("Server OpenWA merespon dengan error saat pengecekan sesi setelah error 500. Response: " . $statusResponse->body());
@@ -138,7 +185,7 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
 
             if ($isSuccess || $isOpenWaTimeout) {
                 if ($isOpenWaTimeout) {
-                    \Illuminate\Support\Facades\Log::info("WA Queue: Pesan diproses OpenWA dengan status Pending/Timeout dari server WhatsApp. Sesi terpantau aktif. Response: " . $response->body());
+                    \Illuminate\Support\Facades\Log::info("WA Queue: Pesan diproses OpenWA dengan status Pending/Timeout dari server WhatsApp. Sesi terpantau aktif (Fallback). Response: " . $response->body());
                 }
 
                 // Peningkatan counter pesan terkirim (Sleep Mode Tracker)
