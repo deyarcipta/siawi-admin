@@ -143,6 +143,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::delete('/whatsapp-sessions/{id}', [SettingController::class, 'deleteWhatsAppSession'])->name('whatsapp-sessions.destroy');
     Route::get('/whatsapp-sessions/{id}/status', [SettingController::class, 'getWhatsAppSessionStatus'])->name('whatsapp-sessions.status');
     Route::post('/whatsapp-sessions/{id}/start', [SettingController::class, 'startWhatsAppSessionSpec'])->name('whatsapp-sessions.start');
+    Route::get('/whatsapp-server/status', [SettingController::class, 'getWhatsAppServerStatus'])->name('whatsapp-server.status');
 
     Route::resource('setting', SettingController::class);
     Route::put('/admin/setting-versi/{id_version}', [SettingController::class, 'updateVersiAplikasi'])

@@ -661,5 +661,99 @@ class SettingController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Mendapatkan metrik dan status kesehatan server WhatsApp Gateway.
+     */
+    public function getWhatsAppServerStatus()
+    {
+        $setting = Setting::first();
+        $apiUrl = ($setting && $setting->wa_api_url) ? $setting->wa_api_url : env('OPEN_WA_API_URL', 'http://localhost:2785/api');
+        $apiKey = ($setting && $setting->wa_api_key) ? $setting->wa_api_key : env('OPEN_WA_API_KEY');
+
+        // Bersihkan "/api" dari akhir URL untuk mendapatkan Root URL server
+        $rootUrl = preg_replace('/\/api\/?$/', '', $apiUrl);
+
+        $headers = [
+            'Content-Type' => 'application/json',
+        ];
+        if ($apiKey) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['X-API-Key'] = $apiKey;
+        }
+
+        $latency = 'N/A';
+        $ramUsage = 'N/A';
+        $engine = 'N/A';
+        $version = 'N/A';
+        $connected = false;
+
+        try {
+            // 1. Cek Latensi & Ping
+            $startTime = microtime(true);
+            $pingResponse = \Illuminate\Support\Facades\Http::withHeaders($headers)
+                ->timeout(3)
+                ->get("{$rootUrl}/ping");
+
+            $latencyMs = round((microtime(true) - $startTime) * 1000);
+            
+            // Anggap online jika ping membalas dengan status sukses
+            if ($pingResponse->successful()) {
+                $connected = true;
+                $latency = $latencyMs . ' ms';
+            }
+        } catch (\Exception $e) {
+            // Server offline atau tidak terjangkau
+            return response()->json([
+                'success' => true,
+                'connected' => false,
+                'latency' => 'Offline',
+                'ram' => 'N/A',
+                'engine' => 'N/A',
+                'version' => 'N/A',
+            ]);
+        }
+
+        if ($connected) {
+            // 2. Ambil Metrik RAM (Prometheus)
+            try {
+                $metricsResponse = \Illuminate\Support\Facades\Http::withHeaders($headers)
+                    ->timeout(3)
+                    ->get("{$rootUrl}/metrics");
+
+                if ($metricsResponse->successful()) {
+                    $metricsText = $metricsResponse->body();
+                    
+                    // Cari process_resident_memory_bytes
+                    if (preg_match('/process_resident_memory_bytes\s+(\d+)/', $metricsText, $matches)) {
+                        $ramBytes = (float) $matches[1];
+                        $ramUsage = round($ramBytes / (1024 * 1024), 2) . ' MB';
+                    }
+                }
+            } catch (\Exception $e) {}
+
+            // 3. Ambil Versi & Engine Info
+            try {
+                $versionResponse = \Illuminate\Support\Facades\Http::withHeaders($headers)
+                    ->timeout(3)
+                    ->get("{$rootUrl}/api/server/version");
+
+                if ($versionResponse->successful()) {
+                    $versionData = $versionResponse->json();
+                    $engine = $versionData['engine'] ?? 'N/A';
+                    $version = $versionData['version'] ?? 'N/A';
+                }
+            } catch (\Exception $e) {}
+        }
+
+        return response()->json([
+            'success' => true,
+            'connected' => $connected,
+            'latency' => $latency,
+            'ram' => $ramUsage,
+            'engine' => $engine,
+            'version' => $version,
+        ]);
+    }
 }
 

@@ -401,6 +401,41 @@
 
                                   <hr class="my-4">
                                   
+                                  <!-- Widget Status Server Gateway -->
+                                  <div class="card card-outline card-primary shadow-sm mb-4">
+                                      <div class="card-header py-2">
+                                          <h4 class="card-title font-weight-bold text-primary mb-0">
+                                              <i class="fas fa-server mr-1"></i> Status & Kesehatan Server Gateway
+                                          </h4>
+                                      </div>
+                                      <div class="card-body py-3">
+                                          <div class="row align-items-center text-center text-md-left">
+                                              <div class="col-md-3 mb-2 mb-md-0 border-right">
+                                                  <div class="text-xs text-muted font-weight-bold text-uppercase">Koneksi Server</div>
+                                                  <div class="mt-1 d-flex align-items-center justify-content-center justify-content-md-start">
+                                                      <span id="server_status_badge" class="badge badge-secondary p-2 text-sm">Memeriksa...</span>
+                                                  </div>
+                                              </div>
+                                              <div class="col-md-2 mb-2 mb-md-0 border-right">
+                                                  <div class="text-xs text-muted font-weight-bold text-uppercase">Latensi (Ping)</div>
+                                                  <div class="mt-1 font-weight-bold text-lg" id="server_latency_val">-</div>
+                                              </div>
+                                              <div class="col-md-2 mb-2 mb-md-0 border-right">
+                                                  <div class="text-xs text-muted font-weight-bold text-uppercase">Penggunaan RAM</div>
+                                                  <div class="mt-1 font-weight-bold text-lg text-info" id="server_ram_val">-</div>
+                                              </div>
+                                              <div class="col-md-2 mb-2 mb-md-0 border-right">
+                                                  <div class="text-xs text-muted font-weight-bold text-uppercase">Engine</div>
+                                                  <div class="mt-1 font-weight-bold text-lg text-secondary" id="server_engine_val">-</div>
+                                              </div>
+                                              <div class="col-md-3">
+                                                  <div class="text-xs text-muted font-weight-bold text-uppercase">Versi Server</div>
+                                                  <div class="mt-1 font-weight-bold text-sm text-truncate" id="server_version_val" title="-">-</div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+
                                   <div class="card card-outline card-info shadow-sm">
                                       <div class="card-header d-flex align-items-center justify-content-between py-2">
                                           <h4 class="card-title font-weight-bold text-info mb-0">
@@ -678,8 +713,55 @@
             }
         }
 
+        // Cek status server gateway
+        function checkWhatsAppServerStatus() {
+            const badgeEl = document.getElementById('server_status_badge');
+            const latencyEl = document.getElementById('server_latency_val');
+            const ramEl = document.getElementById('server_ram_val');
+            const engineEl = document.getElementById('server_engine_val');
+            const versionEl = document.getElementById('server_version_val');
+
+            if (!badgeEl) return;
+
+            // Reset ke keadaan memeriksa
+            badgeEl.className = 'badge badge-secondary p-2 text-sm';
+            badgeEl.textContent = 'Memeriksa...';
+
+            fetch('/admin/whatsapp-server/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.connected) {
+                        badgeEl.className = 'badge badge-success p-2 text-sm';
+                        badgeEl.textContent = 'Terhubung';
+                        latencyEl.textContent = data.latency;
+                        ramEl.textContent = data.ram;
+                        engineEl.textContent = data.engine;
+                        versionEl.textContent = data.version;
+                        versionEl.setAttribute('title', data.version);
+                    } else {
+                        badgeEl.className = 'badge badge-danger p-2 text-sm';
+                        badgeEl.textContent = 'Terputus (Offline)';
+                        latencyEl.textContent = 'Offline';
+                        ramEl.textContent = 'N/A';
+                        engineEl.textContent = 'N/A';
+                        versionEl.textContent = 'N/A';
+                        versionEl.setAttribute('title', 'Offline');
+                    }
+                })
+                .catch(error => {
+                    badgeEl.className = 'badge badge-danger p-2 text-sm';
+                    badgeEl.textContent = 'Error Koneksi';
+                    latencyEl.textContent = 'Error';
+                    ramEl.textContent = 'N/A';
+                    engineEl.textContent = 'N/A';
+                    versionEl.textContent = 'N/A';
+                    versionEl.setAttribute('title', 'Error');
+                });
+        }
+
         // Cek semua sesi
         function checkAllSessions() {
+            checkWhatsAppServerStatus();
             document.querySelectorAll('.session-card-wrapper').forEach(card => {
                 const sessionId = card.getAttribute('data-id');
                 checkSessionStatus(sessionId);
