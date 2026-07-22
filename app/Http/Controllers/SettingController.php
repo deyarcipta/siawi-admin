@@ -729,8 +729,12 @@ class SettingController extends Controller
                         $ramBytes = (float) $matches[1];
                         $ramUsage = round($ramBytes / (1024 * 1024), 2) . ' MB';
                     }
+                } else {
+                    \Illuminate\Support\Facades\Log::warning("WA Server Monitor: Gagal mengambil metrics. Status: " . $metricsResponse->status());
                 }
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning("WA Server Monitor Metrics Exception: " . $e->getMessage());
+            }
 
             // 3. Ambil Versi & Engine Info
             try {
@@ -742,8 +746,12 @@ class SettingController extends Controller
                     $versionData = $versionResponse->json();
                     $engine = $versionData['engine'] ?? 'N/A';
                     $version = $versionData['version'] ?? 'N/A';
+                } else {
+                    \Illuminate\Support\Facades\Log::warning("WA Server Monitor: Gagal mengambil version. Status: " . $versionResponse->status());
                 }
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning("WA Server Monitor Version Exception: " . $e->getMessage());
+            }
         }
 
         return response()->json([
