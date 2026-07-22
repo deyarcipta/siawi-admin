@@ -721,54 +721,16 @@ class SettingController extends Controller
                     ->timeout(3)
                     ->get("{$rootUrl}/metrics");
 
-                $hasMetrics = false;
                 if ($metricsResponse->successful()) {
                     $metricsText = $metricsResponse->body();
+                    
+                    // Cari process_resident_memory_bytes
                     if (preg_match('/process_resident_memory_bytes\s+(\d+)/', $metricsText, $matches)) {
                         $ramBytes = (float) $matches[1];
                         $ramUsage = round($ramBytes / (1024 * 1024), 2) . ' MB';
-                        $hasMetrics = true;
                     }
                 }
-
-                // Coba fallback ke /api/server/metrics jika /metrics gagal atau tidak mengembalikan memory
-                if (!$hasMetrics) {
-                    $fallbackMetrics = \Illuminate\Support\Facades\Http::withHeaders($headers)
-                        ->timeout(3)
-                        ->get("{$rootUrl}/api/server/metrics");
-
-                    if ($fallbackMetrics->successful()) {
-                        $metricsText = $fallbackMetrics->body();
-                        if (preg_match('/process_resident_memory_bytes\s+(\d+)/', $metricsText, $matches)) {
-                            $ramBytes = (float) $matches[1];
-                            $ramUsage = round($ramBytes / (1024 * 1024), 2) . ' MB';
-                            $hasMetrics = true;
-                        }
-                    }
-                }
-
-                // Coba fallback kedua ke /api/metrics jika masih gagal
-                if (!$hasMetrics) {
-                    $fallbackMetrics2 = \Illuminate\Support\Facades\Http::withHeaders($headers)
-                        ->timeout(3)
-                        ->get("{$rootUrl}/api/metrics");
-
-                    if ($fallbackMetrics2->successful()) {
-                        $metricsText = $fallbackMetrics2->body();
-                        if (preg_match('/process_resident_memory_bytes\s+(\d+)/', $metricsText, $matches)) {
-                            $ramBytes = (float) $matches[1];
-                            $ramUsage = round($ramBytes / (1024 * 1024), 2) . ' MB';
-                            $hasMetrics = true;
-                        }
-                    }
-                }
-
-                if (!$hasMetrics) {
-                    \Illuminate\Support\Facades\Log::warning("WA Server Monitor: Gagal mengambil metrics dari semua endpoint (status /metrics: " . $metricsResponse->status() . ")");
-                }
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::warning("WA Server Monitor Metrics Exception: " . $e->getMessage());
-            }
+            } catch (\Exception $e) {}
 
             // 3. Ambil Versi & Engine Info
             try {
@@ -776,38 +738,12 @@ class SettingController extends Controller
                     ->timeout(3)
                     ->get("{$rootUrl}/api/server/version");
 
-                $hasVersion = false;
                 if ($versionResponse->successful()) {
                     $versionData = $versionResponse->json();
                     $engine = $versionData['engine'] ?? 'N/A';
                     $version = $versionData['version'] ?? 'N/A';
-                    $hasVersion = true;
                 }
-
-                // Coba fallback ke /api/version jika /api/server/version 404
-                if (!$hasVersion && $versionResponse->status() === 404) {
-                    $fallbackVersion = \Illuminate\Support\Facades\Http::withHeaders($headers)
-                        ->timeout(3)
-                        ->get("{$rootUrl}/api/version");
-
-                    if ($fallbackVersion->successful()) {
-                        $versionData = $fallbackVersion->json();
-                        if (is_array($versionData)) {
-                            $engine = $versionData['engine'] ?? 'N/A';
-                            $version = $versionData['version'] ?? ($versionData['value'] ?? 'N/A');
-                        } else {
-                            $version = $fallbackVersion->body();
-                        }
-                        $hasVersion = true;
-                    }
-                }
-
-                if (!$hasVersion) {
-                    \Illuminate\Support\Facades\Log::warning("WA Server Monitor: Gagal mengambil version. Status: " . $versionResponse->status());
-                }
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::warning("WA Server Monitor Version Exception: " . $e->getMessage());
-            }
+            } catch (\Exception $e) {}
         }
 
         return response()->json([
