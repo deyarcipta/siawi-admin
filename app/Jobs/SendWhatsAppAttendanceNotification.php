@@ -104,7 +104,7 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
 
             if ($isSuccess || $isOpenWaTimeout) {
                 if ($isOpenWaTimeout) {
-                    \Illuminate\Support\Facades\Log::info("WA Queue: Pesan diproses OpenWA dengan status Pending/Timeout dari server WhatsApp (Pesan biasanya tetap terkirim).");
+                    \Illuminate\Support\Facades\Log::info("WA Queue: Pesan diproses OpenWA dengan status Pending/Timeout dari server WhatsApp. Response: " . $response->body());
                 }
 
                 // Peningkatan counter pesan terkirim (Sleep Mode Tracker)
