@@ -102,9 +102,43 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
             $isSuccess = $response->successful();
             $isOpenWaTimeout = isset($responseData['statusCode']) && $responseData['statusCode'] == 500;
 
+            if ($isOpenWaTimeout) {
+                // Lakukan validasi status sesi WhatsApp ke server OpenWA untuk memastikan apakah sesi benar-benar terhubung
+                try {
+                    $statusResponse = \Illuminate\Support\Facades\Http::withHeaders($headers)
+                        ->timeout(5)
+                        ->get("{$baseUrl}/sessions/{$sessionId}");
+
+                    if ($statusResponse->successful()) {
+                        $statusData = $statusResponse->json();
+                        $status = $statusData['status'] ?? 'CONNECTED';
+                        $isConnected = ($status === 'CONNECTED' || $status === 'WORKING');
+
+                        if (!$isConnected) {
+                            // Jika sesi terdeteksi tidak aktif/terhubung, maka pesan dipastikan gagal dikirim
+                            if ($session) {
+                                $session->update(['status' => 'NOT_READY']);
+                            }
+                            \Illuminate\Support\Facades\Log::warning("WA Queue: Terjadi error 500 dari OpenWA dan sesi '{$sessionId}' terdeteksi tidak terhubung (Status: {$status}). Merilis ulang pekerjaan.");
+                            $this->release($session ? 10 : 300);
+                            return;
+                        }
+                    } else {
+                        // Jika gagal mengecek status sesi (misal API merespon error), anggap sesi bermasalah dan lempar exception
+                        throw new \Exception("Server OpenWA merespon dengan error saat pengecekan sesi setelah error 500. Response: " . $statusResponse->body());
+                    }
+                } catch (\Exception $checkEx) {
+                    if ($checkEx instanceof \Illuminate\Queue\MaxAttemptsExceededException || $checkEx instanceof \Illuminate\Queue\ReleasedException) {
+                        throw $checkEx;
+                    }
+                    \Illuminate\Support\Facades\Log::error("WA Queue: Gagal memverifikasi status sesi setelah error 500. Error: " . $checkEx->getMessage());
+                    throw new \Exception("Gagal mengirim pesan via OpenWA (Error 500) dan verifikasi sesi gagal: " . $checkEx->getMessage());
+                }
+            }
+
             if ($isSuccess || $isOpenWaTimeout) {
                 if ($isOpenWaTimeout) {
-                    \Illuminate\Support\Facades\Log::info("WA Queue: Pesan diproses OpenWA dengan status Pending/Timeout dari server WhatsApp. Response: " . $response->body());
+                    \Illuminate\Support\Facades\Log::info("WA Queue: Pesan diproses OpenWA dengan status Pending/Timeout dari server WhatsApp. Sesi terpantau aktif. Response: " . $response->body());
                 }
 
                 // Peningkatan counter pesan terkirim (Sleep Mode Tracker)
