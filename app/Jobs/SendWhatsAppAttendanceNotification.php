@@ -111,6 +111,8 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
         }
 
         try {
+            \Illuminate\Support\Facades\Log::info("WA Queue: Memulai pengiriman pesan ke {$this->phoneNumber} via sesi {$sessionId}");
+
             $response = \Illuminate\Support\Facades\Http::withHeaders($headers)
                 ->post("{$baseUrl}/sessions/{$sessionId}/messages/send-text", [
                     'chatId' => $this->phoneNumber,
@@ -118,7 +120,11 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
                 ]);
 
             $responseData = $response->json();
-            $isSuccess = $response->successful();
+            $isHttpSuccess = $response->successful();
+            
+            // Periksa status sukses di dalam body response json
+            $isWaSuccess = is_array($responseData) && ($responseData['success'] ?? true) === true;
+            $isSuccess = $isHttpSuccess && $isWaSuccess;
             $isOpenWaTimeout = isset($responseData['statusCode']) && $responseData['statusCode'] == 500;
 
             if ($isOpenWaTimeout) {
@@ -169,6 +175,8 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
             if ($isSuccess || $isOpenWaTimeout) {
                 if ($isOpenWaTimeout) {
                     \Illuminate\Support\Facades\Log::info("WA Queue: Pesan diproses OpenWA dengan status Pending/Timeout dari server WhatsApp. Sesi terpantau aktif. Response: " . $response->body());
+                } else {
+                    \Illuminate\Support\Facades\Log::info("WA Queue: Berhasil mengirim pesan ke {$this->phoneNumber} via sesi {$sessionId}. Response: " . $response->body());
                 }
 
                 // Peningkatan counter pesan terkirim (Sleep Mode Tracker)
@@ -180,14 +188,33 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
                     \Illuminate\Support\Facades\Log::warning("WA Queue: Berhasil mengirim 50 pesan. Memasuki mode istirahat (Sleep Mode) selama {$sleepSeconds} detik untuk menghindari pemblokiran.");
                 }
             } else {
+                $errorMessage = $responseData['message'] ?? ($responseData['error'] ?? 'Unknown Error');
+
+                // Cek jika nomor tidak valid atau tidak terdaftar di WhatsApp
+                $isInvalidNumber = str_contains(strtolower($errorMessage), 'not registered') || 
+                                    str_contains(strtolower($errorMessage), 'does not exist') ||
+                                    str_contains(strtolower($errorMessage), 'invalid chatid') ||
+                                    str_contains(strtolower($errorMessage), 'invalid number');
+                
+                if ($isInvalidNumber) {
+                    \Illuminate\Support\Facades\Log::warning("WA Queue: Nomor {$this->phoneNumber} tidak valid atau tidak terdaftar di WhatsApp. Pengiriman dibatalkan. Response: " . $response->body());
+                    return; // Selesai, jangan dicoba ulang agar tidak menyumbat antrean
+                }
+
                 // Jika kegagalan disebabkan sesi terputus (error 409 / Conflict / not connected)
-                if ($response->status() === 409 || (isset($responseData['message']) && str_contains($responseData['message'], 'Session is not connected'))) {
+                $isSessionError = $response->status() === 409 || 
+                                  str_contains(strtolower($errorMessage), 'session is not connected') || 
+                                  str_contains(strtolower($errorMessage), 'not connected') ||
+                                  str_contains(strtolower($errorMessage), 'session offline') ||
+                                  str_contains(strtolower($errorMessage), 'auth');
+
+                if ($isSessionError) {
                     if ($session) {
                         // Tandai sesi tersebut sebagai NOT_READY di database agar tidak terpilih lagi
                         $session->update(['status' => 'NOT_READY']);
-                        \Illuminate\Support\Facades\Log::warning("WA Queue: Sesi WhatsApp '{$session->label}' ({$sessionId}) terputus. Menandai sesi offline dan merilis ulang pekerjaan.");
+                        \Illuminate\Support\Facades\Log::warning("WA Queue: Sesi WhatsApp '{$session->label}' ({$sessionId}) terputus. Menandai sesi offline dan merilis ulang pekerjaan. Error: {$errorMessage}");
                     } else {
-                        \Illuminate\Support\Facades\Log::warning("WA Queue: Sesi WhatsApp default ({$sessionId}) terputus saat mengirim ke {$this->phoneNumber}. Menunda pekerjaan selama 5 menit.");
+                        \Illuminate\Support\Facades\Log::warning("WA Queue: Sesi WhatsApp default ({$sessionId}) terputus saat mengirim ke {$this->phoneNumber}. Menunda pekerjaan selama 5 menit. Error: {$errorMessage}");
                     }
                     
                     // Jika menggunakan sesi multi-session, tunda 10 detik agar job dicoba dengan nomor lain
@@ -227,9 +254,17 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
         // Bersihkan karakter non-digit
         $clean = preg_replace('/[^0-9]/', '', $number);
         
-        // Ubah awalan 0 ke 62 (Indonesia)
-        if (str_starts_with($clean, '0')) {
+        // Jika dimulai dengan 620..., ubah menjadi 62...
+        if (str_starts_with($clean, '620')) {
+            $clean = '62' . substr($clean, 3);
+        }
+        // Jika dimulai dengan 0..., ubah menjadi 62...
+        elseif (str_starts_with($clean, '0')) {
             $clean = '62' . substr($clean, 1);
+        }
+        // Jika dimulai dengan 8... (dan bukan 628...), ubah menjadi 628...
+        elseif (str_starts_with($clean, '8')) {
+            $clean = '62' . $clean;
         }
         
         // Jika belum ada akhiran @c.us, tambahkan
