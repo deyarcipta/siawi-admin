@@ -112,7 +112,7 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
                     if ($statusResponse->successful()) {
                         $statusData = $statusResponse->json();
                         $status = $statusData['status'] ?? 'CONNECTED';
-                        $isConnected = ($status === 'CONNECTED' || $status === 'WORKING');
+                        $isConnected = in_array(strtolower($status), ['connected', 'working', 'ready']);
 
                         if (!$isConnected) {
                             // Jika sesi terdeteksi tidak aktif/terhubung, maka pesan dipastikan gagal dikirim
