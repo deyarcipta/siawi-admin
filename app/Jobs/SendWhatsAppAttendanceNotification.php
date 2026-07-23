@@ -153,11 +153,36 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
         }
 
         try {
-            \Illuminate\Support\Facades\Log::info("WA Queue: Memulai pengiriman pesan ke {$this->phoneNumber} via sesi {$sessionId}");
+            $targetChatId = $this->phoneNumber;
+
+            // Resolusi JID otomatis untuk mengatasi migrasi LID
+            try {
+                $rawNumber = explode('@', $this->phoneNumber)[0];
+                
+                // Cari JID asli dari WhatsApp (apakah masih @c.us atau sudah berpindah ke @lid)
+                $chkContactResponse = \Illuminate\Support\Facades\Http::withHeaders($headers)
+                    ->get("{$baseUrl}/sessions/{$sessionId}/contacts/check/{$rawNumber}");
+                
+                \Illuminate\Support\Facades\Log::info("WA Queue Diagnostic: Hasil check kontak {$rawNumber} -> " . $chkContactResponse->body());
+                
+                if ($chkContactResponse->successful()) {
+                    $chkData = $chkContactResponse->json();
+                    
+                    // wppconnect/openwa mengembalikan 'whatsappId' sebagai JID asli yang valid
+                    if (isset($chkData['whatsappId'])) {
+                        $targetChatId = $chkData['whatsappId'];
+                        \Illuminate\Support\Facades\Log::info("WA Queue: Mengubah tujuan ke JID baru: {$targetChatId}");
+                    }
+                }
+            } catch (\Exception $diagEx) {
+                \Illuminate\Support\Facades\Log::warning("WA Queue Diagnostic Warning: Gagal melakukan resolusi JID. Error: " . $diagEx->getMessage());
+            }
+
+            \Illuminate\Support\Facades\Log::info("WA Queue: Memulai pengiriman pesan ke {$targetChatId} via sesi {$sessionId}");
 
             $response = \Illuminate\Support\Facades\Http::withHeaders($headers)
                 ->post("{$baseUrl}/sessions/{$sessionId}/messages/send-text", [
-                    'chatId' => $this->phoneNumber,
+                    'chatId' => $targetChatId,
                     'text' => $this->message,
                 ]);
 
