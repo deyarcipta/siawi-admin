@@ -396,6 +396,28 @@
                                         </div>
                                     </div>
 
+                                    <div class="form-group">
+                                        <label for="wa_load_balancing">Metode Pengiriman Sesi</label>
+                                        <select class="form-control" id="wa_load_balancing" name="wa_load_balancing">
+                                            <option value="1" {{ ($setting->wa_load_balancing ?? 1) == 1 ? 'selected' : '' }}>Load Balancing (Gunakan Semua Sesi Aktif secara Acak)</option>
+                                            <option value="0" {{ ($setting->wa_load_balancing ?? 1) == 0 ? 'selected' : '' }}>Single Session (Gunakan Sesi Utama Saja)</option>
+                                        </select>
+                                        <small class="form-text text-muted">Jika menggunakan Single Session, pesan hanya akan dikirim melalui Sesi Utama pilihan Anda.</small>
+                                    </div>
+
+                                    <div class="form-group" id="primary_session_container" style="display: none;">
+                                        <label for="wa_session_id">Sesi Utama (Single Session)</label>
+                                        <select class="form-control" id="wa_session_id" name="wa_session_id">
+                                            <option value="">-- Pilih Sesi Utama --</option>
+                                            @foreach($waSessions as $s)
+                                                <option value="{{ $s->session_id }}" {{ ($setting->wa_session_id == $s->session_id) ? 'selected' : '' }}>
+                                                    {{ $s->label }} ({{ $s->phone_number ? '+' . $s->phone_number : 'Belum Terhubung' }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <small class="form-text text-muted">Pilih nomor gateway utama yang akan digunakan untuk mengirim seluruh notifikasi WA.</small>
+                                    </div>
+
                                       <button type="submit" class="btn btn-primary mb-3">Simpan Setting WhatsApp</button>
                                   </form>
 
@@ -611,6 +633,21 @@
                     icon.classList.add('fa-eye');
                 }
             });
+        }
+
+        // Toggle visibilitas Sesi Utama berdasarkan Load Balancing
+        const loadBalancingSelect = document.getElementById('wa_load_balancing');
+        const primarySessionContainer = document.getElementById('primary_session_container');
+        if (loadBalancingSelect && primarySessionContainer) {
+            function togglePrimarySessionVisibility() {
+                if (loadBalancingSelect.value === '0') {
+                    primarySessionContainer.style.display = 'block';
+                } else {
+                    primarySessionContainer.style.display = 'none';
+                }
+            }
+            loadBalancingSelect.addEventListener('change', togglePrimarySessionVisibility);
+            togglePrimarySessionVisibility(); // Jalankan sekali saat load
         }
 
         // Pemantau Sesi dan Status Koneksi WhatsApp AJAX (Multi-Session)

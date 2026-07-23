@@ -106,7 +106,10 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
         $sessionId = null;
         $delaySeconds = rand(12, 18); // Jeda acak 12-18 detik per pesan untuk menghindari pembatasan WhatsApp & timeout OpenWA
 
-        if ($activeSessions->isNotEmpty()) {
+        // Ambil opsi load balancing dari setting (default true jika belum didefinisikan)
+        $loadBalancingEnabled = ($setting && isset($setting->wa_load_balancing)) ? (bool)$setting->wa_load_balancing : true;
+
+        if ($loadBalancingEnabled && $activeSessions->isNotEmpty()) {
             // Acak urutan sesi untuk load balancing yang merata
             $shuffledSessions = $activeSessions->shuffle();
 
@@ -128,10 +131,18 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
                 return;
             }
         } else {
-            // Fallback ke session default dari setting atau env
-            $sessionId = ($setting && $setting->wa_session_id) ? $setting->wa_session_id : env('OPEN_WA_SESSION_ID', 'default');
+            // Jika load balancing dinonaktifkan (Single Session), gunakan Sesi Utama yang dipilih
+            if (!$loadBalancingEnabled) {
+                $sessionId = ($setting && $setting->wa_session_id) ? $setting->wa_session_id : env('OPEN_WA_SESSION_ID', 'default');
+                // Cari sesi di database untuk mengupdate status jika error nantinya
+                $session = \App\Models\WhatsAppSession::where('session_id', $sessionId)->first();
+            } else {
+                // Fallback jika load balancing diaktifkan tetapi tidak ada sesi aktif CONNECTED di DB
+                $sessionId = ($setting && $setting->wa_session_id) ? $setting->wa_session_id : env('OPEN_WA_SESSION_ID', 'default');
+                \Illuminate\Support\Facades\Log::warning("WA Queue: Tidak ada sesi WhatsApp aktif berstatus CONNECTED di database. Menggunakan sesi default: {$sessionId}");
+            }
             
-            // Gunakan lock cache untuk sesi default
+            // Gunakan lock cache untuk sesi terpilih
             $lockKey = 'whatsapp-send-lock-' . $sessionId;
             $lock = \Illuminate\Support\Facades\Cache::lock($lockKey, $delaySeconds);
 
@@ -139,8 +150,6 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
                 $this->release(rand(3, 5));
                 return;
             }
-
-            \Illuminate\Support\Facades\Log::warning("WA Queue: Tidak ada sesi WhatsApp aktif berstatus CONNECTED di database. Menggunakan sesi default: {$sessionId}");
         }
         
         $headers = [

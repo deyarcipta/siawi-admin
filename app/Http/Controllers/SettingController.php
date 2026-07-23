@@ -235,6 +235,7 @@ class SettingController extends Controller
                 'wa_api_url' => 'nullable|url',
                 'wa_api_key' => 'nullable|string',
                 'wa_session_id' => 'nullable|string',
+                'wa_load_balancing' => 'required|in:0,1',
             ]);
 
             $setting->update([
@@ -242,6 +243,7 @@ class SettingController extends Controller
                 'wa_api_url' => $request->wa_api_url,
                 'wa_api_key' => $request->wa_api_key,
                 'wa_session_id' => $request->wa_session_id,
+                'wa_load_balancing' => $request->wa_load_balancing,
             ]);
 
             return redirect('/admin/setting')->with('success', 'Pengaturan WhatsApp berhasil diperbarui.');
