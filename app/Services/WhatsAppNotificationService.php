@@ -19,6 +19,7 @@ class WhatsAppNotificationService
             if ($setting && $setting->wa_status != 1 && $setting->wa_status != 3) {
                 return;
             }
+            $namaSekolah = ($setting && !empty($setting->nama_sekolah)) ? $setting->nama_sekolah : 'SMK Wisata Indonesia';
 
             // Eager load siswa and kelas relations if not loaded
             if (!$absensi->relationLoaded('siswa')) {
@@ -53,17 +54,17 @@ class WhatsAppNotificationService
                 
                 if ($isPulang) {
                     $jamPulang = $absensi->jam_pulang;
-                    $message = "Informasi Kepulangan Siswa SMK Wisata Indonesia:\n\n" .
+                    $message = "Informasi Kepulangan Siswa {$namaSekolah}:\n\n" .
                                "Yth. Orang Tua/Wali,\n" .
                                "Siswa atas nama *{$siswa->nama_siswa}* (Kelas: {$namaKelas}) telah dicatat *Pulang* pada hari {$hari}, {$tanggal} jam {$jamPulang}.";
                 } else {
                     if (str_contains(strtolower($absensi->keterangan), 'terlambat')) {
-                        $message = "Informasi Kehadiran Siswa SMK Wisata Indonesia:\n\n" .
+                        $message = "Informasi Kehadiran Siswa {$namaSekolah}:\n\n" .
                                    "Yth. Orang Tua/Wali,\n" .
                                    "Siswa atas nama *{$siswa->nama_siswa}* (Kelas: {$namaKelas}) telah dicatat *Hadir (Terlambat)* pada hari {$hari}, {$tanggal} jam {$jam}.\n\n" .
                                    "Keterangan: {$absensi->keterangan}";
                     } else {
-                        $message = "Informasi Kehadiran Siswa SMK Wisata Indonesia:\n\n" .
+                        $message = "Informasi Kehadiran Siswa {$namaSekolah}:\n\n" .
                                    "Yth. Orang Tua/Wali,\n" .
                                    "Siswa atas nama *{$siswa->nama_siswa}* (Kelas: {$namaKelas}) telah dicatat *Hadir* pada hari {$hari}, {$tanggal} jam {$jam}.";
                     }
@@ -77,7 +78,7 @@ class WhatsAppNotificationService
                 $statusText = $statusIndo[$kehadiran] ?? $kehadiran;
                 $keteranganText = (!empty($absensi->keterangan) && $absensi->keterangan !== '-') ? "Keterangan: {$absensi->keterangan}" : "";
                 
-                $message = "Informasi Ketidakhadiran Siswa SMK Wisata Indonesia:\n\n" .
+                $message = "Informasi Ketidakhadiran Siswa {$namaSekolah}:\n\n" .
                            "Yth. Orang Tua/Wali,\n" .
                            "Siswa atas nama *{$siswa->nama_siswa}* (Kelas: {$namaKelas}) telah dicatat *{$statusText}* pada hari {$hari}, {$tanggal}.\n" .
                            ($keteranganText ? "\n{$keteranganText}" : "");
@@ -102,6 +103,7 @@ class WhatsAppNotificationService
             if ($setting && $setting->wa_status != 1 && $setting->wa_status != 2) {
                 return;
             }
+            $namaSekolah = ($setting && !empty($setting->nama_sekolah)) ? $setting->nama_sekolah : 'SMK Wisata Indonesia';
 
             // Eager load guru relation if not loaded
             if (!$absensiGuru->relationLoaded('guru')) {
@@ -131,11 +133,11 @@ class WhatsAppNotificationService
                 
                 if ($isPulang) {
                     $jamPulang = $absensiGuru->jam_pulang;
-                    $message = "Informasi Kehadiran Guru SMK Wisata Indonesia:\n\n" .
+                    $message = "Informasi Kehadiran Guru {$namaSekolah}:\n\n" .
                                "Yth. Bapak/Ibu *{$guru->nama_guru}*,\n" .
                                "Anda telah dicatat *Pulang* pada hari {$hari}, {$tanggal} jam {$jamPulang}.";
                 } else {
-                    $message = "Informasi Kehadiran Guru SMK Wisata Indonesia:\n\n" .
+                    $message = "Informasi Kehadiran Guru {$namaSekolah}:\n\n" .
                                "Yth. Bapak/Ibu *{$guru->nama_guru}*,\n" .
                                "Anda telah dicatat *Hadir (Masuk)* pada hari {$hari}, {$tanggal} jam {$jam}.";
                 }
@@ -148,7 +150,7 @@ class WhatsAppNotificationService
                 $statusText = $statusIndo[$kehadiran] ?? $kehadiran;
                 $keteranganText = (!empty($absensiGuru->keterangan) && $absensiGuru->keterangan !== '-') ? "Keterangan: {$absensiGuru->keterangan}" : "";
                 
-                $message = "Informasi Ketidakhadiran Guru SMK Wisata Indonesia:\n\n" .
+                $message = "Informasi Ketidakhadiran Guru {$namaSekolah}:\n\n" .
                            "Yth. Bapak/Ibu *{$guru->nama_guru}*,\n" .
                            "Anda telah dicatat *{$statusText}* pada hari {$hari}, {$tanggal}.\n" .
                            ($keteranganText ? "\n{$keteranganText}" : "");
