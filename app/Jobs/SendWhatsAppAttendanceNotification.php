@@ -182,8 +182,39 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
                         $targetChatId = $chkData['whatsappId'];
                         \Illuminate\Support\Facades\Log::info("WA Queue: Mengubah tujuan ke JID baru: {$targetChatId}");
                     }
+                } else {
+                    $chkData = $chkContactResponse->json();
+                    $chkMsg = is_array($chkData) ? ($chkData['message'] ?? ($chkData['error'] ?? '')) : $chkContactResponse->body();
+                    
+                    $isSessionError = $chkContactResponse->status() === 409 || 
+                                      $chkContactResponse->status() === 400 && (
+                                          str_contains(strtolower($chkMsg), 'not active') ||
+                                          str_contains(strtolower($chkMsg), 'not started') ||
+                                          str_contains(strtolower($chkMsg), 'start the session first')
+                                      ) ||
+                                      str_contains(strtolower($chkMsg), 'session is not connected') || 
+                                      str_contains(strtolower($chkMsg), 'not connected') ||
+                                      str_contains(strtolower($chkMsg), 'session offline') ||
+                                      str_contains(strtolower($chkMsg), 'not active') ||
+                                      str_contains(strtolower($chkMsg), 'not started') ||
+                                      str_contains(strtolower($chkMsg), 'start the session first') ||
+                                      str_contains(strtolower($chkMsg), 'auth');
+                    
+                    if ($isSessionError) {
+                        if ($session) {
+                            $session->update(['status' => 'NOT_READY']);
+                            \Illuminate\Support\Facades\Log::warning("WA Queue: Sesi WhatsApp '{$session->label}' ({$sessionId}) terputus saat pemeriksaan kontak. Menandai sesi offline dan merilis ulang pekerjaan. Error: {$chkMsg}");
+                        } else {
+                            \Illuminate\Support\Facades\Log::warning("WA Queue: Sesi WhatsApp default ({$sessionId}) terputus saat pemeriksaan kontak untuk {$this->phoneNumber}. Menunda pekerjaan. Error: {$chkMsg}");
+                        }
+                        $this->release($session ? 10 : 300);
+                        return;
+                    }
                 }
             } catch (\Exception $diagEx) {
+                if ($diagEx instanceof \Illuminate\Queue\MaxAttemptsExceededException || $diagEx instanceof \Illuminate\Queue\ReleasedException) {
+                    throw $diagEx;
+                }
                 \Illuminate\Support\Facades\Log::warning("WA Queue Diagnostic Warning: Gagal melakukan resolusi JID. Error: " . $diagEx->getMessage());
             }
 
@@ -277,11 +308,19 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
                     return; // Selesai, jangan dicoba ulang agar tidak menyumbat antrean
                 }
 
-                // Jika kegagalan disebabkan sesi terputus (error 409 / Conflict / not connected)
+                // Jika kegagalan disebabkan sesi terputus atau belum aktif (error 409 / Conflict / 400 Bad Request / not connected / not active)
                 $isSessionError = $response->status() === 409 || 
+                                  $response->status() === 400 && (
+                                      str_contains(strtolower($errorMessage), 'not active') ||
+                                      str_contains(strtolower($errorMessage), 'not started') ||
+                                      str_contains(strtolower($errorMessage), 'start the session first')
+                                  ) ||
                                   str_contains(strtolower($errorMessage), 'session is not connected') || 
                                   str_contains(strtolower($errorMessage), 'not connected') ||
                                   str_contains(strtolower($errorMessage), 'session offline') ||
+                                  str_contains(strtolower($errorMessage), 'not active') ||
+                                  str_contains(strtolower($errorMessage), 'not started') ||
+                                  str_contains(strtolower($errorMessage), 'start the session first') ||
                                   str_contains(strtolower($errorMessage), 'auth');
 
                 if ($isSessionError) {
