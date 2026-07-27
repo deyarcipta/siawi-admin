@@ -45,12 +45,7 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
             return;
         }
 
-        // Periksa apakah sistem sedang berada dalam Mode Istirahat (Sleep Mode) setelah kirim 50 pesan
-        if (\Illuminate\Support\Facades\Cache::has('whatsapp-sleep-lock')) {
-            // Rilis kembali job ke antrean dengan penundaan acak (10 hingga 20 detik)
-            $this->release(rand(10, 20));
-            return;
-        }
+
 
         $baseUrl = ($setting && $setting->wa_api_url) ? $setting->wa_api_url : env('OPEN_WA_API_URL', 'http://localhost:2785/api');
         $apiKey = ($setting && $setting->wa_api_key) ? $setting->wa_api_key : env('OPEN_WA_API_KEY');
@@ -114,6 +109,11 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
             $shuffledSessions = $activeSessions->shuffle();
 
             foreach ($shuffledSessions as $s) {
+                // Lewati sesi jika sedang dalam mode istirahat (sleep)
+                if (\Illuminate\Support\Facades\Cache::has('whatsapp-sleep-lock-' . $s->session_id)) {
+                    continue;
+                }
+
                 $lockKey = 'whatsapp-send-lock-' . $s->session_id;
                 $lock = \Illuminate\Support\Facades\Cache::lock($lockKey, $delaySeconds);
 
@@ -142,6 +142,12 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
                 \Illuminate\Support\Facades\Log::warning("WA Queue: Tidak ada sesi WhatsApp aktif berstatus CONNECTED di database. Menggunakan sesi default: {$sessionId}");
             }
             
+            // Periksa apakah sesi terpilih sedang beristirahat
+            if (\Illuminate\Support\Facades\Cache::has('whatsapp-sleep-lock-' . $sessionId)) {
+                $this->release(rand(10, 20));
+                return;
+            }
+
             // Gunakan lock cache untuk sesi terpilih
             $lockKey = 'whatsapp-send-lock-' . $sessionId;
             $lock = \Illuminate\Support\Facades\Cache::lock($lockKey, $delaySeconds);
@@ -170,6 +176,7 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
                 
                 // Cari JID asli dari WhatsApp (apakah masih @c.us atau sudah berpindah ke @lid)
                 $chkContactResponse = \Illuminate\Support\Facades\Http::withHeaders($headers)
+                    ->timeout(10)
                     ->get("{$baseUrl}/sessions/{$sessionId}/contacts/check/{$rawNumber}");
                 
                 \Illuminate\Support\Facades\Log::info("WA Queue Diagnostic: Hasil check kontak {$rawNumber} -> " . $chkContactResponse->body());
@@ -221,6 +228,7 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
             \Illuminate\Support\Facades\Log::info("WA Queue: Memulai pengiriman pesan ke {$targetChatId} via sesi {$sessionId}");
 
             $response = \Illuminate\Support\Facades\Http::withHeaders($headers)
+                ->timeout(15)
                 ->post("{$baseUrl}/sessions/{$sessionId}/messages/send-text", [
                     'chatId' => $targetChatId,
                     'text' => $this->message,
@@ -286,13 +294,13 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
                     \Illuminate\Support\Facades\Log::info("WA Queue: Berhasil mengirim pesan ke {$this->phoneNumber} via sesi {$sessionId}. Response: " . $response->body());
                 }
 
-                // Peningkatan counter pesan terkirim (Sleep Mode Tracker)
-                $count = \Illuminate\Support\Facades\Cache::increment('whatsapp-sent-count');
+                // Peningkatan counter pesan terkirim (Sleep Mode Tracker) per sesi
+                $count = \Illuminate\Support\Facades\Cache::increment('whatsapp-sent-count-' . $sessionId);
                 if ($count >= 50) {
                     $sleepSeconds = rand(60, 120);
-                    \Illuminate\Support\Facades\Cache::put('whatsapp-sleep-lock', true, $sleepSeconds);
-                    \Illuminate\Support\Facades\Cache::put('whatsapp-sent-count', 0);
-                    \Illuminate\Support\Facades\Log::warning("WA Queue: Berhasil mengirim 50 pesan. Memasuki mode istirahat (Sleep Mode) selama {$sleepSeconds} detik untuk menghindari pemblokiran.");
+                    \Illuminate\Support\Facades\Cache::put('whatsapp-sleep-lock-' . $sessionId, true, $sleepSeconds);
+                    \Illuminate\Support\Facades\Cache::put('whatsapp-sent-count-' . $sessionId, 0);
+                    \Illuminate\Support\Facades\Log::warning("WA Queue: Sesi '{$sessionId}' berhasil mengirim 50 pesan. Memasuki mode istirahat (Sleep Mode) selama {$sleepSeconds} detik untuk menghindari pemblokiran.");
                 }
             } else {
                 $errorMessage = $responseData['message'] ?? ($responseData['error'] ?? 'Unknown Error');
