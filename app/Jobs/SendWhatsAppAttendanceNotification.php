@@ -45,6 +45,14 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
             return;
         }
 
+        // Deteksi duplikasi pesan berdasarkan MD5 fingerprint (anti-duplicate)
+        $fingerprint = md5($this->phoneNumber . '_' . $this->message);
+        $cacheKey = 'wa-sent-' . $fingerprint;
+        if (\Illuminate\Support\Facades\Cache::has($cacheKey)) {
+            \Illuminate\Support\Facades\Log::info("WA Queue: Pesan duplikat terdeteksi untuk {$this->phoneNumber}. Mengabaikan pekerjaan.");
+            return;
+        }
+
 
 
         $baseUrl = ($setting && $setting->wa_api_url) ? $setting->wa_api_url : env('OPEN_WA_API_URL', 'http://localhost:2785/api');
@@ -293,6 +301,9 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
                 } else {
                     \Illuminate\Support\Facades\Log::info("WA Queue: Berhasil mengirim pesan ke {$this->phoneNumber} via sesi {$sessionId}. Response: " . $response->body());
                 }
+
+                // Tandai pesan sudah terkirim di cache selama 5 menit (300 detik) untuk mencegah duplikasi
+                \Illuminate\Support\Facades\Cache::put($cacheKey, true, 300);
 
                 // Peningkatan counter pesan terkirim (Sleep Mode Tracker) per sesi
                 $count = \Illuminate\Support\Facades\Cache::increment('whatsapp-sent-count-' . $sessionId);
