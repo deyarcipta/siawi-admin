@@ -83,6 +83,9 @@ class WhatsAppNotificationService
                            ($keteranganText ? "\n{$keteranganText}" : "");
             }
 
+            // Tambahkan kata-kata diakhir supaya penerima membalas pesan ini
+            $message .= "\n\n_Mohon konfirmasi dengan membalas pesan ini (contoh: *Diterima*) jika Bapak/Ibu telah membaca notifikasi ini. Terima kasih._";
+
             // Dispatch job to Laravel queue
             SendWhatsAppAttendanceNotification::dispatch($phone, $message);
 
@@ -153,6 +156,9 @@ class WhatsAppNotificationService
                            "Anda telah dicatat *{$statusText}* pada hari {$hari}, {$tanggal}.\n" .
                            ($keteranganText ? "\n{$keteranganText}" : "");
             }
+
+            // Tambahkan kata-kata diakhir supaya penerima membalas pesan ini
+            $message .= "\n\n_Mohon konfirmasi dengan membalas pesan ini (contoh: *Diterima*) jika Anda telah membaca notifikasi ini. Terima kasih._";
 
             // Dispatch job to Laravel queue
             SendWhatsAppAttendanceNotification::dispatch($phone, $message);
