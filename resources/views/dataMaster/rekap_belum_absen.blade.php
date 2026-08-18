@@ -103,47 +103,75 @@
                               <!-- Modal Detail Siswa Belum Absen -->
                               <div class="modal fade text-left" id="modalDetail{{ $item['kelas']->id_kelas }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel{{ $item['kelas']->id_kelas }}" aria-hidden="true">
                                 <div class="modal-dialog modal-lg" role="document">
-                                  <div class="modal-content">
-                                    <div class="modal-header bg-info text-white">
-                                      <h5 class="modal-title" id="modalLabel{{ $item['kelas']->id_kelas }}">
-                                        <i class="fa fa-users mr-1"></i> Siswa Belum Absen - {{ $item['kelas']->nama_kelas }}
-                                      </h5>
-                                      <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                      </button>
-                                    </div>
-                                    <div class="modal-body">
-                                      <p class="mb-3">Daftar siswa di kelas <strong>{{ $item['kelas']->nama_kelas }}</strong> yang datanya belum masuk ke database absensi harian pada tanggal <strong>{{ \Carbon\Carbon::parse($date)->translatedFormat('d F Y') }}</strong>:</p>
-                                      
-                                      <table class="table table-bordered table-striped table-hover">
-                                        <thead class="bg-secondary text-white">
-                                          <tr>
-                                            <th style="width: 10px">No</th>
-                                            <th>NIS</th>
-                                            <th>Nama Siswa</th>
-                                            <th>Status</th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          @foreach($item['siswaBelumAbsen'] as $siswa)
-                                            <tr>
-                                              <td>{{ $loop->iteration }}</td>
-                                              <td>{{ $siswa->nis }}</td>
-                                              <td><strong>{{ $siswa->nama_siswa }}</strong></td>
-                                              <td><span class="badge badge-danger">Belum Diinput</span></td>
-                                            </tr>
-                                          @endforeach
-                                        </tbody>
-                                      </table>
-                                    </div>
-                                    <div class="modal-footer bg-light d-flex justify-content-between">
-                                      <div>
-                                        <strong>Total Siswa:</strong> {{ $item['totalSiswa'] }} | 
-                                        <strong>Belum Absen:</strong> {{ $item['jumlahBelumAbsen'] }}
+                                  <form action="{{ route('admin.rekapBelumAbsen.store') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="tanggal" value="{{ $date }}">
+                                    <input type="hidden" name="id_kelas" value="{{ $item['kelas']->id_kelas }}">
+                                    
+                                    <div class="modal-content">
+                                      <div class="modal-header bg-info text-white">
+                                        <h5 class="modal-title" id="modalLabel{{ $item['kelas']->id_kelas }}">
+                                          <i class="fa fa-users mr-1"></i> Input Kehadiran Siswa - {{ $item['kelas']->nama_kelas }}
+                                        </h5>
+                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                          <span aria-hidden="true">&times;</span>
+                                        </button>
                                       </div>
-                                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                                      <div class="modal-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                          <p class="mb-0">Daftar siswa di kelas <strong>{{ $item['kelas']->nama_kelas }}</strong> yang belum absen pada tanggal <strong>{{ \Carbon\Carbon::parse($date)->translatedFormat('d F Y') }}</strong>:</p>
+                                          <button type="button" class="btn btn-xs btn-primary btn-pilih-semua-hadir">
+                                            <i class="fa fa-check-double mr-1"></i> Set Semua Hadir
+                                          </button>
+                                        </div>
+                                        
+                                        <div class="table-responsive">
+                                          <table class="table table-bordered table-striped table-hover">
+                                            <thead class="bg-secondary text-white">
+                                              <tr>
+                                                <th style="width: 10px">No</th>
+                                                <th>NIS</th>
+                                                <th>Nama Siswa</th>
+                                                <th style="width: 180px">Status Kehadiran</th>
+                                                <th>Keterangan</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              @foreach($item['siswaBelumAbsen'] as $siswa)
+                                                <tr>
+                                                  <td>{{ $loop->iteration }}</td>
+                                                  <td>{{ $siswa->nis }}</td>
+                                                  <td><strong>{{ $siswa->nama_siswa }}</strong></td>
+                                                  <td>
+                                                    <select name="siswa[{{ $siswa->id_siswa }}][kehadiran]" class="form-control form-control-sm select-kehadiran">
+                                                      <option value="">-- Pilih Kehadiran --</option>
+                                                      <option value="hadir">Hadir</option>
+                                                      <option value="sakit">Sakit</option>
+                                                      <option value="izin">Izin</option>
+                                                      <option value="alfa">Alfa</option>
+                                                    </select>
+                                                  </td>
+                                                  <td>
+                                                    <input type="text" name="siswa[{{ $siswa->id_siswa }}][keterangan]" class="form-control form-control-sm" placeholder="Keterangan (opsional)">
+                                                  </td>
+                                                </tr>
+                                              @endforeach
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer bg-light d-flex justify-content-between">
+                                        <div>
+                                          <strong>Total Siswa:</strong> {{ $item['totalSiswa'] }} | 
+                                          <strong>Belum Absen:</strong> {{ $item['jumlahBelumAbsen'] }}
+                                        </div>
+                                        <div>
+                                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                                          <button type="submit" class="btn btn-success"><i class="fa fa-save mr-1"></i> Simpan Kehadiran</button>
+                                        </div>
+                                      </div>
                                     </div>
-                                  </div>
+                                  </form>
                                 </div>
                               </div>
                             </td>
@@ -168,3 +196,15 @@
     </div>
   </div>
 @endsection
+
+@push('scripts')
+<script>
+  $(document).ready(function() {
+    $('.btn-pilih-semua-hadir').on('click', function(e) {
+      e.preventDefault();
+      var targetModal = $(this).closest('.modal');
+      targetModal.find('.select-kehadiran').val('hadir');
+    });
+  });
+</script>
+@endpush

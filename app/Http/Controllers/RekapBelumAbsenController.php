@@ -143,4 +143,105 @@ class RekapBelumAbsenController extends Controller
 
         return Excel::download(new RekapBelumAbsenExport($date, $guruPiketList), 'rekap_belum_absen_' . $date . '.xlsx');
     }
+
+    /**
+     * Store attendance from Rekap Kelalaian page.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'tanggal' => 'required|date',
+            'id_kelas' => 'required|exists:kelas,id_kelas',
+            'siswa' => 'required|array',
+        ]);
+
+        $date = $request->input('tanggal');
+        $kelasId = $request->input('id_kelas');
+        $siswaData = $request->input('siswa');
+
+        $carbonDate = Carbon::parse($date);
+        $daysInIndonesian = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu'
+        ];
+        $dayEng = $carbonDate->format('l');
+        $dayInd = $daysInIndonesian[$dayEng] ?? 'Senin';
+        $jam = now()->format('H:i:s');
+
+        $savedCount = 0;
+
+        foreach ($siswaData as $siswaId => $data) {
+            $kehadiran = $data['kehadiran'] ?? null;
+            if (!$kehadiran) {
+                continue; // skip if not selected
+            }
+
+            $isHadir = strtolower($kehadiran) === 'hadir';
+            $jamMasuk = $isHadir ? $jam : '-';
+            $keterangan = $data['keterangan'] ?? '-';
+            if (empty($keterangan)) {
+                $keterangan = '-';
+            }
+
+            $siswa = Siswa::find($siswaId);
+            if (!$siswa) {
+                continue;
+            }
+            $idJurusan = $siswa->id_jurusan;
+
+            $absensi = \App\Models\Absensi::updateOrCreate(
+                [
+                    'id_siswa' => $siswaId,
+                    'tanggal' => $date,
+                ],
+                [
+                    'hari' => $dayInd,
+                    'id_kelas' => $kelasId,
+                    'id_jurusan' => $idJurusan,
+                    'kehadiran' => $kehadiran,
+                    'keterangan' => $keterangan,
+                    'jam_masuk' => $jamMasuk,
+                ]
+            );
+
+            // Send WhatsApp Notification if service exists
+            try {
+                if (class_exists('\App\Services\WhatsAppNotificationService')) {
+                    \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
+                }
+            } catch (\Exception $e) {
+                \Log::error('Gagal mengirim WhatsApp notifikasi: ' . $e->getMessage());
+            }
+
+            // Send push notification if student exists and has FCM token
+            if ($siswa && !empty($siswa->fcm_token)) {
+                try {
+                    if (class_exists('\App\Services\FcmService')) {
+                        \App\Services\FcmService::sendNotification(
+                            $siswa->fcm_token,
+                            'Absensi Hari Ini',
+                            "Status absensi kamu pada tanggal " . $carbonDate->format('d-m-Y') . " telah dicatat: " . ucfirst($kehadiran)
+                        );
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Gagal mengirim FCM: ' . $e->getMessage());
+                }
+            }
+
+            $savedCount++;
+        }
+
+        if ($savedCount > 0) {
+            return redirect()->route('admin.rekapBelumAbsen.index', ['tanggal' => $date])
+                ->with('success', "$savedCount data kehadiran berhasil disimpan.");
+        }
+
+        return redirect()->route('admin.rekapBelumAbsen.index', ['tanggal' => $date])
+            ->with('failed', "Tidak ada data kehadiran yang dipilih untuk disimpan.");
+    }
 }
