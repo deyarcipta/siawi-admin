@@ -22,13 +22,25 @@
       <div class="row">
         <div class="col-lg-12">
         <div class="card">
-          <div class="card-header d-flex align-items-center">
-            <h3 class="card-title">Absensi Siswa Hari <b>{{$hari}}</b></h3>
-            <a href="{{ url('/admin/downloadAbsensiHarianSiswa') }}" class="btn btn-success ml-auto">Download Data</a>
-            <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#tambahKehadiranModal">
-                Tambah Kehadiran
-            </button>
-        </div>
+          <div class="card-header d-flex align-items-center justify-content-between flex-wrap">
+            <h3 class="card-title mr-3">Absensi Harian - Hari <b>{{ $hari }}</b>, <b>{{ \Carbon\Carbon::parse($tanggal)->translatedFormat('d F Y') }}</b></h3>
+            
+            <div class="d-flex align-items-center ml-auto flex-wrap">
+              <form action="{{ route('admin.absensi.index') }}" method="GET" class="form-inline mr-2 my-1">
+                <div class="form-group mr-2">
+                  <input type="date" name="tanggal" id="tanggal_filter" class="form-control form-control-sm" value="{{ $tanggal }}">
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+              </form>
+              
+              <a href="{{ url('/admin/downloadAbsensiHarianSiswa') }}?tanggal={{ $tanggal }}" class="btn btn-success btn-sm mr-2 my-1">
+                <i class="fa fa-file-excel mr-1"></i> Download Data
+              </a>
+              <button type="button" class="btn btn-primary btn-sm my-1" data-toggle="modal" data-target="#tambahKehadiranModal">
+                <i class="fa fa-plus mr-1"></i> Tambah Kehadiran
+              </button>
+            </div>
+          </div>
           <!-- /.card-header -->
           <div class="card-body">
             <table id="example2" class="table table-bordered table-hover table-striped">

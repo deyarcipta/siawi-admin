@@ -17,21 +17,21 @@ use Carbon\Carbon;
 class AbsensiController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
         $now = Carbon::now('Asia/Jakarta');
-        $tanggal = $now->toDateString();
-        $hari = $now->locale('id')->dayName;
+        $tanggal = $request->input('tanggal', $now->toDateString());
+        $hari = Carbon::parse($tanggal)->locale('id')->dayName;
         $siswaList = Siswa::orderBy('nama_siswa', 'asc')->get();
         $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
-        // Ambil data absensi hanya untuk hari ini
+        // Ambil data absensi berdasarkan tanggal filter
         $absensiSiswa = Absensi::whereDate('tanggal', $tanggal)
                               ->orderBy('created_at', 'desc')
                               ->get();
-        return view('absensi.index', compact('absensiSiswa', 'layout', 'setting', 'user','hari','siswaList','kelasList'));
+        return view('absensi.index', compact('absensiSiswa', 'layout', 'setting', 'user', 'hari', 'tanggal', 'siswaList', 'kelasList'));
     }
 
     // public function index(Request $request)
@@ -402,10 +402,10 @@ class AbsensiController extends Controller
         return Excel::download(new AbsensiSiswaRekapExport($id_kelas, $tanggal_awal, $tanggal_akhir), $filename);
     }
 
-    public function AbsensiSiswaExport()
+    public function AbsensiSiswaExport(Request $request)
     {
-        $tanggal = Carbon::now()->format('Y-m-d'); // Format: 2025-02-25
-        $hari = Carbon::now()->locale('id')->translatedFormat('l'); // Format: Selasa
+        $tanggal = $request->input('tanggal', Carbon::now('Asia/Jakarta')->format('Y-m-d'));
+        $hari = Carbon::parse($tanggal)->locale('id')->translatedFormat('l');
 
         $fileName = "Kehadiran_Siswa_{$hari}_{$tanggal}.xlsx"; // Contoh: Absensi_Selasa_2025-02-25.xlsx
 
