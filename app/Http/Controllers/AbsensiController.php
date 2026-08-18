@@ -23,7 +23,14 @@ class AbsensiController extends Controller
         $setting = Setting::find('1');
         $user = Auth::user();
         $now = Carbon::now('Asia/Jakarta');
-        $tanggal = $request->input('tanggal', $now->toDateString());
+        
+        // Hanya role admin yang dapat menyaring tanggal
+        if ($user && $user->role == 'admin') {
+            $tanggal = $request->input('tanggal', $now->toDateString());
+        } else {
+            $tanggal = $now->toDateString();
+        }
+        
         $hari = Carbon::parse($tanggal)->locale('id')->dayName;
         $siswaList = Siswa::orderBy('nama_siswa', 'asc')->get();
         $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
@@ -404,7 +411,16 @@ class AbsensiController extends Controller
 
     public function AbsensiSiswaExport(Request $request)
     {
-        $tanggal = $request->input('tanggal', Carbon::now('Asia/Jakarta')->format('Y-m-d'));
+        $user = Auth::user();
+        $now = Carbon::now('Asia/Jakarta');
+        
+        // Hanya role admin yang dapat mengekspor tanggal filter
+        if ($user && $user->role == 'admin') {
+            $tanggal = $request->input('tanggal', $now->format('Y-m-d'));
+        } else {
+            $tanggal = $now->format('Y-m-d');
+        }
+        
         $hari = Carbon::parse($tanggal)->locale('id')->translatedFormat('l');
 
         $fileName = "Kehadiran_Siswa_{$hari}_{$tanggal}.xlsx"; // Contoh: Absensi_Selasa_2025-02-25.xlsx
