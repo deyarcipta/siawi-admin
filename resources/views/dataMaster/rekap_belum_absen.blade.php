@@ -101,7 +101,7 @@
                               </button>
 
                               <!-- Modal Detail Siswa Belum Absen -->
-                              <div class="modal fade text-left" id="modalDetail{{ $item['kelas']->id_kelas }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel{{ $item['kelas']->id_kelas }}" aria-hidden="true">
+                              <div class="modal fade text-left" id="modalDetail{{ $item['kelas']->id_kelas }}" role="dialog" aria-labelledby="modalLabel{{ $item['kelas']->id_kelas }}" aria-hidden="true">
                                 <div class="modal-dialog modal-lg" role="document">
                                   <form action="{{ route('admin.rekapBelumAbsen.store') }}" method="POST">
                                     @csrf

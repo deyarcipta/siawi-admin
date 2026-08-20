@@ -311,7 +311,7 @@
                                                 <i class="fa fa-eye"></i> Detail
                                             </button>
                                             <!-- Modal -->
-                                            <div class="modal fade" id="modalSiswa{{$data['kelas']->id_kelas}}" tabindex="-1" aria-labelledby="modalLabel{{$data['kelas']->id_kelas}}" aria-hidden="true">
+                                            <div class="modal fade" id="modalSiswa{{$data['kelas']->id_kelas}}" aria-labelledby="modalLabel{{$data['kelas']->id_kelas}}" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none;">
                                                         <div class="modal-header bg-light">
@@ -324,7 +324,7 @@
                                                         </div>
                                                         <form action="{{ route('admin.absensi.simpan') }}" method="POST">
                                                             @csrf
-                                                            <div class="modal-body p-0" style="max-height: 400px; overflow-y: auto;">
+                                                            <div class="modal-body p-0" style="max-height: 400px; overflow-y: auto; -webkit-overflow-scrolling: touch;">
                                                                 <ul class="list-group list-group-flush">
                                                                     @foreach ($data['siswaBelumAbsen'] as $siswa)
                                                                         <li class="list-group-item d-flex justify-content-between align-items-center py-3">
