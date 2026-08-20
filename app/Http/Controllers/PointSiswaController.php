@@ -116,7 +116,7 @@ class PointSiswaController extends Controller
                 ->where('sp_level', $spType)
                 ->count();
 
-            $nextNum = str_pad($countThisMonth + 1, 3, '0', STR_PAD_LEFT);
+            $sequence = $countThisMonth + 1;
 
             // Bulan romawi
             $romanMonths = [
@@ -126,8 +126,15 @@ class PointSiswaController extends Controller
             ];
             $romanMonth = $romanMonths[$currentMonth] ?? 'I';
 
-            // Format nomor surat: nomor/SP-X/SMK-WI/B/2026
-            $nomorSurat = "{$nextNum}/SP-{$spType}/SMK-WI/{$romanMonth}/{$currentYear}";
+            // Loop untuk menjamin nomor surat unik jika ada data lama yang bertabrakan
+            do {
+                $nextNum = str_pad($sequence, 3, '0', STR_PAD_LEFT);
+                $nomorSurat = "{$nextNum}/SP-{$spType}/SMK-WI/{$romanMonth}/{$currentYear}";
+                $exists = \App\Models\SuratPeringatan::where('nomor_surat', $nomorSurat)->exists();
+                if ($exists) {
+                    $sequence++;
+                }
+            } while ($exists);
 
             $spRecord = \App\Models\SuratPeringatan::create([
                 'id_siswa' => $siswa->id_siswa,
