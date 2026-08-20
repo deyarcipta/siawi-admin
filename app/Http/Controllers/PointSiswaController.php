@@ -110,9 +110,10 @@ class PointSiswaController extends Controller
             $currentMonth = $now->month;
             $currentYear = $now->year;
 
-            // Hitung jumlah SP yang dikeluarkan pada bulan ini
+            // Hitung jumlah SP yang dikeluarkan pada bulan ini untuk level SP ini
             $countThisMonth = \App\Models\SuratPeringatan::whereMonth('created_at', $currentMonth)
                 ->whereYear('created_at', $currentYear)
+                ->where('sp_level', $spType)
                 ->count();
 
             $nextNum = str_pad($countThisMonth + 1, 3, '0', STR_PAD_LEFT);
