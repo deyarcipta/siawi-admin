@@ -17,6 +17,7 @@ use App\Http\Controllers\RapotController;
 use App\Http\Controllers\TagihanController;
 use App\Http\Controllers\PointController;
 use App\Http\Controllers\PointSiswaController;
+use App\Http\Controllers\SuratPeringatanController;
 use App\Http\Controllers\ModulController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\GuruController;
@@ -119,6 +120,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('pointSiswa/sp-pdf/{id_siswa}', [PointSiswaController::class, 'downloadSpPdf'])->name('pointSiswa.sp_pdf');
     Route::delete('pointSiswa/{id_point_siswa}', [PointSiswaController::class, 'destroy'])
         ->name('admin.pointSiswa.destroy');
+
+    Route::get('surat-peringatan', [SuratPeringatanController::class, 'index'])->name('suratPeringatan.index');
+    Route::post('surat-peringatan/upload-ttd/{id_sp}', [SuratPeringatanController::class, 'uploadTtd'])->name('suratPeringatan.uploadTtd');
 
     Route::resource('modul', ModulController::class);
     Route::resource('berita', BeritaController::class);

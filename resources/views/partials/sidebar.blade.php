@@ -218,8 +218,8 @@
         </li>
 
         <!-- 6. Point Siswa -->
-        <li class="nav-item has-treeview {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-exclamation-circle"></i>
             <p>
               Point Siswa
@@ -237,6 +237,12 @@
               <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
                 <i class="fas fa-exclamation-circle nav-icon" style="color: lightgreen; font-size:14px"></i>
                 <p>Data Point Siswa</p>
+              </a>
+            </li>
+            <li class="nav-item" style="font-size: 14px">
+              <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
+                <i class="fas fa-envelope-open-text nav-icon" style="color: orange; font-size:14px"></i>
+                <p>Surat Peringatan</p>
               </a>
             </li>
           </ul>
@@ -465,6 +471,13 @@
           </a>
         </li>
 
+        <li class="nav-item" style="font-size: 14px">
+          <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-envelope-open-text" style="color: orange"></i>
+            <p>Surat Peringatan</p>
+          </a>
+        </li>
+
         <!-- 6. E-Rapot -->
         <li class="nav-item" style="font-size: 14px">
           <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot*') ? 'active' : '' }}">
@@ -577,8 +590,8 @@
         </li>
 
         <!-- 5. Point Siswa -->
-        <li class="nav-item has-treeview {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-exclamation-circle"></i>
             <p>
               Point Siswa
@@ -596,6 +609,12 @@
               <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
                 <i class="fas fa-exclamation-circle nav-icon" style="color: lightgreen; font-size:14px"></i>
                 <p>Data Point Siswa</p>
+              </a>
+            </li>
+            <li class="nav-item" style="font-size: 14px">
+              <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
+                <i class="fas fa-envelope-open-text nav-icon" style="color: orange; font-size:14px"></i>
+                <p>Surat Peringatan</p>
               </a>
             </li>
           </ul>
@@ -686,6 +705,13 @@
           <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-exclamation-circle"></i>
             <p>Point Siswa</p>
+          </a>
+        </li>
+
+        <li class="nav-item" style="font-size: 14px">
+          <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-envelope-open-text" style="color: orange"></i>
+            <p>Surat Peringatan</p>
           </a>
         </li>
 

@@ -99,8 +99,48 @@ class PointSiswaController extends Controller
         foreach ($pointSiswa as $data) {
             $total_point += $data->skor_point;
         }
+
+        // Cari atau buat SuratPeringatan di database
+        $spRecord = \App\Models\SuratPeringatan::where('id_siswa', $siswa->id_siswa)
+            ->where('sp_level', $spType)
+            ->first();
+
+        if (!$spRecord) {
+            $now = Carbon::now('Asia/Jakarta');
+            $currentMonth = $now->month;
+            $currentYear = $now->year;
+
+            // Hitung jumlah SP yang dikeluarkan pada bulan ini
+            $countThisMonth = \App\Models\SuratPeringatan::whereMonth('created_at', $currentMonth)
+                ->whereYear('created_at', $currentYear)
+                ->count();
+
+            $nextNum = str_pad($countThisMonth + 1, 3, '0', STR_PAD_LEFT);
+
+            // Bulan romawi
+            $romanMonths = [
+                1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V',
+                6 => 'VI', 7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X',
+                11 => 'XI', 12 => 'XII'
+            ];
+            $romanMonth = $romanMonths[$currentMonth] ?? 'I';
+
+            // Format nomor surat: nomor/SP-X/SMK-WI/B/2026
+            $nomorSurat = "{$nextNum}/SP-{$spType}/SMK-WI/{$romanMonth}/{$currentYear}";
+
+            $spRecord = \App\Models\SuratPeringatan::create([
+                'id_siswa' => $siswa->id_siswa,
+                'id_kelas' => $siswa->id_kelas,
+                'sp_level' => $spType,
+                'nomor_surat' => $nomorSurat,
+                'created_at' => $now,
+                'updated_at' => $now
+            ]);
+        }
+
+        $nomor_surat = $spRecord->nomor_surat;
         
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pointSiswa.sp_pdf', compact('siswa', 'setting', 'pointSiswa', 'total_point', 'spType', 'threshold', 'maxSp'));
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pointSiswa.sp_pdf', compact('siswa', 'setting', 'pointSiswa', 'total_point', 'spType', 'threshold', 'maxSp', 'nomor_surat'));
         
         return $pdf->stream('Surat_Peringatan_' . $spType . '_' . str_replace(' ', '_', $siswa->nama_siswa) . '.pdf');
     }

@@ -127,7 +127,7 @@
     <!-- Judul Surat -->
     <div class="title">
         <h4>SURAT PERINGATAN {{ $spType }} (SP - {{ $spType }})</h4>
-        <p>Nomor: {{ rand(100, 999) }}/SP-{{ $spType }}/SMK-WI/{{ date('Y') }}</p>
+        <p>Nomor: {{ $nomor_surat }}</p>
     </div>
 
     <!-- Informasi Siswa -->
