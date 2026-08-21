@@ -37,7 +37,7 @@ class AbsensiGuruExport implements FromCollection, WithHeadings, WithMapping, Wi
         $nomor++;
         return [
             $nomor,  // No
-            $absensi->guru->nama_guru,
+            $absensi->guru?->nama_guru ?? 'Guru Telah Dihapus',
             $absensi->hari,
             $absensi->tanggal,
             $absensi->jam_masuk ?? '-',

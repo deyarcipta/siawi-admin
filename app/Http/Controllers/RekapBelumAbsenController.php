@@ -139,7 +139,7 @@ class RekapBelumAbsenController extends Controller
         $dayInd = $daysInIndonesian[$dayEng] ?? 'Senin';
 
         $guruPiket = GuruPiket::with('guru')->where('hari', $dayInd)->get();
-        $guruPiketList = $guruPiket->map(fn($gp) => $gp->guru->nama_guru)->implode(', ');
+        $guruPiketList = $guruPiket->map(fn($gp) => $gp->guru?->nama_guru ?? 'Guru Telah Dihapus')->implode(', ');
 
         return Excel::download(new RekapBelumAbsenExport($date, $guruPiketList), 'rekap_belum_absen_' . $date . '.xlsx');
     }

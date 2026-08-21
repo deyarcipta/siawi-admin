@@ -45,7 +45,7 @@
               @foreach ($absensiGuru as $data)
               <tr>
                 <td>{{$loop->iteration}}</td>
-                <td>{{$data->guru->nama_guru}}</td>
+                <td>{{$data->guru?->nama_guru ?? 'Guru Telah Dihapus'}}</td>
                 <td>{{$data->jam_masuk ?? '-'}}</td>
                 <td>{{$data->jam_pulang ?? '-'}}</td>
                 <td>{{$data->kehadiran}}</td>

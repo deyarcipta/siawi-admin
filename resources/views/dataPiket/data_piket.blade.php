@@ -46,7 +46,7 @@
                 @foreach ($piket as $pkt)
               <tr>
                 <td>{{$loop->iteration}}</td>
-                <td>{{$pkt->guru->nama_guru}}</td>
+                <td>{{$pkt->guru?->nama_guru ?? 'Guru Telah Dihapus'}}</td>
                 <td>{{$pkt->hari}}</td>
                 <td>{{$pkt->waktu_awal}}</td>
                 <td>{{$pkt->waktu_akhir}}</td>

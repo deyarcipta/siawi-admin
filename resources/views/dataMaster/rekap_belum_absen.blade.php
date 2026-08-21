@@ -62,7 +62,7 @@
                     <h6 class="font-weight-bold mb-2"><i class="fa fa-user-clock mr-1"></i> Guru Piket Bertugas Hari Ini:</h6>
                     <ul class="mb-0 pl-3">
                       @foreach($guruPiket as $gp)
-                        <li>{{ $gp->guru->nama_guru }} ({{ $gp->waktu_awal }} - {{ $gp->waktu_akhir }})</li>
+                        <li>{{ $gp->guru?->nama_guru ?? 'Guru Telah Dihapus' }} ({{ $gp->waktu_awal }} - {{ $gp->waktu_akhir }})</li>
                       @endforeach
                     </ul>
                   </div>

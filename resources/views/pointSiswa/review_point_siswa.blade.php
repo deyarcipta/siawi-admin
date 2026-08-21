@@ -84,8 +84,8 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $data->point->nama_point }}</td>
                                     <td>{{ $data->tanggal }}</td>
-                                    <td>{{ $data->guru->nama_guru }}</td>
-                                    <td>{{ $data->guru->role }}</td>
+                                    <td>{{ $data->guru?->nama_guru ?? 'Guru Telah Dihapus' }}</td>
+                                    <td>{{ $data->guru?->role ?? '-' }}</td>
                                     <td>{{ $data->skor_point }}</td>
                                     <td>
                                         <form action="{{ route('admin.pointSiswa.destroy', $data->id_point_siswa) }}" method="POST">

@@ -46,7 +46,7 @@
                   <td>{{$loop->iteration}}</td>
                   <td>{{$data->nama_modul}}</td>
                   <td>{{$data->mapel->nama_mapel}}</td>
-                  <td>{{$data->guru->nama_guru}}</td>
+                  <td>{{$data->guru?->nama_guru ?? 'Guru Telah Dihapus'}}</td>
                   <td>{{$data->level->nama_level}}</td>
                   <td>{{$data->jurusan->kode_jurusan}}</td>
                   <td>

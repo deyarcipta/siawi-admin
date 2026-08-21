@@ -443,7 +443,7 @@
                                             @foreach ($guruPiketHariIni as $gp)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td><strong>{{ $gp->guru->nama_guru }}</strong></td>
+                                                <td><strong>{{ $gp->guru?->nama_guru ?? 'Guru Telah Dihapus' }}</strong></td>
                                                 <td><span class="badge badge-soft-info"><i class="far fa-clock mr-1"></i> {{ $gp->waktu_awal }} - {{ $gp->waktu_akhir }}</span></td>
                                             </tr>
                                             @endforeach

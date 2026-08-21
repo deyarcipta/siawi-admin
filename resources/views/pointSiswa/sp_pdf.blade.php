@@ -180,7 +180,7 @@
                 <td>{{ $item->point->nama_point }}</td>
                 <td>{{ $item->tanggal }}</td>
                 <td>{{ $item->skor_point }} Poin</td>
-                <td>{{ $item->guru->nama_guru }}</td>
+                <td>{{ $item->guru?->nama_guru ?? 'Guru Telah Dihapus' }}</td>
             </tr>
             @endforeach
         </tbody>

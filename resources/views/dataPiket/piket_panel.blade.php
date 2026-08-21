@@ -30,7 +30,7 @@
                         <div class="d-flex flex-wrap">
                             @forelse ($piketHariIni as $gp)
                                 <div class="badge badge-info p-2 mr-2 mb-2" style="font-size: 14px;">
-                                    <i class="fas fa-user mr-1"></i> {{ $gp->guru->nama_guru }} 
+                                    <i class="fas fa-user mr-1"></i> {{ $gp->guru?->nama_guru ?? 'Guru Telah Dihapus' }} 
                                     <span class="badge badge-light ml-1">{{ $gp->waktu_awal }} - {{ $gp->waktu_akhir }}</span>
                                 </div>
                             @empty

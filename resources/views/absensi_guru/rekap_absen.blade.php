@@ -80,7 +80,7 @@
                             @foreach ($rekapKehadiran as $index => $kehadiran)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td class="text-left">{{ $kehadiran->first()->guru->nama_guru }}</td>
+                                <td class="text-left">{{ $kehadiran->first()?->guru?->nama_guru ?? 'Guru Telah Dihapus' }}</td>
                                 @foreach (range(strtotime($tanggalAwal), strtotime($tanggalAkhir), 86400) as $date)
                                     @php
                                         $currentDate = date('Y-m-d', $date);

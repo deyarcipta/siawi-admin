@@ -45,7 +45,7 @@
                   <td>{{$loop->iteration}}</td>
                   <td>{{$data->judul_berita}}</td>
                   <td>{{$data->isi_berita}}</td>
-                  <td>{{$data->guru->nama_guru}}</td>
+                  <td>{{$data->guru?->nama_guru ?? 'Guru Telah Dihapus'}}</td>
                   <td>{{$data->tanggal}}</td>
                   <td>
                     <img src="{{ asset("storage/berita/$data->cover") }}" alt="File Berita" width="100">
