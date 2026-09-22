@@ -37,7 +37,8 @@
                   <th>Kode Level</th>
                   <th>Nama Kelas</th>
                   <th>Kode Jurusan</th>
-                  <th>Action</th>
+                  <th>Wali Kelas</th>
+                  <th style="width: 130px">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -49,14 +50,23 @@
                   <td>{{ $kls->nama_kelas }}</td>
                   <td>{{ $kls->kode_jurusan }}</td>
                   <td>
+                    @if($kls->waliKelas)
+                      <span class="text-dark font-weight-bold">
+                        <i class="fas fa-chalkboard-teacher text-primary mr-1"></i> {{ $kls->waliKelas->nama_guru }}
+                      </span>
+                    @else
+                      <span class="text-muted font-italic">- Belum Diatur -</span>
+                    @endif
+                  </td>
+                  <td>
                     <form action="/admin/kelas/{{ $kls->id_kelas }}" method="POST">
-                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalSiswa-{{ $kls->id_kelas }}">
+                      <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalSiswa-{{ $kls->id_kelas }}" title="Data Siswa">
                         <i class="fa fa-user"></i>
                       </button>
-                      <a href="/admin/kelas/{{ $kls->id_kelas }}/edit" class="btn btn-success"><i class="fa fa-edit"></i></a>
+                      <a href="/admin/kelas/{{ $kls->id_kelas }}/edit" class="btn btn-success btn-sm" title="Edit"><i class="fa fa-edit"></i></a>
                       @csrf
                       @method('DELETE')
-                      <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i></button>
+                      <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus kelas ini?')" title="Hapus"><i class="fa fa-trash"></i></button>
                     </form>
                   </td>
                 </tr>

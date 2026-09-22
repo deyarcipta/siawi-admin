@@ -116,6 +116,8 @@ class AbsensiController extends Controller
             $siswa = Siswa::find($siswaId);
             $idJurusan = $siswa ? $siswa->id_jurusan : $siswaId;
             
+            $tipeMasuk = $existingAbsensi ? ($existingAbsensi->tipe_masuk ?? 'manual') : 'manual';
+            
             $absensi = Absensi::updateOrCreate(
                 [
                     'id_siswa' => $siswaId, 
@@ -127,7 +129,8 @@ class AbsensiController extends Controller
                     'id_jurusan' => $idJurusan,
                     'kehadiran' => $kehadiran, 
                     'keterangan' => $keterangan,
-                    'jam_masuk' => $jamMasuk
+                    'jam_masuk' => $jamMasuk,
+                    'tipe_masuk' => $tipeMasuk
                 ]
             );
 
@@ -178,6 +181,9 @@ class AbsensiController extends Controller
         $isHadir = $kehadiran === 'hadir';
         $jamMasuk = $isHadir ? $jam : '-';
 
+        $existingAbsensi = Absensi::where('id_siswa', $siswaId)->where('tanggal', $tanggal)->first();
+        $tipeMasuk = $existingAbsensi ? ($existingAbsensi->tipe_masuk ?? 'manual') : 'manual';
+
         // Simpan absensi
         $absensi = Absensi::updateOrCreate(
             [
@@ -191,6 +197,7 @@ class AbsensiController extends Controller
                 'kehadiran' => $kehadiran,
                 'keterangan' => $keterangan,
                 'jam_masuk' => $jamMasuk,
+                'tipe_masuk' => $tipeMasuk,
             ]
         );
 
@@ -459,6 +466,8 @@ class AbsensiController extends Controller
                 $keterangan = '-';
             }
 
+            $tipeMasuk = $existingAbsensi ? ($existingAbsensi->tipe_masuk ?? 'manual') : 'manual';
+
             $absensi = Absensi::updateOrCreate(
                 [
                     'id_siswa' => $siswaId,
@@ -470,7 +479,8 @@ class AbsensiController extends Controller
                     'hari' => $hari,
                     'jam_masuk' => $jamMasuk,
                     'kehadiran' => $kehadiran[$index],
-                    'keterangan' => $keterangan
+                    'keterangan' => $keterangan,
+                    'tipe_masuk' => $tipeMasuk
                 ]
             );
 

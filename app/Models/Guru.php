@@ -29,5 +29,10 @@ class Guru extends Model implements Authenticatable
         return $this->hasMany(JurnalMengajar::class, 'id_guru', 'id_guru');
     }
 
+    public function kelasWali()
+    {
+        return $this->hasOne(Kelas::class, 'id_guru', 'id_guru');
+    }
+
     // protected $fillable = ['id_face'];
 }

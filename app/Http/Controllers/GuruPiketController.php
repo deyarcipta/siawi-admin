@@ -203,7 +203,8 @@ class GuruPiketController extends Controller
             $absensi->update([
                 'kehadiran' => 'hadir',
                 'keterangan' => 'Terlambat (Dicatat Guru Piket pada ' . $jam . ')',
-                'jam_masuk' => $jam
+                'jam_masuk' => $jam,
+                'tipe_masuk' => 'piket'
             ]);
         } else {
             $absensi = \App\Models\Absensi::create([
@@ -215,6 +216,7 @@ class GuruPiketController extends Controller
                 'jam_masuk' => $jam,
                 'kehadiran' => 'hadir',
                 'keterangan' => 'Terlambat (Dicatat Guru Piket pada ' . $jam . ')',
+                'tipe_masuk' => 'piket',
             ]);
         }
 

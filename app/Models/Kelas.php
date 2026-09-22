@@ -39,4 +39,14 @@ class Kelas extends Model
     {
         return $this->hasMany(JurnalMengajar::class, 'id_kelas', 'id_kelas');
     }
+
+    public function waliKelas()
+    {
+        return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
+    }
+
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
+    }
 }

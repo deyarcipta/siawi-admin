@@ -9,6 +9,7 @@ use App\Models\Level;
 use App\Models\Siswa;
 use App\Models\Alumni;
 use App\Models\Jurusan;
+use App\Models\Guru;
 use App\Models\Setting;
 use DB;
 
@@ -22,7 +23,7 @@ class KelasController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
+        $kelas = Kelas::with('waliKelas')->orderBy('nama_kelas', 'asc')->get();
         return view('dataMaster.kelas.data_kelas', compact('layout','kelas','setting','user'));
     }
 
@@ -36,7 +37,8 @@ class KelasController extends Controller
         $user = Auth::user();
         $level = Level::orderBy('created_at', 'desc')->get();
         $jurusan = Jurusan::orderBy('created_at', 'desc')->get();
-        return view('dataMaster.kelas.tambah_kelas', compact('layout','setting','level','jurusan','user'));
+        $guru = Guru::orderBy('nama_guru', 'asc')->get();
+        return view('dataMaster.kelas.tambah_kelas', compact('layout','setting','level','jurusan','guru','user'));
     }
 
     /**
@@ -49,6 +51,7 @@ class KelasController extends Controller
             'kode_level' => 'required',
             'nama_kelas' => 'required',
             'kode_jurusan' => 'required',
+            'id_guru' => 'nullable|exists:guru,id_guru',
         ]);
 
         $kelas = Kelas::create([
@@ -56,6 +59,7 @@ class KelasController extends Controller
             'kode_level' => $request->kode_level,
             'nama_kelas' => $request->nama_kelas,
             'kode_jurusan' => $request->kode_jurusan,
+            'id_guru' => $request->id_guru ?: null,
         ]);
 
         return redirect('/admin/kelas');
@@ -188,7 +192,8 @@ class KelasController extends Controller
         $user = Auth::user();
         $level = Level::orderBy('created_at', 'desc')->get();
         $jurusan = Jurusan::orderBy('created_at', 'desc')->get();
-        return view('dataMaster.kelas.edit_kelas', compact('layout','edit','level','jurusan','setting','user'));
+        $guru = Guru::orderBy('nama_guru', 'asc')->get();
+        return view('dataMaster.kelas.edit_kelas', compact('layout','edit','level','jurusan','guru','setting','user'));
     }
 
     /**
@@ -201,6 +206,7 @@ class KelasController extends Controller
             'kode_level' => 'required',
             'nama_kelas' => 'required',
             'kode_jurusan' => 'required',
+            'id_guru' => 'nullable|exists:guru,id_guru',
         ]);
 
         Kelas::where('id_kelas', $id_kelas)->update([
@@ -208,6 +214,7 @@ class KelasController extends Controller
             'kode_level' => $request->kode_level,
             'nama_kelas' => $request->nama_kelas,
             'kode_jurusan' => $request->kode_jurusan,
+            'id_guru' => $request->id_guru ?: null,
         ]);
 
         return redirect('/admin/kelas');

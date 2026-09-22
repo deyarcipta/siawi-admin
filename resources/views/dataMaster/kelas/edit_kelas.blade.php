@@ -67,6 +67,18 @@
                     <div class="alert alert-danger">{{ $message }}</div>
                   @enderror
                 </div>
+                <div class="form-group">
+                  <label for="id_guru">Pilih Wali Kelas (Guru)</label>
+                  <select class="form-control" name="id_guru" id="id_guru">
+                    <option value="">-- Pilih Wali Kelas (Opsional) --</option>
+                    @foreach ($guru as $g)
+                      <option value="{{ $g->id_guru }}" {{ (old('id_guru', $edit->id_guru) == $g->id_guru) ? 'selected' : '' }}>{{ $g->nama_guru }}</option>
+                    @endforeach
+                  </select>
+                  @error('id_guru')
+                    <div class="alert alert-danger">{{ $message }}</div>
+                  @enderror
+                </div>
               </div>
               <!-- /.card-body -->
               <div class="card-footer">

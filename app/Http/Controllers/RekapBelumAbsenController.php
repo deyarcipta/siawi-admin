@@ -206,6 +206,7 @@ class RekapBelumAbsenController extends Controller
                     'kehadiran' => $kehadiran,
                     'keterangan' => $keterangan,
                     'jam_masuk' => $jamMasuk,
+                    'tipe_masuk' => 'manual',
                 ]
             );
 

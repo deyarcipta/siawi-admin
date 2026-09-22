@@ -62,9 +62,16 @@ class AbsensiController extends Controller
                 $warna = 'blue';
             }
             
-            $keteranganLower = trim(strtolower($item->keterangan));
+            $keteranganLower = trim(strtolower($item->keterangan ?? ''));
+            $tipeMasuk = $item->tipe_masuk ?? null;
+            $tipePulang = $item->tipe_pulang ?? null;
+
             if (in_array($kehadiranLower, ['sakit', 'izin', 'alfa'])) {
                 $tipeAbsen = 'Manual oleh Guru';
+            } elseif ($tipeMasuk === 'mesin' || $tipePulang === 'mesin') {
+                $tipeAbsen = 'Otomatis (Face Recognition)';
+            } elseif ($tipeMasuk === 'piket') {
+                $tipeAbsen = 'Dicatat Piket (Terlambat)';
             } elseif (
                 str_contains($keteranganLower, 'check in') || 
                 str_contains($keteranganLower, 'check out') || 
@@ -92,6 +99,8 @@ class AbsensiController extends Controller
                 'warna' => $warna,
                 'jam_masuk' => $item->jam_masuk ?? '-',
                 'jam_pulang' => $item->jam_pulang ?? '-',
+                'tipe_masuk' => $tipeMasuk,
+                'tipe_pulang' => $tipePulang,
                 'tipe_absen' => $tipeAbsen
             ];
         }
@@ -187,13 +196,17 @@ class AbsensiController extends Controller
                 ->first();
 
             if ($absensi) {
-                if ($attendanceStatus === 'checkOut' && (empty($absensi->jam_pulang) || $absensi->jam_pulang < $jam)) {
-                    $newKeterangan = 'Check Out';
-                    if (str_contains(strtolower($absensi->keterangan), 'terlambat')) {
-                        $newKeterangan = $absensi->keterangan . ' & Check Out';
+                if ($attendanceStatus === 'checkOut' && (empty($absensi->jam_pulang) || $absensi->jam_pulang === '-' || $absensi->jam_pulang < $jam)) {
+                    $newKeterangan = $absensi->keterangan;
+                    if (empty($newKeterangan) || $newKeterangan === '-') {
+                        $newKeterangan = 'Check Out';
+                    } elseif (!str_contains(strtolower($newKeterangan), 'check out')) {
+                        $newKeterangan = $newKeterangan . ' & Check Out';
                     }
+                    
                     $absensi->update([
                         'jam_pulang' => $jam,
+                        'tipe_pulang' => 'mesin',
                         'kehadiran' => 'hadir',
                         'keterangan' => $newKeterangan,
                     ]);
@@ -207,11 +220,17 @@ class AbsensiController extends Controller
                     'id_jurusan' => $siswa->id_jurusan,
                     'hari' => $hari,
                     'tanggal' => $tanggal,
-                    'jam_masuk' => $jam,
+                    'jam_masuk' => $attendanceStatus === 'checkIn' ? $jam : '-',
+                    'jam_pulang' => $attendanceStatus === 'checkOut' ? $jam : null,
                     'kehadiran' => 'hadir',
                     'keterangan' => $label,
+                    'tipe_masuk' => $attendanceStatus === 'checkIn' ? 'mesin' : 'manual',
+                    'tipe_pulang' => $attendanceStatus === 'checkOut' ? 'mesin' : null,
                 ]);
                 $sendNotification = true;
+                if ($attendanceStatus === 'checkOut') {
+                    $isCheckOut = true;
+                }
             }
 
             DB::commit();

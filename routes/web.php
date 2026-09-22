@@ -32,6 +32,8 @@ use App\Http\Controllers\AbsensiGuruController;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\PerusahaanController;
 use App\Http\Controllers\SiswaPklController;
+use App\Http\Controllers\LaporanKedisiplinanController;
+use App\Http\Controllers\LaporanAbsensiMingguanController;
 use App\Exports\AbsensiGuruExport;
 use Maatwebsite\Excel\Facades\Excel;
 // use App\Http\Controllers\RfidController;
@@ -104,6 +106,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::post('rekap-belum-absen', [RekapBelumAbsenController::class, 'store'])->name('rekapBelumAbsen.store');
     Route::get('rekap-belum-absen/export', [RekapBelumAbsenController::class, 'export'])->name('rekapBelumAbsen.export');
     Route::get('rekap-guru/pdf', [RekapKehadiranGuruController::class, 'downloadPdf'])->name('rekapGuru.downloadPdf');
+    Route::get('laporan-kedisiplinan-siswa', [LaporanKedisiplinanController::class, 'index'])->name('laporanKedisiplinan.index');
+    Route::get('laporan-kedisiplinan-siswa/export', [LaporanKedisiplinanController::class, 'exportExcel'])->name('laporanKedisiplinan.export');
+    Route::get('laporan-mingguan-wa', [LaporanAbsensiMingguanController::class, 'index'])->name('laporanMingguanWa.index');
+    Route::post('laporan-mingguan-wa/kirim-orang-tua', [LaporanAbsensiMingguanController::class, 'kirimOrangTua'])->name('laporanMingguanWa.kirimOrangTua');
+    Route::post('laporan-mingguan-wa/kirim-wali-kelas', [LaporanAbsensiMingguanController::class, 'kirimWaliKelas'])->name('laporanMingguanWa.kirimWaliKelas');
+    Route::get('laporan-mingguan-wa/preview', [LaporanAbsensiMingguanController::class, 'preview'])->name('laporanMingguanWa.preview');
 
     Route::resource('rapot', RapotController::class);
     Route::get('rapot/create/{kelasId}', [RapotController::class, 'create'])->name('rapot.create');
