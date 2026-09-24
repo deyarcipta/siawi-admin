@@ -12,8 +12,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        // Heartbeat tracker untuk mendeteksi apakah background scheduler sedang berjalan aktif
+        $schedule->call(function () {
+            \Illuminate\Support\Facades\Cache::put('siawi_scheduler_last_heartbeat', now()->timestamp, 3600);
+        })->everyMinute();
+
         $schedule->command('clear:data-txt')->dailyAt('00:00')->timezone('Asia/Jakarta');
-        $schedule->command('absensi:kirim-rekap-mingguan')->fridays()->at('16:00')->timezone('Asia/Jakarta');
+        // Notifikasi Rekap Absensi Terjadwal Dinamis (Walas Mingguan / Ortu Bulanan sesuai Setting Admin)
+        $schedule->command('absensi:kirim-rekap-terjadwal')->hourly()->timezone('Asia/Jakarta');
     }
 
     /**

@@ -50,7 +50,7 @@ class PointSiswaController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $carbonDate = Carbon::parse($tanggal)->formatLocalized('%d %B %Y %H:%M');
+        $carbonDate = Carbon::parse($tanggal)->locale('id')->translatedFormat('d F Y H:i');
         $siswa = Siswa::where('id_siswa', $id_siswa)->first();
         $point = Point::orderBy('skor_point', 'asc')->orderByRaw("CASE WHEN jenis_point = 'KERAJINAN' THEN 0 ELSE 1 END")->get();
         return view('pointSiswa.tambah_point_siswa', compact('siswa', 'layout', 'setting', 'point', 'carbonDate','user'));
@@ -61,7 +61,7 @@ class PointSiswaController extends Controller
         // dd($id_siswa);
         $idSiswa = $request->input('id_siswa');
         $layout = 'layout.app';
-        $carbonDate = Carbon::parse($tanggal)->formatLocalized('%d %B %Y %H:%M');
+        $carbonDate = Carbon::parse($tanggal)->locale('id')->translatedFormat('d F Y H:i');
         $setting = Setting::find('1');
         $user = Auth::user();
         $siswa = Siswa::where('id_siswa', $id_siswa)->first();

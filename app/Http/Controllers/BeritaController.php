@@ -51,13 +51,13 @@ class BeritaController extends Controller
             'cover' => 'required|mimes:jpg,JPG,png,PNG',
         ]);
 
-        $carbonDate = Carbon::parse($request->tanggal)->formatLocalized('%d %B %Y %H:%M');
+        $carbonDate = Carbon::parse($request->tanggal)->locale('id')->translatedFormat('d F Y H:i');
 
         // Periksa apakah file diunggah
+        $nama_file = null;
         if ($request->hasFile('cover')) {
-            // Proses file yang diunggah
             $file = $request->file('cover');
-            $nama_file = $file->getClientOriginalName();
+            $nama_file = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $tujuan_upload = 'berita';
             $file->storeAs($tujuan_upload, $nama_file, 'public');
         }
@@ -115,20 +115,14 @@ class BeritaController extends Controller
         // Periksa apakah file diunggah
         if ($request->hasFile('cover')) {
             if ($berita->cover) {
-                // Hapus file lama dari penyimpanan (misalnya, menggunakan Storage di Laravel)
-                Storage::delete('berita/' . $berita->cover);
+                Storage::disk('public')->delete('berita/' . $berita->cover);
             }
-             // Proses file yang diunggah
-            // $imagePath = request()->file('file')->store('gambar');
             $file = $request->file('cover');
-            $nama_file = $file->getClientOriginalName();
+            $nama_file = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $tujuan_upload = 'berita';
-            $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
-
-            // Simpan nama file baru ke dalam data
+            $file->storeAs($tujuan_upload, $nama_file, 'public');
             $berita->cover = $nama_file;
         } else {
-            // Gunakan nama file yang ada dalam session
             $file = session('old_file');
             $berita->cover = $file;
         }
@@ -137,7 +131,7 @@ class BeritaController extends Controller
 
         // Hapus nama file dari session setelah digunakan
         session()->forget('old_file');
-        $carbonDate = Carbon::parse($request->tanggal)->formatLocalized('%d %B %Y %H:%M');
+        $carbonDate = Carbon::parse($request->tanggal)->locale('id')->translatedFormat('d F Y H:i');
         Berita::where('id_berita', $id_berita)->update([
             'judul_berita' => $request->judul_berita,
             'isi_berita' => $request->isi_berita,
@@ -154,6 +148,10 @@ class BeritaController extends Controller
      */
     public function destroy(string $id_berita)
     {
+        $berita = Berita::find($id_berita);
+        if ($berita && $berita->cover) {
+            Storage::disk('public')->delete('berita/' . $berita->cover);
+        }
         Berita::destroy($id_berita);
         return redirect('/admin/berita');
     }

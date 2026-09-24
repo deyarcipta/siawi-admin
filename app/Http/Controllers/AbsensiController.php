@@ -34,8 +34,9 @@ class AbsensiController extends Controller
         $hari = Carbon::parse($tanggal)->locale('id')->dayName;
         $siswaList = Siswa::orderBy('nama_siswa', 'asc')->get();
         $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
-        // Ambil data absensi berdasarkan tanggal filter
+        // Ambil data absensi berdasarkan tanggal filter dengan eager loading
         $absensiSiswa = Absensi::whereDate('tanggal', $tanggal)
+                              ->with(['siswa.kelas', 'kelas'])
                               ->orderBy('created_at', 'desc')
                               ->get();
         return view('absensi.index', compact('absensiSiswa', 'layout', 'setting', 'user', 'hari', 'tanggal', 'siswaList', 'kelasList'));

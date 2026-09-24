@@ -70,6 +70,7 @@ class TagihanController extends Controller
     {
         $layout = 'layout.app';
         $setting = Setting::find('1');
+        $user = Auth::user();
         $edit = Tagihan::find('1');
         return view('tagihan.edit_tagihan', compact('layout','edit','setting','user'));
     }

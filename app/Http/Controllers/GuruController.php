@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Guru;
+use App\Models\Kelas;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Hash;
 use DB;
@@ -91,18 +92,15 @@ class GuruController extends Controller
             'no_hp' => 'nullable|string',
         ]);
         
-        $hashedPassword = Hash::make($request['password']);
-
         Guru::where('id_guru', $id_guru)->update([
             'username' => $request->username,
-            // 'password' => $request->password,
             'nama_guru' => $request->nama_guru,
             'id_face' => $request->id_face,
             'role' => $request->role,
             'no_hp' => $request->no_hp,
         ]);
 
-        return redirect('/admin/guru');
+        return redirect('/admin/guru')->with('success', 'Data guru berhasil diperbarui.');
     }
 
     /**
@@ -110,11 +108,13 @@ class GuruController extends Controller
      */
     public function destroy(string $id_guru)
     {
-        // Hapus data terkait di jadwal_mapel terlebih dahulu
-        // DB::table('jadwal_mapel')->where('id_guru', $id_guru)->delete();
-
-        // Hapus data guru setelah tidak ada referensi di jadwal_mapel
-        Guru::destroy($id_guru);
+        DB::transaction(function () use ($id_guru) {
+            // Lepas status wali kelas dari kelas terkait
+            Kelas::where('id_guru', $id_guru)->update(['id_guru' => null]);
+            
+            // Hapus data guru
+            Guru::destroy($id_guru);
+        });
 
         return redirect('/admin/guru')->with('success', 'Data guru berhasil dihapus.');
     }

@@ -66,4 +66,33 @@ class Setting extends Model
         
         return "Aman";
     }
+
+    public function getRekapWaSettingsAttribute($value)
+    {
+        $default = [
+            'walas' => [
+                'is_active' => true,
+                'frequency' => 'weekly', // 'weekly' or 'monthly'
+                'day' => 'friday',       // 'monday'..'sunday' or 'last_day' / '1'..'28'
+                'time' => '16:00',
+            ],
+            'orangtua' => [
+                'is_active' => true,
+                'frequency' => 'monthly', // 'monthly' or 'weekly'
+                'day' => 'last_day',      // 'last_day' or '1'..'28' or 'monday'..'sunday'
+                'time' => '17:00',
+            ]
+        ];
+
+        if (!$value) {
+            return $default;
+        }
+
+        $decoded = json_decode($value, true);
+        if (!is_array($decoded)) {
+            return $default;
+        }
+
+        return array_replace_recursive($default, $decoded);
+    }
 }

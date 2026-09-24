@@ -249,8 +249,113 @@ class SettingController extends Controller
             return redirect('/admin/setting')->with('success', 'Pengaturan WhatsApp berhasil diperbarui.');
         }
 
+        // Cek apakah request mengandung 'rekap_wa_settings'
+        if ($request->has('rekap_wa_settings')) {
+            $walasActive = $request->has('walas_is_active') ? true : false;
+            $ortuActive = $request->has('ortu_is_active') ? true : false;
+
+            $config = [
+                'walas' => [
+                    'is_active' => $walasActive,
+                    'frequency' => $request->input('walas_frequency', 'weekly'),
+                    'day' => $request->input('walas_day', 'friday'),
+                    'time' => $request->input('walas_time', '16:00'),
+                ],
+                'orangtua' => [
+                    'is_active' => $ortuActive,
+                    'frequency' => $request->input('ortu_frequency', 'monthly'),
+                    'day' => $request->input('ortu_day', 'last_day'),
+                    'time' => $request->input('ortu_time', '17:00'),
+                ]
+            ];
+
+            $setting->update([
+                'rekap_wa_settings' => json_encode($config),
+            ]);
+
+            return redirect('/admin/setting')->with('success', 'Pengaturan Jadwal Notifikasi Rekap WhatsApp berhasil diperbarui.');
+        }
+
         return redirect('/admin/setting')->with('success', 'Pengaturan berhasil diperbarui.');
         
+    }
+
+    /**
+     * Uji coba trigger pengiriman rekap WA dari menu Setting.
+     */
+    public function testRekapWa(Request $request)
+    {
+        $target = $request->input('target', 'walas'); // 'walas' or 'orangtua'
+        try {
+            \Illuminate\Support\Facades\Artisan::call('absensi:kirim-rekap-terjadwal', [
+                '--force' => true,
+                '--target' => $target
+            ]);
+
+            $targetLabel = ($target === 'walas') ? 'Wali Kelas' : 'Orang Tua';
+
+            return response()->json([
+                'success' => true,
+                'message' => "Proses pengujian rekap {$targetLabel} berhasil dipicu dan dimasukkan ke antrean WhatsApp!"
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memicu pengiriman rekap: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Memeriksa denyut live heartbeat Laravel Scheduler di server.
+     */
+    public function getSchedulerStatus()
+    {
+        $lastHeartbeat = \Illuminate\Support\Facades\Cache::get('siawi_scheduler_last_heartbeat');
+
+        if (!$lastHeartbeat) {
+            return response()->json([
+                'success' => true,
+                'status' => 'OFFLINE',
+                'active' => false,
+                'message' => 'Scheduler Offline (Jalankan start_automation.bat)',
+                'badge_class' => 'badge-danger',
+                'last_run' => null,
+            ]);
+        }
+
+        $diffSeconds = time() - $lastHeartbeat;
+
+        if ($diffSeconds <= 120) {
+            return response()->json([
+                'success' => true,
+                'status' => 'ONLINE',
+                'active' => true,
+                'message' => 'Scheduler Berjalan Aktif',
+                'badge_class' => 'badge-success',
+                'last_run' => $diffSeconds . ' detik lalu',
+            ]);
+        } elseif ($diffSeconds <= 300) {
+            $diffMinutes = round($diffSeconds / 60);
+            return response()->json([
+                'success' => true,
+                'status' => 'DELAYED',
+                'active' => true,
+                'message' => "Scheduler Aktif ({$diffMinutes} mnt lalu)",
+                'badge_class' => 'badge-warning',
+                'last_run' => $diffMinutes . ' menit lalu',
+            ]);
+        } else {
+            $diffMinutes = round($diffSeconds / 60);
+            return response()->json([
+                'success' => true,
+                'status' => 'OFFLINE',
+                'active' => false,
+                'message' => "Scheduler Terhenti ({$diffMinutes} mnt lalu)",
+                'badge_class' => 'badge-danger',
+                'last_run' => $diffMinutes . ' menit lalu',
+            ]);
+        }
     }
 
     /**

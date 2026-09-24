@@ -15,6 +15,9 @@ use App\Models\Jurusan;
 use App\Models\Alumni;
 use App\Models\Absensi; 
 use App\Models\PointSiswa;
+use App\Models\SuratPeringatan;
+use App\Models\Dokumen;
+use App\Models\SiswaPkl;
 use App\Models\Rapot;
 use App\Models\Setting;
 use DB;
@@ -82,15 +85,10 @@ class SiswaController extends Controller
 	$nama_file = 'avatar.jpg';
         // Periksa apakah file diunggah
         if ($request->hasFile('foto')) {
-             // Proses file yang diunggah
-            // $imagePath = request()->file('foto')->store('gambar');
             $file = $request->file('foto');
-            $nama_file = $file->getClientOriginalName();
+            $nama_file = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $tujuan_upload = 'foto-siswa';
-            $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
-
-            // Simpan nama file baru ke dalam data
-            // $siswa->foto = $nama_file;
+            $file->storeAs($tujuan_upload, $nama_file, 'public');
         }
 
         $siswa = Siswa::create([
@@ -208,19 +206,14 @@ class SiswaController extends Controller
         if ($request->hasFile('foto')) {
             if ($siswa->foto && $siswa->foto != 'avatar.jpg') {
                 // Hapus foto lama dari penyimpanan jika bukan "avatar.jpg"
-                Storage::delete('foto-siswa/' . $siswa->foto);
+                Storage::disk('public')->delete('foto-siswa/' . $siswa->foto);
             }
-             // Proses file yang diunggah
-            // $imagePath = request()->file('foto')->store('gambar');
             $file = $request->file('foto');
-            $nama_file = $file->getClientOriginalName();
+            $nama_file = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $tujuan_upload = 'foto-siswa';
-            // $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
             $file->storeAs($tujuan_upload, $nama_file, 'public');
-            // Simpan nama file baru ke dalam data
             $siswa->foto = $nama_file;
         } else {
-            // Gunakan nama file yang ada dalam session
             $foto = session('old_foto');
             $siswa->foto = $foto;
         }
@@ -290,14 +283,27 @@ class SiswaController extends Controller
      */
     public function destroy(string $id_siswa)
     {
-		DB::table('absensi')->where('id_siswa', $id_siswa)->delete();
-        Siswa::destroy($id_siswa);
-        return redirect('/admin/siswa');
+        DB::transaction(function () use ($id_siswa) {
+            Absensi::where('id_siswa', $id_siswa)->delete();
+            PointSiswa::where('id_siswa', $id_siswa)->delete();
+            SuratPeringatan::where('id_siswa', $id_siswa)->delete();
+            Rapot::where('id_siswa', $id_siswa)->delete();
+            Dokumen::where('id_siswa', $id_siswa)->delete();
+            SiswaPkl::where('id_siswa', $id_siswa)->delete();
+            
+            $siswa = Siswa::find($id_siswa);
+            if ($siswa && $siswa->foto && $siswa->foto != 'avatar.jpg') {
+                Storage::disk('public')->delete('foto-siswa/' . $siswa->foto);
+            }
+            Siswa::destroy($id_siswa);
+        });
+
+        return redirect('/admin/siswa')->with('success', 'Data siswa dan relasi berhasil dihapus.');
     }
 
     public function reset(string $id_siswa)
     {
-        $layout = 'layout.app'; // Misalnya, layout default Anda adalah 'layouts.app'
+        $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
         $siswa = Siswa::findOrFail($id_siswa);
@@ -315,38 +321,9 @@ class SiswaController extends Controller
     {
         $siswa = Siswa::findOrFail($id);
         $tahun_sekarang = date('Y');
-        Alumni::create([
-            'nama' => $siswa->nama_siswa,
-            'nis' => $siswa->nis,
-            'nisn' => $siswa->nisn,
-            'id_jurusan' => $siswa->id_jurusan,
-            'tahun_lulus' => $tahun_sekarang,
-            'foto' => $siswa->foto,
-            'status' => '-',
-            'tempat_lahir' => $siswa->tmpt_lahir,
-            'tanggal_lahir' => $siswa->tgl_lahir,
-            'alamat' => $siswa->alamat,
-            'no_hp' => $siswa->no_hp,
-            'email' => $siswa->email,
-            'jenis_kelamin' => $siswa->jenis_kelamin,
-            'agama' => $siswa->agama,
-        ]);
 
-        // Hapus seluruh data absensi terkait siswa
-        Absensi::where('id_siswa', $siswa->id_siswa)->delete();
-
-        // Hapus siswa dari tabel siswa
-        $siswa->delete();
-
-        return redirect()->back()->with('success', 'Siswa berhasil dipindahkan ke alumni.');
-    }
-
-    public function pindahSemuaKeAlumni(Request $request, $id_kelas)
-    {
-        $siswaList = Siswa::where('id_kelas', $id_kelas)->get();
-        $tahun_sekarang = date('Y');
-        foreach ($siswaList as $siswa) {
-           Alumni::create([
+        DB::transaction(function () use ($siswa, $tahun_sekarang) {
+            Alumni::create([
                 'nama' => $siswa->nama_siswa,
                 'nis' => $siswa->nis,
                 'nisn' => $siswa->nisn,
@@ -363,12 +340,51 @@ class SiswaController extends Controller
                 'agama' => $siswa->agama,
             ]);
 
-            // Hapus absensi & siswa
+            // Bersihkan relasi aktif siswa
             Rapot::where('id_siswa', $siswa->id_siswa)->delete();
             PointSiswa::where('id_siswa', $siswa->id_siswa)->delete();
+            SuratPeringatan::where('id_siswa', $siswa->id_siswa)->delete();
             Absensi::where('id_siswa', $siswa->id_siswa)->delete();
+
+            // Hapus siswa dari tabel siswa
             $siswa->delete();
-        }
+        });
+
+        return redirect()->back()->with('success', 'Siswa berhasil dipindahkan ke alumni.');
+    }
+
+    public function pindahSemuaKeAlumni(Request $request, $id_kelas)
+    {
+        $siswaList = Siswa::where('id_kelas', $id_kelas)->get();
+        $tahun_sekarang = date('Y');
+
+        DB::transaction(function () use ($siswaList, $tahun_sekarang) {
+            foreach ($siswaList as $siswa) {
+                Alumni::create([
+                    'nama' => $siswa->nama_siswa,
+                    'nis' => $siswa->nis,
+                    'nisn' => $siswa->nisn,
+                    'id_jurusan' => $siswa->id_jurusan,
+                    'tahun_lulus' => $tahun_sekarang,
+                    'foto' => $siswa->foto,
+                    'status' => '-',
+                    'tempat_lahir' => $siswa->tmpt_lahir,
+                    'tanggal_lahir' => $siswa->tgl_lahir,
+                    'alamat' => $siswa->alamat,
+                    'no_hp' => $siswa->no_hp,
+                    'email' => $siswa->email,
+                    'jenis_kelamin' => $siswa->jenis_kelamin,
+                    'agama' => $siswa->agama,
+                ]);
+
+                // Hapus relasi aktif siswa
+                Rapot::where('id_siswa', $siswa->id_siswa)->delete();
+                PointSiswa::where('id_siswa', $siswa->id_siswa)->delete();
+                SuratPeringatan::where('id_siswa', $siswa->id_siswa)->delete();
+                Absensi::where('id_siswa', $siswa->id_siswa)->delete();
+                $siswa->delete();
+            }
+        });
 
         return redirect()->back()->with('success', 'Seluruh siswa dari kelas tersebut telah dipindahkan ke alumni.');
     }

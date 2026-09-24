@@ -11,6 +11,10 @@ use App\Models\Alumni;
 use App\Models\Jurusan;
 use App\Models\Guru;
 use App\Models\Setting;
+use App\Models\Absensi;
+use App\Models\PointSiswa;
+use App\Models\SuratPeringatan;
+use App\Models\Rapot;
 use DB;
 
 class KelasController extends Controller
@@ -68,25 +72,34 @@ class KelasController extends Controller
     public function pindahKeAlumni(Request $request, $id)
     {
         $siswa = Siswa::findOrFail($id);
+        $tahun_lulus = $request->input('tahun_lulus', date('Y'));
 
-        Alumni::create([
-            'nama' => $siswa->nama,
-            'nis' => $siswa->nis,
-            'nisn' => $siswa->nisn,
-            'id_jurusan' => $siswa->id_jurusan,
-            'tahun_lulus' => $request->tahun_lulus,
-            'foto' => $siswa->foto,
-            'status' => 'Alumni',
-            'tempat_lahir' => $siswa->tempat_lahir,
-            'tanggal_lahir' => $siswa->tanggal_lahir,
-            'alamat' => $siswa->alamat,
-            'no_hp' => $siswa->no_hp,
-            'email' => $siswa->email,
-            'jenis_kelamin' => $siswa->jenis_kelamin,
-            'agama' => $siswa->agama,
-        ]);
+        DB::transaction(function () use ($siswa, $tahun_lulus) {
+            Alumni::create([
+                'nama' => $siswa->nama_siswa,
+                'nis' => $siswa->nis,
+                'nisn' => $siswa->nisn,
+                'id_jurusan' => $siswa->id_jurusan,
+                'tahun_lulus' => $tahun_lulus,
+                'foto' => $siswa->foto,
+                'status' => 'Alumni',
+                'tempat_lahir' => $siswa->tmpt_lahir,
+                'tanggal_lahir' => $siswa->tgl_lahir,
+                'alamat' => $siswa->alamat,
+                'no_hp' => $siswa->no_hp,
+                'email' => $siswa->email,
+                'jenis_kelamin' => $siswa->jenis_kelamin,
+                'agama' => $siswa->agama,
+            ]);
 
-        $siswa->delete(); // opsional: hapus dari tabel siswa
+            // Bersihkan relasi aktif
+            Rapot::where('id_siswa', $siswa->id_siswa)->delete();
+            PointSiswa::where('id_siswa', $siswa->id_siswa)->delete();
+            SuratPeringatan::where('id_siswa', $siswa->id_siswa)->delete();
+            Absensi::where('id_siswa', $siswa->id_siswa)->delete();
+
+            $siswa->delete();
+        });
 
         return redirect()->back()->with('success', 'Siswa berhasil dipindahkan ke alumni.');
     }
@@ -133,11 +146,35 @@ class KelasController extends Controller
 
         if ($action === 'alumni') {
             $tahun = $request->input('tahun_lulus', date('Y'));
-           Siswa::whereIn('id_siswa', $selectedSiswa)->update([
-                'status' => 'alumni',
-                'tahun_lulus' => $tahun,
-                'id_kelas' => null
-            ]);
+            $siswaList = Siswa::whereIn('id_siswa', $selectedSiswa)->get();
+
+            DB::transaction(function () use ($siswaList, $tahun) {
+                foreach ($siswaList as $siswa) {
+                    Alumni::create([
+                        'nama' => $siswa->nama_siswa,
+                        'nis' => $siswa->nis,
+                        'nisn' => $siswa->nisn,
+                        'id_jurusan' => $siswa->id_jurusan,
+                        'tahun_lulus' => $tahun,
+                        'foto' => $siswa->foto,
+                        'status' => 'Alumni',
+                        'tempat_lahir' => $siswa->tmpt_lahir,
+                        'tanggal_lahir' => $siswa->tgl_lahir,
+                        'alamat' => $siswa->alamat,
+                        'no_hp' => $siswa->no_hp,
+                        'email' => $siswa->email,
+                        'jenis_kelamin' => $siswa->jenis_kelamin,
+                        'agama' => $siswa->agama,
+                    ]);
+
+                    // Bersihkan relasi aktif siswa
+                    Rapot::where('id_siswa', $siswa->id_siswa)->delete();
+                    PointSiswa::where('id_siswa', $siswa->id_siswa)->delete();
+                    SuratPeringatan::where('id_siswa', $siswa->id_siswa)->delete();
+                    Absensi::where('id_siswa', $siswa->id_siswa)->delete();
+                    $siswa->delete();
+                }
+            });
 
             return back()->with('success', 'Siswa berhasil dipindahkan ke alumni.');
         }

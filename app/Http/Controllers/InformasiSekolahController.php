@@ -48,13 +48,12 @@ class InformasiSekolahController extends Controller
             'file' => 'required|mimes:pdf,PDF,jpg,JPG',
         ]);
 
-        // Periksa apakah file diunggah
+        $nama_file = null;
         if ($request->hasFile('file')) {
-            // Proses file yang diunggah
             $file = $request->file('file');
-            $nama_file = $file->getClientOriginalName();
-            $tujuan_upload = 'public/file-informasi';
-            $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
+            $nama_file = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $tujuan_upload = 'file-informasi';
+            $file->storeAs($tujuan_upload, $nama_file, 'public');
         }
 
         $informasi = InformasiSekolah::create([
@@ -104,24 +103,18 @@ class InformasiSekolahController extends Controller
 
         $informasi = InformasiSekolah::findOrFail($id);
 
-        // Periksa apakah file diunggah
         if ($request->hasFile('file')) {
             if ($informasi->file) {
-                // Hapus file lama dari penyimpanan (misalnya, menggunakan Storage di Laravel)
-                Storage::delete('public/file-informasi/' . $informasi->file);
+                Storage::disk('public')->delete('file-informasi/' . $informasi->file);
             }
-             // Proses file yang diunggah
-            // $imagePath = request()->file('file')->store('gambar');
             $file = $request->file('file');
-            $nama_file = $file->getClientOriginalName();
-            $tujuan_upload = 'public/file-informasi';
-            $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
-
-            // Simpan nama file baru ke dalam data
+            $nama_file = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $tujuan_upload = 'file-informasi';
+            $file->storeAs($tujuan_upload, $nama_file, 'public');
             $informasi->file = $nama_file;
         } else {
-            // Gunakan nama file yang ada dalam session
             $file = session('old_file');
+            $nama_file = $file;
             $informasi->file = $file;
         }
 
@@ -146,6 +139,10 @@ class InformasiSekolahController extends Controller
      */
     public function destroy(string $id)
     {
+        $informasi = InformasiSekolah::find($id);
+        if ($informasi && $informasi->file) {
+            Storage::disk('public')->delete('file-informasi/' . $informasi->file);
+        }
         InformasiSekolah::destroy($id);
         return redirect('/admin/informasi')->with('success','Data Berhasil Dihapus');
     }

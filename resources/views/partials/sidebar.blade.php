@@ -125,8 +125,8 @@
         </li>
 
         <!-- 3. Absensi Siswa -->
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-clipboard-list"></i>
                 <p>
                     Absensi Siswa
@@ -165,9 +165,9 @@
                 </a>
               </li>
               <li class="nav-item" style="font-size: 14px">
-                <a href="/admin/laporan-mingguan-wa" class="nav-link {{ Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
+                <a href="/admin/laporan-bulanan-wa" class="nav-link {{ Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
                   <i class="fas fa-paper-plane nav-icon" style="color: lightgreen; font-size: 14px"></i>
-                  <p>Rekap Mingguan & WA</p>
+                  <p>Rekap Bulanan & WA</p>
                 </a>
               </li>
             </ul>
@@ -230,8 +230,8 @@
         </li>
 
         <!-- 6. Point Siswa -->
-        <li class="nav-item has-treeview {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-exclamation-circle"></i>
             <p>
               Point Siswa
@@ -252,8 +252,14 @@
               </a>
             </li>
             <li class="nav-item" style="font-size: 14px">
+              <a href="/admin/laporan-pelanggaran" class="nav-link {{ Request::is('admin/laporan-pelanggaran*') ? 'active' : '' }}">
+                <i class="fas fa-file-invoice nav-icon" style="font-size: 14px"></i>
+                <p>Laporan Pelanggaran</p>
+              </a>
+            </li>
+            <li class="nav-item" style="font-size: 14px">
               <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
-                <i class="fas fa-envelope-open-text nav-icon" style="font-size: 14px"></i>
+                <i class="fas fa-envelope-open-text nav-icon" style="color: lightgreen; font-size: 14px"></i>
                 <p>Surat Peringatan</p>
               </a>
             </li>
@@ -420,8 +426,8 @@
         </li>
 
         <!-- 3. Absensi Siswa -->
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/dataAbsen*') || Request::is('admin/laporan-mingguan-wa*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/dataAbsen*') || Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/dataAbsen*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/dataAbsen*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-clipboard-list"></i>
               <p>
                 Absensi Siswa
@@ -442,9 +448,9 @@
                 </a>
               </li>
               <li class="nav-item" style="font-size: 14px">
-                <a href="/admin/laporan-mingguan-wa" class="nav-link {{ Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
+                <a href="/admin/laporan-bulanan-wa" class="nav-link {{ Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
                   <i class="fas fa-paper-plane nav-icon" style="font-size: 14px"></i>
-                  <p>Rekap Mingguan & WA</p>
+                  <p>Rekap Bulanan & WA</p>
                 </a>
               </li>
             </ul>
@@ -482,18 +488,34 @@
         </li>
 
         <!-- 5. Point Siswa -->
-        <li class="nav-item" style="font-size: 14px">
-          <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-exclamation-circle"></i>
-            <p>Point Siswa</p>
+            <p>
+              Point Siswa
+              <i class="right fas fa-angle-left"></i>
+            </p>
           </a>
-        </li>
-
-        <li class="nav-item" style="font-size: 14px">
-          <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-envelope-open-text" style="color: lightgreen; font-size: 14px"></i>
-            <p>Surat Peringatan</p>
-          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item" style="font-size: 14px">
+              <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
+                <i class="fas fa-exclamation-circle nav-icon" style="font-size: 14px"></i>
+                <p>Data Point Siswa</p>
+              </a>
+            </li>
+            <li class="nav-item" style="font-size: 14px">
+              <a href="/admin/laporan-pelanggaran" class="nav-link {{ Request::is('admin/laporan-pelanggaran*') ? 'active' : '' }}">
+                <i class="fas fa-file-invoice nav-icon" style="color: lightgreen; font-size: 14px"></i>
+                <p>Laporan Pelanggaran</p>
+              </a>
+            </li>
+            <li class="nav-item" style="font-size: 14px">
+              <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
+                <i class="fas fa-envelope-open-text nav-icon" style="font-size: 14px"></i>
+                <p>Surat Peringatan</p>
+              </a>
+            </li>
+          </ul>
         </li>
 
         <!-- 6. E-Rapot -->
@@ -563,8 +585,8 @@
         </li>
 
         <!-- 3. Absensi Siswa -->
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-clipboard-list"></i>
                 <p>
                     Absensi Siswa
@@ -597,9 +619,9 @@
                 </a>
               </li>
               <li class="nav-item" style="font-size: 14px">
-                <a href="/admin/laporan-mingguan-wa" class="nav-link {{ Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
+                <a href="/admin/laporan-bulanan-wa" class="nav-link {{ Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
                   <i class="fas fa-paper-plane nav-icon" style="font-size: 14px"></i>
-                  <p>Rekap Mingguan & WA</p>
+                  <p>Rekap Bulanan & WA</p>
                 </a>
               </li>
             </ul>
@@ -614,8 +636,8 @@
         </li>
 
         <!-- 5. Point Siswa -->
-        <li class="nav-item has-treeview {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-exclamation-circle"></i>
             <p>
               Point Siswa
@@ -636,8 +658,14 @@
               </a>
             </li>
             <li class="nav-item" style="font-size: 14px">
+              <a href="/admin/laporan-pelanggaran" class="nav-link {{ Request::is('admin/laporan-pelanggaran*') ? 'active' : '' }}">
+                <i class="fas fa-file-invoice nav-icon" style="font-size: 14px"></i>
+                <p>Laporan Pelanggaran</p>
+              </a>
+            </li>
+            <li class="nav-item" style="font-size: 14px">
               <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
-                <i class="fas fa-envelope-open-text nav-icon" style="font-size:14px"></i>
+                <i class="fas fa-envelope-open-text nav-icon" style="color: lightgreen; font-size:14px"></i>
                 <p>Surat Peringatan</p>
               </a>
             </li>
@@ -686,8 +714,8 @@
         </li>
 
         <!-- 3. Absensi Siswa -->
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-clipboard-list"></i>
                 <p>
                     Absensi Siswa
@@ -714,9 +742,9 @@
                 </a>
               </li>
               <li class="nav-item" style="font-size: 14px">
-                <a href="/admin/laporan-mingguan-wa" class="nav-link {{ Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
+                <a href="/admin/laporan-bulanan-wa" class="nav-link {{ Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
                   <i class="fas fa-paper-plane nav-icon" style="color: lightgreen; font-size: 14px"></i>
-                  <p>Rekap Mingguan & WA</p>
+                  <p>Rekap Bulanan & WA</p>
                 </a>
               </li>
             </ul>
@@ -731,18 +759,34 @@
         </li>
 
         <!-- 5. Point Siswa -->
-        <li class="nav-item" style="font-size: 14px">
-          <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-exclamation-circle"></i>
-            <p>Point Siswa</p>
+            <p>
+              Point Siswa
+              <i class="right fas fa-angle-left"></i>
+            </p>
           </a>
-        </li>
-
-        <li class="nav-item" style="font-size: 14px">
-          <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-envelope-open-text" style="color: lightgreen; font-size: 14px"></i>
-            <p>Surat Peringatan</p>
-          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item" style="font-size: 14px">
+              <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
+                <i class="fas fa-exclamation-circle nav-icon" style="font-size: 14px"></i>
+                <p>Data Point Siswa</p>
+              </a>
+            </li>
+            <li class="nav-item" style="font-size: 14px">
+              <a href="/admin/laporan-pelanggaran" class="nav-link {{ Request::is('admin/laporan-pelanggaran*') ? 'active' : '' }}">
+                <i class="fas fa-file-invoice nav-icon" style="color: lightgreen; font-size: 14px"></i>
+                <p>Laporan Pelanggaran</p>
+              </a>
+            </li>
+            <li class="nav-item" style="font-size: 14px">
+              <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
+                <i class="fas fa-envelope-open-text nav-icon" style="font-size: 14px"></i>
+                <p>Surat Peringatan</p>
+              </a>
+            </li>
+          </ul>
         </li>
 
         <!-- 6. E-Rapot -->

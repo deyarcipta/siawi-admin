@@ -4,11 +4,11 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Setting</h1>
+                <h1 class="m-0 font-weight-bold"><i class="fas fa-cogs mr-2 text-primary"></i>Pengaturan Sistem</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Setting</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
                     <li class="breadcrumb-item active">Setting</li>
                 </ol>
             </div>
@@ -18,552 +18,707 @@
 
 <div class="content">
     <div class="container-fluid">
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fas fa-exclamation-circle mr-2"></i> {{ session('error') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+
         <div class="row">
             <div class="col-lg-12">
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">Form Setting</h3>
+                <div class="card card-primary card-outline shadow-sm">
+                    <div class="card-header p-2 bg-light border-bottom">
+                        <!-- 3 Tab Navigation Ringkas -->
+                        <ul class="nav nav-pills" id="settingTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active font-weight-bold" data-toggle="pill" href="#settingUmum">
+                                    <i class="fas fa-school mr-1"></i> 1. Umum & Aplikasi
+                                </a>
+                            </li>
+                            <li class="nav-item ml-md-2">
+                                <a class="nav-link font-weight-bold" data-toggle="pill" href="#settingAkademik">
+                                    <i class="fas fa-graduation-cap mr-1"></i> 2. Akademik & Kesiswaan
+                                </a>
+                            </li>
+                            <li class="nav-item ml-md-2">
+                                <a class="nav-link font-weight-bold" data-toggle="pill" href="#settingWhatsapp">
+                                    <i class="fab fa-whatsapp mr-1 text-success"></i> 3. WhatsApp & Notifikasi
+                                </a>
+                            </li>
+                        </ul>
                     </div>
-                    
-                    <!-- Tabs Navigation -->
-                    <ul class="nav nav-tabs" id="settingTabs">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-toggle="tab" href="#settingDasar">Setting Dasar</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#settingAplikasi">Setting Aplikasi</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#settingVersiAplikasi">Versi Aplikasi</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#settingJamPelajaran">Setting Jam Pelajaran</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#settingSp">Setting SP</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#settingWhatsapp">Setting WhatsApp</a>
-                        </li>
-                    </ul>
 
-                    <div class="card-body">
+                    <div class="card-body p-4">
                         <div class="tab-content">
-                            <!-- Form Setting Dasar -->
-                            <div class="tab-pane fade show active" id="settingDasar">
-                                <form action="/admin/setting/{{$setting->id}}" method="POST" enctype="multipart/form-data">
-                                  @method('PUT')
-                                  @csrf
-                                    <div class="form-group">
-                                      <label for="nama_app">Nama Aplikasi</label>
-                                      <input type="text" class="form-control" id="nama_app" placeholder="Enter Nama Aplikasi" name="nama_app" value="{{$setting->nama_app}}">
-                                      @error('nama_app')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                      @enderror
-                                    </div>
-                                    <div class="form-group">
-                                      <label for="nama_sekolah">Nama Sekolah</label>
-                                      <input type="text" class="form-control" id="nama_sekolah" placeholder="Enter Nama Sekolah" name="nama_sekolah" value="{{$setting->nama_sekolah}}">
-                                      @error('nama_sekolah')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                      @enderror
-                                    </div>
-                                    <div class="row">
-                                      <div class="form-group col-6">
-                                        <label for="nama_kepsek">Nama Kepsek</label>
-                                        <input type="text" class="form-control" id="nama_kepsek" placeholder="Enter Nama Kepsek" name="nama_kepsek" value="{{$setting->nama_kepsek}}">
-                                        @error('nama_kepsek')
-                                          <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                      </div>
-                                      <div class="form-group col-6">
-                                        <label for="nip_kepsek">Nip Kepsek</label>
-                                        <input type="text" class="form-control" id="nip_kepsek" placeholder="Enter Nip Kepsek" name="nip_kepsek" value="{{$setting->nip_kepsek}}">
-                                        @error('nip_kepsek')
-                                          <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                      </div>
-                                    </div>
-                                    <div class="form-group">
-                                      <label for="alamat">Alamat Sekolah</label>
-                                      <textarea type="text" class="form-control" id="alamat" placeholder="Enter Alamat Sekolah" name="alamat" value="{{$setting->alamat}}">{{$setting->alamat}}</textarea>
-                                      @error('alamat')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                      @enderror
-                                    </div>
-                                    <div class="row">
-                                      <div class="form-group col-6">
-                                        <label for="kel">Kelurahaan</label>
-                                        <input type="text" class="form-control" id="kel" placeholder="Enter Kelurahaan" name="kel" value="{{$setting->kel}}">
-                                        @error('kel')
-                                          <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                      </div>
-                                      <div class="form-group col-6">
-                                        <label for="kec">Kecamatan</label>
-                                        <input type="text" class="form-control" id="kec" placeholder="Enter Kecamatan" name="kec" value="{{$setting->kec}}">
-                                        @error('kec')
-                                          <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                      </div>
-                                    </div>
-                                    <div class="row">
-                                      <div class="form-group col-6">
-                                        <label for="kota">Kota</label>
-                                        <input type="text" class="form-control" id="kota" placeholder="Enter Kota" name="kota" value="{{$setting->kota}}">
-                                        @error('kota')
-                                          <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                      </div>
-                                      <div class="form-group col-6">
-                                        <label for="prov">Provinsi</label>
-                                        <input type="text" class="form-control" id="prov" placeholder="Enter Provinsi" name="prov" value="{{$setting->prov}}">
-                                        @error('prov')
-                                          <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                      </div>
-                                    </div>
-                                    <div class="row">
-                                      <div class="form-group col-6">
-                                        <label for="logo">Logo</label>
-                                        <div class="input-group">
-                                          <div class="custom-file">
-                                            <input type="file" class="custom-file-input" name="logo" id="logo">
-                                            <label class="custom-file-label" id="logo-label" for="logo">Choose file</label>
-                                            <script>
-                                              document.getElementById('logo').addEventListener('change', function(e) {
-                                                  var fileName = e.target.files[0].name;
-                                                  var label = document.getElementById('logo-label');
-                                                  label.textContent = fileName;
-                                              });
-                                          </script>
-                                          </div>
-                                        @error('logo')
-                                          <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                      </div>
-                                    </div>
-                                    <div class="col-6 form-group">
-                                      <img src="{{ asset("storage/gambar/$setting->logo") }}" alt="Logo Sekolah" width="90px">
-                                    </div>
-                                  </div>
-                                    <button type="submit" class="btn btn-primary">Simpan Settingan Dasar</button>
-                                </form>
-                            </div>
-
-                            <!-- Form Setting Aplikasi -->
-                            <div class="tab-pane fade" id="settingAplikasi">
-                                <form action="/admin/setting/{{$setting->id}}" method="POST" enctype="multipart/form-data">
-                                    @method('PUT')
-                                    @csrf
-                                    <div class="form-group">
-                                        <label for="nama_app">Nama Aplikasi</label>
-                                        <input type="text" class="form-control" id="nama_app" name="nama_app" value="{{$setting->nama_app}}">
-                                        @error('nama_app')
-                                            <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="primary_color">Primary Color</label>
-                                        <div class="input-group">
-                                            <!-- Input untuk memilih warna -->
-                                            <input type="color" class="form-control" id="primary_color" name="primary_color" 
-                                                  value="{{ '#' . substr($setting->primary_color, 4) }}" 
-                                                  onchange="updateColorPicker('primary_color')">
-                                            
-                                            <!-- Input untuk memasukkan kode warna -->
-                                            <input type="text" class="form-control ml-2" id="kode_warna_primary_color" 
-                                                  name="primary_color" value="{{ '#' . substr($setting->primary_color, 4) }}" 
-                                                  oninput="updateTextInput('primary_color')">
-                                        </div>
-                                        @error('primary_color')
-                                            <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="secondary_color">Secondary Color</label>
-                                        <div class="input-group">
-                                            <!-- Input untuk memilih warna -->
-                                            <input type="color" class="form-control" id="secondary_color" name="secondary_color" 
-                                                  value="{{ '#' . substr($setting->secondary_color, 4) }}" 
-                                                  onchange="updateColorPicker('secondary_color')">
-                                            
-                                            <!-- Input untuk memasukkan kode warna -->
-                                            <input type="text" class="form-control ml-2" id="kode_warna_secondary_color" 
-                                                  name="secondary_color" value="{{ '#' . substr($setting->secondary_color, 4) }}" 
-                                                  oninput="updateTextInput('secondary_color')">
-                                        </div>
-                                        @error('secondary_color')
-                                            <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="third_color">Third Color</label>
-                                        <div class="input-group">
-                                            <!-- Input untuk memilih warna -->
-                                            <input type="color" class="form-control" id="third_color" name="third_color" 
-                                                  value="{{ '#' . substr($setting->third_color, 4) }}" 
-                                                  onchange="updateColorPicker('third_color')">
-                                            
-                                            <!-- Input untuk memasukkan kode warna -->
-                                            <input type="text" class="form-control ml-2" id="kode_warna_third_color" 
-                                                  name="third_color" value="{{ '#' . substr($setting->third_color, 4) }}" 
-                                                  oninput="updateTextInput('third_color')">
-                                        </div>
-                                        @error('third_color')
-                                            <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="four_color">Four Color</label>
-                                        <div class="input-group">
-                                            <!-- Input untuk memilih warna -->
-                                            <input type="color" class="form-control" id="four_color" name="four_color" 
-                                                  value="{{ '#' . substr($setting->four_color, 4) }}" 
-                                                  onchange="updateColorPicker('four_color')">
-                                            
-                                            <!-- Input untuk memasukkan kode warna -->
-                                            <input type="text" class="form-control ml-2" id="kode_warna_four_color" 
-                                                  name="four_color" value="{{ '#' . substr($setting->four_color, 4) }}" 
-                                                  oninput="updateTextInput('four_color')">
-                                        </div>
-                                        @error('four_color')
-                                            <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="five_color">Five Color</label>
-                                        <div class="input-group">
-                                            <!-- Input untuk memilih warna -->
-                                            <input type="color" class="form-control" id="five_color" name="five_color" 
-                                                  value="{{ '#' . substr($setting->five_color, 4) }}" 
-                                                  onchange="updateColorPicker('five_color')">
-                                            
-                                            <!-- Input untuk memasukkan kode warna -->
-                                            <input type="text" class="form-control ml-2" id="kode_warna_five_color" 
-                                                  name="five_color" value="{{ '#' . substr($setting->five_color, 4) }}" 
-                                                  oninput="updateTextInput('five_color')">
-                                        </div>
-                                        @error('five_color')
-                                            <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="six_color">Six Color</label>
-                                        <div class="input-group">
-                                            <!-- Input untuk memilih warna -->
-                                            <input type="color" class="form-control" id="six_color" name="six_color" 
-                                                  value="{{ '#' . substr($setting->six_color, 4) }}" 
-                                                  onchange="updateColorPicker('six_color')">
-                                            
-                                            <!-- Input untuk memasukkan kode warna -->
-                                            <input type="text" class="form-control ml-2" id="kode_warna_six_color" 
-                                                  name="six_color" value="{{ '#' . substr($setting->six_color, 4) }}" 
-                                                  oninput="updateTextInput('six_color')">
-                                        </div>
-                                        @error('six_color')
-                                            <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="text_color">Text Color</label>
-                                        <div class="input-group">
-                                            <!-- Input untuk memilih warna -->
-                                            <input type="color" class="form-control" id="text_color" name="text_color" 
-                                                  value="{{ '#' . substr($setting->text_color, 4) }}" 
-                                                  onchange="updateColorPicker('text_color')">
-                                            
-                                            <!-- Input untuk memasukkan kode warna -->
-                                            <input type="text" class="form-control ml-2" id="kode_warna_text_color" 
-                                                  name="text_color" value="{{ '#' . substr($setting->text_color, 4) }}" 
-                                                  oninput="updateTextInput('text_color')">
-                                        </div>
-                                        @error('text_color')
-                                            <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <button type="submit"  class="btn btn-primary">Simpan Setting Aplikasi</button>
-                                </form>
-                            </div>
-                            <!-- Form Setting Version Aplikasi -->
-                            <div class="tab-pane fade" id="settingVersiAplikasi">
-                                <form action="/admin/setting/{{$appVersi->id_versi}}" method="POST" enctype="multipart/form-data">
-                                    @method('PUT')
-                                    @csrf
-                                    <div class="form-group">
-                                        <label for="versi_app">Versi Aplikasi</label>
-                                        <input type="text" class="form-control" id="versi_app" name="versi_app" value="{{$appVersi->versi}}">
-                                        @error('versi_app')
-                                            <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="link_app">Link Aplikasi</label>
-                                        <input type="text" class="form-control" id="link_app" name="link_app" value="{{$appVersi->download_url}}">
-                                        @error('link_app')
-                                            <div class="alert alert-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Simpan Versi Aplikasi</button>
-                                </form>
-                            </div>
-
-                            <!-- Form Setting Jam Pelajaran -->
-                            <div class="tab-pane fade" id="settingJamPelajaran">
-                                <form action="/admin/setting/{{$setting->id}}" method="POST">
-                                    @method('PUT')
-                                    @csrf
-                                    <div class="row">
-                                        @for ($i = 1; $i <= 10; $i++)
-                                            <div class="col-md-6 mb-3">
-                                                <div class="card p-3 border shadow-sm">
-                                                    <h5 class="font-weight-bold">Jam Ke-{{ $i }}</h5>
+                            <!-- ========================================== -->
+                            <!-- TAB 1: UMUM & APLIKASI                     -->
+                            <!-- ========================================== -->
+                            <div class="tab-pane fade show active" id="settingUmum">
+                                <div class="row">
+                                    <!-- Identitas Sekolah & Logo -->
+                                    <div class="col-lg-7 mb-4">
+                                        <div class="card card-outline card-primary shadow-sm h-100 mb-0">
+                                            <div class="card-header py-2">
+                                                <h3 class="card-title font-weight-bold">
+                                                    <i class="fas fa-building text-primary mr-2"></i> Identitas Sekolah & Logo
+                                                </h3>
+                                            </div>
+                                            <div class="card-body">
+                                                <form action="/admin/setting/{{$setting->id}}" method="POST" enctype="multipart/form-data">
+                                                    @method('PUT')
+                                                    @csrf
+                                                    <div class="form-group">
+                                                        <label for="nama_app">Nama Aplikasi</label>
+                                                        <input type="text" class="form-control" id="nama_app" placeholder="Enter Nama Aplikasi" name="nama_app" value="{{$setting->nama_app}}" required>
+                                                        @error('nama_app')
+                                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="nama_sekolah">Nama Sekolah</label>
+                                                        <input type="text" class="form-control" id="nama_sekolah" placeholder="Enter Nama Sekolah" name="nama_sekolah" value="{{$setting->nama_sekolah}}" required>
+                                                        @error('nama_sekolah')
+                                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
                                                     <div class="row">
-                                                        <div class="form-group col-6 mb-0">
-                                                            <label for="jam_pelajaran_{{ $i }}_mulai">Waktu Mulai</label>
-                                                            <input type="time" class="form-control" id="jam_pelajaran_{{ $i }}_mulai" name="jam_pelajaran[{{ $i }}][mulai]" value="{{ isset($setting->jam_pelajaran[$i]['mulai']) ? $setting->jam_pelajaran[$i]['mulai'] : '' }}">
+                                                        <div class="form-group col-md-6">
+                                                            <label for="nama_kepsek">Nama Kepala Sekolah</label>
+                                                            <input type="text" class="form-control" id="nama_kepsek" placeholder="Enter Nama Kepsek" name="nama_kepsek" value="{{$setting->nama_kepsek}}" required>
+                                                            @error('nama_kepsek')
+                                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                                            @enderror
                                                         </div>
-                                                        <div class="form-group col-6 mb-0">
-                                                            <label for="jam_pelajaran_{{ $i }}_selesai">Waktu Selesai</label>
-                                                            <input type="time" class="form-control" id="jam_pelajaran_{{ $i }}_selesai" name="jam_pelajaran[{{ $i }}][selesai]" value="{{ isset($setting->jam_pelajaran[$i]['selesai']) ? $setting->jam_pelajaran[$i]['selesai'] : '' }}">
+                                                        <div class="form-group col-md-6">
+                                                            <label for="nip_kepsek">NIP Kepala Sekolah</label>
+                                                            <input type="text" class="form-control" id="nip_kepsek" placeholder="Enter NIP Kepsek" name="nip_kepsek" value="{{$setting->nip_kepsek}}" required>
+                                                            @error('nip_kepsek')
+                                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="alamat">Alamat Sekolah</label>
+                                                        <textarea class="form-control" id="alamat" rows="2" placeholder="Enter Alamat Sekolah" name="alamat" required>{{$setting->alamat}}</textarea>
+                                                        @error('alamat')
+                                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="form-group col-md-6">
+                                                            <label for="kel">Kelurahan</label>
+                                                            <input type="text" class="form-control" id="kel" name="kel" value="{{$setting->kel}}" required>
+                                                        </div>
+                                                        <div class="form-group col-md-6">
+                                                            <label for="kec">Kecamatan</label>
+                                                            <input type="text" class="form-control" id="kec" name="kec" value="{{$setting->kec}}" required>
+                                                        </div>
+                                                        <div class="form-group col-md-6">
+                                                            <label for="kota">Kota / Kabupaten</label>
+                                                            <input type="text" class="form-control" id="kota" name="kota" value="{{$setting->kota}}" required>
+                                                        </div>
+                                                        <div class="form-group col-md-6">
+                                                            <label for="prov">Provinsi</label>
+                                                            <input type="text" class="form-control" id="prov" name="prov" value="{{$setting->prov}}" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="logo">Logo Sekolah</label>
+                                                        <div class="row align-items-center">
+                                                            <div class="col-sm-8 mb-2 mb-sm-0">
+                                                                <div class="custom-file">
+                                                                    <input type="file" class="custom-file-input" name="logo" id="logo">
+                                                                    <label class="custom-file-label text-truncate" id="logo-label" for="logo">Pilih file logo...</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-4 text-center">
+                                                                @if($setting->logo)
+                                                                    <img src="{{ asset("storage/gambar/$setting->logo") }}" alt="Logo Sekolah" class="img-thumbnail" style="max-height: 65px;">
+                                                                @else
+                                                                    <span class="text-muted small">Belum ada logo</span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary btn-block font-weight-bold mt-3">
+                                                        <i class="fas fa-save mr-1"></i> Simpan Identitas Sekolah
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Kolom Kanan: Tema Warna & Versi Aplikasi -->
+                                    <div class="col-lg-5 mb-4">
+                                        <!-- Tema & Warna Aplikasi -->
+                                        <div class="card card-outline card-info shadow-sm mb-4">
+                                            <div class="card-header py-2">
+                                                <h3 class="card-title font-weight-bold">
+                                                    <i class="fas fa-palette text-info mr-2"></i> Tema & Warna Aplikasi
+                                                </h3>
+                                            </div>
+                                            <div class="card-body">
+                                                <form action="/admin/setting/{{$setting->id}}" method="POST">
+                                                    @method('PUT')
+                                                    @csrf
+                                                    <input type="hidden" name="nama_app" value="{{$setting->nama_app}}">
+                                                    
+                                                    <div class="row">
+                                                        <div class="form-group col-6">
+                                                            <label class="small font-weight-bold mb-1">Primary Color</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <input type="color" class="form-control form-control-color" id="primary_color" name="primary_color" 
+                                                                      value="{{ '#' . substr($setting->primary_color, 4) }}" 
+                                                                      onchange="updateColorPicker('primary_color')">
+                                                                <input type="text" class="form-control ml-1" id="kode_warna_primary_color" 
+                                                                      value="{{ '#' . substr($setting->primary_color, 4) }}" 
+                                                                      oninput="updateTextInput('primary_color')">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-6">
+                                                            <label class="small font-weight-bold mb-1">Secondary Color</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <input type="color" class="form-control form-control-color" id="secondary_color" name="secondary_color" 
+                                                                      value="{{ '#' . substr($setting->secondary_color, 4) }}" 
+                                                                      onchange="updateColorPicker('secondary_color')">
+                                                                <input type="text" class="form-control ml-1" id="kode_warna_secondary_color" 
+                                                                      value="{{ '#' . substr($setting->secondary_color, 4) }}" 
+                                                                      oninput="updateTextInput('secondary_color')">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-6">
+                                                            <label class="small font-weight-bold mb-1">Third Color</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <input type="color" class="form-control form-control-color" id="third_color" name="third_color" 
+                                                                      value="{{ '#' . substr($setting->third_color, 4) }}" 
+                                                                      onchange="updateColorPicker('third_color')">
+                                                                <input type="text" class="form-control ml-1" id="kode_warna_third_color" 
+                                                                      value="{{ '#' . substr($setting->third_color, 4) }}" 
+                                                                      oninput="updateTextInput('third_color')">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-6">
+                                                            <label class="small font-weight-bold mb-1">Fourth Color</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <input type="color" class="form-control form-control-color" id="four_color" name="four_color" 
+                                                                      value="{{ '#' . substr($setting->four_color, 4) }}" 
+                                                                      onchange="updateColorPicker('four_color')">
+                                                                <input type="text" class="form-control ml-1" id="kode_warna_four_color" 
+                                                                      value="{{ '#' . substr($setting->four_color, 4) }}" 
+                                                                      oninput="updateTextInput('four_color')">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-6">
+                                                            <label class="small font-weight-bold mb-1">Fifth Color</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <input type="color" class="form-control form-control-color" id="five_color" name="five_color" 
+                                                                      value="{{ '#' . substr($setting->five_color, 4) }}" 
+                                                                      onchange="updateColorPicker('five_color')">
+                                                                <input type="text" class="form-control ml-1" id="kode_warna_five_color" 
+                                                                      value="{{ '#' . substr($setting->five_color, 4) }}" 
+                                                                      oninput="updateTextInput('five_color')">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-6">
+                                                            <label class="small font-weight-bold mb-1">Sixth Color</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <input type="color" class="form-control form-control-color" id="six_color" name="six_color" 
+                                                                      value="{{ '#' . substr($setting->six_color, 4) }}" 
+                                                                      onchange="updateColorPicker('six_color')">
+                                                                <input type="text" class="form-control ml-1" id="kode_warna_six_color" 
+                                                                      value="{{ '#' . substr($setting->six_color, 4) }}" 
+                                                                      oninput="updateTextInput('six_color')">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-12 mb-0">
+                                                            <label class="small font-weight-bold mb-1">Text Color</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <input type="color" class="form-control form-control-color" id="text_color" name="text_color" 
+                                                                      value="{{ '#' . substr($setting->text_color, 4) }}" 
+                                                                      onchange="updateColorPicker('text_color')">
+                                                                <input type="text" class="form-control ml-1" id="kode_warna_text_color" 
+                                                                      value="{{ '#' . substr($setting->text_color, 4) }}" 
+                                                                      oninput="updateTextInput('text_color')">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-info btn-block font-weight-bold mt-3">
+                                                        <i class="fas fa-save mr-1"></i> Simpan Tema Warna
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                        <!-- Versi Aplikasi Mobile -->
+                                        <div class="card card-outline card-secondary shadow-sm mb-0">
+                                            <div class="card-header py-2">
+                                                <h3 class="card-title font-weight-bold">
+                                                    <i class="fas fa-mobile-alt text-secondary mr-2"></i> Versi Aplikasi Mobile (APK)
+                                                </h3>
+                                            </div>
+                                            <div class="card-body">
+                                                <form action="/admin/setting/{{$appVersi->id_versi}}" method="POST">
+                                                    @method('PUT')
+                                                    @csrf
+                                                    <div class="form-group">
+                                                        <label for="versi_app">Versi Rilis Saat Ini</label>
+                                                        <input type="text" class="form-control form-control-sm" id="versi_app" name="versi_app" value="{{$appVersi->versi}}" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="link_app">URL Download Update APK</label>
+                                                        <input type="text" class="form-control form-control-sm" id="link_app" name="link_app" value="{{$appVersi->download_url}}" required>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-secondary btn-block font-weight-bold">
+                                                        <i class="fas fa-save mr-1"></i> Simpan Versi Aplikasi
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ========================================== -->
+                            <!-- TAB 2: AKADEMIK & KESISWAAN               -->
+                            <!-- ========================================== -->
+                            <div class="tab-pane fade" id="settingAkademik">
+                                <!-- Jam Pelajaran -->
+                                <div class="card card-outline card-primary shadow-sm mb-4">
+                                    <div class="card-header py-2">
+                                        <h3 class="card-title font-weight-bold">
+                                            <i class="fas fa-clock text-primary mr-2"></i> Pengaturan Jam Pelajaran (Jam Ke-1 s/d 10)
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <form action="/admin/setting/{{$setting->id}}" method="POST">
+                                            @method('PUT')
+                                            @csrf
+                                            <div class="row">
+                                                @for ($i = 1; $i <= 10; $i++)
+                                                    <div class="col-md-6 col-lg-4 mb-3">
+                                                        <div class="card p-3 border shadow-sm h-100 bg-light">
+                                                            <h6 class="font-weight-bold text-primary mb-2">
+                                                                <i class="far fa-clock mr-1"></i> Jam Ke-{{ $i }}
+                                                            </h6>
+                                                            <div class="row">
+                                                                <div class="form-group col-6 mb-0">
+                                                                    <label class="small text-muted mb-1" for="jam_pelajaran_{{ $i }}_mulai">Mulai</label>
+                                                                    <input type="time" class="form-control form-control-sm" id="jam_pelajaran_{{ $i }}_mulai" name="jam_pelajaran[{{ $i }}][mulai]" value="{{ isset($setting->jam_pelajaran[$i]['mulai']) ? $setting->jam_pelajaran[$i]['mulai'] : '' }}">
+                                                                </div>
+                                                                <div class="form-group col-6 mb-0">
+                                                                    <label class="small text-muted mb-1" for="jam_pelajaran_{{ $i }}_selesai">Selesai</label>
+                                                                    <input type="time" class="form-control form-control-sm" id="jam_pelajaran_{{ $i }}_selesai" name="jam_pelajaran[{{ $i }}][selesai]" value="{{ isset($setting->jam_pelajaran[$i]['selesai']) ? $setting->jam_pelajaran[$i]['selesai'] : '' }}">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endfor
+                                            </div>
+                                            <div class="text-right mt-2">
+                                                <button type="submit" class="btn btn-primary px-4 font-weight-bold">
+                                                    <i class="fas fa-save mr-1"></i> Simpan Jam Pelajaran
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Aturan Poin Surat Peringatan (SP) -->
+                                <div class="card card-outline card-warning shadow-sm mb-0">
+                                    <div class="card-header py-2">
+                                        <h3 class="card-title font-weight-bold">
+                                            <i class="fas fa-exclamation-triangle text-warning mr-2"></i> Aturan Ambang Poin Surat Peringatan (SP)
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <form action="/admin/setting/{{$setting->id}}" method="POST">
+                                            @method('PUT')
+                                            @csrf
+                                            <div class="form-group col-md-5 px-0 mb-3">
+                                                <label for="jumlah_sp" class="font-weight-bold">Jumlah Tingkatan SP yang Aktif</label>
+                                                <select class="form-control" id="jumlah_sp" name="sp_settings[jumlah_sp]" onchange="renderSpInputs()">
+                                                    @for ($i = 1; $i <= 10; $i++)
+                                                        <option value="{{ $i }}" {{ (isset($setting->sp_settings['jumlah_sp']) && $setting->sp_settings['jumlah_sp'] == $i) ? 'selected' : '' }}>{{ $i }} Tingkatan SP</option>
+                                                    @endfor
+                                                </select>
+                                                <small class="text-muted">Pilih berapa level SP yang diterapkan di sekolah.</small>
+                                            </div>
+
+                                            <div id="sp_inputs_container" class="row">
+                                                <!-- Dynamic inputs via JS -->
+                                            </div>
+
+                                            <div class="text-right mt-2">
+                                                <button type="submit" class="btn btn-warning px-4 font-weight-bold">
+                                                    <i class="fas fa-save mr-1"></i> Simpan Pengaturan SP
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ========================================== -->
+                            <!-- TAB 3: WHATSAPP & NOTIFIKASI               -->
+                            <!-- ========================================== -->
+                            <div class="tab-pane fade" id="settingWhatsapp">
+                                @php
+                                    $rekapCfg = $setting->rekap_wa_settings ?? [];
+                                    $walasCfg = $rekapCfg['walas'] ?? ['is_active' => true, 'frequency' => 'weekly', 'day' => 'friday', 'time' => '16:00'];
+                                    $ortuCfg = $rekapCfg['orangtua'] ?? ['is_active' => true, 'frequency' => 'monthly', 'day' => 'last_day', 'time' => '17:00'];
+                                @endphp
+
+                                <!-- 1. SEKSI JADWAL NOTIFIKASI OTOMATIS -->
+                                <div class="card card-outline card-success shadow-sm mb-4">
+                                    <div class="card-header py-2 d-flex align-items-center justify-content-between flex-wrap">
+                                        <h3 class="card-title font-weight-bold text-success mb-0">
+                                            <i class="fas fa-calendar-check mr-2"></i> 1. Jadwal Otomatisasi Rekap Kehadiran WhatsApp
+                                        </h3>
+                                        <div class="ml-auto text-right mt-1 mt-sm-0" id="scheduler_status_wrapper">
+                                            <span id="scheduler_status_badge" class="badge badge-secondary px-3 py-2 text-xs font-weight-bold shadow-sm">
+                                                <i class="fas fa-sync fa-spin mr-1"></i> Memeriksa Status Scheduler...
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted small mb-3">
+                                            Sistem SIAWI secara otomatis mengecek jadwal setiap jam dan mengirimkan notifikasi ringkasan absensi ke Wali Kelas dan Orang Tua sesuai konfigurasi di bawah ini tanpa perlu ubah kode.
+                                        </p>
+
+                                        <form action="/admin/setting/{{$setting->id}}" method="POST">
+                                            @method('PUT')
+                                            @csrf
+                                            <input type="hidden" name="rekap_wa_settings" value="1">
+
+                                            <div class="row">
+                                                <!-- Card Walas -->
+                                                <div class="col-md-6 mb-3">
+                                                     <div class="card border shadow-none bg-light h-100">
+                                                        <div class="card-header bg-white d-flex align-items-center justify-content-between py-2">
+                                                            <strong class="text-success"><i class="fas fa-chalkboard-teacher mr-1"></i> Rekap Wali Kelas (Walas)</strong>
+                                                            <div class="custom-control custom-switch ml-auto">
+                                                                <input type="checkbox" class="custom-control-input" id="walas_is_active" name="walas_is_active" value="1" {{ (!empty($walasCfg['is_active'])) ? 'checked' : '' }}>
+                                                                <label class="custom-control-label small font-weight-normal" for="walas_is_active">Aktif</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-body p-3">
+                                                            <div class="form-group mb-2">
+                                                                <label class="small font-weight-bold mb-1" for="walas_frequency">Frekuensi Pengiriman</label>
+                                                                <select class="form-control form-control-sm select-frequency" id="walas_frequency" name="walas_frequency" data-target="walas">
+                                                                    <option value="weekly" {{ ($walasCfg['frequency'] ?? 'weekly') === 'weekly' ? 'selected' : '' }}>1 Minggu Sekali (Mingguan)</option>
+                                                                    <option value="monthly" {{ ($walasCfg['frequency'] ?? 'weekly') === 'monthly' ? 'selected' : '' }}>1 Bulan Sekali (Bulanan)</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group mb-2" id="walas_day_group">
+                                                                <label class="small font-weight-bold mb-1" for="walas_day">Hari / Waktu Pengiriman</label>
+                                                                <select class="form-control form-control-sm" id="walas_day" name="walas_day">
+                                                                    <optgroup label="Pilihan Hari (Mingguan)" id="walas_weekly_opts">
+                                                                        <option value="friday" {{ ($walasCfg['day'] ?? 'friday') === 'friday' ? 'selected' : '' }}>Setiap Hari Jumat</option>
+                                                                        <option value="saturday" {{ ($walasCfg['day'] ?? '') === 'saturday' ? 'selected' : '' }}>Setiap Hari Sabtu</option>
+                                                                        <option value="monday" {{ ($walasCfg['day'] ?? '') === 'monday' ? 'selected' : '' }}>Setiap Hari Senin</option>
+                                                                        <option value="tuesday" {{ ($walasCfg['day'] ?? '') === 'tuesday' ? 'selected' : '' }}>Setiap Hari Selasa</option>
+                                                                        <option value="wednesday" {{ ($walasCfg['day'] ?? '') === 'wednesday' ? 'selected' : '' }}>Setiap Hari Rabu</option>
+                                                                        <option value="thursday" {{ ($walasCfg['day'] ?? '') === 'thursday' ? 'selected' : '' }}>Setiap Hari Kamis</option>
+                                                                        <option value="sunday" {{ ($walasCfg['day'] ?? '') === 'sunday' ? 'selected' : '' }}>Setiap Hari Minggu</option>
+                                                                    </optgroup>
+                                                                    <optgroup label="Pilihan Tanggal (Bulanan)" id="walas_monthly_opts">
+                                                                        <option value="last_day" {{ ($walasCfg['day'] ?? '') === 'last_day' ? 'selected' : '' }}>Hari Terakhir Setiap Bulan</option>
+                                                                        <option value="25" {{ ($walasCfg['day'] ?? '') === '25' ? 'selected' : '' }}>Tanggal 25 Setiap Bulan</option>
+                                                                        <option value="1" {{ ($walasCfg['day'] ?? '') === '1' ? 'selected' : '' }}>Tanggal 1 Setiap Bulan</option>
+                                                                    </optgroup>
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group mb-3">
+                                                                <label class="small font-weight-bold mb-1" for="walas_time">Jam Pengiriman (WIB)</label>
+                                                                <input type="time" class="form-control form-control-sm" id="walas_time" name="walas_time" value="{{ $walasCfg['time'] ?? '16:00' }}" required>
+                                                            </div>
+                                                            <button type="button" class="btn btn-outline-success btn-xs btn-block btn-test-rekap" data-target="walas">
+                                                                <i class="fas fa-paper-plane mr-1"></i> Test Kirim Walas Sekarang
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Card Ortu -->
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="card border shadow-none bg-light h-100">
+                                                        <div class="card-header bg-white d-flex align-items-center justify-content-between py-2">
+                                                            <strong class="text-primary"><i class="fas fa-user-friends mr-1"></i> Rekap Orang Tua / Wali Siswa</strong>
+                                                            <div class="custom-control custom-switch ml-auto">
+                                                                <input type="checkbox" class="custom-control-input" id="ortu_is_active" name="ortu_is_active" value="1" {{ (!empty($ortuCfg['is_active'])) ? 'checked' : '' }}>
+                                                                <label class="custom-control-label small font-weight-normal" for="ortu_is_active">Aktif</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-body p-3">
+                                                            <div class="form-group mb-2">
+                                                                <label class="small font-weight-bold mb-1" for="ortu_frequency">Frekuensi Pengiriman</label>
+                                                                <select class="form-control form-control-sm select-frequency" id="ortu_frequency" name="ortu_frequency" data-target="ortu">
+                                                                    <option value="monthly" {{ ($ortuCfg['frequency'] ?? 'monthly') === 'monthly' ? 'selected' : '' }}>1 Bulan Sekali (Bulanan)</option>
+                                                                    <option value="weekly" {{ ($ortuCfg['frequency'] ?? 'monthly') === 'weekly' ? 'selected' : '' }}>1 Minggu Sekali (Mingguan)</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group mb-2" id="ortu_day_group">
+                                                                <label class="small font-weight-bold mb-1" for="ortu_day">Hari / Waktu Pengiriman</label>
+                                                                <select class="form-control form-control-sm" id="ortu_day" name="ortu_day">
+                                                                    <optgroup label="Pilihan Tanggal (Bulanan)" id="ortu_monthly_opts">
+                                                                        <option value="last_day" {{ ($ortuCfg['day'] ?? 'last_day') === 'last_day' ? 'selected' : '' }}>Hari Terakhir Setiap Bulan</option>
+                                                                        <option value="25" {{ ($ortuCfg['day'] ?? '') === '25' ? 'selected' : '' }}>Tanggal 25 Setiap Bulan</option>
+                                                                        <option value="1" {{ ($ortuCfg['day'] ?? '') === '1' ? 'selected' : '' }}>Tanggal 1 Setiap Bulan</option>
+                                                                    </optgroup>
+                                                                    <optgroup label="Pilihan Hari (Mingguan)" id="ortu_weekly_opts">
+                                                                        <option value="friday" {{ ($ortuCfg['day'] ?? '') === 'friday' ? 'selected' : '' }}>Setiap Hari Jumat</option>
+                                                                        <option value="saturday" {{ ($ortuCfg['day'] ?? '') === 'saturday' ? 'selected' : '' }}>Setiap Hari Sabtu</option>
+                                                                        <option value="monday" {{ ($ortuCfg['day'] ?? '') === 'monday' ? 'selected' : '' }}>Setiap Hari Senin</option>
+                                                                    </optgroup>
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group mb-3">
+                                                                <label class="small font-weight-bold mb-1" for="ortu_time">Jam Pengiriman (WIB)</label>
+                                                                <input type="time" class="form-control form-control-sm" id="ortu_time" name="ortu_time" value="{{ $ortuCfg['time'] ?? '17:00' }}" required>
+                                                            </div>
+                                                            <button type="button" class="btn btn-outline-primary btn-xs btn-block btn-test-rekap" data-target="orangtua">
+                                                                <i class="fas fa-paper-plane mr-1"></i> Test Kirim Ortu Sekarang
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        @endfor
-                                    </div>
-                                    <button type="submit" class="btn btn-primary mt-3">Simpan Setting Jam Pelajaran</button>
-                                </form>
-                            </div>
 
-                            <!-- Form Setting SP -->
-                            <div class="tab-pane fade" id="settingSp">
-                                <form action="/admin/setting/{{$setting->id}}" method="POST">
-                                    @method('PUT')
-                                    @csrf
-                                    <div class="form-group col-md-6 px-0">
-                                        <label for="jumlah_sp">Jumlah SP yang Ditampilkan</label>
-                                        <select class="form-control" id="jumlah_sp" name="sp_settings[jumlah_sp]" onchange="renderSpInputs()">
-                                            @for ($i = 1; $i <= 10; $i++)
-                                                <option value="{{ $i }}" {{ (isset($setting->sp_settings['jumlah_sp']) && $setting->sp_settings['jumlah_sp'] == $i) ? 'selected' : '' }}>{{ $i }} SP</option>
-                                            @endfor
-                                        </select>
-                                    </div>
-                                    <div id="sp_inputs_container" class="row">
-                                        <!-- Kolom input dinamis akan dirender di sini via JavaScript -->
-                                    </div>
-                                    <button type="submit" class="btn btn-primary mt-3">Simpan Setting SP</button>
-                                </form>
-                            </div>
-
-                            <!-- Form Setting WhatsApp -->
-                            <div class="tab-pane fade" id="settingWhatsapp">
-                                <form action="/admin/setting/{{$setting->id}}" method="POST">
-                                    @method('PUT')
-                                    @csrf
-                                    <input type="hidden" name="wa_settings" value="1">
-                                    
-                                    <div class="form-group">
-                                        <label for="wa_status">Status Notifikasi WhatsApp</label>
-                                        <select class="form-control" id="wa_status" name="wa_status">
-                                            <option value="0" {{ $setting->wa_status == 0 ? 'selected' : '' }}>Nonaktif</option>
-                                            <option value="1" {{ $setting->wa_status == 1 ? 'selected' : '' }}>Aktif untuk Keduanya (Guru & Siswa)</option>
-                                            <option value="2" {{ $setting->wa_status == 2 ? 'selected' : '' }}>Aktif untuk Guru Saja</option>
-                                            <option value="3" {{ $setting->wa_status == 3 ? 'selected' : '' }}>Aktif untuk Siswa Saja</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="wa_api_url">OpenWA API URL</label>
-                                        <input type="text" class="form-control" id="wa_api_url" name="wa_api_url" 
-                                               value="{{ $setting->wa_api_url ?? env('OPEN_WA_API_URL', 'http://localhost:2785/api') }}" 
-                                               placeholder="http://localhost:2785/api">
-                                        <small class="form-text text-muted">URL Gateway OpenWA API.</small>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="wa_api_key">OpenWA API Key</label>
-                                        <div class="input-group">
-                                            <input type="password" class="form-control" id="wa_api_key" name="wa_api_key" 
-                                                   value="{{ $setting->wa_api_key ?? env('OPEN_WA_API_KEY') }}"
-                                                   placeholder="Masukkan API Key">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
-                                                    <i class="fas fa-eye" id="toggleIcon"></i>
+                                            <div class="text-right mt-2">
+                                                <button type="submit" class="btn btn-success px-4 font-weight-bold">
+                                                    <i class="fas fa-save mr-1"></i> Simpan Jadwal Notifikasi WhatsApp
                                                 </button>
                                             </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- 2. SEKSI SERVER GATEWAY & STATUS -->
+                                <div class="card card-outline card-primary shadow-sm mb-4">
+                                    <div class="card-header py-2">
+                                        <h3 class="card-title font-weight-bold text-primary">
+                                            <i class="fas fa-server mr-2"></i> 2. Konfigurasi OpenWA Gateway & Kesehatan Server
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <!-- Widget Status Server Gateway -->
+                                        <div class="card bg-light border shadow-none mb-3">
+                                            <div class="card-body py-2">
+                                                <div class="row align-items-center text-center text-md-left">
+                                                    <div class="col-md-3 mb-2 mb-md-0 border-right">
+                                                        <div class="text-xs text-muted font-weight-bold text-uppercase">Koneksi Server</div>
+                                                        <div class="mt-1 d-flex align-items-center justify-content-center justify-content-md-start">
+                                                            <span id="server_status_badge" class="badge badge-secondary p-1 px-2 text-xs">Memeriksa...</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2 mb-2 mb-md-0 border-right">
+                                                        <div class="text-xs text-muted font-weight-bold text-uppercase">Ping Latensi</div>
+                                                        <div class="mt-1 font-weight-bold text-sm" id="server_latency_val">-</div>
+                                                    </div>
+                                                    <div class="col-md-2 mb-2 mb-md-0 border-right">
+                                                        <div class="text-xs text-muted font-weight-bold text-uppercase">RAM Server</div>
+                                                        <div class="mt-1 font-weight-bold text-sm text-info" id="server_ram_val">-</div>
+                                                    </div>
+                                                    <div class="col-md-2 mb-2 mb-md-0 border-right">
+                                                        <div class="text-xs text-muted font-weight-bold text-uppercase">Engine</div>
+                                                        <div class="mt-1 font-weight-bold text-sm text-secondary" id="server_engine_val">-</div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="text-xs text-muted font-weight-bold text-uppercase">Versi Gateway</div>
+                                                        <div class="mt-1 font-weight-bold text-xs text-truncate" id="server_version_val" title="-">-</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <form action="/admin/setting/{{$setting->id}}" method="POST">
+                                            @method('PUT')
+                                            @csrf
+                                            <input type="hidden" name="wa_settings" value="1">
+                                            
+                                            <div class="row">
+                                                <div class="form-group col-md-6">
+                                                    <label for="wa_status" class="small font-weight-bold">Status Notifikasi Absensi Harian</label>
+                                                    <select class="form-control form-control-sm" id="wa_status" name="wa_status">
+                                                        <option value="0" {{ $setting->wa_status == 0 ? 'selected' : '' }}>Nonaktif</option>
+                                                        <option value="1" {{ $setting->wa_status == 1 ? 'selected' : '' }}>Aktif untuk Keduanya (Guru & Siswa)</option>
+                                                        <option value="2" {{ $setting->wa_status == 2 ? 'selected' : '' }}>Aktif untuk Guru Saja</option>
+                                                        <option value="3" {{ $setting->wa_status == 3 ? 'selected' : '' }}>Aktif untuk Siswa Saja</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group col-md-6">
+                                                    <label for="wa_load_balancing" class="small font-weight-bold">Metode Pengiriman Multi-Sesi</label>
+                                                    <select class="form-control form-control-sm" id="wa_load_balancing" name="wa_load_balancing">
+                                                        <option value="1" {{ ($setting->wa_load_balancing ?? 1) == 1 ? 'selected' : '' }}>Load Balancing (Gunakan Semua Nomor Aktif Acak)</option>
+                                                        <option value="0" {{ ($setting->wa_load_balancing ?? 1) == 0 ? 'selected' : '' }}>Single Session (Gunakan 1 Nomor Utama Saja)</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group col-md-6">
+                                                    <label for="wa_api_url" class="small font-weight-bold">OpenWA API URL</label>
+                                                    <input type="text" class="form-control form-control-sm" id="wa_api_url" name="wa_api_url" 
+                                                           value="{{ $setting->wa_api_url ?? env('OPEN_WA_API_URL', 'http://localhost:2785/api') }}" 
+                                                           placeholder="http://localhost:2785/api">
+                                                </div>
+
+                                                <div class="form-group col-md-6">
+                                                    <label for="wa_api_key" class="small font-weight-bold">OpenWA API Key</label>
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="password" class="form-control" id="wa_api_key" name="wa_api_key" 
+                                                               value="{{ $setting->wa_api_key ?? env('OPEN_WA_API_KEY') }}"
+                                                               placeholder="Masukkan API Key">
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
+                                                                <i class="fas fa-eye" id="toggleIcon"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group col-md-12" id="primary_session_container" style="display: none;">
+                                                    <label for="wa_session_id" class="small font-weight-bold">Sesi Utama Pilihan</label>
+                                                    <select class="form-control form-control-sm" id="wa_session_id" name="wa_session_id">
+                                                        <option value="">-- Pilih Nomor Gateway Utama --</option>
+                                                        @foreach($waSessions as $s)
+                                                            <option value="{{ $s->session_id }}" {{ ($setting->wa_session_id == $s->session_id) ? 'selected' : '' }}>
+                                                                {{ $s->label }} ({{ $s->phone_number ? '+' . $s->phone_number : 'Belum Terhubung' }})
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="text-right">
+                                                <button type="submit" class="btn btn-primary px-4 font-weight-bold">
+                                                    <i class="fas fa-save mr-1"></i> Simpan Konfigurasi Gateway
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- 3. SEKSI MANAJEMEN NOMOR / SESI WA -->
+                                <div class="card card-outline card-info shadow-sm mb-0">
+                                    <div class="card-header d-flex align-items-center justify-content-between py-2">
+                                        <h3 class="card-title font-weight-bold text-info mb-0">
+                                            <i class="fab fa-whatsapp mr-2"></i> 3. Manajemen Nomor & Sesi WhatsApp Gateway
+                                        </h3>
+                                        <button type="button" class="btn btn-sm btn-info ml-auto" data-toggle="modal" data-target="#modalAddWaSession">
+                                            <i class="fas fa-plus mr-1"></i> Tambah Nomor Baru
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        @if($waSessions->isEmpty())
+                                            <div class="alert alert-light border text-center py-4 mb-0">
+                                                <p class="text-muted mb-0">Belum ada nomor WhatsApp yang ditambahkan. Silakan klik tombol <strong>Tambah Nomor Baru</strong> di atas.</p>
+                                            </div>
+                                        @else
+                                            <div class="row" id="wa_sessions_container">
+                                                @foreach($waSessions as $waSession)
+                                                    <div class="col-md-6 mb-4 session-card-wrapper" data-id="{{ $waSession->id }}">
+                                                        <div class="card h-100 border shadow-sm mb-0">
+                                                            <div class="card-header bg-light d-flex align-items-center justify-content-between py-2">
+                                                                <strong class="text-secondary">{{ $waSession->label }}</strong>
+                                                                <div class="custom-control custom-switch ml-auto mr-3">
+                                                                    <input type="checkbox" class="custom-control-input toggle-session-switch" 
+                                                                           id="toggle_switch_{{ $waSession->id }}" data-id="{{ $waSession->id }}"
+                                                                           {{ $waSession->is_active ? 'checked' : '' }}>
+                                                                    <label class="custom-control-label small text-muted font-weight-normal" for="toggle_switch_{{ $waSession->id }}">Aktif</label>
+                                                                </div>
+                                                                <button type="button" class="btn btn-xs btn-outline-danger delete-session-btn" data-id="{{ $waSession->id }}" title="Hapus Sesi">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                            <div class="card-body text-center p-3">
+                                                                <div id="loading_{{ $waSession->id }}" class="py-3">
+                                                                    <div class="spinner-border text-info spinner-border-sm" role="status">
+                                                                        <span class="sr-only">Loading...</span>
+                                                                    </div>
+                                                                    <span class="ml-2 text-muted text-sm">Memeriksa status...</span>
+                                                                </div>
+
+                                                                <div id="content_{{ $waSession->id }}" class="d-none">
+                                                                    <div class="mb-3">
+                                                                        <span id="badge_{{ $waSession->id }}" class="badge p-2 px-3 text-sm badge-secondary">Memuat...</span>
+                                                                    </div>
+                                                                    
+                                                                    <div class="text-muted small mb-2">
+                                                                        Nomor: <strong id="phone_{{ $waSession->id }}">{{ $waSession->phone_number ? '+' . $waSession->phone_number : '-' }}</strong>
+                                                                    </div>
+                                                                    <div class="text-muted small mb-3">
+                                                                        State Server: <span id="raw_state_{{ $waSession->id }}" class="badge badge-light border">{{ $waSession->status }}</span>
+                                                                    </div>
+
+                                                                    <!-- QR Code Container -->
+                                                                    <div id="qr_container_{{ $waSession->id }}" class="d-none mb-3">
+                                                                        <p class="text-xs text-muted mb-2 font-weight-bold">Scan QR Code di bawah menggunakan WhatsApp:</p>
+                                                                        <div class="p-2 border d-inline-block rounded bg-white shadow-sm">
+                                                                            <img id="qr_image_{{ $waSession->id }}" src="" alt="QR Code WhatsApp" class="img-fluid" style="max-width: 180px;">
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="mt-2">
+                                                                        <button type="button" class="btn btn-xs btn-outline-secondary check-session-btn mr-1" data-id="{{ $waSession->id }}">
+                                                                            <i class="fas fa-sync mr-1"></i> Cek Koneksi
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-xs btn-primary start-session-btn d-none" id="btn_start_{{ $waSession->id }}" data-id="{{ $waSession->id }}">
+                                                                            <i class="fas fa-play mr-1"></i> Mulai Sesi
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <!-- Modal Tambah Sesi -->
+                                <div class="modal fade" id="modalAddWaSession" tabindex="-1" role="dialog" aria-labelledby="modalAddWaSessionLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content text-left">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title font-weight-bold" id="modalAddWaSessionLabel">Tambah Sesi WhatsApp Baru</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <form id="form_add_wa_session">
+                                                @csrf
+                                                <div class="modal-body">
+                                                    <div class="form-group">
+                                                        <label for="new_session_label">Label Pengenal Nomor / Sesi</label>
+                                                        <input type="text" class="form-control" id="new_session_label" name="label" required 
+                                                               placeholder="Contoh: Nomor Utama Sekolah, Nomor Cadangan 1">
+                                                        <small class="form-text text-muted">Label ini membantu Anda mengidentifikasi nomor WhatsApp yang terhubung.</small>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                                    <button type="submit" class="btn btn-primary" id="btn_submit_add_session">
+                                                        <i class="fas fa-save mr-1"></i> Simpan Sesi
+                                                    </button>
+                                                </div>
+                                            </form>
                                         </div>
                                     </div>
-
-                                    <div class="form-group">
-                                        <label for="wa_load_balancing">Metode Pengiriman Sesi</label>
-                                        <select class="form-control" id="wa_load_balancing" name="wa_load_balancing">
-                                            <option value="1" {{ ($setting->wa_load_balancing ?? 1) == 1 ? 'selected' : '' }}>Load Balancing (Gunakan Semua Sesi Aktif secara Acak)</option>
-                                            <option value="0" {{ ($setting->wa_load_balancing ?? 1) == 0 ? 'selected' : '' }}>Single Session (Gunakan Sesi Utama Saja)</option>
-                                        </select>
-                                        <small class="form-text text-muted">Jika menggunakan Single Session, pesan hanya akan dikirim melalui Sesi Utama pilihan Anda.</small>
-                                    </div>
-
-                                    <div class="form-group" id="primary_session_container" style="display: none;">
-                                        <label for="wa_session_id">Sesi Utama (Single Session)</label>
-                                        <select class="form-control" id="wa_session_id" name="wa_session_id">
-                                            <option value="">-- Pilih Sesi Utama --</option>
-                                            @foreach($waSessions as $s)
-                                                <option value="{{ $s->session_id }}" {{ ($setting->wa_session_id == $s->session_id) ? 'selected' : '' }}>
-                                                    {{ $s->label }} ({{ $s->phone_number ? '+' . $s->phone_number : 'Belum Terhubung' }})
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <small class="form-text text-muted">Pilih nomor gateway utama yang akan digunakan untuk mengirim seluruh notifikasi WA.</small>
-                                    </div>
-
-                                      <button type="submit" class="btn btn-primary mb-3">Simpan Setting WhatsApp</button>
-                                  </form>
-
-                                  <hr class="my-4">
-                                  
-                                  <!-- Widget Status Server Gateway -->
-                                  <div class="card card-outline card-primary shadow-sm mb-4">
-                                      <div class="card-header py-2">
-                                          <h4 class="card-title font-weight-bold text-primary mb-0">
-                                              <i class="fas fa-server mr-1"></i> Status & Kesehatan Server Gateway
-                                          </h4>
-                                      </div>
-                                      <div class="card-body py-3">
-                                          <div class="row align-items-center text-center text-md-left">
-                                              <div class="col-md-3 mb-2 mb-md-0 border-right">
-                                                  <div class="text-xs text-muted font-weight-bold text-uppercase">Koneksi Server</div>
-                                                  <div class="mt-1 d-flex align-items-center justify-content-center justify-content-md-start">
-                                                      <span id="server_status_badge" class="badge badge-secondary p-2 text-sm">Memeriksa...</span>
-                                                  </div>
-                                              </div>
-                                              <div class="col-md-2 mb-2 mb-md-0 border-right">
-                                                  <div class="text-xs text-muted font-weight-bold text-uppercase">Latensi (Ping)</div>
-                                                  <div class="mt-1 font-weight-bold text-lg" id="server_latency_val">-</div>
-                                              </div>
-                                              <div class="col-md-2 mb-2 mb-md-0 border-right">
-                                                  <div class="text-xs text-muted font-weight-bold text-uppercase">Penggunaan RAM</div>
-                                                  <div class="mt-1 font-weight-bold text-lg text-info" id="server_ram_val">-</div>
-                                              </div>
-                                              <div class="col-md-2 mb-2 mb-md-0 border-right">
-                                                  <div class="text-xs text-muted font-weight-bold text-uppercase">Engine</div>
-                                                  <div class="mt-1 font-weight-bold text-lg text-secondary" id="server_engine_val">-</div>
-                                              </div>
-                                              <div class="col-md-3">
-                                                  <div class="text-xs text-muted font-weight-bold text-uppercase">Versi Server</div>
-                                                  <div class="mt-1 font-weight-bold text-sm text-truncate" id="server_version_val" title="-">-</div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-
-                                  <div class="card card-outline card-info shadow-sm">
-                                      <div class="card-header d-flex align-items-center justify-content-between py-2">
-                                          <h4 class="card-title font-weight-bold text-info mb-0">
-                                              <i class="fab fa-whatsapp mr-1"></i> Sesi & Nomor WhatsApp Gateway (Multi-Session)
-                                          </h4>
-                                          <button type="button" class="btn btn-sm btn-info ml-auto" data-toggle="modal" data-target="#modalAddWaSession">
-                                              <i class="fas fa-plus mr-1"></i> Tambah Nomor Baru
-                                          </button>
-                                      </div>
-                                      <div class="card-body">
-                                          @if($waSessions->isEmpty())
-                                              <div class="alert alert-light border text-center py-4 mb-0">
-                                                  <p class="text-muted mb-0">Belum ada nomor WhatsApp yang ditambahkan. Silakan klik tombol <strong>Tambah Nomor Baru</strong> di atas.</p>
-                                              </div>
-                                          @else
-                                              <div class="row" id="wa_sessions_container">
-                                                  @foreach($waSessions as $waSession)
-                                                      <div class="col-md-6 mb-4 session-card-wrapper" data-id="{{ $waSession->id }}">
-                                                          <div class="card h-100 border shadow-sm mb-0">
-                                                              <div class="card-header bg-light d-flex align-items-center justify-content-between py-2">
-                                                                  <strong class="text-secondary">{{ $waSession->label }}</strong>
-                                                                  <div class="custom-control custom-switch ml-auto mr-3">
-                                                                      <input type="checkbox" class="custom-control-input toggle-session-switch" 
-                                                                             id="toggle_switch_{{ $waSession->id }}" data-id="{{ $waSession->id }}"
-                                                                             {{ $waSession->is_active ? 'checked' : '' }}>
-                                                                      <label class="custom-control-label small text-muted font-weight-normal" for="toggle_switch_{{ $waSession->id }}">Aktif</label>
-                                                                  </div>
-                                                                  <button type="button" class="btn btn-xs btn-outline-danger delete-session-btn" data-id="{{ $waSession->id }}" title="Hapus Sesi">
-                                                                      <i class="fas fa-trash"></i>
-                                                                  </button>
-                                                              </div>
-                                                              <div class="card-body text-center p-3">
-                                                                  <div id="loading_{{ $waSession->id }}" class="py-3">
-                                                                      <div class="spinner-border text-info spinner-border-sm" role="status">
-                                                                          <span class="sr-only">Loading...</span>
-                                                                      </div>
-                                                                      <span class="ml-2 text-muted text-sm">Memeriksa status...</span>
-                                                                  </div>
-
-                                                                  <div id="content_{{ $waSession->id }}" class="d-none">
-                                                                      <div class="mb-2">
-                                                                          <span id="badge_{{ $waSession->id }}" class="badge p-2 px-3 text-sm">Unknown</span>
-                                                                      </div>
-                                                                      <div class="small text-muted mb-2">
-                                                                          <div><strong>Nomor:</strong> <span id="phone_{{ $waSession->id }}">{{ $waSession->phone_number ?? '-' }}</span></div>
-                                                                          <div><strong>Status Sesi:</strong> <code id="raw_state_{{ $waSession->id }}">-</code></div>
-                                                                      </div>
-
-                                                                      <div id="qr_container_{{ $waSession->id }}" class="my-3 d-none">
-                                                                          <p class="text-warning font-weight-bold mb-2 text-xs">
-                                                                              <i class="fas fa-qrcode mr-1"></i> Scan QR Code berikut dengan WhatsApp Anda:
-                                                                          </p>
-                                                                          <div class="bg-white p-2 d-inline-block rounded border shadow-sm">
-                                                                              <img id="qr_image_{{ $waSession->id }}" src="" alt="WhatsApp QR Code" class="img-fluid" style="width: 180px; height: 180px;">
-                                                                          </div>
-                                                                      </div>
-
-                                                                      <div class="mt-2">
-                                                                          <button type="button" class="btn btn-xs btn-outline-info check-session-btn mr-1" data-id="{{ $waSession->id }}">
-                                                                              <i class="fas fa-sync mr-1"></i> Cek Koneksi
-                                                                          </button>
-                                                                          <button type="button" class="btn btn-xs btn-primary start-session-btn d-none" id="btn_start_{{ $waSession->id }}" data-id="{{ $waSession->id }}">
-                                                                              <i class="fas fa-play mr-1"></i> Mulai Sesi
-                                                                          </button>
-                                                                      </div>
-                                                                  </div>
-                                                              </div>
-                                                          </div>
-                                                      </div>
-                                                  @endforeach
-                                              </div>
-                                          @endif
-                                      </div>
-                                  </div>
-
-                                  <!-- Modal Tambah Sesi -->
-                                  <div class="modal fade" id="modalAddWaSession" tabindex="-1" role="dialog" aria-labelledby="modalAddWaSessionLabel" aria-hidden="true">
-                                      <div class="modal-dialog" role="document">
-                                          <div class="modal-content text-left">
-                                              <div class="modal-header">
-                                                  <h5 class="modal-title font-weight-bold" id="modalAddWaSessionLabel">Tambah Sesi WhatsApp Baru</h5>
-                                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                      <span aria-hidden="true">&times;</span>
-                                                  </button>
-                                              </div>
-                                              <form id="form_add_wa_session">
-                                                  @csrf
-                                                  <div class="modal-body">
-                                                      <div class="form-group">
-                                                          <label for="new_session_label">Label Pengenal Nomor / Sesi</label>
-                                                          <input type="text" class="form-control" id="new_session_label" name="label" required 
-                                                                 placeholder="Contoh: Nomor Utama Sekolah, Nomor Cadangan 1">
-                                                          <small class="form-text text-muted">Label ini membantu Anda mengidentifikasi nomor WhatsApp yang terhubung.</small>
-                                                      </div>
-                                                  </div>
-                                                  <div class="modal-footer">
-                                                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                                      <button type="submit" class="btn btn-primary" id="btn_submit_add_session">
-                                                          <i class="fas fa-save mr-1"></i> Simpan Sesi
-                                                      </button>
-                                                  </div>
-                                              </form>
-                                          </div>
-                                      </div>
-                                  </div>
-                             </div>
+                                </div>
+                            </div>
                         </div>
                     </div> <!-- /.card-body -->
                 </div> <!-- /.card -->
@@ -576,22 +731,26 @@
     function updateColorPicker(colorId) {
         let colorPicker = document.getElementById(colorId);
         let colorCode = document.getElementById('kode_warna_' + colorId);
-        colorCode.value = colorPicker.value.toUpperCase(); // Update input teks dengan warna yang dipilih
+        if (colorPicker && colorCode) {
+            colorCode.value = colorPicker.value.toUpperCase();
+        }
     }
 
     function updateTextInput(colorId) {
         let colorPicker = document.getElementById(colorId);
         let colorCode = document.getElementById('kode_warna_' + colorId);
-        
-        // Pastikan format yang dimasukkan valid (#RRGGBB)
-        let colorValue = colorCode.value.trim();
-        if (/^#([0-9A-F]{3}){1,2}$/i.test(colorValue)) {
-            colorPicker.value = colorValue; // Update color picker dengan warna yang diketik
+        if (colorPicker && colorCode) {
+            let colorValue = colorCode.value.trim();
+            if (/^#([0-9A-F]{3}){1,2}$/i.test(colorValue)) {
+                colorPicker.value = colorValue;
+            }
         }
     }
 
     function renderSpInputs() {
-        const jumlahSp = document.getElementById('jumlah_sp').value;
+        const jumlahSpEl = document.getElementById('jumlah_sp');
+        if (!jumlahSpEl) return;
+        const jumlahSp = jumlahSpEl.value;
         const container = document.getElementById('sp_inputs_container');
         const existingRules = @json($setting->sp_settings['sp_rules'] ?? []);
         
@@ -600,13 +759,15 @@
         for (let i = 1; i <= jumlahSp; i++) {
             const val = existingRules[i] !== undefined ? existingRules[i] : (i * 25);
             const div = document.createElement('div');
-            div.className = 'col-md-6 mb-3';
+            div.className = 'col-md-6 col-lg-4 mb-3';
             div.innerHTML = `
-                <div class="card p-3 border shadow-sm">
-                    <h5 class="font-weight-bold">Surat Peringatan ${i} (SP ${i})</h5>
+                <div class="card p-3 border shadow-sm bg-light">
+                    <h6 class="font-weight-bold text-warning mb-2">
+                        <i class="fas fa-file-signature mr-1"></i> Surat Peringatan ${i} (SP ${i})
+                    </h6>
                     <div class="form-group mb-0">
-                        <label for="sp_rules_${i}">Poin Minimal Pemicu</label>
-                        <input type="number" class="form-control" id="sp_rules_${i}" name="sp_settings[sp_rules][${i}]" value="${val}" required min="1">
+                        <label class="small text-muted mb-1" for="sp_rules_${i}">Poin Minimal Pemicu</label>
+                        <input type="number" class="form-control form-control-sm" id="sp_rules_${i}" name="sp_settings[sp_rules][${i}]" value="${val}" required min="1">
                     </div>
                 </div>
             `;
@@ -616,6 +777,16 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         renderSpInputs();
+
+        // Mengatur label file input logo
+        const logoInput = document.getElementById('logo');
+        if (logoInput) {
+            logoInput.addEventListener('change', function(e) {
+                var fileName = e.target.files[0] ? e.target.files[0].name : 'Pilih file logo...';
+                var label = document.getElementById('logo-label');
+                if (label) label.textContent = fileName;
+            });
+        }
         
         // Toggle view/hide API Key
         const toggleBtn = document.getElementById('toggleApiKey');
@@ -647,12 +818,84 @@
                 }
             }
             loadBalancingSelect.addEventListener('change', togglePrimarySessionVisibility);
-            togglePrimarySessionVisibility(); // Jalankan sekali saat load
+            togglePrimarySessionVisibility();
         }
+
+        // Penyesuaian opsi hari berdasarkan frekuensi (Mingguan / Bulanan)
+        function updateFrequencyOptions(target) {
+            const freqEl = document.getElementById(`${target}_frequency`);
+            const weeklyOpts = document.getElementById(`${target}_weekly_opts`);
+            const monthlyOpts = document.getElementById(`${target}_monthly_opts`);
+            const selectDay = document.getElementById(`${target}_day`);
+
+            if (!freqEl || !weeklyOpts || !monthlyOpts || !selectDay) return;
+
+            const freqVal = freqEl.value;
+            if (freqVal === 'weekly') {
+                weeklyOpts.style.display = '';
+                monthlyOpts.style.display = 'none';
+                if (['last_day', '25', '1'].includes(selectDay.value)) {
+                    selectDay.value = 'friday';
+                }
+            } else {
+                weeklyOpts.style.display = 'none';
+                monthlyOpts.style.display = '';
+                if (!['last_day', '25', '1'].includes(selectDay.value)) {
+                    selectDay.value = 'last_day';
+                }
+            }
+        }
+
+        document.querySelectorAll('.select-frequency').forEach(select => {
+            select.addEventListener('change', function() {
+                updateFrequencyOptions(this.dataset.target);
+            });
+            updateFrequencyOptions(select.dataset.target);
+        });
+
+        // Handle Test Kirim Rekap Notifikasi
+        document.querySelectorAll('.btn-test-rekap').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const target = this.dataset.target;
+                const targetLabel = target === 'walas' ? 'Wali Kelas' : 'Orang Tua';
+
+                if (!confirm(`Apakah Anda yakin ingin melakukan uji coba pengiriman notifikasi rekap ke seluruh ${targetLabel}? Notifikasi akan masuk ke antrean pengiriman WhatsApp.`)) {
+                    return;
+                }
+
+                const originalHtml = this.innerHTML;
+                this.disabled = true;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm mr-1"></span> Mengirim...';
+
+                fetch('/admin/setting-test-rekap-wa', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ target: target })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    this.disabled = false;
+                    this.innerHTML = originalHtml;
+                    if (data.success) {
+                        alert(data.message);
+                    } else {
+                        alert('Gagal: ' + (data.message || 'Terjadi kesalahan sistem'));
+                    }
+                })
+                .catch(err => {
+                    this.disabled = false;
+                    this.innerHTML = originalHtml;
+                    alert('Gagal menghubungi server.');
+                });
+            });
+        });
 
         // Pemantau Sesi dan Status Koneksi WhatsApp AJAX (Multi-Session)
         const waStatusTab = document.querySelector('a[href="#settingWhatsapp"]');
-        const activePolls = {}; // Menyimpan interval ID polling per sesi
+        const activePolls = {};
 
         function checkSessionStatus(sessionId, forceShowLoading = false) {
             const loadingEl = document.getElementById(`loading_${sessionId}`);
@@ -681,7 +924,6 @@
                         stateEl.textContent = data.status;
                         phoneEl.textContent = data.phone_number || '-';
 
-                        // Reset badge classes
                         badgeEl.className = 'badge p-2 px-3 text-sm';
                         
                         if (data.connected) {
@@ -689,8 +931,6 @@
                             badgeEl.textContent = 'Terhubung';
                             qrContainer.classList.add('d-none');
                             btnStart.classList.add('d-none');
-                            
-                            // Hentikan polling jika sudah terhubung
                             stopPolling(sessionId);
                         } else {
                             if (data.status === 'NOT_STARTED') {
@@ -712,7 +952,6 @@
                                     qrContainer.classList.add('d-none');
                                 }
 
-                                // Jalankan polling untuk mendapatkan update QR Code atau status koneksi terbaru
                                 startPolling(sessionId);
                             }
                         }
@@ -728,12 +967,6 @@
                 .catch(error => {
                     loadingEl.classList.add('d-none');
                     contentEl.classList.remove('d-none');
-                    badgeEl.className = 'badge p-2 px-3 text-sm badge-danger';
-                    badgeEl.textContent = 'Server Error';
-                    stateEl.textContent = 'SERVER_ERROR';
-                    qrContainer.classList.add('d-none');
-                    btnStart.classList.add('d-none');
-                    stopPolling(sessionId);
                 });
         }
 
@@ -750,7 +983,6 @@
             }
         }
 
-        // Cek status server gateway
         function checkWhatsAppServerStatus() {
             const badgeEl = document.getElementById('server_status_badge');
             const latencyEl = document.getElementById('server_latency_val');
@@ -760,15 +992,14 @@
 
             if (!badgeEl) return;
 
-            // Reset ke keadaan memeriksa
-            badgeEl.className = 'badge badge-secondary p-2 text-sm';
+            badgeEl.className = 'badge badge-secondary p-1 px-2 text-xs';
             badgeEl.textContent = 'Memeriksa...';
 
             fetch('/admin/whatsapp-server/status')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.connected) {
-                        badgeEl.className = 'badge badge-success p-2 text-sm';
+                        badgeEl.className = 'badge badge-success p-1 px-2 text-xs';
                         badgeEl.textContent = 'Terhubung';
                         latencyEl.textContent = data.latency;
                         ramEl.textContent = data.ram;
@@ -776,7 +1007,7 @@
                         versionEl.textContent = data.version;
                         versionEl.setAttribute('title', data.version);
                     } else {
-                        badgeEl.className = 'badge badge-danger p-2 text-sm';
+                        badgeEl.className = 'badge badge-danger p-1 px-2 text-xs';
                         badgeEl.textContent = 'Terputus (Offline)';
                         latencyEl.textContent = 'Offline';
                         ramEl.textContent = 'N/A';
@@ -786,61 +1017,65 @@
                     }
                 })
                 .catch(error => {
-                    badgeEl.className = 'badge badge-danger p-2 text-sm';
-                    badgeEl.textContent = 'Error Koneksi';
+                    badgeEl.className = 'badge badge-danger p-1 px-2 text-xs';
+                    badgeEl.textContent = 'Error';
                     latencyEl.textContent = 'Error';
                     ramEl.textContent = 'N/A';
                     engineEl.textContent = 'N/A';
                     versionEl.textContent = 'N/A';
-                    versionEl.setAttribute('title', 'Error');
                 });
         }
 
-        // Cek semua sesi
+        // Pengecekan denyut live scheduler
+        function checkSchedulerStatus() {
+            const badgeEl = document.getElementById('scheduler_status_badge');
+            if (!badgeEl) return;
+
+            fetch('/admin/scheduler/status')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.active) {
+                        badgeEl.className = `badge ${data.badge_class} px-3 py-2 text-xs font-weight-bold shadow-sm`;
+                        badgeEl.innerHTML = `<i class="fas fa-check-circle mr-1"></i> ${data.message}`;
+                        if (data.last_run) {
+                            badgeEl.setAttribute('title', 'Denyut terakhir: ' + data.last_run);
+                        }
+                    } else {
+                        badgeEl.className = 'badge badge-danger px-3 py-2 text-xs font-weight-bold shadow-sm';
+                        badgeEl.innerHTML = `<i class="fas fa-exclamation-triangle mr-1"></i> ${data.message}`;
+                        if (data.last_run) {
+                            badgeEl.setAttribute('title', 'Terakhir aktif: ' + data.last_run);
+                        }
+                    }
+                })
+                .catch(err => {
+                    badgeEl.className = 'badge badge-secondary px-3 py-2 text-xs font-weight-bold shadow-sm';
+                    badgeEl.innerHTML = '<i class="fas fa-question-circle mr-1"></i> Status Cron Tidak Terjangkau';
+                });
+        }
+
         function checkAllSessions() {
+            checkSchedulerStatus();
             checkWhatsAppServerStatus();
-            document.querySelectorAll('.session-card-wrapper').forEach(card => {
-                const sessionId = card.getAttribute('data-id');
-                checkSessionStatus(sessionId);
-            });
-        }
-
-        // Hentikan semua polling
-        function stopAllPolls() {
-            Object.keys(activePolls).forEach(sessionId => {
-                stopPolling(sessionId);
-            });
-        }
-
-        // Cek status saat tab WhatsApp diklik (dukungan jQuery dan Vanilla JS)
-        if (typeof $ !== 'undefined') {
-            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-                if (e.target.hash === '#settingWhatsapp') {
-                    checkAllSessions();
+            document.querySelectorAll('.session-card-wrapper').forEach(wrapper => {
+                const sessionId = wrapper.dataset.id;
+                if (sessionId) {
+                    checkSessionStatus(sessionId, true);
                 }
             });
-            $('a[data-toggle="tab"]').on('hidden.bs.tab', function (e) {
-                if (e.target.hash === '#settingWhatsapp') {
-                    stopAllPolls();
-                }
-            });
-        } else if (waStatusTab) {
-            waStatusTab.addEventListener('shown.bs.tab', function () {
-                checkAllSessions();
-            });
         }
 
-        // Cek status manual dengan tombol
+        // Event listener cek status per sesi
         $(document).on('click', '.check-session-btn', function() {
             const sessionId = $(this).data('id');
             checkSessionStatus(sessionId, true);
         });
 
-        // Mulai sesi baru via tombol
+        // Event listener mulai sesi (generate QR)
         $(document).on('click', '.start-session-btn', function() {
             const sessionId = $(this).data('id');
             const btn = $(this);
-            btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm mr-1" role="status"></span> Memproses...');
+            btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm mr-1"></span> Memulai...');
 
             fetch(`/admin/whatsapp-sessions/${sessionId}/start`, {
                 method: 'POST',
@@ -851,21 +1086,24 @@
             })
             .then(response => response.json())
             .then(data => {
-                alert(data.message);
                 btn.prop('disabled', false).html('<i class="fas fa-play mr-1"></i> Mulai Sesi');
-                checkSessionStatus(sessionId, true);
+                if (data.success) {
+                    checkSessionStatus(sessionId, true);
+                    startPolling(sessionId);
+                } else {
+                    alert(data.message || 'Gagal memulai sesi.');
+                }
             })
             .catch(error => {
-                alert('Gagal menghubungi server untuk memulai sesi.');
                 btn.prop('disabled', false).html('<i class="fas fa-play mr-1"></i> Mulai Sesi');
+                alert('Gagal menghubungi server.');
             });
         });
 
-        // Mengubah status aktif sesi dengan toggle switch
+        // Toggle aktif/nonaktif sesi
         $(document).on('change', '.toggle-session-switch', function() {
             const sessionId = $(this).data('id');
             const switchEl = $(this);
-
             fetch(`/admin/whatsapp-sessions/${sessionId}/toggle`, {
                 method: 'PUT',
                 headers: {
@@ -949,10 +1187,20 @@
             });
         }
 
+        // Cek status live scheduler saat halaman dimuat
+        checkSchedulerStatus();
+
         // Cek status semua sesi secara otomatis saat halaman termuat jika tab aktif
         if (window.location.hash === '#settingWhatsapp' || (waStatusTab && waStatusTab.classList.contains('active'))) {
             checkAllSessions();
         }
+
+        // Trigger polling saat tab WhatsApp diklik
+        $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+            if (e.target.getAttribute('href') === '#settingWhatsapp') {
+                checkAllSessions();
+            }
+        });
     });
 </script>
 

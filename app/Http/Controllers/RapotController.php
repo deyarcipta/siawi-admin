@@ -68,11 +68,10 @@ class RapotController extends Controller
 
         // Periksa apakah file diunggah
         if ($request->hasFile('file_rapot')) {
-            // Proses file yang diunggah
             $file = $request->file('file_rapot');
-            $nama_file = $file->getClientOriginalName();
+            $nama_file = 'rapot_' . $request->id_siswa . '_sem' . $request->semester . '_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $tujuan_upload = 'file_rapot';
-            $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
+            $file->storeAs($tujuan_upload, $nama_file, 'public');
         }
 
         $rapot = Rapot::create([
@@ -130,20 +129,14 @@ class RapotController extends Controller
         // Periksa apakah file diunggah
         if ($request->hasFile('file_rapot')) {
             if ($rapot->file_rapot) {
-                // Hapus file lama dari penyimpanan (misalnya, menggunakan Storage di Laravel)
-                Storage::delete('file_rapot/' . $rapot->file_rapot);
+                Storage::disk('public')->delete('file_rapot/' . $rapot->file_rapot);
             }
-             // Proses file yang diunggah
-            // $imagePath = request()->file('file')->store('gambar');
             $file = $request->file('file_rapot');
-            $nama_file = $file->getClientOriginalName();
+            $nama_file = 'rapot_' . $request->id_siswa . '_sem' . $request->semester . '_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $tujuan_upload = 'file_rapot';
-            $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
-
-            // Simpan nama file baru ke dalam data
+            $file->storeAs($tujuan_upload, $nama_file, 'public');
             $rapot->file_rapot = $nama_file;
         } else {
-            // Gunakan nama file yang ada dalam session
             $file = session('old_rapot');
             $rapot->file_rapot = $file;
         }
@@ -172,8 +165,7 @@ class RapotController extends Controller
     {
         $rapot = Rapot::findOrFail($id_rapot);
         if ($rapot->file_rapot) {
-            // Hapus file lama dari penyimpanan (misalnya, menggunakan Storage di Laravel)
-            Storage::delete('file_rapot/' . $rapot->file_rapot);
+            Storage::disk('public')->delete('file_rapot/' . $rapot->file_rapot);
         }
         Rapot::destroy($id_rapot);
         return redirect('/admin/rapot');

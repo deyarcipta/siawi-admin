@@ -34,4 +34,20 @@ class PointSiswa extends Model
     {
         return $this->belongsTo('App\Models\Siswa', 'id_siswa', 'id_siswa');
     }
+
+    /**
+     * Accessor untuk mendapatkan tanggal kejadian yang sudah terformat rapi dan konsisten.
+     */
+    public function getTanggalFormattedAttribute(): string
+    {
+        if ($this->created_at) {
+            return \Carbon\Carbon::parse($this->created_at)->locale('id')->translatedFormat('d F Y H:i');
+        }
+
+        if (!empty($this->attributes['tanggal'])) {
+            return $this->attributes['tanggal'];
+        }
+
+        return '-';
+    }
 }
