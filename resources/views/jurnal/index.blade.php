@@ -3,13 +3,17 @@
 @section('content')
 <div class="content-header">
   <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="m-0">Data Jurnal Mengajar</h1>
+    <div class="row align-items-center mb-2">
+      <div class="col-sm-7 d-flex align-items-center">
+        <i class="fas fa-book-reader text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+        <div class="d-flex flex-column justify-content-center">
+          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Data Jurnal Mengajar</h1>
+          <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Catatan harian aktivitas guru mengajar, materi pembahasan, dan absensi</p>
+        </div>
       </div>
-      <div class="col-sm-6">
+      <div class="col-sm-5">
         <ol class="breadcrumb float-sm-right">
-          <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+          <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
           <li class="breadcrumb-item active">Jurnal Mengajar</li>
         </ol>
       </div>
@@ -24,21 +28,23 @@
 
         <!-- Card Filter -->
         <div class="card mb-3">
-          <div class="card-header">
-            <h3 class="card-title">Filter Data Jurnal</h3>
+          <div class="card-header d-flex align-items-center">
+            <h3 class="card-title text-dark font-weight-bold mb-0">
+              <i class="fas fa-sliders-h text-primary mr-2"></i> Filter Periode Jurnal
+            </h3>
           </div>
           <div class="card-body">
-            <form method="GET" action="{{ route('admin.jurnal.index') }}" class="row g-3">
-              <div class="col-md-4">
-                <label for="tanggal_awal" class="form-label">Tanggal Awal</label>
+            <form method="GET" action="{{ route('admin.jurnal.index') }}" class="row align-items-end">
+              <div class="col-md-4 mb-3 mb-md-0">
+                <label for="tanggal_awal" class="font-weight-bold text-secondary" style="font-size: 0.78rem; text-transform: uppercase;">Tanggal Awal</label>
                 <input type="date" id="tanggal_awal" name="tanggal_awal" class="form-control" value="{{ request('tanggal_awal') }}">
               </div>
-              <div class="col-md-4">
-                <label for="tanggal_akhir" class="form-label">Tanggal Akhir</label>
+              <div class="col-md-4 mb-3 mb-md-0">
+                <label for="tanggal_akhir" class="font-weight-bold text-secondary" style="font-size: 0.78rem; text-transform: uppercase;">Tanggal Akhir</label>
                 <input type="date" id="tanggal_akhir" name="tanggal_akhir" class="form-control" value="{{ request('tanggal_akhir') }}">
               </div>
-              <div class="col-md-4 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">Tampilkan Data</button>
+              <div class="col-md-4">
+                <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-search mr-1"></i> Tampilkan Data</button>
               </div>
             </form>
           </div>
@@ -47,16 +53,18 @@
         <!-- Card Daftar Jurnal -->
         <div class="card">
           <div class="card-header d-flex align-items-center">
-            <h3 class="card-title">Daftar Jurnal Mengajar</h3>
+            <h3 class="card-title text-dark font-weight-bold mb-0">
+              <i class="fas fa-table text-primary mr-2"></i> Daftar Jurnal Mengajar
+            </h3>
             <a href="{{ route('admin.jurnal.downloadPdf', [
                     'tanggal_awal' => request('tanggal_awal'),
                     'tanggal_akhir' => request('tanggal_akhir')
                 ]) }}" 
-                class="btn btn-danger ml-auto" target="_blank">
-                <i class="fas fa-file-pdf"></i> Download PDF
+                class="btn btn-danger btn-sm ml-auto" target="_blank">
+                <i class="fas fa-file-pdf mr-1"></i> Download PDF
             </a>
-            <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#tambahJurnalModal">
-              Tambah Jurnal
+            <button type="button" class="btn btn-primary btn-sm ml-2" data-toggle="modal" data-target="#tambahJurnalModal">
+              <i class="fas fa-plus mr-1"></i> Tambah Jurnal
             </button>
           </div>
           <div class="card-body">
@@ -71,7 +79,7 @@
                   <th>Jam</th>
                   <th>Materi</th>
                   <th>Foto Kelas</th>
-                  <th class="text-center" style="width: 120px;">Aksi</th>
+                  <th class="text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody>

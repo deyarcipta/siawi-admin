@@ -62,7 +62,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::post('kelas/proses-individual', [KelasController::class, 'prosesIndividu']);
     Route::post('kelas/{id_kelas}/pindah-semua-alumni', [SiswaController::class, 'pindahSemuaKeAlumni']);
     Route::post('siswa/{id}/alumni', [SiswaController::class, 'pindahKeAlumni']);
+    Route::get('/download-alumni', [DataAlumniController::class, 'download'])->name('alumni.download');
     Route::resource('dataAlumni', DataAlumniController::class);
+    Route::resource('alumni', DataAlumniController::class);
 
     // Informasi & Kalender
     Route::resource('informasi', InformasiSekolahController::class);
@@ -118,7 +120,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
 
     // Rapot, Modul, Dokumen, Tagihan
     Route::resource('rapot', RapotController::class);
-    Route::get('rapot/create/{kelasId}', [RapotController::class, 'create'])->name('rapot.create');
+    Route::get('rapot/create/{kelasId?}', [RapotController::class, 'create'])->name('rapot.create');
     Route::resource('dokumen', DokumenController::class);
     Route::resource('modul', ModulController::class);
     Route::resource('tagihan', TagihanController::class);

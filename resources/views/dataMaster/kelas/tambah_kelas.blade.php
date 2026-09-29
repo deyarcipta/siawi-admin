@@ -1,93 +1,110 @@
 @extends($layout)
 @section('content')
-  <!-- Content Header (Page header) -->
-  <div class="content-header">
-    <div class="container-fluid">
-      <div class="row mb-2">
-        <div class="col-sm-6">
-          <h1 class="m-0">Tambah Kelas</h1>
-        </div><!-- /.col -->
-        <div class="col-sm-6">
-          <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="#">Kelas</a></li>
-            <li class="breadcrumb-item active">Tambah Kelas</li>
-          </ol>
-        </div><!-- /.col -->
-      </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+<!-- Content Header -->
+<div class="content-header pb-2">
+  <div class="container-fluid">
+    <div class="row align-items-center mb-2">
+      <div class="col-sm-7 d-flex align-items-center">
+        <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle shadow-sm mr-3" style="width: 46px; height: 46px; font-size: 1.25rem;">
+          <i class="fas fa-chalkboard"></i>
+        </div>
+        <div>
+          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2; font-size: 1.35rem;">Tambah Data Kelas</h1>
+          <p class="text-muted mt-1 mb-0" style="font-size: 0.84rem;">Daftarkan rombongan belajar kelas baru ke dalam sistem</p>
+        </div>
+      </div>
+      <div class="col-sm-5">
+        <ol class="breadcrumb float-sm-right bg-transparent p-0 mb-0">
+          <li class="breadcrumb-item"><a href="/admin/kelas" class="text-primary font-weight-500">Data Kelas</a></li>
+          <li class="breadcrumb-item active">Tambah Kelas</li>
+        </ol>
+      </div>
+    </div>
   </div>
-  <div class="content">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-lg-12">
-          <!-- general form elements -->
-          <div class="card card-primary">
-            <div class="card-header">
-              <h3 class="card-title">Form Tambah Kelas</h3>
-            </div>
-            <!-- /.card-header -->
-            <!-- form start -->
-            <form action="/admin/kelas" method="POST">
-              @csrf
-              <div class="card-body">
-                <div class="form-group">
-                  <label for="kode_kelas">Kode Kelas</label>
-                  <input type="text" class="form-control" id="kode_kelas" placeholder="Enter Kode kelas" name="kode_kelas" value="{{old('kode_kelas')}}">
-                  @error('kode_kelas')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                  @enderror
-                </div>
-                <div class="form-group">
-                  <label for="kode_level">Pilih Level</label>
-                  <select class="form-control" name="kode_level" id="kode_level">
-                    @foreach ($level as $lvl)
-                      <option value="{{$lvl->kode_level}}">{{$lvl->kode_level}}</option>
-                    @endforeach
-                  </select>
-                  @error('kode_level')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                  @enderror
-                </div>
-                <div class="form-group">
-                  <label for="nama_kelas">Nama Kelas</label>
-                  <input type="text" class="form-control" id="nama_kelas" placeholder="Enter Nama kelas" name="nama_kelas" value="{{old('nama_kelas')}}">
-                  @error('nama_kelas')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                  @enderror
-                </div>
-                <div class="form-group">
-                  <label for="kode_jurusan">Pilih Jurusan</label>
-                  <select class="form-control" name="kode_jurusan" id="kode_jurusan">
-                    @foreach ($jurusan as $jur)
-                      <option value="{{$jur->kode_jurusan}}">{{$jur->kode_jurusan}}</option>
-                    @endforeach
-                  </select>
-                  @error('kode_jurusan')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                  @enderror
-                </div>
-                <div class="form-group">
-                  <label for="id_guru">Pilih Wali Kelas (Guru)</label>
-                  <select class="form-control" name="id_guru" id="id_guru">
-                    <option value="">-- Pilih Wali Kelas (Opsional) --</option>
-                    @foreach ($guru as $g)
-                      <option value="{{ $g->id_guru }}" {{ old('id_guru') == $g->id_guru ? 'selected' : '' }}>{{ $g->nama_guru }}</option>
-                    @endforeach
-                  </select>
-                  @error('id_guru')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                  @enderror
-                </div>
-              </div>
-              <!-- /.card-body -->
-              <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Submit</button>
-              </div>
-            </form>
+</div>
+
+<div class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden;">
+          <div class="card-header bg-white py-3 border-0 d-flex align-items-center">
+            <h5 class="card-title font-weight-bold text-dark mb-0" style="font-size: 1.05rem;">
+              <i class="fas fa-plus-circle text-primary mr-2"></i> Formulir Tambah Data Kelas
+            </h5>
           </div>
-          <!-- /.card -->
+
+          <form action="/admin/kelas" method="POST">
+            @csrf
+            <div class="card-body p-4 pt-2">
+              <div class="form-group mb-3">
+                <label for="kode_kelas" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Kode Kelas <span class="text-danger">*</span></label>
+                <input type="text" class="form-control @error('kode_kelas') is-invalid @enderror" id="kode_kelas" placeholder="Contoh: X-TJKT-1" name="kode_kelas" value="{{ old('kode_kelas') }}" required style="border-radius: 8px; height: 42px;">
+                @error('kode_kelas')
+                  <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                @enderror
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="kode_level" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Tingkat Level Kelas <span class="text-danger">*</span></label>
+                <select class="form-control @error('kode_level') is-invalid @enderror" name="kode_level" id="kode_level" style="border-radius: 8px; height: 42px;" required>
+                  <option value="">Pilih Level</option>
+                  @foreach ($level as $lvl)
+                    <option value="{{ $lvl->kode_level }}" {{ old('kode_level') == $lvl->kode_level ? 'selected' : '' }}>{{ $lvl->kode_level }}</option>
+                  @endforeach
+                </select>
+                @error('kode_level')
+                  <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                @enderror
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="nama_kelas" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Nama Lengkap Kelas <span class="text-danger">*</span></label>
+                <input type="text" class="form-control @error('nama_kelas') is-invalid @enderror" id="nama_kelas" placeholder="Contoh: X Teknik Jaringan Komputer & Telekomunikasi 1" name="nama_kelas" value="{{ old('nama_kelas') }}" required style="border-radius: 8px; height: 42px;">
+                @error('nama_kelas')
+                  <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                @enderror
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="kode_jurusan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Konsentrasi Keahlian / Jurusan <span class="text-danger">*</span></label>
+                <select class="form-control @error('kode_jurusan') is-invalid @enderror" name="kode_jurusan" id="kode_jurusan" style="border-radius: 8px; height: 42px;" required>
+                  <option value="">Pilih Jurusan</option>
+                  @foreach ($jurusan as $jur)
+                    <option value="{{ $jur->kode_jurusan }}" {{ old('kode_jurusan') == $jur->kode_jurusan ? 'selected' : '' }}>{{ $jur->kode_jurusan }} - {{ $jur->nama_jurusan }}</option>
+                  @endforeach
+                </select>
+                @error('kode_jurusan')
+                  <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                @enderror
+              </div>
+
+              <div class="form-group mb-2">
+                <label for="id_guru" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Wali Kelas (Guru)</label>
+                <select class="form-control @error('id_guru') is-invalid @enderror" name="id_guru" id="id_guru" style="border-radius: 8px; height: 42px;">
+                  <option value="">-- Pilih Wali Kelas (Opsional) --</option>
+                  @foreach ($guru as $g)
+                    <option value="{{ $g->id_guru }}" {{ old('id_guru') == $g->id_guru ? 'selected' : '' }}>{{ $g->nama_guru }}</option>
+                  @endforeach
+                </select>
+                @error('id_guru')
+                  <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                @enderror
+              </div>
+            </div>
+
+            <div class="card-footer bg-light py-3 px-4 d-flex align-items-center">
+              <a href="/admin/kelas" class="btn btn-outline-secondary px-3" style="border-radius: 8px; font-weight: 500;">
+                <i class="fas fa-arrow-left mr-1"></i> Kembali
+              </a>
+              <button type="submit" class="btn btn-primary ml-auto px-4 shadow-sm" style="border-radius: 8px; font-weight: 600;">
+                <i class="fas fa-save mr-1"></i> Simpan Kelas
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
   </div>
+</div>
 @endsection

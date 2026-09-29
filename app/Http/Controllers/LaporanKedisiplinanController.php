@@ -12,6 +12,9 @@ use App\Exports\LaporanKedisiplinanExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+
 class LaporanKedisiplinanController extends Controller
 {
     public function index(Request $request)
@@ -48,6 +51,7 @@ class LaporanKedisiplinanController extends Controller
             $daysInWeek[] = [
                 'tanggal' => $curr->toDateString(),
                 'hari' => $indonesianDayNames[$dayNameEng] ?? $curr->locale('id')->dayName,
+                'hari_singkat' => strtoupper(substr($indonesianDayNames[$dayNameEng] ?? $curr->locale('id')->dayName, 0, 3)),
                 'tgl_formatted' => $curr->format('d/m'),
             ];
         }
@@ -167,31 +171,41 @@ class LaporanKedisiplinanController extends Controller
                 $sumPersentase += $persentaseMesin;
 
                 if ($persentaseMesin >= 80) {
-                    $statusDisiplin = 'sangat_tertib';
-                    $statusDisiplinLabel = 'Sangat Tertib Mesin';
-                    $statusDisiplinBadge = 'success';
+                    $statusDisiplin = 'tertib';
+                    $statusDisiplinLabel = 'Tertib';
+                    $statusDisiplinBadge = 'status-pill-green';
+                    $progressBarClass = 'progress-bar-green';
                     $countSangatTertib++;
+                } elseif ($persentaseMesin >= 70) {
+                    $statusDisiplin = 'baik';
+                    $statusDisiplinLabel = 'Baik';
+                    $statusDisiplinBadge = 'status-pill-blue';
+                    $progressBarClass = 'progress-bar-blue';
+                    $countCukupTertib++;
                 } elseif ($persentaseMesin >= 50) {
                     $statusDisiplin = 'cukup';
-                    $statusDisiplinLabel = 'Cukup Tertib';
-                    $statusDisiplinBadge = 'warning';
+                    $statusDisiplinLabel = 'Perlu pantau';
+                    $statusDisiplinBadge = 'status-pill-amber';
+                    $progressBarClass = 'progress-bar-amber';
                     $countCukupTertib++;
                 } else {
                     $statusDisiplin = 'perlu_pembinaan';
-                    $statusDisiplinLabel = 'Sering Manual (Lalai)';
-                    $statusDisiplinBadge = 'danger';
+                    $statusDisiplinLabel = 'Pembinaan';
+                    $statusDisiplinBadge = 'status-pill-red';
+                    $progressBarClass = 'progress-bar-red';
                     $countPerluPembinaan++;
                 }
             } else {
                 $persentaseMesin = 0;
                 $statusDisiplin = 'tidak_hadir';
-                $statusDisiplinLabel = 'Belum Ada Hadir';
-                $statusDisiplinBadge = 'secondary';
+                $statusDisiplinLabel = 'Belum hadir';
+                $statusDisiplinBadge = 'status-pill-gray';
+                $progressBarClass = 'progress-bar-gray';
             }
 
             // Filter berdasarkan kategori kepatuhan
             if (!empty($selectedKategori)) {
-                if ($selectedKategori === 'tertib' && $statusDisiplin !== 'sangat_tertib') {
+                if ($selectedKategori === 'tertib' && !in_array($statusDisiplin, ['tertib', 'baik'])) {
                     continue;
                 }
                 if ($selectedKategori === 'cukup' && $statusDisiplin !== 'cukup') {
@@ -216,10 +230,26 @@ class LaporanKedisiplinanController extends Controller
                 'status_disiplin' => $statusDisiplin,
                 'status_label' => $statusDisiplinLabel,
                 'status_badge' => $statusDisiplinBadge,
+                'progress_class' => $progressBarClass,
             ];
         }
 
         $rataRataKepatuhan = $siswaWithAttendanceCount > 0 ? round($sumPersentase / $siswaWithAttendanceCount) : 0;
+        $totalHasilFilter = count($rekapSiswa);
+
+        // Pagination setup (20 items per page)
+        $perPage = 20;
+        $currentPage = Paginator::resolveCurrentPage() ?: 1;
+        $collection = collect($rekapSiswa);
+        $currentPageItems = $collection->slice(($currentPage - 1) * $perPage, $perPage)->values()->all();
+        
+        $paginatedRekap = new LengthAwarePaginator(
+            $currentPageItems,
+            $collection->count(),
+            $perPage,
+            $currentPage,
+            ['path' => Paginator::resolveCurrentPath(), 'query' => $request->query()]
+        );
 
         return view('absensi.laporan_kedisiplinan', compact(
             'layout',
@@ -232,7 +262,8 @@ class LaporanKedisiplinanController extends Controller
             'startDateStr',
             'endDateStr',
             'daysInWeek',
-            'rekapSiswa',
+            'paginatedRekap',
+            'totalHasilFilter',
             'totalSiswa',
             'rataRataKepatuhan',
             'countSangatTertib',

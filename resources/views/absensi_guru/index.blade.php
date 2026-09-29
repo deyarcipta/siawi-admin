@@ -3,18 +3,23 @@
   <!-- Content Header (Page header) -->
   <div class="content-header">
     <div class="container-fluid">
-      <div class="row mb-2">
-        <div class="col-sm-6">
-          <h1 class="m-0">Data Absensi Harian Guru</h1>
-        </div><!-- /.col -->
-        <div class="col-sm-6">
+      <div class="row align-items-center mb-2">
+        <div class="col-sm-7 d-flex align-items-center">
+          <i class="fas fa-calendar-check text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+          <div class="d-flex flex-column justify-content-center">
+            <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Data Absensi Harian Guru</h1>
+            <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Log presensi kehadiran dan jam pulang guru realtime harian</p>
+          </div>
+        </div>
+        <div class="col-sm-5">
           <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item active">Data Absensi Harian Guru</li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="#">Absensi Guru</a></li>
+            <li class="breadcrumb-item active">Absensi Harian</li>
           </ol>
-        </div><!-- /.col -->
-      </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+        </div>
+      </div>
+    </div>
   </div>
   <!-- /.content-header -->
   <div class="content">
@@ -23,10 +28,12 @@
         <div class="col-lg-12">
         <div class="card">
           <div class="card-header d-flex align-items-center">
-            <h3 class="card-title">Absensi Guru Hari <b>{{$hari}}</b></h3>
-            <a href="{{ url('/admin/downloadAbsensiHarian') }}" class="btn btn-success ml-auto">Download Data</a>
-            <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#tambahKehadiranModal">
-                Tambah Kehadiran
+            <h3 class="card-title text-dark font-weight-bold mb-0">
+              <i class="fas fa-table text-primary mr-2"></i> Absensi Guru - Hari {{ $hari }}
+            </h3>
+            <a href="{{ url('/admin/downloadAbsensiHarian') }}" class="btn btn-success btn-sm ml-auto"><i class="fas fa-download mr-1"></i> Download Data</a>
+            <button type="button" class="btn btn-primary btn-sm ml-2" data-toggle="modal" data-target="#tambahKehadiranModal">
+                <i class="fas fa-plus mr-1"></i> Tambah Kehadiran
             </button>
         </div>
           <!-- /.card-header -->
@@ -77,7 +84,7 @@
                       @csrf
                       <div class="form-group">
                           <label for="id_guru">Nama Guru</label>
-                          <select name="id_guru" id="id_guru" class="form-control">
+                          <select name="id_guru" id="id_guru" class="form-control" required>
                               <option value="">Pilih Guru</option>
                               @foreach($guruList as $guru)
                                   <option value="{{ $guru->id_guru }}">{{ $guru->nama_guru }}</option>
@@ -86,7 +93,7 @@
                       </div>
                       <div class="form-group">
                           <label for="kehadiran">Status Kehadiran</label>
-                          <select name="kehadiran" id="kehadiran" class="form-control">
+                          <select name="kehadiran" id="kehadiran" class="form-control" required>
                               <option value="Hadir">Hadir</option>
                               <option value="Izin">Izin</option>
                               <option value="Sakit">Sakit</option>
@@ -105,7 +112,7 @@
     // Melakukan refresh setiap 10 detik
     setInterval(function() {
       // Hanya reload jika modal tidak sedang terbuka agar tidak merusak input user
-      if (!$('#tambahKehadiran').hasClass('show')) {
+      if (!$('#tambahKehadiranModal').hasClass('show') && !$('.modal').hasClass('show')) {
           window.location.reload();
       }
     }, 10000);

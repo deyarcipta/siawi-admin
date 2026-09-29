@@ -4,13 +4,17 @@
   <!-- Content Header -->
   <div class="content-header">
     <div class="container-fluid">
-      <div class="row mb-2">
-        <div class="col-sm-6">
-          <h1 class="m-0">Rekap Kehadiran Guru</h1>
+      <div class="row align-items-center mb-2">
+        <div class="col-sm-7 d-flex align-items-center">
+          <i class="fas fa-user-check text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+          <div class="d-flex flex-column justify-content-center">
+            <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Rekap Kehadiran Guru & Staf</h1>
+            <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Laporan presensi, ketepatan waktu hadir, dan izin guru</p>
+          </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-5">
           <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{ url('admin') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
             <li class="breadcrumb-item active">Rekap Guru</li>
           </ol>
         </div>
@@ -26,23 +30,25 @@
 
           <!-- Filter Card -->
           <div class="card mb-3">
-              <div class="card-header">
-                  <h3 class="card-title">Filter Data Kehadiran</h3>
+              <div class="card-header d-flex align-items-center">
+                  <h3 class="card-title text-dark font-weight-bold mb-0">
+                      <i class="fas fa-sliders-h text-primary mr-2"></i> Filter Data Kehadiran Guru
+                  </h3>
               </div>
               <div class="card-body">
-                  <form method="GET" action="{{ route('admin.rekapGuru.index') }}" class="row g-3">
-                      <div class="col-md-3">
-                          <label for="tanggal_awal" class="form-label">Tanggal Awal</label>
+                  <form method="GET" action="{{ route('admin.rekapGuru.index') }}" class="row align-items-end">
+                      <div class="col-md-3 mb-3 mb-md-0">
+                          <label for="tanggal_awal" class="font-weight-bold text-secondary" style="font-size: 0.78rem; text-transform: uppercase;">Tanggal Awal</label>
                           <input type="date" id="tanggal_awal" name="tanggal_awal" class="form-control"
                                 value="{{ $tanggalAwal }}">
                       </div>
-                      <div class="col-md-3">
-                          <label for="tanggal_akhir" class="form-label">Tanggal Akhir</label>
+                      <div class="col-md-3 mb-3 mb-md-0">
+                          <label for="tanggal_akhir" class="font-weight-bold text-secondary" style="font-size: 0.78rem; text-transform: uppercase;">Tanggal Akhir</label>
                           <input type="date" id="tanggal_akhir" name="tanggal_akhir" class="form-control"
                                 value="{{ $tanggalAkhir }}">
                       </div>
-                      <div class="col-md-3">
-                          <label for="guru_id" class="form-label">Guru</label>
+                      <div class="col-md-3 mb-3 mb-md-0">
+                          <label for="guru_id" class="font-weight-bold text-secondary" style="font-size: 0.78rem; text-transform: uppercase;">Guru</label>
                           <select name="guru_id" id="guru_id" class="form-control">
                               <option value="">-- Semua Guru --</option>
                               @foreach($guruList as $guru)
@@ -52,8 +58,8 @@
                               @endforeach
                           </select>
                       </div>
-                      <div class="col-md-3 d-flex align-items-end">
-                          <button type="submit" class="btn btn-primary w-100">Tampilkan Data</button>
+                      <div class="col-md-3">
+                          <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-search mr-1"></i> Tampilkan Data</button>
                       </div>
                   </form>
               </div>
@@ -62,16 +68,18 @@
           <!-- Data Table Card -->
           <div class="card">
             <div class="card-header d-flex align-items-center">
-              <h3 class="card-title">Daftar Rekap Kehadiran Guru</h3>
+              <h3 class="card-title text-dark font-weight-bold mb-0">
+                <i class="fas fa-table text-primary mr-2"></i> Daftar Rekap Kehadiran Guru
+              </h3>
 
               @if(!empty($tanggalAwal) && !empty($tanggalAkhir))
                 <a href="{{ route('admin.rekapGuru.export', request()->all()) }}" 
-                  class="btn btn-success ml-auto">
-                    <i class="fas fa-file-excel"></i> Export Excel
+                  class="btn btn-success btn-sm ml-auto">
+                    <i class="fas fa-file-excel mr-1"></i> Export Excel
                 </a>
                 <a href="{{ route('admin.rekapGuru.downloadPdf', request()->all()) }}" 
-                  class="btn btn-danger ml-2" target="_blank">
-                    <i class="fas fa-file-pdf"></i> Download PDF
+                  class="btn btn-danger btn-sm ml-2" target="_blank">
+                    <i class="fas fa-file-pdf mr-1"></i> Download PDF
                 </a>
               @endif
             </div>

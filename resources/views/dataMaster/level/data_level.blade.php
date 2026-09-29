@@ -3,18 +3,23 @@
   <!-- Content Header (Page header) -->
   <div class="content-header">
     <div class="container-fluid">
-      <div class="row mb-2">
-        <div class="col-sm-6">
-          <h1 class="m-0">Data Level</h1>
-        </div><!-- /.col -->
-        <div class="col-sm-6">
+      <div class="row align-items-center mb-2">
+        <div class="col-sm-7 d-flex align-items-center">
+          <i class="fas fa-layer-group text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+          <div class="d-flex flex-column justify-content-center">
+            <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Data Tingkat Pendidikan (Level)</h1>
+            <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Master data jenjang kelas (Tingkat X, XI, XII)</p>
+          </div>
+        </div>
+        <div class="col-sm-5">
           <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="#">Data Master</a></li>
             <li class="breadcrumb-item active">Data Level</li>
           </ol>
-        </div><!-- /.col -->
-      </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+        </div>
+      </div>
+    </div>
   </div>
   <div class="content">
     <div class="container-fluid">
@@ -22,8 +27,10 @@
         <div class="col-lg-12">
         <div class="card">
           <div class="card-header d-flex align-items-center">
-            <h3 class="card-title">Data Level</h3>
-            <a href="/admin/level/create" class="btn btn-success ml-auto">Tambah Level</a>
+            <h3 class="card-title text-dark font-weight-bold mb-0">
+              <i class="fas fa-table text-primary mr-2"></i> Data Tingkat Level
+            </h3>
+            <a href="/admin/level/create" class="btn btn-success btn-sm ml-auto"><i class="fas fa-plus mr-1"></i> Tambah Level</a>
           </div>
           <!-- /.card-header -->
           <div class="card-body">

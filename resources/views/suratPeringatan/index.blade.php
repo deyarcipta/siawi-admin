@@ -3,13 +3,18 @@
 @section('content')
 <div class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0">Manajemen Surat Peringatan (SP)</h1>
+        <div class="row align-items-center mb-2">
+            <div class="col-sm-7 d-flex align-items-center">
+                <i class="fas fa-envelope-open-text text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+                <div class="d-flex flex-column justify-content-center">
+                    <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Manajemen Surat Peringatan (SP)</h1>
+                    <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Penerbitan surat teguran resmi kedisiplinan dan arsip nomor surat</p>
+                </div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-5">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="#">Kedisiplinan</a></li>
                     <li class="breadcrumb-item active">Surat Peringatan</li>
                 </ol>
             </div>
@@ -21,20 +26,14 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
-                <div class="card card-primary card-outline">
+                <div class="card">
                     <div class="card-header d-flex align-items-center">
-                        <h3 class="card-title font-weight-bold">
-                            <i class="fas fa-envelope-open-text mr-1"></i> Data Nomor Surat Peringatan
+                        <h3 class="card-title text-dark font-weight-bold mb-0">
+                            <i class="fas fa-table text-primary mr-2"></i> Data Nomor Surat Peringatan
                         </h3>
                     </div>
                     <div class="card-body">
-                        
-                        <div class="mb-3">
-                            <input type="text" id="searchInput" class="form-control col-md-4 float-right" placeholder="Cari nomor surat, siswa, kelas...">
-                            <div class="clearfix"></div>
-                        </div>
-
-                        <div class="table-responsive mt-2">
+                        <div class="table-responsive">
                             <table id="spTable" class="table table-bordered table-hover table-striped">
                                 <thead class="bg-primary text-white">
                                     <tr>
@@ -45,7 +44,7 @@
                                         <th>SP</th>
                                         <th>Tanggal Dibuat</th>
                                         <th class="text-center">Status TTD</th>
-                                        <th style="width: 150px" class="text-center">Aksi</th>
+                                        <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -159,10 +158,7 @@
     </div>
 </div>
 
-<script src="{{ asset('lte/plugins/jquery/jquery.min.js') }}"></script>
-<script src="{{ asset('lte/dist/js/adminlte.min.js') }}"></script>
-<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+@push('scripts')
 <script>
 @if ($message = Session::get('success'))
     Swal.fire({
@@ -181,15 +177,6 @@
 @endif
 
 $(document).ready(function() {
-    // Search filter
-    $('#searchInput').on('keyup', function() {
-        var searchText = $(this).val().toLowerCase();
-        $('#spTable tbody tr').each(function() {
-            var currentRowText = $(this).text().toLowerCase();
-            $(this).toggle(currentRowText.indexOf(searchText) !== -1);
-        });
-    });
-
     // Custom file input label update
     $('.custom-file-input').on('change', function() {
         var fileName = $(this).val().split('\\').pop();
@@ -197,4 +184,5 @@ $(document).ready(function() {
     });
 });
 </script>
+@endpush
 @endsection

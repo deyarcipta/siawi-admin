@@ -15,7 +15,7 @@ class LaporanAbsensiMingguanController extends Controller
 
     public function index(Request $request)
     {
-        return redirect()->route('laporanBulananWa.index', $request->query());
+        return redirect()->route('admin.laporanBulananWa.index', $request->query());
     }
 
     public function kirimOrangTua(Request $request)

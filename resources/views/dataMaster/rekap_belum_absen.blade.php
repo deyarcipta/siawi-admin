@@ -2,13 +2,18 @@
 @section('content')
   <div class="content-header">
     <div class="container-fluid">
-      <div class="row mb-2">
-        <div class="col-sm-6">
-          <h1 class="m-0">Rekap Kelalaian Absen</h1>
+      <div class="row align-items-center mb-2">
+        <div class="col-sm-7 d-flex align-items-center">
+          <i class="fas fa-exclamation-circle text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+          <div class="d-flex flex-column justify-content-center">
+            <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Rekap Kelalaian Input Absensi</h1>
+            <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Monitoring kelas dan petugas piket yang belum menuntaskan absensi harian</p>
+          </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-5">
           <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="#">Absensi Siswa</a></li>
             <li class="breadcrumb-item active">Rekap Kelalaian</li>
           </ol>
         </div>
@@ -21,25 +26,29 @@
       <div class="row">
         <div class="col-lg-12">
           
-          <div class="card card-default">
-            <div class="card-header">
-              <h3 class="card-title">Filter Rekap Kelalaian Input Absensi</h3>
+          <div class="card mb-4">
+            <div class="card-header d-flex align-items-center">
+              <h3 class="card-title text-dark font-weight-bold mb-0">
+                <i class="fas fa-sliders-h text-primary mr-2"></i> Filter Rekap Kelalaian Input Absensi
+              </h3>
             </div>
             <div class="card-body">
-              <form action="{{ route('admin.rekapBelumAbsen.index') }}" method="GET" class="form-inline">
-                <div class="form-group mr-2">
-                  <label for="tanggal" class="mr-2">Pilih Tanggal: </label>
+              <form action="{{ route('admin.rekapBelumAbsen.index') }}" method="GET" class="row align-items-end">
+                <div class="form-group col-md-4 mb-0">
+                  <label for="tanggal" class="font-weight-bold text-secondary" style="font-size: 0.78rem; text-transform: uppercase;">Pilih Tanggal</label>
                   <input type="date" name="tanggal" id="tanggal" class="form-control" value="{{ $date }}">
                 </div>
-                <button type="submit" class="btn btn-primary">Filter</button>
+                <div class="form-group col-md-2 mb-0">
+                  <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-search mr-1"></i> Filter</button>
+                </div>
               </form>
             </div>
           </div>
 
-          <div class="card card-primary card-outline mt-3">
+          <div class="card mt-3">
             <div class="card-header d-flex align-items-center">
-              <h3 class="card-title font-weight-bold">
-                <i class="fa fa-clipboard-list mr-1"></i> Rekap Kelalaian Input - Tanggal: {{ \Carbon\Carbon::parse($date)->translatedFormat('d F Y') }} ({{ $dayInd ?? '' }})
+              <h3 class="card-title text-dark font-weight-bold mb-0">
+                <i class="fas fa-table text-primary mr-2"></i> Rekap Kelalaian Input - {{ \Carbon\Carbon::parse($date)->translatedFormat('d F Y') }} ({{ $dayInd ?? '' }})
               </h3>
               @if($criteriaMet && count($kelasBelumAbsen) > 0)
                 <a href="{{ route('admin.rekapBelumAbsen.export', ['tanggal' => $date]) }}" class="btn btn-success btn-sm ml-auto">
@@ -81,7 +90,7 @@
                           <th>Nama Kelas</th>
                           <th>Total Siswa</th>
                           <th>Jumlah Belum Absen</th>
-                          <th style="width: 120px" class="text-center">Aksi</th>
+                          <th class="text-center">Aksi</th>
                         </tr>
                       </thead>
                       <tbody>

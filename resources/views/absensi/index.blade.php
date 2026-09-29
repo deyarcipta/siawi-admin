@@ -3,18 +3,23 @@
   <!-- Content Header (Page header) -->
   <div class="content-header">
     <div class="container-fluid">
-      <div class="row mb-2">
-        <div class="col-sm-6">
-          <h1 class="m-0">Data Absensi Harian Siswa</h1>
-        </div><!-- /.col -->
-        <div class="col-sm-6">
+      <div class="row align-items-center mb-2">
+        <div class="col-sm-7 d-flex align-items-center">
+          <i class="fas fa-calendar-day text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+          <div class="d-flex flex-column justify-content-center">
+            <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Data Absensi Harian Siswa</h1>
+            <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Catatan presensi masuk dan pulang harian siswa realtime</p>
+          </div>
+        </div>
+        <div class="col-sm-5">
           <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item active">Data Absensi Harian Siswa</li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="#">Absensi Siswa</a></li>
+            <li class="breadcrumb-item active">Absensi Harian</li>
           </ol>
-        </div><!-- /.col -->
-      </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+        </div>
+      </div>
+    </div>
   </div>
   <!-- /.content-header -->
   <div class="content">
@@ -23,7 +28,9 @@
         <div class="col-lg-12">
         <div class="card">
           <div class="card-header d-flex align-items-center justify-content-between flex-wrap">
-            <h3 class="card-title mr-3">Absensi Harian - Hari <b>{{ $hari }}</b>, <b>{{ \Carbon\Carbon::parse($tanggal)->translatedFormat('d F Y') }}</b></h3>
+            <h3 class="card-title text-dark font-weight-bold mb-0">
+              <i class="fas fa-table text-primary mr-2"></i> Absensi Harian - {{ $hari }}, {{ \Carbon\Carbon::parse($tanggal)->translatedFormat('d F Y') }}
+            </h3>
             
             <div class="d-flex align-items-center ml-auto flex-wrap">
               @if($user && $user->role == 'admin')
@@ -31,7 +38,7 @@
                   <div class="form-group mr-2">
                     <input type="date" name="tanggal" id="tanggal_filter" class="form-control form-control-sm" value="{{ $tanggal }}">
                   </div>
-                  <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                  <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter mr-1"></i> Filter</button>
                 </form>
               @endif
               

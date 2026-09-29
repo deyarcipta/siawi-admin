@@ -142,24 +142,39 @@ class AbsensiGuruController extends Controller
     {
         $request->validate([
             'id_guru' => 'required|exists:guru,id_guru',
-            // 'jam_masuk' => 'required',
             'kehadiran' => 'required',
         ]);
 
-        $tanggal = Carbon::now()->toDateString();
-        $hari = Carbon::now()->locale('id')->translatedFormat('l');
+        $now = Carbon::now('Asia/Jakarta');
+        $tanggal = $now->toDateString();
+        $hari = $now->locale('id')->dayName;
 
-        $absensi = AbsensiGuru::create([
-            'id_guru' => $request->id_guru,
-            'hari' => $hari,
-            'tanggal' => $tanggal,
-            'kehadiran' => $request->kehadiran,
-            'keterangan' => 'Manual Entry',
-        ]);
+        // Tentukan jam masuk otomatis sesuai jam pembuatan data (Asia/Jakarta)
+        $jamMasuk = null;
+        if (in_array(strtolower($request->kehadiran), ['hadir', 'terlambat'])) {
+            $jamMasuk = $now->format('H:i:s');
+        }
 
-        \App\Services\WhatsAppNotificationService::sendTeacherAttendanceNotification($absensi);
+        $absensi = AbsensiGuru::updateOrCreate(
+            [
+                'id_guru' => $request->id_guru,
+                'tanggal' => $tanggal,
+            ],
+            [
+                'hari' => $hari,
+                'jam_masuk' => $jamMasuk,
+                'kehadiran' => $request->kehadiran,
+                'keterangan' => 'Manual Entry',
+            ]
+        );
 
-        return redirect()->back()->with('success', 'Kehadiran berhasil ditambahkan!');
+        try {
+            \App\Services\WhatsAppNotificationService::sendTeacherAttendanceNotification($absensi);
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengirim notifikasi absensi guru manual: ' . $e->getMessage());
+        }
+
+        return redirect()->back()->with('success', 'Kehadiran guru berhasil disimpan.');
     }
 
     public function AbsensiGuruExport()

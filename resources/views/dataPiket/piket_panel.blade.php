@@ -3,13 +3,18 @@
 @section('content')
 <div class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0">Panel Guru Piket</h1>
+        <div class="row align-items-center mb-2">
+            <div class="col-sm-7 d-flex align-items-center">
+                <i class="fas fa-user-clock text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+                <div class="d-flex flex-column justify-content-center">
+                    <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Panel Kerja Guru Piket</h1>
+                    <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Pencatatan siswa terlambat, izin keluar kelas, dan penanganan ketertiban</p>
+                </div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-5">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="#">Guru Piket</a></li>
                     <li class="breadcrumb-item active">Panel Piket</li>
                 </ol>
             </div>
@@ -22,11 +27,11 @@
         <!-- Roster Piket Card -->
         <div class="row mb-3">
             <div class="col-12">
-                <div class="card card-outline card-info">
-                    <div class="card-header">
-                        <h5 class="card-title m-0"><i class="fas fa-user-clock mr-2"></i> Jadwal Guru Piket Hari Ini ({{ $todayDayInd }})</h5>
+                <div class="card mb-4">
+                    <div class="card-header d-flex align-items-center">
+                        <h5 class="card-title text-dark font-weight-bold m-0"><i class="fas fa-calendar-check text-primary mr-2"></i> Jadwal Guru Piket Hari Ini ({{ $todayDayInd }})</h5>
                     </div>
-                    <div class="card-body py-2">
+                    <div class="card-body py-3">
                         <div class="d-flex flex-wrap">
                             @forelse ($piketHariIni as $gp)
                                 <div class="badge badge-info p-2 mr-2 mb-2" style="font-size: 14px;">
@@ -45,9 +50,9 @@
         <div class="row">
             <!-- Kolom Kiri: Pencatatan Terlambat -->
             <div class="col-lg-7">
-                <div class="card card-danger card-outline">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-user-plus mr-2"></i> Catat Siswa Terlambat</h3>
+                <div class="card mb-4">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title text-dark font-weight-bold mb-0"><i class="fas fa-user-plus text-primary mr-2"></i> Catat Siswa Terlambat</h3>
                     </div>
                     <div class="card-body">
                         <p class="text-muted">Cari nama siswa di bawah ini, lalu klik tombol <strong>Catat Terlambat</strong> untuk memproses absensi terlambat dan menambahkan point pelanggaran.</p>
@@ -58,7 +63,7 @@
                                     <th style="width: 10px">No</th>
                                     <th>Nama Siswa</th>
                                     <th>Kelas</th>
-                                    <th style="width: 120px">Aksi</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -138,27 +143,6 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        $('#siswaPiketTable').DataTable({
-            "paging": true,
-            "lengthChange": true,
-            "searching": true,
-            "ordering": true,
-            "info": true,
-            "autoWidth": false,
-            "responsive": true,
-            "lengthMenu": [5, 10, 25, 50]
-        });
-
-        $('#terlambatHariIniTable').DataTable({
-            "paging": true,
-            "lengthChange": false,
-            "searching": false,
-            "ordering": true,
-            "info": false,
-            "autoWidth": false,
-            "responsive": true
-        });
-
         $(document).on('click', '.btn-terlambat', function(e) {
             e.preventDefault();
             console.log("Aksi Terlambat diklik!");

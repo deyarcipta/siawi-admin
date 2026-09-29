@@ -1,30 +1,37 @@
 @extends($layout)
 @section('content')
-  <!-- Content Header (Page header) -->
-  <div class="content-header">
-    <div class="container-fluid">
-      <div class="row mb-2">
-        <div class="col-sm-6">
-          <h1 class="m-0">Tambah Siswa</h1>
-        </div><!-- /.col -->
-        <div class="col-sm-6">
-          <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="#">Siswa</a></li>
-            <li class="breadcrumb-item active">Tambah Siswa</li>
-          </ol>
-        </div><!-- /.col -->
-      </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+<!-- Content Header -->
+<div class="content-header pb-2">
+  <div class="container-fluid">
+    <div class="row align-items-center mb-2">
+      <div class="col-sm-7 d-flex align-items-center">
+        <i class="fas fa-user-graduate text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+        <div class="d-flex flex-column justify-content-center">
+          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2; font-size: 1.35rem;">Tambah Data Siswa</h1>
+          <p class="text-muted mt-1 mb-0" style="font-size: 0.84rem;">Tambahkan biodata lengkap siswa baru beserta data wali</p>
+        </div>
+      </div>
+      <div class="col-sm-5">
+        <ol class="breadcrumb float-sm-right bg-transparent p-0 mb-0">
+          <li class="breadcrumb-item"><a href="/admin/siswa" class="text-primary font-weight-500">Data Siswa</a></li>
+          <li class="breadcrumb-item active">Tambah Siswa</li>
+        </ol>
+      </div>
+    </div>
   </div>
-  <div class="content">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-lg-12">
-          <!-- general form elements -->
-          <div class="card card-primary">
-            <div class="card-header">
-              <h3 class="card-title">Form Tambah Siswa</h3>
-            </div>
+</div>
+
+<div class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <!-- general form elements -->
+        <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden;">
+          <div class="card-header bg-white py-3 border-0 d-flex align-items-center">
+            <h5 class="card-title font-weight-bold text-dark mb-0" style="font-size: 1.05rem;">
+              <i class="fas fa-plus-circle text-primary mr-2"></i> Formulir Tambah Data Siswa
+            </h5>
+          </div>
             <!-- /.card-header -->
             <!-- form start -->
             <form action="/admin/siswa" method="POST" enctype="multipart/form-data">
@@ -489,9 +496,13 @@
                   </div>
                 </div>
               </div>
-              <!-- /.card-body -->
-              <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Submit</button>
+              <div class="card-footer bg-light py-3 px-4 d-flex align-items-center">
+                <a href="/admin/siswa" class="btn btn-outline-secondary px-3" style="border-radius: 8px; font-weight: 500;">
+                  <i class="fas fa-arrow-left mr-1"></i> Kembali
+                </a>
+                <button type="submit" class="btn btn-primary ml-auto px-4 shadow-sm" style="border-radius: 8px; font-weight: 600;">
+                  <i class="fas fa-save mr-1"></i> Tambah Siswa
+                </button>
               </div>
             </form>
           </div>

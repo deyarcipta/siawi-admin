@@ -12,8 +12,12 @@ use App\Models\Kelas;
 use App\Models\PointSiswa;
 use App\Models\Modul;
 use App\Models\SiswaPkl;
-use Illuminate\Support\Facades\Hash;
 use App\Models\Setting;
+use App\Models\JadwalMapel;
+use App\Models\GuruPiket;
+use App\Models\PiketPembiasaanPagi;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use DB;
 
@@ -187,6 +191,83 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Hitung persentase kehadiran siswa
+        $persenHadir = $totalSiswa > 0 ? round(($totalHadir / $totalSiswa) * 100, 1) : 0;
+        $persenHadirFormatted = str_replace('.', ',', (string)$persenHadir);
+
+        // Siswa yang belum absen sama sekali
+        $totalBelumAbsen = max(0, $totalSiswa - ($totalHadir + $jumlahTidakHadirAll));
+
+        // Jumlah guru yang belum hadir
+        $guruBelumHadirCount = max(0, $totalGuru - $totalGuruHadir);
+
+        // Jumlah kelas yang belum selesai absen
+        $kelasBelumAbsenCount = $kelasData->count();
+
+        // Greeting & Ikon dinamis berdasarkan jam
+        $currentHour = (int) Carbon::now()->format('H');
+        if ($currentHour >= 4 && $currentHour < 11) {
+            $greetingText = 'Selamat pagi';
+            $greetingIcon = 'fas fa-cloud-sun';
+            $greetingIconColor = '#f59e0b'; // Amber hangat matahari pagi
+            $greetingIconBg = '#fffbeb';
+            $greetingIconBorder = '#fef3c7';
+        } elseif ($currentHour >= 11 && $currentHour < 15) {
+            $greetingText = 'Selamat siang';
+            $greetingIcon = 'fas fa-sun';
+            $greetingIconColor = '#eab308'; // Kuning keemasan cerah matahari siang
+            $greetingIconBg = '#fefce8';
+            $greetingIconBorder = '#fef08a';
+        } elseif ($currentHour >= 15 && $currentHour < 18) {
+            $greetingText = 'Selamat sore';
+            $greetingIcon = 'fas fa-cloud-sun';
+            $greetingIconColor = '#f97316'; // Oranye jingga senja
+            $greetingIconBg = '#fff7ed';
+            $greetingIconBorder = '#ffedd5';
+        } else {
+            $greetingText = 'Selamat malam';
+            $greetingIcon = 'fas fa-moon';
+            $greetingIconColor = '#6366f1'; // Indigo lembut malam
+            $greetingIconBg = '#eef2ff';
+            $greetingIconBorder = '#e0e7ff';
+        }
+
+        // Tanggal Indonesia dinamis
+        try {
+            $tanggalHariIni = Carbon::now()->locale('id')->translatedFormat('l, d F Y');
+        } catch (\Exception $e) {
+            $tanggalHariIni = $todayDayInd . ', ' . Carbon::now()->format('d M Y');
+        }
+
+        // Menyiapkan data waktu piket jika belum ada field jam_mulai/jam_selesai
+        $defaultPiketSlots = ['06.30 - 10.00', '10.00 - 12.30', '12.30 - 15.00', '15.00 - 17.00'];
+        foreach ($guruPiketHariIni as $idx => $piket) {
+            if (empty($piket->jam_tugas)) {
+                $piket->jam_tugas = $defaultPiketSlots[$idx % count($defaultPiketSlots)];
+            }
+        }
+
+        // Format data siswa kritis dengan status SP dan styling
+        $siswaKritisFormatted = $siswaKritis->map(function ($item) {
+            $skor = $item->total_skor;
+            if ($skor >= 70) {
+                $statusSP = 'SP 1 (Orang tua)';
+                $badgeClass = 'sp-danger';
+            } elseif ($skor >= 45) {
+                $statusSP = 'SP 1';
+                $badgeClass = 'sp-warning';
+            } elseif ($skor >= 30) {
+                $statusSP = 'Teguran Tertulis';
+                $badgeClass = 'sp-amber';
+            } else {
+                $statusSP = 'Perhatian';
+                $badgeClass = 'sp-info';
+            }
+            $item->status_sp = $statusSP;
+            $item->badge_class = $badgeClass;
+            return $item;
+        });
+
         // 4. Data Siswa Terlambat Hari Ini
         $totalTerlambat = Absensi::where('tanggal', $today)
             ->where('kehadiran', 'hadir')
@@ -209,20 +290,32 @@ class DashboardController extends Controller
             'totalModul',
             'user',
             'totalHadir',
+            'persenHadir',
+            'persenHadirFormatted',
+            'totalBelumAbsen',
             'kelasData',
+            'kelasBelumAbsenCount',
             'totalGuruHadir',
             'totalGuru',
+            'guruBelumHadirCount',
             'jumlahTidakHadirAll',
             'siswaTerajin',
             'guruTerajin',
             'guruPiketHariIni',
             'piketPembiasaanHariIni',
             'todayDayInd',
+            'tanggalHariIni',
+            'greetingText',
+            'greetingIcon',
+            'greetingIconColor',
+            'greetingIconBg',
+            'greetingIconBorder',
             'weeklyAttendance',
             'dateLabels',
             'violationCategories',
             'violationCounts',
             'siswaKritis',
+            'siswaKritisFormatted',
             'totalTerlambat',
             'siswaTerlambat'
         ));
@@ -262,11 +355,53 @@ class DashboardController extends Controller
      */
     public function edit(string $id_guru)
     {
-        $layout = 'layout.app'; // Misalnya, layout default Anda adalah 'layouts.app'
+        $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
         $edit = Guru::find($id_guru);
-        return view('dataGuru.edit_profile', compact('layout','edit','setting','user'));
+        $kelasWali = Kelas::with(['siswa', 'jurusan', 'level'])->where('id_guru', $id_guru)->get();
+
+        // Ambil jadwal mengajar guru beserta mata pelajaran dan kelas (urut dari Senin s/d Sabtu)
+        $jadwalMengajar = JadwalMapel::with(['mapel', 'kelas.jurusan'])
+            ->where('id_guru', $id_guru)
+            ->orderByRaw("FIELD(LOWER(hari), 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu')")
+            ->orderByRaw('CAST(jam_awal AS UNSIGNED) ASC')
+            ->get();
+
+        // Hitung total JP per minggu dan kelompokkan per mapel & kelas
+        $totalJpSeminggu = 0;
+        foreach ($jadwalMengajar as $j) {
+            $jp = max(1, (intval($j->jam_akhir) - intval($j->jam_awal) + 1));
+            $j->jp_count = $jp;
+            $j->hari_formatted = ucfirst(strtolower($j->hari));
+            $totalJpSeminggu += $jp;
+        }
+
+        // Kelompokkan ringkasan mapel yang diampu
+        $mapelDiampu = $jadwalMengajar->groupBy('id_mapel')->map(function ($items) {
+            $first = $items->first();
+            $namaMapel = $first->mapel->nama_mapel ?? 'Mata Pelajaran';
+            $kodeMapel = $first->mapel->kode_mapel ?? '';
+            $totalJpMapel = $items->sum('jp_count');
+            $kelasList = $items->pluck('kelas.nama_kelas')->unique()->filter()->values();
+            return [
+                'nama_mapel' => $namaMapel,
+                'kode_mapel' => $kodeMapel,
+                'total_jp' => $totalJpMapel,
+                'kelas_list' => $kelasList,
+                'jadwal_items' => $items,
+            ];
+        });
+
+        // Ambil penugasan piket jika ada
+        $jadwalPiket = \App\Models\GuruPiket::where('id_guru', $id_guru)->get();
+        $jadwalPembiasaan = \App\Models\PiketPembiasaanPagi::where('id_guru', $id_guru)->get();
+
+        return view('dataGuru.edit_profile', compact(
+            'layout', 'edit', 'setting', 'user', 'kelasWali',
+            'jadwalMengajar', 'totalJpSeminggu', 'mapelDiampu',
+            'jadwalPiket', 'jadwalPembiasaan'
+        ));
     }
     
 
@@ -277,32 +412,40 @@ class DashboardController extends Controller
     {
         $request->validate([
             'username' => 'required|string|max:255',
-            'password' => 'nullable|string|min:8', // password tidak wajib diisi
+            'password' => 'nullable|string|min:8',
             'nama_guru' => 'required|string|max:255',
+            'no_hp' => 'nullable|string|max:25',
             'role' => 'required|string',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
         ]);
 
-        // Ambil data guru yang ada
-        $guru = Guru::find($id_guru);
+        $guru = Guru::findOrFail($id_guru);
 
-        // Jika tidak ditemukan, return error
-        if (!$guru) {
-            return redirect()->back()->with('error', 'Guru not found.');
-        }
-
-        // Update data guru
         $guru->username = $request->username;
         $guru->nama_guru = $request->nama_guru;
+        $guru->no_hp = $request->no_hp;
         $guru->role = $request->role;
 
-        // Update password hanya jika diisi
+        // Proses upload foto profil
+        if ($request->hasFile('foto')) {
+            // Hapus foto lama jika ada
+            if ($guru->foto && Storage::disk('public')->exists('foto_guru/' . $guru->foto)) {
+                Storage::disk('public')->delete('foto_guru/' . $guru->foto);
+            }
+
+            $file = $request->file('foto');
+            $nama_file = 'guru_' . $guru->id_guru . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('foto_guru', $nama_file, 'public');
+            $guru->foto = $nama_file;
+        }
+
         if ($request->filled('password')) {
             $guru->password = Hash::make($request->password);
         }
 
         $guru->save();
 
-        return redirect()->action([DashboardController::class, 'index']);
+        return redirect()->back()->with('success', 'Profil guru, foto, dan kredensial berhasil diperbarui.');
     }
 
     /**

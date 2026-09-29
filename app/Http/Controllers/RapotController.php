@@ -19,36 +19,41 @@ class RapotController extends Controller
      */
     public function index(Request $request)
     {
-        $kelas = Kelas::orderBy('created_at', 'desc')->get();
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $kelasId = '';
+        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
+        $kelasId = $request->get('kelas', '');
 
-        // Jika form sudah diisi, ambil data siswa berdasarkan kelas yang dipilih
-        if ($request->filled('kelas')) {
-            $kelasId = $request->kelas;
+        $query = Siswa::with(['kelas', 'rapot']);
+
+        if (!empty($kelasId)) {
+            $query->where('id_kelas', $kelasId);
             $dataKelas = Kelas::where('id_kelas', $kelasId)->first();
-            $siswa = Siswa::whereHas('kelas', function($query) use ($kelasId) {
-                $query->where('id_kelas', $kelasId);
-            })->get();
-
-            return view('rapot.data_rapot', compact('kelas', 'siswa', 'kelasId', 'layout', 'setting','dataKelas','user'));
+        } else {
+            $dataKelas = null;
         }
 
-        return view('rapot.data_rapot', compact('kelas', 'layout', 'setting', 'kelasId','user'));
+        $siswa = $query->orderBy('nama_siswa', 'asc')->get();
+        $allSiswa = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
+
+        return view('rapot.data_rapot', compact('kelas', 'siswa', 'allSiswa', 'kelasId', 'layout', 'setting', 'dataKelas', 'user'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create($kelasId)
+    public function create($kelasId = null)
     {
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
         $rapot = Rapot::orderBy('created_at', 'desc')->get();
-        $siswa = Siswa::where('id_kelas', $kelasId)->get();
+        if ($kelasId) {
+            $siswa = Siswa::where('id_kelas', $kelasId)->orderBy('nama_siswa', 'asc')->get();
+        } else {
+            $siswa = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
+        }
         return view('rapot.tambah_rapot', compact('layout','setting','rapot','siswa','kelasId','user'));
     }
 
@@ -57,16 +62,18 @@ class RapotController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
         $request->validate([
             'id_siswa' => 'required',
-            'id_kelas' => 'required',
             'semester' => 'required',
             'rata_rata' => 'required',
             'file_rapot' => 'required|mimes:pdf,PDF',
         ]);
 
+        $siswa = Siswa::findOrFail($request->id_siswa);
+        $id_kelas = $request->id_kelas ?: $siswa->id_kelas;
+
         // Periksa apakah file diunggah
+        $nama_file = null;
         if ($request->hasFile('file_rapot')) {
             $file = $request->file('file_rapot');
             $nama_file = 'rapot_' . $request->id_siswa . '_sem' . $request->semester . '_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
@@ -76,13 +83,13 @@ class RapotController extends Controller
 
         $rapot = Rapot::create([
             'id_siswa' => $request->id_siswa,
-            'id_kelas' => $request->id_kelas,
+            'id_kelas' => $id_kelas,
             'semester' => $request->semester,
             'rata_rata' => $request->rata_rata,
             'file_rapot' => $nama_file,
         ]);
 
-        return redirect('/admin/rapot');
+        return redirect('/admin/rapot')->with('success', 'Data Rapot berhasil ditambahkan.');
     }
 
     /**

@@ -18,25 +18,21 @@ class TagihanController extends Controller
      */
     public function index(Request $request)
     {
-        $kelas = Kelas::orderBy('created_at', 'desc')->get();
+        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $kelasId = '';
+        $tagihan = Tagihan::find('1');
+        $kelasId = $request->input('kelas', '');
 
-        // Jika form sudah diisi, ambil data siswa berdasarkan kelas yang dipilih
-        if ($request->filled('kelas')) {
-            $kelasId = $request->kelas;
-            $tagihan = Tagihan::find('1');
-            $dataKelas = Kelas::where('id_kelas', $kelasId)->first();
-            $siswa = Siswa::whereHas('kelas', function($query) use ($kelasId) {
-                $query->where('id_kelas', $kelasId);
-            })->get();
-
-            return view('tagihan.data_tagihan', compact('kelas', 'siswa',  'kelasId', 'layout', 'setting','dataKelas','tagihan','user'));
+        $query = Siswa::with('kelas');
+        if (!empty($kelasId) && $kelasId !== 'all') {
+            $query->where('id_kelas', $kelasId);
         }
+        $siswa = $query->orderBy('nama_siswa', 'asc')->get();
+        $dataKelas = (!empty($kelasId) && $kelasId !== 'all') ? Kelas::find($kelasId) : null;
 
-        return view('tagihan.data_tagihan', compact('kelas', 'layout', 'setting', 'kelasId','user'));
+        return view('tagihan.data_tagihan', compact('kelas', 'siswa', 'kelasId', 'layout', 'setting', 'dataKelas', 'tagihan', 'user'));
     }
 
     /**

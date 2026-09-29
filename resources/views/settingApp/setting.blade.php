@@ -2,14 +2,18 @@
 @section('content')
 <div class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0 font-weight-bold"><i class="fas fa-cogs mr-2 text-primary"></i>Pengaturan Sistem</h1>
+        <div class="row align-items-center mb-2">
+            <div class="col-sm-7 d-flex align-items-center">
+                <i class="fas fa-cogs text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+                <div class="d-flex flex-column justify-content-center">
+                    <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Pengaturan Aplikasi SIAWI</h1>
+                    <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Konfigurasi profil sekolah, integrasi WhatsApp Gateway, dan jam kerja absensi</p>
+                </div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-5">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
-                    <li class="breadcrumb-item active">Setting</li>
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Pengaturan</li>
                 </ol>
             </div>
         </div>

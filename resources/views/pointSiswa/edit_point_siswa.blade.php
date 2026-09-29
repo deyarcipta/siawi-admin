@@ -1,78 +1,91 @@
 @extends($layout)
 @section('content')
-  <!-- Content Header (Page header) -->
-  <div class="content-header">
-    <div class="container-fluid">
-      <div class="row mb-2">
-        <div class="col-sm-6">
-          <h1 class="m-0">Edit Informasi</h1>
-        </div><!-- /.col -->
-        <div class="col-sm-6">
-          <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="#">Informasi</a></li>
-            <li class="breadcrumb-item active">Edit Informasi</li>
-          </ol>
-        </div><!-- /.col -->
-      </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
-  </div>
-  <div class="content">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-lg-12">
-          <!-- general form elements -->
-          <div class="card card-primary">
-            <div class="card-header">
-              <h3 class="card-title">Form Edit Informasi</h3>
-            </div>
-            <!-- /.card-header -->
-            <!-- form start -->
-            <form action="/informasi/{{$edit->id  }}" method="POST" enctype="multipart/form-data">
-              @csrf
-              @method('PUT')
-              <div class="card-body">
-                <div class="form-group">
-                  <label for="informasi">Informasi</label>
-                  <input type="text" class="form-control" id="informasi" placeholder="Enter Kode level" name="informasi" value="{{$edit->informasi}}">
-                  @error('informasi')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                  @enderror
-                </div>
-                <div class="form-group">
-                  <label for="tanggal">Tanggal Informasi</label>
-                  <input type="date" class="form-control" id="tanggal" placeholder="Enter Nama level" name="tanggal" value="{{$edit->tanggal}}">
-                  @error('tanggal')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                  @enderror
-                </div>
-                <div class="form-group">
-                  <label for="file">Upload Surat Edaran</label>
-                    <div class="input-group">
-                      <div class="custom-file">
-                        <input type="file" class="custom-file-input" name="file" id="file">
-                        <label class="custom-file-label" id="file-label" for="file">Choose file</label>
-                        <script>
-                          document.getElementById('file').addEventListener('change', function(e) {
-                              var fileName = e.target.files[0].name;
-                              var label = document.getElementById('file-label');
-                              label.textContent = fileName;
-                          });
-                      </script>
-                      </div>
-                    @error('logo')
-                      <div class="alert alert-danger">{{ $message }}</div>
-                    @enderror
-                </div>
-              </div>
-              <!-- /.card-body -->
-              <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Submit</button>
-              </div>
-            </form>
-          </div>
-          <!-- /.card -->
+<!-- Content Header -->
+<div class="content-header pb-2">
+  <div class="container-fluid">
+    <div class="row align-items-center mb-2">
+      <div class="col-sm-7 d-flex align-items-center">
+        <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle shadow-sm mr-3" style="width: 46px; height: 46px; font-size: 1.25rem;">
+          <i class="fas fa-exclamation-circle"></i>
         </div>
+        <div>
+          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2; font-size: 1.35rem;">Edit Poin Pelanggaran Siswa</h1>
+          <p class="text-muted mt-1 mb-0" style="font-size: 0.84rem;">Perbarui catatan poin dan keterangan kedisiplinan siswa</p>
+        </div>
+      </div>
+      <div class="col-sm-5">
+        <ol class="breadcrumb float-sm-right bg-transparent p-0 mb-0">
+          <li class="breadcrumb-item"><a href="/admin/pointSiswa" class="text-primary font-weight-500">Poin Siswa</a></li>
+          <li class="breadcrumb-item active">Edit Poin</li>
+        </ol>
       </div>
     </div>
   </div>
+</div>
+
+<div class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <!-- general form elements -->
+        <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden;">
+          <div class="card-header bg-white py-3 border-0 d-flex align-items-center">
+            <h5 class="card-title font-weight-bold text-dark mb-0" style="font-size: 1.05rem;">
+              <i class="fas fa-edit text-primary mr-2"></i> Formulir Edit Poin Siswa
+            </h5>
+          </div>
+          <!-- /.card-header -->
+          <!-- form start -->
+          <form action="/informasi/{{$edit->id}}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <div class="card-body">
+              <div class="form-group">
+                <label for="informasi">Informasi</label>
+                <input type="text" class="form-control" id="informasi" placeholder="Masukkan informasi" name="informasi" value="{{$edit->informasi}}">
+                @error('informasi')
+                  <div class="alert alert-danger mt-1">{{ $message }}</div>
+                @enderror
+              </div>
+              <div class="form-group">
+                <label for="tanggal">Tanggal Informasi</label>
+                <input type="date" class="form-control" id="tanggal" name="tanggal" value="{{$edit->tanggal}}">
+                @error('tanggal')
+                  <div class="alert alert-danger mt-1">{{ $message }}</div>
+                @enderror
+              </div>
+              <div class="form-group mb-0">
+                <label for="file">Upload Surat Edaran</label>
+                <div class="custom-file">
+                  <input type="file" class="custom-file-input" name="file" id="file">
+                  <label class="custom-file-label" id="file-label" for="file">Pilih berkas...</label>
+                  <script>
+                    document.getElementById('file').addEventListener('change', function(e) {
+                        var fileName = e.target.files[0] ? e.target.files[0].name : 'Pilih berkas...';
+                        var label = document.getElementById('file-label');
+                        label.textContent = fileName;
+                    });
+                  </script>
+                </div>
+                @error('file')
+                  <div class="alert alert-danger mt-1">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer bg-light py-3 px-4 d-flex align-items-center">
+              <a href="/admin/pointSiswa" class="btn btn-outline-secondary px-3" style="border-radius: 8px; font-weight: 500;">
+                <i class="fas fa-arrow-left mr-1"></i> Kembali
+              </a>
+              <button type="submit" class="btn btn-primary ml-auto px-4 shadow-sm" style="border-radius: 8px; font-weight: 600;">
+                <i class="fas fa-save mr-1"></i> Simpan Perubahan
+              </button>
+            </div>
+          </form>
+        </div>
+        <!-- /.card -->
+      </div>
+    </div>
+  </div>
+</div>
 @endsection

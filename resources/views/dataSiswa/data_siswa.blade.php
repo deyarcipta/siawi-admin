@@ -3,18 +3,22 @@
   <!-- Content Header (Page header) -->
   <div class="content-header">
     <div class="container-fluid">
-      <div class="row mb-2">
-        <div class="col-sm-6">
-          <h1 class="m-0">Data Siswa</h1>
-        </div><!-- /.col -->
-        <div class="col-sm-6">
+      <div class="row align-items-center mb-2">
+        <div class="col-sm-7 d-flex align-items-center">
+          <i class="fas fa-user-graduate text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+          <div class="d-flex flex-column justify-content-center">
+            <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Data Siswa</h1>
+            <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Kelola data induk siswa, akun login, dan penempatan kelas</p>
+          </div>
+        </div>
+        <div class="col-sm-5">
           <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
             <li class="breadcrumb-item active">Data Siswa</li>
           </ol>
-        </div><!-- /.col -->
-      </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+        </div>
+      </div>
+    </div>
   </div>
   <!-- /.content-header -->
   <div class="content">
@@ -23,10 +27,12 @@
         <div class="col-lg-12">
         <div class="card">
           <div class="card-header d-flex align-items-center">
-            <h3 class="card-title">Data Siswa</h3>
+            <h3 class="card-title text-dark font-weight-bold mb-0">
+              <i class="fas fa-table text-primary mr-2"></i> Data Siswa
+            </h3>
             <div class="ml-auto">
-              <a href="{{ route('admin.siswa.download') }}" class="btn btn-primary">Download Siswa</a>
-              <a href="/admin/siswa/create" class="btn btn-success">Tambah Siswa</a>
+              <a href="{{ route('admin.siswa.download') }}" class="btn btn-primary btn-sm"><i class="fas fa-download mr-1"></i> Download Siswa</a>
+              <a href="/admin/siswa/create" class="btn btn-success btn-sm"><i class="fas fa-plus mr-1"></i> Tambah Siswa</a>
             </div>
           </div>
           <!-- /.card-header -->

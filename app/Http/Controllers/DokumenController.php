@@ -17,24 +17,22 @@ class DokumenController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find(1);
         $user = Auth::user();
-        $kelas = Kelas::orderBy('created_at', 'desc')->get();
-        $kelasId = '';
+        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
+        $kelasId = $request->get('kelas', '');
 
-        // Jika filter kelas digunakan
-        if ($request->filled('kelas')) {
-            $kelasId = $request->kelas;
+        $query = Siswa::with(['kelas', 'dokumen']);
+
+        if (!empty($kelasId)) {
+            $query->where('id_kelas', $kelasId);
             $dataKelas = Kelas::where('id_kelas', $kelasId)->first();
-
-            $siswa = Siswa::whereHas('kelas', function($query) use ($kelasId) {
-                $query->where('id_kelas', $kelasId);
-            })->get();
-
-            return view('dokumen.index', compact('siswa', 'kelas', 'kelasId', 'layout', 'setting', 'dataKelas', 'user'));
+        } else {
+            $dataKelas = null;
         }
 
-        // Jika tidak ada filter
-        $dokumen = Dokumen::with('siswa.kelas')->latest()->get();
-        return view('dokumen.index', compact('dokumen', 'kelas', 'layout', 'setting', 'kelasId', 'user'));
+        $siswa = $query->orderBy('nama_siswa', 'asc')->get();
+        $allSiswa = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
+
+        return view('dokumen.index', compact('siswa', 'allSiswa', 'kelas', 'kelasId', 'layout', 'setting', 'dataKelas', 'user'));
     }
 
     public function create()

@@ -2,14 +2,18 @@
 @section('content')
 <div class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0 font-weight-bold">Laporan Pelanggaran Siswa</h1>
+        <div class="row align-items-center mb-2">
+            <div class="col-sm-7 d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+                <div class="d-flex flex-column justify-content-center">
+                    <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Laporan Pelanggaran Siswa</h1>
+                    <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Rekapitulasi akumulasi poin pelanggaran dan evaluasi tindak lanjut SP</p>
+                </div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-5">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
-                    <li class="breadcrumb-item"><a href="/admin/pointSiswa">Point Siswa</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="#">Kedisiplinan</a></li>
                     <li class="breadcrumb-item active">Laporan Pelanggaran</li>
                 </ol>
             </div>
@@ -20,10 +24,10 @@
 <div class="content">
     <div class="container-fluid">
         <!-- Filter Card -->
-        <div class="card card-outline card-primary shadow-sm mb-4">
-            <div class="card-header py-2">
-                <h3 class="card-title font-weight-bold text-primary">
-                    <i class="fas fa-filter mr-1"></i> Filter Laporan Pelanggaran
+        <div class="card mb-3">
+            <div class="card-header d-flex align-items-center">
+                <h3 class="card-title text-dark font-weight-bold mb-0">
+                    <i class="fas fa-sliders-h text-primary mr-2"></i> Filter Laporan Pelanggaran
                 </h3>
             </div>
             <div class="card-body py-3">
@@ -77,49 +81,60 @@
             </div>
         </div>
 
-        <!-- 4 Top Statistik Cards -->
-        <div class="row">
-            <div class="col-lg-3 col-6 mb-3">
-                <div class="small-box bg-gradient-danger shadow-sm">
-                    <div class="inner">
-                        <h3>{{ number_format($summary['total_kasus']) }}</h3>
-                        <p class="font-weight-bold">Total Kejadian Pelanggaran</p>
+        <!-- 4 Top Statistik KPI Cards (Modern Style matching Rekap Bulanan & WA) -->
+        <div class="row mb-2">
+            <!-- Total Kejadian Pelanggaran -->
+            <div class="col-lg-3 col-sm-6 col-12 mb-3">
+                <div class="card p-3 mb-0 h-100 d-flex flex-row align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small font-weight-bold mb-1" style="font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Total Kejadian</div>
+                        <div class="font-weight-bold text-dark" style="font-size: 1.55rem; line-height: 1.1;">{{ number_format($summary['total_kasus']) }}</div>
+                        <div class="text-muted mt-1" style="font-size: 0.75rem;"><span class="text-danger font-weight-600"><i class="fas fa-exclamation-triangle mr-1"></i> Kasus</span> tercatat</div>
                     </div>
-                    <div class="icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-6 mb-3">
-                <div class="small-box bg-gradient-warning shadow-sm">
-                    <div class="inner">
-                        <h3>{{ number_format($summary['total_poin']) }}</h3>
-                        <p class="font-weight-bold">Total Akumulasi Poin</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-clipboard-list"></i>
+                    <div class="d-flex align-items-center justify-content-center rounded-circle" style="width: 48px; height: 48px; background: #fee2e2; flex-shrink: 0;">
+                        <i class="fas fa-exclamation-triangle text-danger" style="font-size: 1.25rem;"></i>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 col-6 mb-3">
-                <div class="small-box bg-gradient-info shadow-sm">
-                    <div class="inner">
-                        <h3>{{ number_format($summary['total_siswa_pelanggar']) }}</h3>
-                        <p class="font-weight-bold">Siswa Melakukan Pelanggaran</p>
+
+            <!-- Total Akumulasi Poin -->
+            <div class="col-lg-3 col-sm-6 col-12 mb-3">
+                <div class="card p-3 mb-0 h-100 d-flex flex-row align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small font-weight-bold mb-1" style="font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Akumulasi Poin</div>
+                        <div class="font-weight-bold text-dark" style="font-size: 1.55rem; line-height: 1.1;">{{ number_format($summary['total_poin']) }}</div>
+                        <div class="text-muted mt-1" style="font-size: 0.75rem;"><span class="text-warning font-weight-600"><i class="fas fa-bolt mr-1"></i> Poin</span> akumulasi</div>
                     </div>
-                    <div class="icon">
-                        <i class="fas fa-user-times"></i>
+                    <div class="d-flex align-items-center justify-content-center rounded-circle" style="width: 48px; height: 48px; background: #fef3c7; flex-shrink: 0;">
+                        <i class="fas fa-clipboard-list text-warning" style="font-size: 1.25rem;"></i>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 col-6 mb-3">
-                <div class="small-box bg-gradient-purple shadow-sm" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white;">
-                    <div class="inner">
-                        <h3>{{ number_format($summary['total_siswa_sp']) }}</h3>
-                        <p class="font-weight-bold">Siswa Mencapai Batas SP</p>
+
+            <!-- Siswa Melakukan Pelanggaran -->
+            <div class="col-lg-3 col-sm-6 col-12 mb-3">
+                <div class="card p-3 mb-0 h-100 d-flex flex-row align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small font-weight-bold mb-1" style="font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Siswa Melanggar</div>
+                        <div class="font-weight-bold text-dark" style="font-size: 1.55rem; line-height: 1.1;">{{ number_format($summary['total_siswa_pelanggar']) }}</div>
+                        <div class="text-muted mt-1" style="font-size: 0.75rem;"><span class="text-primary font-weight-600"><i class="fas fa-user mr-1"></i> Siswa</span> terlibat</div>
                     </div>
-                    <div class="icon">
-                        <i class="fas fa-envelope-open-text"></i>
+                    <div class="d-flex align-items-center justify-content-center rounded-circle" style="width: 48px; height: 48px; background: #e0f2fe; flex-shrink: 0;">
+                        <i class="fas fa-user-times text-primary" style="font-size: 1.25rem;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Siswa Mencapai Batas SP -->
+            <div class="col-lg-3 col-sm-6 col-12 mb-3">
+                <div class="card p-3 mb-0 h-100 d-flex flex-row align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small font-weight-bold mb-1" style="font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Batas SP / Kritis</div>
+                        <div class="font-weight-bold text-dark" style="font-size: 1.55rem; line-height: 1.1;">{{ number_format($summary['total_siswa_sp']) }}</div>
+                        <div class="text-muted mt-1" style="font-size: 0.75rem;"><span class="font-weight-600" style="color: #9333ea;"><i class="fas fa-file-alt mr-1"></i> Perlu SP</span> resmi</div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center rounded-circle" style="width: 48px; height: 48px; background: #f3e8ff; flex-shrink: 0;">
+                        <i class="fas fa-envelope-open-text" style="font-size: 1.25rem; color: #9333ea;"></i>
                     </div>
                 </div>
             </div>
@@ -127,22 +142,22 @@
 
         @if($topPelanggaran->isNotEmpty())
             <!-- Top Pelanggaran Card -->
-            <div class="card card-outline card-warning shadow-sm mb-4">
-                <div class="card-header py-2">
-                    <h3 class="card-title font-weight-bold text-warning mb-0">
-                        <i class="fas fa-fire mr-1 text-danger"></i> Top 5 Pelanggaran Paling Sering Terjadi (Periode Ini)
+            <div class="card mb-3">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title text-dark font-weight-bold mb-0">
+                        <i class="fas fa-fire mr-2 text-danger"></i> Top 5 Pelanggaran Paling Sering Terjadi (Periode Ini)
                     </h3>
                 </div>
-                <div class="card-body py-2">
+                <div class="card-body py-3">
                     <div class="row">
                         @foreach($topPelanggaran as $idx => $tp)
-                            <div class="col-md-4 col-sm-6 mb-2">
-                                <div class="p-2 border rounded bg-light d-flex align-items-center justify-content-between">
-                                    <div class="text-truncate mr-2">
-                                        <span class="badge badge-warning mr-1">#{{ $idx + 1 }}</span>
-                                        <strong class="text-sm">{{ $tp->point->nama_point ?? 'Pelanggaran' }}</strong>
+                            <div class="col-md-4 col-sm-6 col-12 mb-2">
+                                <div class="p-2 px-3 border rounded-lg d-flex align-items-center justify-content-between" style="background: #fafbfd; border-color: #f1f5f9 !important; border-radius: 12px;">
+                                    <div class="text-truncate mr-2 d-flex align-items-center" style="min-width: 0;">
+                                        <span class="badge badge-warning mr-2" style="font-size: 0.7rem; padding: 3px 8px;">#{{ $idx + 1 }}</span>
+                                        <strong class="text-dark text-truncate" style="font-size: 0.84rem;" title="{{ $tp->point->nama_point ?? 'Pelanggaran' }}">{{ $tp->point->nama_point ?? 'Pelanggaran' }}</strong>
                                     </div>
-                                    <span class="badge badge-danger badge-pill">{{ $tp->total_kasus }} Kasus ({{ $tp->total_skor }} Poin)</span>
+                                    <span class="badge badge-danger" style="flex-shrink: 0; font-size: 0.72rem;">{{ $tp->total_kasus }} Kasus ({{ $tp->total_skor }} Poin)</span>
                                 </div>
                             </div>
                         @endforeach
@@ -152,29 +167,28 @@
         @endif
 
         <!-- Tabel Rekap Pelanggaran -->
-        <div class="card card-outline card-primary shadow-sm">
-            <div class="card-header py-2 d-flex align-items-center justify-content-between flex-wrap">
-                <h3 class="card-title font-weight-bold mb-0">
-                    <i class="fas fa-list-ol mr-1"></i> Data Rekapitulasi Pelanggaran Siswa
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between flex-wrap">
+                <h3 class="card-title text-dark font-weight-bold mb-0">
+                    <i class="fas fa-table text-primary mr-2"></i> Data Rekapitulasi Pelanggaran Siswa
                 </h3>
                 <div class="card-tools d-flex align-items-center ml-auto flex-wrap mt-1 mt-sm-0">
-                    <span class="text-muted small mr-3">
+                    <span class="text-muted small">
                         <i class="far fa-calendar-alt mr-1"></i> Periode: <strong>{{ \Carbon\Carbon::parse($tanggalMulai)->locale('id')->translatedFormat('d M Y') }}</strong> s/d <strong>{{ \Carbon\Carbon::parse($tanggalSelesai)->locale('id')->translatedFormat('d M Y') }}</strong>
                     </span>
-                    <div id="table_search_slot" class="d-flex align-items-center"></div>
                 </div>
             </div>
             <div class="card-body pt-2">
                 <table id="example2" class="table table-bordered table-hover table-striped">
                     <thead>
-                        <tr class="text-center">
-                            <th style="width: 10px;">No</th>
-                            <th class="text-left">Nama Siswa & NIS</th>
-                            <th class="text-left">Kelas & Wali Kelas</th>
-                            <th class="text-center" style="width: 110px;">Jml Kasus</th>
-                            <th class="text-center" style="width: 110px;">Total Poin</th>
-                            <th class="text-center" style="width: 120px;">Status Disiplin</th>
-                            <th class="text-center" style="width: 140px;">Aksi</th>
+                        <tr>
+                            <th class="no-sort text-center" style="width: 50px; min-width: 50px;">NO</th>
+                            <th class="text-left">NAMA SISWA & NIS</th>
+                            <th class="text-left">KELAS & WALI KELAS</th>
+                            <th class="text-center" style="width: 115px;">JML KASUS</th>
+                            <th class="text-center" style="width: 115px;">TOTAL POIN</th>
+                            <th class="text-center" style="width: 130px;">STATUS DISIPLIN</th>
+                            <th class="no-sort text-center" style="width: 100px; min-width: 100px;">AKSI</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -209,20 +223,22 @@
                                         {{ $item['status_sp'] }}
                                     </span>
                                 </td>
-                                <td class="text-center text-nowrap">
-                                    <button type="button" class="btn btn-xs btn-info mr-1 btn-detail-riwayat" data-id="{{ $s->id_siswa }}" title="Lihat Kronologi Pelanggaran">
-                                        <i class="fas fa-eye mr-1"></i> Riwayat
-                                    </button>
-                                    @if(str_contains($item['status_sp'], 'SP'))
-                                        @php
-                                            // Ekstrak level SP
-                                            preg_match('/\d+/', $item['status_sp'], $m);
-                                            $spLvl = $m[0] ?? 1;
-                                        @endphp
-                                        <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $s->id_siswa, 'sp' => $spLvl]) }}" target="_blank" class="btn btn-xs btn-outline-danger" title="Cetak Surat Peringatan">
-                                            <i class="fas fa-file-pdf"></i> SP {{ $spLvl }}
-                                        </a>
-                                    @endif
+                                <td class="text-center" style="white-space: nowrap;">
+                                    <div class="d-inline-flex align-items-center justify-content-center" style="gap: 6px;">
+                                        <button type="button" class="btn btn-action-view btn-detail-riwayat" data-id="{{ $s->id_siswa }}" title="Lihat Kronologi Pelanggaran">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        @if(str_contains($item['status_sp'], 'SP'))
+                                            @php
+                                                // Ekstrak level SP
+                                                preg_match('/\d+/', $item['status_sp'], $m);
+                                                $spLvl = $m[0] ?? 1;
+                                            @endphp
+                                            <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $s->id_siswa, 'sp' => $spLvl]) }}" target="_blank" class="btn btn-action-pdf" title="Cetak Surat Peringatan SP {{ $spLvl }}">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -300,45 +316,8 @@
 @endsection
 
 @push('scripts')
-<style>
-    .dataTables_wrapper .top {
-        display: none !important;
-    }
-</style>
 <script>
     $(function() {
-        // Pindahkan box search DataTables ke dalam Card Header bersebelahan dengan Periode di sebelah kanan
-        function moveSearchToHeader() {
-            const searchBox = $('#example2_filter');
-            const searchSlot = $('#table_search_slot');
-            if (searchBox.length && searchSlot.length && !searchSlot.find('#example2_filter').length) {
-                searchSlot.append(searchBox);
-                searchBox.css({
-                    'margin': '0',
-                    'float': 'none',
-                    'display': 'flex',
-                    'align-items': 'center'
-                });
-                searchBox.find('label').css({
-                    'margin': '0',
-                    'display': 'flex',
-                    'align-items': 'center',
-                    'font-size': '13px',
-                    'font-weight': '600',
-                    'color': '#4a5568'
-                });
-                searchBox.find('input').addClass('form-control form-control-sm ml-2').css({
-                    'height': '31px',
-                    'width': '180px',
-                    'display': 'inline-block'
-                });
-            }
-        }
-
-        moveSearchToHeader();
-        setTimeout(moveSearchToHeader, 50);
-        setTimeout(moveSearchToHeader, 200);
-
         // Handler Modal Detail Riwayat Pelanggaran Siswa
         const modalEl = $('#modalDetailRiwayat');
 

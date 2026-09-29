@@ -3,14 +3,19 @@
 @section('content')
 <div class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0">Data Absensi Siswa</h1>
+        <div class="row align-items-center mb-2">
+            <div class="col-sm-7 d-flex align-items-center">
+                <i class="fas fa-user-check text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+                <div class="d-flex flex-column justify-content-center">
+                    <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Detail Absensi Siswa Kelas</h1>
+                    <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Rincian kehadiran siswa per kelas untuk periode tertentu</p>
+                </div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-5">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active">Data Absensi Siswa</li>
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/rekapAbsen">Rekap Kelas</a></li>
+                    <li class="breadcrumb-item active">Detail Siswa</li>
                 </ol>
             </div>
         </div>
@@ -24,8 +29,10 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header d-flex align-items-center justify-content-between">
-                        <h3 class="card-title">Data Absensi</h3>
-                        <a href="/admin/absensi/download?kelas={{ $kelasId }}&tanggal_awal={{ $tanggal_awal }}&tanggal_akhir={{ $tanggal_akhir }}" class="btn btn-success ml-auto">Unduh Data</a>
+                        <h3 class="card-title text-dark font-weight-bold mb-0">
+                            <i class="fas fa-table text-primary mr-2"></i> Data Absensi Siswa
+                        </h3>
+                        <a href="/admin/absensi/download?kelas={{ $kelasId }}&tanggal_awal={{ $tanggal_awal }}&tanggal_akhir={{ $tanggal_akhir }}" class="btn btn-success btn-sm ml-auto"><i class="fas fa-download mr-1"></i> Unduh Data</a>
                     </div>
                     <div class="card-body">
                         <table style="font-size: 18px;">

@@ -89,10 +89,33 @@ class BeritaController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $edit = Berita::find($id_berita);
+        $edit = Berita::findOrFail($id_berita);
         session(['old_file' => $edit->cover]);
         $guru = Guru::orderBy('created_at', 'desc')->get();
-        $carbonDate = Carbon::createFromFormat('d F Y H:i', $edit->tanggal);
+
+        $indonesianMonths = [
+            'Januari' => 'January', 'Februari' => 'February', 'Maret' => 'March',
+            'April' => 'April', 'Mei' => 'May', 'Juni' => 'June',
+            'Juli' => 'July', 'Agustus' => 'August', 'September' => 'September',
+            'Oktober' => 'October', 'November' => 'November', 'Desember' => 'December',
+        ];
+
+        $carbonDate = '';
+        if (!empty($edit->tanggal)) {
+            try {
+                $cleanDate = str_ireplace(array_keys($indonesianMonths), array_values($indonesianMonths), $edit->tanggal);
+                $carbonDate = Carbon::parse($cleanDate)->format('Y-m-d\TH:i');
+            } catch (\Exception $e) {
+                try {
+                    $carbonDate = Carbon::parse($edit->tanggal)->format('Y-m-d\TH:i');
+                } catch (\Exception $ex) {
+                    $carbonDate = now()->format('Y-m-d\TH:i');
+                }
+            }
+        } else {
+            $carbonDate = now()->format('Y-m-d\TH:i');
+        }
+
         return view('berita.edit_berita', compact('layout','edit','setting','guru','carbonDate','user'));
     }
 

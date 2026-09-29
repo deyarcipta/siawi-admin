@@ -34,5 +34,20 @@ class Guru extends Model implements Authenticatable
         return $this->hasOne(Kelas::class, 'id_guru', 'id_guru');
     }
 
+    public function jadwalMapel()
+    {
+        return $this->hasMany(JadwalMapel::class, 'id_guru', 'id_guru');
+    }
+
+    public function guruPiket()
+    {
+        return $this->hasMany(GuruPiket::class, 'id_guru', 'id_guru');
+    }
+
+    public function piketPembiasaanPagi()
+    {
+        return $this->hasMany(PiketPembiasaanPagi::class, 'id_guru', 'id_guru');
+    }
+
     // protected $fillable = ['id_face'];
 }
