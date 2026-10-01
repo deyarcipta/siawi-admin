@@ -260,6 +260,7 @@ class SettingController extends Controller
                     'frequency' => $request->input('walas_frequency', 'weekly'),
                     'day' => $request->input('walas_day', 'friday'),
                     'time' => $request->input('walas_time', '16:00'),
+                    'session_id' => $request->input('walas_session_id', 'auto'),
                 ],
                 'orangtua' => [
                     'is_active' => $ortuActive,

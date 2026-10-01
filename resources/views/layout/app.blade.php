@@ -215,6 +215,13 @@
       margin-top: 1px;
     }
 
+    /* Fix AdminLTE Card Header flexbox pseudo-element */
+    .card-header.d-flex::after,
+    .card-header > .d-flex::after {
+      display: none !important;
+      content: none !important;
+    }
+
     /* Menu Hierarchy (Berjenjang) */
     .nav-sidebar {
       padding: 10px 8px !important;
@@ -271,6 +278,47 @@
 
     .nav-sidebar > .nav-item > .nav-link.active .nav-icon {
       opacity: 1;
+    }
+
+    /* Sidebar Section Divider Headers (Alur Kerja) */
+    .nav-sidebar .nav-header {
+      padding: 6px 10px 2px 8px !important;
+      font-size: 0.65rem !important;
+      font-weight: 700 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.08em !important;
+      color: #94a3b8 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 7px !important;
+      background: transparent !important;
+      margin-top: 4px !important;
+      margin-bottom: 2px !important;
+      line-height: 1.2 !important;
+    }
+
+    .nav-sidebar .nav-header:first-of-type {
+      margin-top: 2px !important;
+      padding-top: 3px !important;
+    }
+
+    .nav-sidebar .nav-header::before {
+      content: "";
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 6px rgba(56, 189, 248, 0.7);
+      flex-shrink: 0;
+    }
+
+    .nav-sidebar .nav-header::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 100%);
+      margin-left: 6px;
     }
 
     .nav-sidebar > .nav-item > .nav-link p {
@@ -727,22 +775,26 @@
       text-align: center !important;
     }
 
-    /* === GLOBAL MODAL CENTERING & STYLING === */
+    /* === GLOBAL MODAL CENTERING & STYLING (Full iOS Safari Support) === */
     .modal {
       z-index: 1060 !important;
       padding-right: 0 !important;
+      -webkit-overflow-scrolling: touch !important;
+      overflow-y: auto !important;
     }
     .modal-backdrop {
       z-index: 1055 !important;
       background-color: rgba(15, 23, 42, 0.6) !important;
-      backdrop-filter: blur(3px) !important;
-      -webkit-backdrop-filter: blur(3px) !important;
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
     }
     .modal-dialog {
       margin: 1.75rem auto !important;
       position: relative;
       width: auto;
       pointer-events: auto;
+      -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
     }
     .modal-dialog-centered {
       display: flex !important;
@@ -756,6 +808,16 @@
       border-radius: 14px !important;
       box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.25) !important;
       width: 100% !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* iOS Tap Delegation Fix for Modals */
+    [data-toggle="modal"],
+    [data-dismiss="modal"],
+    [data-bs-toggle="modal"],
+    [data-bs-dismiss="modal"] {
+      cursor: pointer !important;
+      -webkit-tap-highlight-color: transparent !important;
     }
 
     /* Modern Action Button Squircles (Matching Screenshot: Eye, Key, Edit, Trash) */
@@ -1628,6 +1690,28 @@
         font-size: 0.80rem !important;
       }
     }
+
+    /* --- UNIVERSAL TABLE & CONTAINER RESPONSIVENESS --- */
+    .table-responsive,
+    .dataTables_wrapper {
+      width: 100% !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+    .dataTables_wrapper > .row {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      width: 100% !important;
+    }
+    @media (max-width: 991.98px) {
+      .card-body > table:not(.table-responsive),
+      .card-body > .table {
+        display: block !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+    }
   </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -1691,6 +1775,47 @@
     $('[data-widget="treeview"]').Treeview({
       accordion: true,
       animationSpeed: 280
+    });
+
+    // =========================================================================
+    // PERSISTENT SIDEBAR POSITION (Seamless SPA Feel - Tanpa Lompat/Flicker)
+    // =========================================================================
+    var $sidebar = $('.main-sidebar .sidebar');
+    var $activeLink = $('.nav-sidebar .nav-link.active').first();
+
+    if ($sidebar.length) {
+      var savedScroll = sessionStorage.getItem('siawi_sidebar_scroll');
+
+      if (savedScroll !== null) {
+        // Kembalikan posisi scroll tepat seperti saat user mengklik menu
+        $sidebar.scrollTop(parseInt(savedScroll, 10));
+      } else if ($activeLink.length) {
+        // Fallback kunjungan pertama: posisikan menu aktif langsung di viewport
+        var sidebarTop = $sidebar.offset().top;
+        var activeTop = $activeLink.offset().top;
+        var sidebarHeight = $sidebar.height();
+        var targetScroll = (activeTop - sidebarTop) - (sidebarHeight / 3);
+        $sidebar.scrollTop(Math.max(0, targetScroll));
+      }
+
+      // Simpan posisi scroll secara real-time
+      $sidebar.on('scroll', function() {
+        sessionStorage.setItem('siawi_sidebar_scroll', $sidebar.scrollTop());
+      });
+
+      $('.nav-sidebar a').on('click', function() {
+        sessionStorage.setItem('siawi_sidebar_scroll', $sidebar.scrollTop());
+      });
+    }
+
+    // =========================================================================
+    // iOS SAFARI / WEBKIT MODAL COMPATIBILITY FIX
+    // =========================================================================
+    $(document).on('show.bs.modal', '.modal', function () {
+      // Pastikan modal menempel langsung pada <body> agar tidak terperangkap Stacking Context di iOS Safari
+      if (!$(this).parent().is('body')) {
+        $(this).appendTo('body');
+      }
     });
 
     // Inisialisasi otomatis DataTables dengan Pagination, Search & Dropdown Jumlah Data di semua halaman

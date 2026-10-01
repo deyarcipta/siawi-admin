@@ -75,6 +75,7 @@ class Setting extends Model
                 'frequency' => 'weekly', // 'weekly' or 'monthly'
                 'day' => 'friday',       // 'monday'..'sunday' or 'last_day' / '1'..'28'
                 'time' => '16:00',
+                'session_id' => 'auto',  // 'auto' or specific session_id
             ],
             'orangtua' => [
                 'is_active' => true,

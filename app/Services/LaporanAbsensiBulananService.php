@@ -320,9 +320,10 @@ class LaporanAbsensiBulananService
      * @param string $idKelas
      * @param string $tanggalMulai
      * @param string $tanggalSelesai
+     * @param string|null $sessionId
      * @return bool
      */
-    public function dispatchNotifikasiWaliKelas(string $idKelas, string $tanggalMulai, string $tanggalSelesai): bool
+    public function dispatchNotifikasiWaliKelas(string $idKelas, string $tanggalMulai, string $tanggalSelesai, ?string $sessionId = null): bool
     {
         $setting = Setting::first();
         $kelas = Kelas::with('waliKelas')->find($idKelas);
@@ -336,10 +337,15 @@ class LaporanAbsensiBulananService
             return false;
         }
 
+        $targetSessionId = $sessionId;
+        if (!$targetSessionId && $setting && isset($setting->rekap_wa_settings['walas']['session_id'])) {
+            $targetSessionId = $setting->rekap_wa_settings['walas']['session_id'];
+        }
+
         $rekapData = $this->hitungRekapBulanan($idKelas, $tanggalMulai, $tanggalSelesai);
         $message = $this->formatPesanWaliKelas($kelas, $rekapData, $setting);
 
-        SendWhatsAppAttendanceNotification::dispatch($noHp, $message);
+        SendWhatsAppAttendanceNotification::dispatch($noHp, $message, $targetSessionId);
         return true;
     }
 }

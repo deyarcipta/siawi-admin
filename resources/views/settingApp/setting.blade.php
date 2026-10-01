@@ -58,7 +58,7 @@
                             </li>
                             <li class="nav-item ml-md-2">
                                 <a class="nav-link font-weight-bold" data-toggle="pill" href="#settingWhatsapp">
-                                    <i class="fab fa-whatsapp mr-1 text-success"></i> 3. WhatsApp & Notifikasi
+                                    <i class="fab fa-whatsapp mr-1"></i> 3. WhatsApp & Notifikasi
                                 </a>
                             </li>
                         </ul>
@@ -444,9 +444,31 @@
                                                                     </optgroup>
                                                                 </select>
                                                             </div>
-                                                            <div class="form-group mb-3">
+                                                            <div class="form-group mb-2">
                                                                 <label class="small font-weight-bold mb-1" for="walas_time">Jam Pengiriman (WIB)</label>
                                                                 <input type="time" class="form-control form-control-sm" id="walas_time" name="walas_time" value="{{ $walasCfg['time'] ?? '16:00' }}" required>
+                                                            </div>
+                                                            <div class="form-group mb-3">
+                                                                <label class="small font-weight-bold mb-1" for="walas_session_id">
+                                                                    <i class="fas fa-sim-card text-success mr-1"></i> Sesi WhatsApp Pengirim (Walas)
+                                                                </label>
+                                                                <select class="form-control form-control-sm" id="walas_session_id" name="walas_session_id">
+                                                                    <option value="auto" {{ ($walasCfg['session_id'] ?? 'auto') === 'auto' ? 'selected' : '' }}>
+                                                                        🔄 Otomatis / Load Balancing (Acak Semua Nomor Aktif)
+                                                                    </option>
+                                                                    @if(isset($waSessions) && $waSessions->count() > 0)
+                                                                        <optgroup label="Pilih Nomor / Sesi Khusus:">
+                                                                            @foreach($waSessions as $ses)
+                                                                                <option value="{{ $ses->session_id }}" {{ ($walasCfg['session_id'] ?? '') === $ses->session_id ? 'selected' : '' }}>
+                                                                                    {{ $ses->label }} {{ $ses->phone_number ? '('.$ses->phone_number.')' : '' }} [{{ $ses->status }}]
+                                                                                </option>
+                                                                            @endforeach
+                                                                        </optgroup>
+                                                                    @endif
+                                                                </select>
+                                                                <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">
+                                                                    Pilih nomor tertentu khusus rekap Wali Kelas, atau biarkan Otomatis.
+                                                                </small>
                                                             </div>
                                                             <button type="button" class="btn btn-outline-success btn-xs btn-block btn-test-rekap" data-target="walas">
                                                                 <i class="fas fa-paper-plane mr-1"></i> Test Kirim Walas Sekarang
@@ -488,9 +510,17 @@
                                                                     </optgroup>
                                                                 </select>
                                                             </div>
-                                                            <div class="form-group mb-3">
+                                                            <div class="form-group mb-2">
                                                                 <label class="small font-weight-bold mb-1" for="ortu_time">Jam Pengiriman (WIB)</label>
                                                                 <input type="time" class="form-control form-control-sm" id="ortu_time" name="ortu_time" value="{{ $ortuCfg['time'] ?? '17:00' }}" required>
+                                                            </div>
+                                                            <div class="alert alert-light border p-2 mb-3 mt-2 bg-white">
+                                                                <div class="d-flex align-items-center">
+                                                                    <i class="fas fa-random text-primary mr-2 fa-lg"></i>
+                                                                    <div class="small text-muted" style="line-height: 1.3;">
+                                                                        <strong class="text-dark">Sistem Pengiriman:</strong> Rekap Orang Tua otomatis menggunakan <strong>Load Balancing (Acak)</strong> ke seluruh nomor aktif agar aman dari risiko pembatasan massal.
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                             <button type="button" class="btn btn-outline-primary btn-xs btn-block btn-test-rekap" data-target="orangtua">
                                                                 <i class="fas fa-paper-plane mr-1"></i> Test Kirim Ortu Sekarang

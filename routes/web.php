@@ -36,6 +36,7 @@ use App\Http\Controllers\SiswaPklController;
 use App\Http\Controllers\LaporanKedisiplinanController;
 use App\Http\Controllers\LaporanAbsensiMingguanController;
 use App\Http\Controllers\LaporanAbsensiBulananController;
+use App\Http\Controllers\BackupController;
 use App\Exports\AbsensiGuruExport;
 use Maatwebsite\Excel\Facades\Excel;
 // use App\Http\Controllers\RfidController;
@@ -132,7 +133,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('pointSiswa/inputPoint/{id_point}/{id_siswa}/{id_kelas}/{id_jurusan}/{tanggal}', [PointSiswaController::class, 'inputPoint'])->name('pointSiswa.inputPoint');
     Route::get('pointSiswa/reviewPointSiswa/{id_siswa}', [PointSiswaController::class, 'reviewPointSiswa'])->name('pointSiswa.review_point_siswa');
     Route::get('pointSiswa/sp-pdf/{id_siswa}', [PointSiswaController::class, 'downloadSpPdf'])->name('pointSiswa.sp_pdf');
-    Route::delete('pointSiswa/{id_point_siswa}', [PointSiswaController::class, 'destroy'])->name('admin.pointSiswa.destroy');
 
     // Laporan Pelanggaran & SP
     Route::get('laporan-pelanggaran', [LaporanPelanggaranController::class, 'index'])->name('laporanPelanggaran.index');
@@ -176,6 +176,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
         Route::post('/setting-test-rekap-wa', [SettingController::class, 'testRekapWa'])->name('setting.testRekapWa');
         Route::resource('setting', SettingController::class);
         Route::put('/setting-versi/{id_version}', [SettingController::class, 'updateVersiAplikasi'])->name('setting.updateVersiAplikasi');
+
+        // Backup & Restore Database
+        Route::get('/backup', [BackupController::class, 'index'])->name('backup.index');
+        Route::post('/backup/create', [BackupController::class, 'create'])->name('backup.create');
+        Route::get('/backup/download/{filename}', [BackupController::class, 'download'])->name('backup.download');
+        Route::post('/backup/restore', [BackupController::class, 'restore'])->name('backup.restore');
+        Route::post('/backup/restore-file/{filename}', [BackupController::class, 'restoreExisting'])->name('backup.restoreExisting');
+        Route::delete('/backup/{filename}', [BackupController::class, 'destroy'])->name('backup.destroy');
     });
 
 });

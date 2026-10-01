@@ -94,9 +94,10 @@ class CheckAndSendScheduledAttendanceNotifications extends Command
                     $end = $now->copy()->endOfMonth()->format('Y-m-d');
                 }
 
+                $walasSessionId = $walasCfg['session_id'] ?? null;
                 $totalSentWalas = 0;
                 foreach ($daftarKelas as $kelas) {
-                    $res = $service->dispatchNotifikasiWaliKelas($kelas->id_kelas, $start, $end);
+                    $res = $service->dispatchNotifikasiWaliKelas($kelas->id_kelas, $start, $end, $walasSessionId);
                     if ($res) {
                         $totalSentWalas++;
                     }

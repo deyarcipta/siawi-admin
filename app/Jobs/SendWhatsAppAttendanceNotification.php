@@ -14,14 +14,16 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
 
     protected $phoneNumber;
     protected $message;
+    protected $specificSessionId;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(string $phoneNumber, string $message)
+    public function __construct(string $phoneNumber, string $message, ?string $specificSessionId = null)
     {
         $this->phoneNumber = $this->formatWhatsAppNumber($phoneNumber);
         $this->message = $message;
+        $this->specificSessionId = ($specificSessionId && $specificSessionId !== 'auto') ? $specificSessionId : null;
     }
 
     /**
@@ -112,8 +114,28 @@ class SendWhatsAppAttendanceNotification implements ShouldQueue
         // Ambil opsi load balancing dari setting (default true jika belum didefinisikan)
         $loadBalancingEnabled = ($setting && isset($setting->wa_load_balancing)) ? (bool)$setting->wa_load_balancing : true;
 
-        if ($loadBalancingEnabled && $activeSessions->isNotEmpty()) {
-            // Acak urutan sesi untuk load balancing yang merata
+        if ($this->specificSessionId) {
+            // Jika ada sesi khusus yang ditentukan (misal pengiriman rekap Wali Kelas)
+            $specificSession = \App\Models\WhatsAppSession::where('session_id', $this->specificSessionId)->first();
+            $sessionId = $this->specificSessionId;
+            $session = $specificSession;
+
+            // Periksa apakah sesi khusus sedang dalam mode istirahat (sleep)
+            if (\Illuminate\Support\Facades\Cache::has('whatsapp-sleep-lock-' . $sessionId)) {
+                $this->release(rand(10, 20));
+                return;
+            }
+
+            // Gunakan lock cache untuk sesi terpilih agar jeda anti-ban tetap berlaku
+            $lockKey = 'whatsapp-send-lock-' . $sessionId;
+            $lock = \Illuminate\Support\Facades\Cache::lock($lockKey, $delaySeconds);
+
+            if (!$lock->get()) {
+                $this->release(rand(3, 5));
+                return;
+            }
+        } elseif ($loadBalancingEnabled && $activeSessions->isNotEmpty()) {
+            // Acak urutan sesi untuk load balancing yang merata (misal untuk Orang Tua)
             $shuffledSessions = $activeSessions->shuffle();
 
             foreach ($shuffledSessions as $s) {

@@ -410,6 +410,38 @@
     display: inline-block;
     margin-right: 8px;
   }
+
+  /* Responsive Adjustments for Dashboard */
+  @media (max-width: 575.98px) {
+    .dashboard-header-title {
+      font-size: 1.25rem !important;
+    }
+    .dashboard-header-subtitle {
+      font-size: 0.76rem !important;
+    }
+    .btn-outline-custom,
+    .btn-primary-custom {
+      width: 100% !important;
+      justify-content: center !important;
+      margin-bottom: 8px !important;
+      margin-right: 0 !important;
+    }
+    .early-birds-tab {
+      width: 100% !important;
+      justify-content: space-between !important;
+      margin-top: 8px !important;
+    }
+    .modern-card-header {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 10px !important;
+    }
+    .modern-card-header > div:last-child {
+      width: 100% !important;
+      display: flex !important;
+      justify-content: flex-end !important;
+    }
+  }
 </style>
 
 @php
