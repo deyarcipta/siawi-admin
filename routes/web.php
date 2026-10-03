@@ -56,7 +56,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
 
     // Siswa & Alumni Management
     Route::resource('siswa', SiswaController::class);
-    Route::get('siswa/{id}/edit', [SiswaController::class, 'edit'])->name('siswa.edit');
     Route::get('siswa/{id_guru}/reset', [SiswaController::class, 'reset'])->name('siswa.reset');
     Route::get('/download-siswa', [SiswaController::class, 'download'])->name('siswa.download');
     Route::post('kelas/{id_kelas}/naik-kelas', [KelasController::class, 'naikKelas']);
@@ -85,7 +84,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('/absensi/download', [AbsensiController::class, 'downloadShowRekap']);
     Route::get('/get-siswa-by-kelas/{id_kelas}', [AbsensiController::class, 'getSiswaByKelas']);
     Route::resource('absensi', AbsensiController::class);
-    Route::delete('/absensi/{id_absensi}', [AbsensiController::class, 'destroy'])->name('absensi.destroy');
 
     // Absensi Guru
     Route::resource('absensi_guru', AbsensiGuruController::class);
@@ -120,7 +118,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('laporan-mingguan-wa/preview', [LaporanAbsensiMingguanController::class, 'preview'])->name('laporanMingguanWa.preview');
 
     // Rapot, Modul, Dokumen, Tagihan
-    Route::resource('rapot', RapotController::class);
+    Route::resource('rapot', RapotController::class)->except(['create']);
     Route::get('rapot/create/{kelasId?}', [RapotController::class, 'create'])->name('rapot.create');
     Route::resource('dokumen', DokumenController::class);
     Route::resource('modul', ModulController::class);
