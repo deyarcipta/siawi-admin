@@ -52,6 +52,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     
     // 1. Routes accessible to all authenticated staff (Admin, Kurikulum, Kesiswaan, Guru)
     Route::resource('/dashboard', DashboardController::class);
+    Route::post('/dashboard/ingatkan-wali-kelas/{id_kelas}', [DashboardController::class, 'ingatkanWaliKelas'])->name('dashboard.ingatkanWaliKelas');
+    Route::post('/dashboard/ingatkan-semua-wali-kelas', [DashboardController::class, 'ingatkanSemuaWaliKelas'])->name('dashboard.ingatkanSemuaWaliKelas');
     Route::get('/guru/profile/{id_guru}', [DashboardController::class, 'edit'])->name('guru.profile');
 
     // Siswa & Alumni Management

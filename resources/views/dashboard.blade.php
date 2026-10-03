@@ -904,7 +904,7 @@
         </div>
 
         <div class="modal-footer border-0 p-4 pt-2 d-flex justify-content-between" style="background: #ffffff;">
-          <button type="button" class="btn btn-outline-success" style="border-radius: 10px; font-weight: 600; font-size: 0.84rem;" onclick="kirimWaWaliKelas('{{ $data['kelas']->nama_kelas }}', '{{ $data['jumlahBelumAbsen'] }}')">
+          <button type="button" class="btn btn-outline-success" style="border-radius: 10px; font-weight: 600; font-size: 0.84rem;" onclick="kirimWaWaliKelas('{{ $data['kelas']->id_kelas }}', '{{ $data['kelas']->nama_kelas }}', '{{ $data['jumlahBelumAbsen'] }}')">
             <i class="fab fa-whatsapp mr-1"></i> Ingatkan Wali Kelas
           </button>
           <div style="gap: 8px;" class="d-flex">
@@ -1001,33 +1001,74 @@
     $('.select-kehadiran-' + idKelas).val(status);
   }
 
-  // Kirim WhatsApp Pengingat Wali Kelas
-  function kirimWaWaliKelas(namaKelas, jumlah) {
+  // Kirim WhatsApp Pengingat Wali Kelas (Per Kelas)
+  function kirimWaWaliKelas(idKelas, namaKelas, jumlah) {
     Swal.fire({
-      icon: 'success',
-      title: 'Pengingat Diproses!',
-      text: 'Pemberitahuan presensi untuk Wali Kelas ' + namaKelas + ' (' + jumlah + ' siswa) telah disiapkan.',
-      confirmButtonColor: '#1d72fe'
+      title: 'Kirim Pengingat WhatsApp?',
+      text: 'Pemberitahuan presensi (' + jumlah + ' siswa belum absen) akan dikirimkan ke nomor WhatsApp Wali Kelas ' + namaKelas + '.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: '<i class="fab fa-whatsapp mr-1"></i> Kirim Sekarang',
+      cancelButtonText: 'Batal',
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        return $.ajax({
+          url: '/admin/dashboard/ingatkan-wali-kelas/' + idKelas,
+          type: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        }).catch(error => {
+          var msg = (error.responseJSON && error.responseJSON.message) ? error.responseJSON.message : 'Gagal mengirim pengingat ke WhatsApp.';
+          Swal.showValidationMessage(msg);
+        });
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil Dikirim!',
+          text: result.value.message,
+          confirmButtonColor: '#1d72fe'
+        });
+      }
     });
   }
 
   // Ingatkan Semua Kelas Action
   function ingatkanSemuaKelas() {
     Swal.fire({
-      title: 'Ingatkan Semua Kelas?',
-      text: 'Pemberitahuan pengingat absensi akan dikirimkan ke seluruh wali kelas yang belum menyelesaikan absensi.',
+      title: 'Ingatkan Semua Wali Kelas?',
+      text: 'Pemberitahuan pengingat absensi akan dikirimkan otomatis melalui WhatsApp ke seluruh wali kelas yang belum menyelesaikan absensi hari ini.',
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#1d72fe',
       cancelButtonColor: '#94a3b8',
-      confirmButtonText: 'Ya, Kirim Pengingat',
-      cancelButtonText: 'Batal'
+      confirmButtonText: '<i class="fab fa-whatsapp mr-1"></i> Ya, Kirim ke Semua',
+      cancelButtonText: 'Batal',
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        return $.ajax({
+          url: '/admin/dashboard/ingatkan-semua-wali-kelas',
+          type: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        }).catch(error => {
+          var msg = (error.responseJSON && error.responseJSON.message) ? error.responseJSON.message : 'Gagal memproses pengiriman pengingat.';
+          Swal.showValidationMessage(msg);
+        });
+      },
+      allowOutsideClick: () => !Swal.isLoading()
     }).then((result) => {
-      if (result.isConfirmed) {
+      if (result.isConfirmed && result.value) {
         Swal.fire({
           icon: 'success',
-          title: 'Pengingat Terkirim!',
-          text: 'Pesan pengingat presensi berhasil dikirimkan ke wali kelas terkait.',
+          title: 'Pengingat Diproses!',
+          text: result.value.message,
           confirmButtonColor: '#1d72fe'
         });
       }

@@ -16,6 +16,7 @@ use App\Models\Setting;
 use App\Models\JadwalMapel;
 use App\Models\GuruPiket;
 use App\Models\PiketPembiasaanPagi;
+use App\Jobs\SendWhatsAppAttendanceNotification;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
@@ -454,5 +455,123 @@ class DashboardController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    /**
+     * Kirim pengingat WhatsApp ke Wali Kelas untuk kelas tertentu
+     */
+    public function ingatkanWaliKelas(Request $request, $id_kelas)
+    {
+        $kelas = Kelas::with(['waliKelas', 'siswa'])->findOrFail($id_kelas);
+        $setting = Setting::first();
+        $namaSekolah = $setting->nama_sekolah ?? 'SMK Wisata Indonesia';
+        $today = Carbon::now()->toDateString();
+        $todayLabel = Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y');
+
+        if (!$kelas->waliKelas || empty($kelas->waliKelas->no_hp)) {
+            return response()->json([
+                'success' => false,
+                'message' => "Wali Kelas untuk kelas {$kelas->nama_kelas} belum diatur atau nomor WhatsApp belum terisi di data guru."
+            ], 422);
+        }
+
+        $siswaSedangPKL = SiswaPkl::pluck('id_siswa')->toArray();
+        $siswaSudahAbsen = Absensi::where('tanggal', $today)
+            ->where('id_kelas', $kelas->id_kelas)
+            ->pluck('id_siswa')
+            ->toArray();
+
+        $siswaBelumAbsen = $kelas->siswa->filter(function ($siswa) use ($siswaSudahAbsen, $siswaSedangPKL) {
+            return !in_array($siswa->id_siswa, $siswaSudahAbsen) && !in_array($siswa->id_siswa, $siswaSedangPKL);
+        });
+
+        $jumlahBelumAbsen = $siswaBelumAbsen->count();
+
+        if ($jumlahBelumAbsen == 0) {
+            return response()->json([
+                'success' => false,
+                'message' => "Seluruh siswa di kelas {$kelas->nama_kelas} sudah selesai diabsen hari ini."
+            ], 422);
+        }
+
+        $wali = $kelas->waliKelas;
+        $pesan = "📢 *PENGINGAT PRESENSI HARIAN - {$namaSekolah}*\n\n"
+               . "Yth. Bapak/Ibu *{$wali->nama_guru}*\n"
+               . "Wali Kelas: *{$kelas->nama_kelas}*\n\n"
+               . "Diberitahukan bahwa terdapat *{$jumlahBelumAbsen} siswa* di kelas Anda yang *belum melakukan presensi* pada hari ini (*{$todayLabel}*).\n\n"
+               . "Mohon kesediaannya untuk segera memeriksa dan melengkapi presensi siswa melalui aplikasi SIAWI.\n\n"
+               . "Terima kasih atas kerja sama dan dedikasi Bapak/Ibu.\n"
+               . "_Pesan otomatis sistem SIAWI_";
+
+        SendWhatsAppAttendanceNotification::dispatch($wali->no_hp, $pesan);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Pesan pengingat berhasil dikirimkan ke antrean WhatsApp Wali Kelas {$wali->nama_guru} ({$kelas->nama_kelas})."
+        ]);
+    }
+
+    /**
+     * Kirim pengingat WhatsApp ke semua Wali Kelas yang kelasnya belum absen
+     */
+    public function ingatkanSemuaWaliKelas(Request $request)
+    {
+        $setting = Setting::first();
+        $namaSekolah = $setting->nama_sekolah ?? 'SMK Wisata Indonesia';
+        $today = Carbon::now()->toDateString();
+        $todayLabel = Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y');
+        $siswaSedangPKL = SiswaPkl::pluck('id_siswa')->toArray();
+
+        $kelasList = Kelas::with(['waliKelas', 'siswa'])->get();
+        $terkirimCount = 0;
+        $tidakAdaNomorCount = 0;
+
+        foreach ($kelasList as $kelas) {
+            $siswaSudahAbsen = Absensi::where('tanggal', $today)
+                ->where('id_kelas', $kelas->id_kelas)
+                ->pluck('id_siswa')
+                ->toArray();
+
+            $siswaBelumAbsen = $kelas->siswa->filter(function ($siswa) use ($siswaSudahAbsen, $siswaSedangPKL) {
+                return !in_array($siswa->id_siswa, $siswaSudahAbsen) && !in_array($siswa->id_siswa, $siswaSedangPKL);
+            });
+
+            $jumlah = $siswaBelumAbsen->count();
+
+            if ($jumlah > 0) {
+                $wali = $kelas->waliKelas;
+                if ($wali && !empty($wali->no_hp)) {
+                    $pesan = "📢 *PENGINGAT PRESENSI HARIAN - {$namaSekolah}*\n\n"
+                           . "Yth. Bapak/Ibu *{$wali->nama_guru}*\n"
+                           . "Wali Kelas: *{$kelas->nama_kelas}*\n\n"
+                           . "Diberitahukan bahwa terdapat *{$jumlah} siswa* di kelas Anda yang *belum melakukan presensi* pada hari ini (*{$todayLabel}*).\n\n"
+                           . "Mohon kesediaannya untuk segera memeriksa dan melengkapi presensi siswa melalui aplikasi SIAWI.\n\n"
+                           . "Terima kasih atas kerja sama dan dedikasi Bapak/Ibu.\n"
+                           . "_Pesan otomatis sistem SIAWI_";
+
+                    SendWhatsAppAttendanceNotification::dispatch($wali->no_hp, $pesan);
+                    $terkirimCount++;
+                } else {
+                    $tidakAdaNomorCount++;
+                }
+            }
+        }
+
+        if ($terkirimCount == 0 && $tidakAdaNomorCount == 0) {
+            return response()->json([
+                'success' => true,
+                'message' => "Semua kelas telah menyelesaikan presensi hari ini."
+            ]);
+        }
+
+        $pesanHasil = "Berhasil mengirim pengingat ke {$terkirimCount} Wali Kelas.";
+        if ($tidakAdaNomorCount > 0) {
+            $pesanHasil .= " ({$tidakAdaNomorCount} kelas dilewati karena Wali Kelas belum memiliki nomor WhatsApp).";
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $pesanHasil
+        ]);
     }
 }
