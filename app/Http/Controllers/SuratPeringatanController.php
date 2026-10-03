@@ -19,10 +19,13 @@ class SuratPeringatanController extends Controller
         $setting = Setting::find(1);
         $user = Auth::user();
 
-        // Get all issued SPs
-        $suratPeringatan = SuratPeringatan::with('siswa.kelas', 'kelas')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Get issued SPs (scoped for wali_kelas)
+        $query = SuratPeringatan::with('siswa.kelas', 'kelas');
+        if ($user && $user->role == 'wali_kelas') {
+            $kelasWaliIds = \App\Models\Kelas::where('id_guru', $user->id_guru)->pluck('id_kelas');
+            $query->whereIn('id_kelas', $kelasWaliIds);
+        }
+        $suratPeringatan = $query->orderBy('created_at', 'desc')->get();
 
         return view('suratPeringatan.index', compact('layout', 'setting', 'user', 'suratPeringatan'));
     }

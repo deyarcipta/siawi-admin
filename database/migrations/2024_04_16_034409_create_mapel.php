@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mapel', function (Blueprint $table) {
-            $table->bigIncrements('id_mapel');
-            $table->string('kode_mapel');
-            $table->string('nama_mapel');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('mapel')) {
+            Schema::create('mapel', function (Blueprint $table) {
+                $table->bigIncrements('id_mapel');
+                $table->string('kode_mapel');
+                $table->string('nama_mapel');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

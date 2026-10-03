@@ -25,7 +25,7 @@ class AbsensiGuruController extends Controller
         $now = Carbon::now('Asia/Jakarta');
         $tanggal = $now->toDateString();
         $hari = $now->locale('id')->dayName;
-        $guruList = Guru::all();
+        $guruList = Guru::orderBy('nama_guru', 'asc')->get();
         // Ambil data absensi hanya untuk hari ini
         $absensiGuru = AbsensiGuru::whereDate('tanggal', $tanggal)
                               ->orderBy('created_at', 'desc')

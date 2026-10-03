@@ -32,8 +32,12 @@ class SiswaController extends Controller
     {
         $layout = 'layout.app';
         $setting = Setting::find('1');
-        $user = Auth::user();
-        $siswa = Siswa::orderBy('created_at', 'desc')->get();
+        $query = Siswa::query();
+        if ($user && $user->role == 'wali_kelas') {
+            $kelasWaliIds = Kelas::where('id_guru', $user->id_guru)->pluck('id_kelas');
+            $query->whereIn('id_kelas', $kelasWaliIds);
+        }
+        $siswa = $query->orderBy('nama_siswa', 'asc')->get();
         return view('dataSiswa.data_siswa', compact('layout','siswa','setting','user'));
     }
 
@@ -43,9 +47,9 @@ class SiswaController extends Controller
     public function create()
     {
         $layout = 'layout.app';
-        $level = Level::orderBy('created_at', 'desc')->get();
-        $jurusan = Jurusan::orderBy('created_at', 'desc')->get();
-        $kelas = Kelas::orderBy('created_at', 'desc')->get();
+        $level = Level::orderBy('kode_level', 'asc')->get();
+        $jurusan = Jurusan::orderBy('nama_jurusan', 'asc')->get();
+        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $setting = Setting::find('1');
         $user = Auth::user();
         return view('dataSiswa.tambah_siswa', compact('layout','level','jurusan','kelas','setting','user'));
@@ -161,8 +165,8 @@ class SiswaController extends Controller
         $layout = 'layout.app';
         $edit = Siswa::find($id_siswa);
         session(['old_foto' => $edit->foto]);
-        $level = Level::orderBy('created_at', 'desc')->get();
-        $jurusan = Jurusan::orderBy('created_at', 'desc')->get();
+        $level = Level::orderBy('kode_level', 'asc')->get();
+        $jurusan = Jurusan::orderBy('nama_jurusan', 'asc')->get();
         $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $setting = Setting::find('1');
         $user = Auth::user();

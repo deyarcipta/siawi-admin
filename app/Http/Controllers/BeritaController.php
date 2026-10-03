@@ -34,7 +34,7 @@ class BeritaController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $guru = Guru::orderBy('created_at', 'desc')->get();
+        $guru = Guru::orderBy('nama_guru', 'asc')->get();
         return view('berita.tambah_berita', compact('layout','setting','guru','user'));
     }
 
@@ -91,7 +91,7 @@ class BeritaController extends Controller
         $user = Auth::user();
         $edit = Berita::findOrFail($id_berita);
         session(['old_file' => $edit->cover]);
-        $guru = Guru::orderBy('created_at', 'desc')->get();
+        $guru = Guru::orderBy('nama_guru', 'asc')->get();
 
         $indonesianMonths = [
             'Januari' => 'January', 'Februari' => 'February', 'Maret' => 'March',

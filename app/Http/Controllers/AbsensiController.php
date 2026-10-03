@@ -32,13 +32,14 @@ class AbsensiController extends Controller
         }
         
         $hari = Carbon::parse($tanggal)->locale('id')->dayName;
-        $siswaList = Siswa::orderBy('nama_siswa', 'asc')->get();
         $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
-        // Ambil data absensi berdasarkan tanggal filter dengan eager loading
-        $absensiSiswa = Absensi::whereDate('tanggal', $tanggal)
+        $absensiQuery = Absensi::whereDate('tanggal', $tanggal)
                               ->with(['siswa.kelas', 'kelas'])
-                              ->orderBy('created_at', 'desc')
-                              ->get();
+                              ->orderBy('created_at', 'desc');
+        $siswaQuery = Siswa::orderBy('nama_siswa', 'asc');
+
+        $siswaList = $siswaQuery->get();
+        $absensiSiswa = $absensiQuery->get();
         return view('absensi.index', compact('absensiSiswa', 'layout', 'setting', 'user', 'hari', 'tanggal', 'siswaList', 'kelasList'));
     }
 
@@ -222,6 +223,17 @@ class AbsensiController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
+
+        // Jika user adalah wali_kelas, langsung arahkan ke detail rekap kelasnya sendiri
+        if ($user && $user->role == 'wali_kelas') {
+            $kelasWali = Kelas::where('id_guru', $user->id_guru)->first();
+            if ($kelasWali) {
+                $tanggal_awal = $request->input('tanggal_awal', Carbon::now()->startOfWeek()->toDateString());
+                $tanggal_akhir = $request->input('tanggal_akhir', Carbon::now()->toDateString());
+                return redirect('/admin/showRekapAbsen?tanggal_awal=' . $tanggal_awal . '&tanggal_akhir=' . $tanggal_akhir . '&id_kelas=' . $kelasWali->id_kelas);
+            }
+        }
+
         $dataKelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $rekapKehadiran = [];
 
@@ -245,7 +257,7 @@ class AbsensiController extends Controller
                 $rekapKehadiran[] = [
                     'id_kelas' => $kelas->id_kelas,
                     'nama_kelas' => $kelas->nama_kelas,
-                    'presentase' => $presentase
+                    'presentase' => round($presentase, 2)
                 ];
             }
 
@@ -271,15 +283,36 @@ class AbsensiController extends Controller
         $setting = Setting::find('1');
         $user = Auth::user();
         $kelasId = $request->query('id_kelas');
-        $tanggal_awal = $request->query('tanggal_awal');
-        $tanggal_akhir = $request->query('tanggal_akhir');
+        
+        if (!$kelasId && $user && $user->role == 'wali_kelas') {
+            $kelasWali = Kelas::where('id_guru', $user->id_guru)->first();
+            if ($kelasWali) {
+                $kelasId = $kelasWali->id_kelas;
+            }
+        }
+
+        if (!$kelasId) {
+            return redirect('/admin/rekapAbsen')->with('error', 'Kelas tidak ditemukan.');
+        }
 
         $dataKelas = Kelas::findOrFail($kelasId);
         
-        // Misalnya kamu pakai model Absen untuk ambil data
-        $siswa = Siswa::where('id_kelas', $kelasId)->get();
+        // Keamanan: Jika wali_kelas, pastikan hanya dapat melihat kelas miliknya
+        if ($user && $user->role == 'wali_kelas' && $dataKelas->id_guru != $user->id_guru) {
+            $kelasWali = Kelas::where('id_guru', $user->id_guru)->first();
+            if ($kelasWali) {
+                $kelasId = $kelasWali->id_kelas;
+                $dataKelas = $kelasWali;
+            } else {
+                abort(403, 'Anda tidak memiliki akses ke kelas ini.');
+            }
+        }
 
-        // Lanjutkan proses penghitungan seperti:
+        $tanggal_awal = $request->query('tanggal_awal', Carbon::now()->startOfWeek()->toDateString());
+        $tanggal_akhir = $request->query('tanggal_akhir', Carbon::now()->toDateString());
+
+        $siswa = Siswa::where('id_kelas', $kelasId)->orderBy('nama_siswa', 'asc')->get();
+
         $absensiSiswa = [];
         $countMasuk = [];
         $countSakit = [];
@@ -376,13 +409,23 @@ class AbsensiController extends Controller
         $setting = Setting::find('1');
         $user = Auth::user();
         $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
-        $kelasId = '';
+        if ($user && $user->role == 'wali_kelas') {
+            $kelasWali = Kelas::where('id_guru', $user->id_guru)->orderBy('nama_kelas', 'asc')->get();
+            if ($kelasWali->isNotEmpty()) {
+                $kelas = $kelasWali;
+            }
+        }
 
-        if ($request->filled('kelas') && $request->filled('tanggal_awal') && $request->filled('tanggal_akhir')) {
-            $kelasId = $request->kelas;
+        $tanggalAwal = $request->input('tanggal_awal', Carbon::now()->startOfMonth()->toDateString());
+        $tanggalAkhir = $request->input('tanggal_akhir', Carbon::now()->toDateString());
+        
+        $kelasId = $request->input('kelas');
+        if (!$kelasId && $user && $user->role == 'wali_kelas') {
+            $kelasId = $kelas->first()?->id_kelas;
+        }
+
+        if ($kelasId) {
             $dataKelas = Kelas::where('id_kelas', $kelasId)->first();
-            $tanggalAwal = $request->input('tanggal_awal', Carbon::now()->startOfMonth()->toDateString());
-            $tanggalAkhir = $request->input('tanggal_akhir', Carbon::now()->endOfMonth()->toDateString());
 
             $rekapKehadiran = Absensi::whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir])
                 ->whereHas('siswa', function ($query) use ($kelasId) {
@@ -391,20 +434,26 @@ class AbsensiController extends Controller
                 ->with('siswa')
                 ->get()
                 ->groupBy('id_siswa');
-            $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
 
-            return view('dataAbsen.rekap_absen', compact('layout', 'setting', 'user', 'kelas', 'rekapKehadiran', 'tanggalAwal', 'tanggalAkhir', 'kelasId','dataKelas'));
+            return view('dataAbsen.rekap_absen', compact('layout', 'setting', 'user', 'kelas', 'rekapKehadiran', 'tanggalAwal', 'tanggalAkhir', 'kelasId', 'dataKelas'));
         }
-        return view('dataAbsen.rekap_absen', compact('layout', 'setting', 'user', 'kelas', 'kelasId'));
-        
+
+        return view('dataAbsen.rekap_absen', compact('layout', 'setting', 'user', 'kelas', 'kelasId', 'tanggalAwal', 'tanggalAkhir'));
     }
 
     // Controller Untuk Mendownload Rekap Waktu Kehadiran dan Pulang Siswa
     public function exportRekapSiswa(Request $request)
     {
+        $user = Auth::user();
         $id_kelas     = $request->id_kelas;
-        $tanggal_awal = $request->tanggal_awal;
-        $tanggal_akhir= $request->tanggal_akhir;
+        if ($user && $user->role == 'wali_kelas') {
+            $kelasWali = Kelas::where('id_guru', $user->id_guru)->first();
+            if ($kelasWali) {
+                $id_kelas = $kelasWali->id_kelas;
+            }
+        }
+        $tanggal_awal = $request->input('tanggal_awal', Carbon::now()->startOfMonth()->toDateString());
+        $tanggal_akhir= $request->input('tanggal_akhir', Carbon::now()->toDateString());
 
         // Ambil data kelas untuk mendapatkan nama kelas
         $kelas = Kelas::find($id_kelas);

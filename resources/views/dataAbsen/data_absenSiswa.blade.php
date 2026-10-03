@@ -14,17 +14,50 @@
             <div class="col-sm-5">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                    @if(Auth::user()->role == 'admin')
                     <li class="breadcrumb-item"><a href="/admin/rekapAbsen">Rekap Kelas</a></li>
-                    <li class="breadcrumb-item active">Detail Siswa</li>
+                    @endif
+                    <li class="breadcrumb-item active">Detail Absensi Kelas</li>
                 </ol>
             </div>
         </div>
     </div>
 </div>
 
-@if(isset($siswa))
 <div class="content">
     <div class="container-fluid">
+        <!-- Filter Card -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title text-dark font-weight-bold mb-0">
+                            <i class="fas fa-sliders-h text-primary mr-2"></i> Filter Periode Absensi
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <form action="/admin/showRekapAbsen" method="GET">
+                            <input type="hidden" name="id_kelas" value="{{ $kelasId }}">
+                            <div class="row align-items-end">
+                                <div class="form-group col-md-4 mb-3 mb-md-0">
+                                    <label for="tanggal_awal" class="font-weight-bold text-secondary" style="font-size: 0.78rem; text-transform: uppercase;">Tanggal Awal</label>
+                                    <input type="date" class="form-control" id="tanggal_awal" name="tanggal_awal" required value="{{ $tanggal_awal ?? '' }}">
+                                </div>
+                                <div class="form-group col-md-4 mb-3 mb-md-0">
+                                    <label for="tanggal_akhir" class="font-weight-bold text-secondary" style="font-size: 0.78rem; text-transform: uppercase;">Tanggal Akhir</label>
+                                    <input type="date" class="form-control" id="tanggal_akhir" name="tanggal_akhir" required value="{{ $tanggal_akhir ?? '' }}">
+                                </div>
+                                <div class="form-group col-md-2 mb-0">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-search mr-1"></i> Tampilkan</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if(isset($siswa))
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
@@ -90,8 +123,7 @@
                 </div>
             </div>
         </div>
+        @endif
     </div>
 </div>
-@endif
-
 @endsection

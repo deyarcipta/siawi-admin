@@ -39,6 +39,8 @@
         <span class="d-none d-sm-inline">
           @if($user->role == 'admin')
             Admin
+          @elseif($user->role == 'wali_kelas')
+            Wali Kelas
           @elseif($user->role == 'guru')
             Guru
           @elseif($user->role == 'kesiswaan')
@@ -60,7 +62,7 @@
             </div>
           @endif
           <div class="font-weight-bold" style="font-size: 0.95rem;">{{ $user->nama_guru }}</div>
-          <div style="font-size: 0.75rem; opacity: 0.85;">{{ ucfirst($user->role) }}</div>
+          <div style="font-size: 0.75rem; opacity: 0.85;">{{ $user->role == 'wali_kelas' ? 'Wali Kelas' : ucfirst($user->role) }}</div>
         </div>
         <div class="p-2">
           <a href="{{ route('admin.guru.profile', $user->id_guru ?? 1) }}" class="dropdown-item py-2" style="border-radius: 8px; font-size: 0.85rem; font-weight: 500;">

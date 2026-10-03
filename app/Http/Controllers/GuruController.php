@@ -20,7 +20,7 @@ class GuruController extends Controller
         $layout = 'layout.app';// Misalnya, layout default Anda adalah 'layouts.app'
         $setting = Setting::find('1');
         $user = Auth::user();
-        $guru = Guru::orderBy('created_at', 'desc')->get();
+        $guru = Guru::orderBy('nama_guru', 'asc')->get();
         return view('dataGuru.dataGuru', compact('layout','guru','setting','user'));
     }
 

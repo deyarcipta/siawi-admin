@@ -18,7 +18,7 @@ class JurusanController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $jurusan = Jurusan::orderBy('created_at', 'desc')->get();
+        $jurusan = Jurusan::orderBy('nama_jurusan', 'asc')->get();
         return view('dataMaster.jurusan.data_jurusan', compact('layout','jurusan','setting','user'));
     }
 

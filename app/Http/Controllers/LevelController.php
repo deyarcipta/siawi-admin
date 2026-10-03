@@ -18,7 +18,7 @@ class LevelController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $level = Level::orderBy('created_at', 'desc')->get();
+        $level = Level::orderBy('kode_level', 'asc')->get();
         return view('dataMaster.level.data_level', compact('layout','level','setting','user'));
     }
 

@@ -153,7 +153,9 @@
                   <select name="tujuan_kelas[{{ $sw->id_siswa }}]" class="form-control form-control-sm">
                     @php
                       $kelasTujuan = \App\Models\Kelas::where('kode_level', strtoupper($kls->kode_level) === 'X' ? 'XI' : 'XII')
-                          ->where('kode_jurusan', $kls->kode_jurusan)->get();
+                          ->where('kode_jurusan', $kls->kode_jurusan)
+                          ->orderBy('nama_kelas', 'asc')
+                          ->get();
                     @endphp
                     @foreach($kelasTujuan as $kt)
                       <option value="{{ $kt->id_kelas }}">{{ $kt->nama_kelas }}</option>

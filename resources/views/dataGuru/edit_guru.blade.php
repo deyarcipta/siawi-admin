@@ -67,6 +67,7 @@
                   <label for="role" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Hak Akses Sistem (Role) <span class="text-danger">*</span></label>
                   <select class="form-control @error('role') is-invalid @enderror" name="role" id="role" style="border-radius: 8px; height: 42px;">
                     <option value="admin" {{ (old('role', $edit->role) == 'admin') ? 'selected' : '' }}>Admin</option>
+                    <option value="wali_kelas" {{ (old('role', $edit->role) == 'wali_kelas') ? 'selected' : '' }}>Wali Kelas</option>
                     <option value="kurikulum" {{ (old('role', $edit->role) == 'kurikulum') ? 'selected' : '' }}>Kurikulum</option>
                     <option value="kesiswaan" {{ (old('role', $edit->role) == 'kesiswaan') ? 'selected' : '' }}>Kesiswaan</option>
                     <option value="guru" {{ (old('role', $edit->role) == 'guru') ? 'selected' : '' }}>Guru</option>

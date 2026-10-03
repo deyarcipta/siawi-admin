@@ -54,7 +54,21 @@
                 <td>{{$gru->username}}</td>
                 {{-- <td>{{ $gru->password }}</td> --}}
                 <td>{{$gru->no_hp ?? '-'}}</td>
-                <td>{{$gru->role}}</td>
+                <td>
+                  @if($gru->role == 'admin')
+                    <span class="badge badge-primary px-2 py-1">Admin</span>
+                  @elseif($gru->role == 'wali_kelas')
+                    <span class="badge badge-success px-2 py-1">Wali Kelas</span>
+                  @elseif($gru->role == 'kurikulum')
+                    <span class="badge badge-info px-2 py-1">Kurikulum</span>
+                  @elseif($gru->role == 'kesiswaan')
+                    <span class="badge badge-warning px-2 py-1">Kesiswaan</span>
+                  @elseif($gru->role == 'guru')
+                    <span class="badge badge-secondary px-2 py-1">Guru</span>
+                  @else
+                    <span class="badge badge-light px-2 py-1">{{ ucfirst($gru->role) }}</span>
+                  @endif
+                </td>
                 <td>
                   <form action="guru/{{$gru->id_guru}}" method="POST">
                     <a href="{{route('admin.guru.reset', $gru->id_guru)}}" class="btn btn-primary"><i class="fa fa-key" style="color: white"></i></a>

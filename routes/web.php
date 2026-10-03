@@ -134,13 +134,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::get('pointSiswa/reviewPointSiswa/{id_siswa}', [PointSiswaController::class, 'reviewPointSiswa'])->name('pointSiswa.review_point_siswa');
     Route::get('pointSiswa/sp-pdf/{id_siswa}', [PointSiswaController::class, 'downloadSpPdf'])->name('pointSiswa.sp_pdf');
 
-    // Laporan Pelanggaran & SP
-    Route::get('laporan-pelanggaran', [LaporanPelanggaranController::class, 'index'])->name('laporanPelanggaran.index');
-    Route::get('laporan-pelanggaran/export-excel', [LaporanPelanggaranController::class, 'exportExcel'])->name('laporanPelanggaran.exportExcel');
-    Route::get('laporan-pelanggaran/export-pdf', [LaporanPelanggaranController::class, 'exportPdf'])->name('laporanPelanggaran.exportPdf');
-    Route::get('laporan-pelanggaran/detail/{id_siswa}', [LaporanPelanggaranController::class, 'detailRiwayat'])->name('laporanPelanggaran.detail');
-    Route::get('surat-peringatan', [SuratPeringatanController::class, 'index'])->name('suratPeringatan.index');
-    Route::post('surat-peringatan/upload-ttd/{id_sp}', [SuratPeringatanController::class, 'uploadTtd'])->name('suratPeringatan.uploadTtd');
+    // Laporan Pelanggaran & SP (Admin, Kesiswaan, Wali Kelas, Kurikulum)
+    Route::group(['middleware' => ['role:admin,kesiswaan,wali_kelas,kurikulum']], function () {
+        Route::get('laporan-pelanggaran', [LaporanPelanggaranController::class, 'index'])->name('laporanPelanggaran.index');
+        Route::get('laporan-pelanggaran/export-excel', [LaporanPelanggaranController::class, 'exportExcel'])->name('laporanPelanggaran.exportExcel');
+        Route::get('laporan-pelanggaran/export-pdf', [LaporanPelanggaranController::class, 'exportPdf'])->name('laporanPelanggaran.exportPdf');
+        Route::get('laporan-pelanggaran/detail/{id_siswa}', [LaporanPelanggaranController::class, 'detailRiwayat'])->name('laporanPelanggaran.detail');
+        Route::get('surat-peringatan', [SuratPeringatanController::class, 'index'])->name('suratPeringatan.index');
+        Route::post('surat-peringatan/upload-ttd/{id_sp}', [SuratPeringatanController::class, 'uploadTtd'])->name('suratPeringatan.uploadTtd');
+    });
 
     // Guru Piket
     Route::get('guruPiket/panel', [GuruPiketController::class, 'panel'])->name('guruPiket.panel');

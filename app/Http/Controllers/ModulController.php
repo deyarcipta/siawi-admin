@@ -36,10 +36,10 @@ class ModulController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $guru = Guru::orderBy('created_at', 'desc')->get();
-        $level = Level::orderBy('created_at', 'desc')->get();
-        $jurusan = Jurusan::orderBy('created_at', 'desc')->get();
-        $mapel = Mapel::orderBy('created_at', 'desc')->get();
+        $guru = Guru::orderBy('nama_guru', 'asc')->get();
+        $level = Level::orderBy('kode_level', 'asc')->get();
+        $jurusan = Jurusan::orderBy('nama_jurusan', 'asc')->get();
+        $mapel = Mapel::orderBy('nama_mapel', 'asc')->get();
         return view('modul.tambah_modul', compact('layout','setting','guru','level','jurusan','mapel','user'));
     }
 
@@ -97,10 +97,10 @@ class ModulController extends Controller
         $user = Auth::user();
         $edit = Modul::find($id_modul);
         session(['file_lama' => $edit->file_modul]);
-        $guru = Guru::orderBy('created_at', 'desc')->get();
-        $level = Level::orderBy('created_at', 'desc')->get();
-        $jurusan = Jurusan::orderBy('created_at', 'desc')->get();
-        $mapel = Mapel::orderBy('created_at', 'desc')->get();
+        $guru = Guru::orderBy('nama_guru', 'asc')->get();
+        $level = Level::orderBy('kode_level', 'asc')->get();
+        $jurusan = Jurusan::orderBy('nama_jurusan', 'asc')->get();
+        $mapel = Mapel::orderBy('nama_mapel', 'asc')->get();
         return view('modul.edit_modul', compact('layout','edit','setting','guru','level','jurusan','mapel','user'));
     }
 

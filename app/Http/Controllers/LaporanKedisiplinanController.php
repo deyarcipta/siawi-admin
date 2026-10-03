@@ -57,13 +57,20 @@ class LaporanKedisiplinanController extends Controller
         }
 
         $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
-        $selectedKelasId = $request->input('id_kelas');
+        if ($user && $user->role == 'wali_kelas') {
+            $kelasList = Kelas::where('id_guru', $user->id_guru)->orderBy('nama_kelas', 'asc')->get();
+            $selectedKelasId = $request->input('id_kelas', $kelasList->first()?->id_kelas);
+        } else {
+            $selectedKelasId = $request->input('id_kelas');
+        }
         $selectedKategori = $request->input('kategori'); // all, tertib, cukup, perlu_pembinaan
 
         // Query siswa
         $siswaQuery = Siswa::with('kelas')->orderBy('id_kelas', 'asc')->orderBy('nama_siswa', 'asc');
         if (!empty($selectedKelasId)) {
             $siswaQuery->where('id_kelas', $selectedKelasId);
+        } elseif ($user && $user->role == 'wali_kelas') {
+            $siswaQuery->whereIn('id_kelas', $kelasList->pluck('id_kelas'));
         }
         $siswaList = $siswaQuery->get();
 
@@ -274,8 +281,15 @@ class LaporanKedisiplinanController extends Controller
 
     public function exportExcel(Request $request)
     {
+        $user = Auth::user();
         $tanggalPilihan = $request->input('tanggal', Carbon::today()->toDateString());
         $selectedKelasId = $request->input('id_kelas');
+        if ($user && $user->role == 'wali_kelas') {
+            $kelasList = Kelas::where('id_guru', $user->id_guru)->first();
+            if ($kelasList) {
+                $selectedKelasId = $kelasList->id_kelas;
+            }
+        }
         $selectedKategori = $request->input('kategori');
 
         $carbonDate = Carbon::parse($tanggalPilihan);

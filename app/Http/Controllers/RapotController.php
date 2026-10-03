@@ -23,7 +23,16 @@ class RapotController extends Controller
         $setting = Setting::find('1');
         $user = Auth::user();
         $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
-        $kelasId = $request->get('kelas', '');
+        if ($user && $user->role == 'wali_kelas') {
+            $kelasWali = Kelas::where('id_guru', $user->id_guru)->orderBy('nama_kelas', 'asc')->get();
+            if ($kelasWali->isNotEmpty()) {
+                $kelas = $kelasWali;
+                if (empty($kelasId) || !$kelas->contains('id_kelas', $kelasId)) {
+                    $kelasId = $kelas->first()->id_kelas;
+                }
+            }
+        }
+        $kelasId = $request->get('kelas', $kelasId);
 
         $query = Siswa::with(['kelas', 'rapot']);
 
@@ -34,8 +43,15 @@ class RapotController extends Controller
             $dataKelas = null;
         }
 
+        if ($user && $user->role == 'wali_kelas') {
+            $kelasWaliIds = $kelas->pluck('id_kelas');
+            $query->whereIn('id_kelas', $kelasWaliIds);
+            $allSiswa = Siswa::whereIn('id_kelas', $kelasWaliIds)->with('kelas')->orderBy('nama_siswa', 'asc')->get();
+        } else {
+            $allSiswa = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
+        }
+
         $siswa = $query->orderBy('nama_siswa', 'asc')->get();
-        $allSiswa = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
 
         return view('rapot.data_rapot', compact('kelas', 'siswa', 'allSiswa', 'kelasId', 'layout', 'setting', 'dataKelas', 'user'));
     }

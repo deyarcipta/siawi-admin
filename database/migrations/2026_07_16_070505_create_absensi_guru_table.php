@@ -11,19 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('absensi_guru', function (Blueprint $table) {
-            $table->bigIncrements('id_absenguru');
-            $table->unsignedBigInteger('id_guru');
-            $table->string('hari');
-            $table->string('tanggal');
-            $table->string('jam_masuk')->nullable();
-            $table->string('jam_pulang')->nullable();
-            $table->string('kehadiran');
-            $table->string('keterangan')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('absensi_guru')) {
+            Schema::create('absensi_guru', function (Blueprint $table) {
+                $table->bigIncrements('id_absenguru');
+                $table->unsignedBigInteger('id_guru');
+                $table->string('hari');
+                $table->string('tanggal');
+                $table->string('jam_masuk')->nullable();
+                $table->string('jam_pulang')->nullable();
+                $table->string('kehadiran');
+                $table->string('keterangan')->nullable();
+                $table->timestamps();
 
-            $table->foreign('id_guru')->references('id_guru')->on('guru')->onUpdate('cascade')->onDelete('cascade');
-        });
+                $table->foreign('id_guru')->references('id_guru')->on('guru')->onUpdate('cascade')->onDelete('cascade');
+            });
+        }
     }
 
     /**

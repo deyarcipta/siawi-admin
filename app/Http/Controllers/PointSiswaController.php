@@ -21,7 +21,7 @@ class PointSiswaController extends Controller
      */
     public function index(Request $request)
     {
-        $kelas = Kelas::orderBy('created_at', 'desc')->get();
+        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();

@@ -43,8 +43,8 @@
         </li>
 
         <!-- Absensi Siswa -->
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-check"></i>
             <p>
               Absensi Siswa
@@ -59,7 +59,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') ? 'active' : '' }}">
+              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Data Absensi Kelas</p>
               </a>
@@ -419,6 +419,13 @@
         <!-- ============================================== -->
         <!-- KURIKULUM ROLE MENUS                           -->
         <!-- ============================================== -->
+        <li class="nav-item">
+          <a href="/admin/dashboard" class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-th-large"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
+
         <li class="nav-header">
           Presensi Harian
         </li>
@@ -576,11 +583,18 @@
         <!-- ============================================== -->
         <!-- KESISWAAN ROLE MENUS                           -->
         <!-- ============================================== -->
+        <li class="nav-item">
+          <a href="/admin/dashboard" class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-th-large"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
+
         <li class="nav-header">
           Presensi Harian
         </li>
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi*') || Request::is('admin/rekapAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/absensi*') || Request::is('admin/rekapAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/absensi*') || Request::is('admin/rekapAbsen*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/absensi*') || Request::is('admin/rekapAbsen*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-check"></i>
             <p>Absensi Siswa <i class="right fas fa-angle-left"></i></p>
           </a>
@@ -592,7 +606,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') ? 'active' : '' }}">
+              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Data Absensi Kelas</p>
               </a>
@@ -699,15 +713,22 @@
           </a>
         </li>
 
-        @elseif($user->role == 'guru')
+        @elseif($user->role == 'wali_kelas')
         <!-- ============================================== -->
-        <!-- GURU ROLE MENUS                                -->
+        <!-- WALI KELAS ROLE MENUS                          -->
         <!-- ============================================== -->
+        <li class="nav-item">
+          <a href="/admin/dashboard" class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-th-large"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
+
         <li class="nav-header">
           Presensi & Piket
         </li>
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi*') || Request::is('admin/rekapAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/absensi*') || Request::is('admin/rekapAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/absensi*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/absensi*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-check"></i>
             <p>Absensi Siswa <i class="right fas fa-angle-left"></i></p>
           </a>
@@ -719,7 +740,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') ? 'active' : '' }}">
+              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Data Absensi Kelas</p>
               </a>
@@ -731,12 +752,107 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/laporan-bulanan-wa" class="nav-link {{ Request::is('admin/laporan-bulanan-wa*') ? 'active' : '' }}">
+              <a href="/admin/laporan-kedisiplinan-siswa" class="nav-link {{ Request::is('admin/laporan-kedisiplinan-siswa*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Kedisiplinan Absensi Mesin</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/laporan-bulanan-wa" class="nav-link {{ Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Rekap Bulanan & WA</p>
               </a>
             </li>
           </ul>
+        </li>
+
+        <li class="nav-item">
+          <a href="/admin/guruPiket/panel" class="nav-link {{ Request::is('admin/guruPiket/panel*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user-clock"></i>
+            <p>Panel Guru Piket</p>
+          </a>
+        </li>
+
+        <li class="nav-header">
+          Pembelajaran & Rapot
+        </li>
+        <li class="nav-item">
+          <a href="/admin/jurnal" class="nav-link {{ Request::is('admin/jurnal*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-book"></i>
+            <p>Jurnal Mengajar</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot*') ? 'active' : '' }}">
+            <i class="nav-icon far fa-file-alt"></i>
+            <p>E - Rapot</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="/admin/modul" class="nav-link {{ Request::is('admin/modul*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-book-reader"></i>
+            <p>Modul Siswa</p>
+          </a>
+        </li>
+
+        <li class="nav-header">
+          Kesiswaan & Kedisiplinan
+        </li>
+        <li class="nav-item">
+          <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user-friends"></i>
+            <p>Data Siswa</p>
+          </a>
+        </li>
+
+        <li class="nav-item has-treeview {{ Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-exclamation-triangle"></i>
+            <p>Point Siswa <i class="right fas fa-angle-left"></i></p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Data Point Siswa</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/laporan-pelanggaran" class="nav-link {{ Request::is('admin/laporan-pelanggaran*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Laporan Pelanggaran</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Surat Peringatan</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        @elseif($user->role == 'guru')
+        <!-- ============================================== -->
+        <!-- GURU ROLE MENUS                                -->
+        <!-- ============================================== -->
+        <li class="nav-item">
+          <a href="/admin/dashboard" class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-th-large"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
+
+        <li class="nav-header">
+          Presensi & Piket
+        </li>
+        <li class="nav-item">
+          <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user-check"></i>
+            <p>Absensi Harian</p>
+          </a>
         </li>
 
         <li class="nav-item">
@@ -780,31 +896,11 @@
           </a>
         </li>
 
-        <li class="nav-item has-treeview {{ Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
+        <li class="nav-item">
+          <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-exclamation-triangle"></i>
-            <p>Point Siswa <i class="right fas fa-angle-left"></i></p>
+            <p>Input Point Siswa</p>
           </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Data Point Siswa</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/laporan-pelanggaran" class="nav-link {{ Request::is('admin/laporan-pelanggaran*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Laporan Pelanggaran</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Surat Peringatan</p>
-              </a>
-            </li>
-          </ul>
         </li>
         @endif
 
@@ -826,6 +922,8 @@
       <div class="sidebar-user-role">
         @if($user->role == 'admin')
           Administrator
+        @elseif($user->role == 'wali_kelas')
+          Wali Kelas
         @elseif($user->role == 'guru')
           Guru
         @elseif($user->role == 'kesiswaan')

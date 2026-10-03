@@ -39,8 +39,8 @@ class KelasController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $level = Level::orderBy('created_at', 'desc')->get();
-        $jurusan = Jurusan::orderBy('created_at', 'desc')->get();
+        $level = Level::orderBy('kode_level', 'asc')->get();
+        $jurusan = Jurusan::orderBy('nama_jurusan', 'asc')->get();
         $guru = Guru::orderBy('nama_guru', 'asc')->get();
         return view('dataMaster.kelas.tambah_kelas', compact('layout','setting','level','jurusan','guru','user'));
     }
@@ -227,8 +227,8 @@ class KelasController extends Controller
         $edit = Kelas::find($id_kelas);
         $setting = Setting::find('1');
         $user = Auth::user();
-        $level = Level::orderBy('created_at', 'desc')->get();
-        $jurusan = Jurusan::orderBy('created_at', 'desc')->get();
+        $level = Level::orderBy('kode_level', 'asc')->get();
+        $jurusan = Jurusan::orderBy('nama_jurusan', 'asc')->get();
         $guru = Guru::orderBy('nama_guru', 'asc')->get();
         return view('dataMaster.kelas.edit_kelas', compact('layout','edit','level','jurusan','guru','setting','user'));
     }

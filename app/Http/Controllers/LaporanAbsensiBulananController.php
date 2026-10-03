@@ -36,6 +36,15 @@ class LaporanAbsensiBulananController extends Controller
         $idKelas = $request->input('id_kelas');
 
         $daftarKelas = Kelas::with('waliKelas')->orderBy('nama_kelas', 'asc')->get();
+        if ($user && $user->role == 'wali_kelas') {
+            $kelasWali = Kelas::where('id_guru', $user->id_guru)->with('waliKelas')->orderBy('nama_kelas', 'asc')->get();
+            if ($kelasWali->isNotEmpty()) {
+                $daftarKelas = $kelasWali;
+                if (!$idKelas || !$daftarKelas->contains('id_kelas', $idKelas)) {
+                    $idKelas = $daftarKelas->first()->id_kelas;
+                }
+            }
+        }
 
         // Jika belum ada kelas dipilih, pilih kelas pertama secara default jika ada
         if (!$idKelas && $daftarKelas->isNotEmpty()) {

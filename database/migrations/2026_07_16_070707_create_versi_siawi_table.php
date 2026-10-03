@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('versi_siawi', function (Blueprint $table) {
-            $table->bigIncrements('id_versi');
-            $table->string('versi');
-            $table->string('download_url');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('versi_siawi')) {
+            Schema::create('versi_siawi', function (Blueprint $table) {
+                $table->bigIncrements('id_versi');
+                $table->string('versi');
+                $table->string('download_url');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

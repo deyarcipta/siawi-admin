@@ -454,12 +454,12 @@
 <div class="dashboard-container">
   <!-- Top Greeting & Action Header -->
   <div class="row align-items-center mb-4">
-    <div class="col-md-7 col-12 mb-3 mb-md-0 d-flex align-items-center">
+    <div class="col-md-7 col-12 mb-3 mb-md-0 d-flex align-items-center" style="min-width: 0;">
       <div class="greeting-time-icon mr-3" style="width: 50px; height: 50px; border-radius: 14px; background: {{ $timeBg }}; border: 1px solid {{ $timeBorder }}; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: {{ $timeColor }}; box-shadow: 0 4px 12px rgba(0,0,0,0.03); flex-shrink: 0;">
         <i class="{{ $timeIcon }}"></i>
       </div>
-      <div class="d-flex flex-column justify-content-center">
-        <h1 class="dashboard-header-title mb-0" style="line-height: 1.2;">{{ $greetingText }}, {{ explode(' ', $user->nama_guru)[0] }}</h1>
+      <div class="d-flex flex-column justify-content-center" style="min-width: 0; overflow: hidden;">
+        <h1 class="dashboard-header-title text-truncate mb-0" style="line-height: 1.2;" title="{{ $greetingText }}, {{ $user->nama_guru }}">{{ $greetingText }}, {{ $user->nama_guru }}</h1>
         <p class="dashboard-header-subtitle mt-1 mb-0" style="line-height: 1.2;">Ringkasan kehadiran dan kegiatan sekolah hari ini.</p>
       </div>
     </div>

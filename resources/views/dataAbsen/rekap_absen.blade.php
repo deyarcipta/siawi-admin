@@ -40,9 +40,11 @@
                             <div class="form-group col-md-3 mb-3 mb-md-0">
                                 <label for="kelas" class="font-weight-bold text-secondary" style="font-size: 0.78rem; text-transform: uppercase;">Pilih Kelas</label>
                                 <select class="form-control" id="kelas" name="kelas" required>
+                                    @if(Auth::user()->role != 'wali_kelas')
                                     <option value="">-- Pilih Kelas --</option>
+                                    @endif
                                     @foreach($kelas as $kls)
-                                    <option value="{{ $kls->id_kelas }}" {{ $kelasId == $kls->id_kelas ? 'selected' : '' }}>{{ $kls->nama_kelas }}</option>
+                                    <option value="{{ $kls->id_kelas }}" {{ ($kelasId == $kls->id_kelas || count($kelas) == 1) ? 'selected' : '' }}>{{ $kls->nama_kelas }}</option>
                                     @endforeach
                                 </select>
                               </div>

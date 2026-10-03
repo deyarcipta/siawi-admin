@@ -18,7 +18,7 @@ class DataAlumniController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $jurusan = Jurusan::all();
+        $jurusan = Jurusan::orderBy('nama_jurusan', 'asc')->get();
 
         $query = Alumni::with('jurusan');
 
@@ -41,7 +41,7 @@ class DataAlumniController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $jurusan = Jurusan::all();
+        $jurusan = Jurusan::orderBy('nama_jurusan', 'asc')->get();
 
         return view('dataAlumni.tambah_alumni', compact('layout', 'setting', 'user', 'jurusan'));
     }
@@ -100,7 +100,7 @@ class DataAlumniController extends Controller
         $setting = Setting::find('1');
         $user = Auth::user();
         $edit = Alumni::findOrFail($id);
-        $jurusan = Jurusan::all();
+        $jurusan = Jurusan::orderBy('nama_jurusan', 'asc')->get();
 
         return view('dataAlumni.edit_alumni', compact('layout', 'setting', 'user', 'edit', 'jurusan'));
     }

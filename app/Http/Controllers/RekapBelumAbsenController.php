@@ -26,7 +26,7 @@ class RekapBelumAbsenController extends Controller
         $date = $request->input('tanggal', Carbon::today()->toDateString());
 
         // 1. Get all classes
-        $classes = Kelas::all();
+        $classes = Kelas::orderBy('nama_kelas', 'asc')->get();
 
         // 2. Count how many classes are fully inputted
         $fullClassesCount = 0;
@@ -51,7 +51,7 @@ class RekapBelumAbsenController extends Controller
 
         if ($criteriaMet) {
             // 3. Get classes that have NOT completed attendance
-            $allClasses = Kelas::with('siswa')->get();
+            $allClasses = Kelas::with('siswa')->orderBy('nama_kelas', 'asc')->get();
             
             foreach ($allClasses as $kelas) {
                 $totalSiswa = $kelas->siswa->count();

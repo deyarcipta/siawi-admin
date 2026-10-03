@@ -21,8 +21,8 @@ class SiswaPklController extends Controller
         $setting = Setting::find('1');
         $user = Auth::user();
         $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
-        $siswaList = Siswa::orderBy('created_at', 'desc')->get();
-        $perusahaan = Perusahaan::orderBy('created_at', 'desc')->get();
+        $siswaList = Siswa::orderBy('nama_siswa', 'asc')->get();
+        $perusahaan = Perusahaan::orderBy('nama_perusahaan', 'asc')->get();
         $data_siswa_pkl = SiswaPkl::with(['siswa', 'kelas', 'perusahaan'])->orderBy('created_at', 'desc')->get();
         return view('bkk.data_siswa_pkl', compact('layout','data_siswa_pkl','setting','user','kelasList','siswaList', 'perusahaan'));
     }

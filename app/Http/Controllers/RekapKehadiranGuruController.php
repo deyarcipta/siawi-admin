@@ -22,7 +22,7 @@ class RekapKehadiranGuruController extends Controller
         $setting = Setting::find('1');
         $user = Auth::user();
 
-        $guruList = Guru::all();
+        $guruList = Guru::orderBy('nama_guru', 'asc')->get();
 
         $tanggalAwal = $request->tanggal_awal;
         $tanggalAkhir = $request->tanggal_akhir;

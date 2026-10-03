@@ -13,8 +13,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('absensi', function (Blueprint $table) {
-            $table->string('tipe_masuk', 20)->nullable()->default('manual')->after('keterangan');
-            $table->string('tipe_pulang', 20)->nullable()->default(null)->after('tipe_masuk');
+            if (!Schema::hasColumn('absensi', 'tipe_masuk')) {
+                $table->string('tipe_masuk', 20)->nullable()->default('manual')->after('keterangan');
+            }
+            if (!Schema::hasColumn('absensi', 'tipe_pulang')) {
+                $table->string('tipe_pulang', 20)->nullable()->default(null)->after('tipe_masuk');
+            }
         });
 
         // Backfill data lama agar kolom baru terisi dengan tepat

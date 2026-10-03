@@ -37,7 +37,7 @@ class DokumenController extends Controller
 
     public function create()
     {
-        $kelas = Kelas::all();
+        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         return view('dokumen.create', compact('kelas'));
     }
 

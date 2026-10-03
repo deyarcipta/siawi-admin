@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('setting', function (Blueprint $table) {
-            $table->text('rekap_wa_settings')->nullable()->after('wa_load_balancing');
+            if (!Schema::hasColumn('setting', 'rekap_wa_settings')) {
+                $table->text('rekap_wa_settings')->nullable()->after('wa_load_balancing');
+            }
         });
     }
 

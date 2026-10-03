@@ -51,7 +51,7 @@
                   <label for="kode_level">Pilih Level</label>
                   <select class="form-control" name="kode_level" id="kode_level">
                     @foreach ($level as $lvl)
-                      <option value="{{$lvl->kode_level}}">{{$lvl->kode_level}}</option>
+                      <option value="{{$lvl->kode_level}}" {{ (old('kode_level', $edit->kode_level) == $lvl->kode_level) ? 'selected' : '' }}>{{$lvl->kode_level}}</option>
                     @endforeach
                   </select>
                   @error('kode_level')
@@ -69,7 +69,7 @@
                   <label for="kode_jurusan">Pilih Jurusan</label>
                   <select name="kode_jurusan" id="kode_jurusan" class="form-control">
                     @foreach ($jurusan as $jur)
-                      <option value="{{ $jur->kode_jurusan }}" {{ $edit->kode_jurusan == $jur->kode_jurusan ? 'selected' : '' }}> {{ $jur->kode_jurusan }}</option>
+                      <option value="{{ $jur->kode_jurusan }}" {{ (old('kode_jurusan', $edit->kode_jurusan) == $jur->kode_jurusan) ? 'selected' : '' }}> {{ $jur->kode_jurusan }}</option>
                     @endforeach
                   </select>
                   @error('kode_jurusan')

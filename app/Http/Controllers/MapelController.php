@@ -18,7 +18,7 @@ class MapelController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $mapel = Mapel::orderBy('created_at', 'desc')->get();
+        $mapel = Mapel::orderBy('nama_mapel', 'asc')->get();
         return view('dataMaster.mapel.data_mapel', compact('layout','mapel','setting','user'));
     }
 
