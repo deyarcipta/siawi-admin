@@ -429,8 +429,8 @@
         <li class="nav-header">
           Presensi Harian
         </li>
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi*') || Request::is('admin/dataAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/absensi*') || Request::is('admin/dataAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/dataAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/dataAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-check"></i>
             <p>Absensi Siswa <i class="right fas fa-angle-left"></i></p>
           </a>
@@ -593,8 +593,8 @@
         <li class="nav-header">
           Presensi Harian
         </li>
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi*') || Request::is('admin/rekapAbsen*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/absensi*') || Request::is('admin/rekapAbsen*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-bulanan-wa*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-bulanan-wa*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-check"></i>
             <p>Absensi Siswa <i class="right fas fa-angle-left"></i></p>
           </a>
@@ -727,8 +727,8 @@
         <li class="nav-header">
           Presensi & Piket
         </li>
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/absensi*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-check"></i>
             <p>Absensi Siswa <i class="right fas fa-angle-left"></i></p>
           </a>
@@ -849,7 +849,7 @@
           Presensi & Piket
         </li>
         <li class="nav-item">
-          <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi*') ? 'active' : '' }}">
+          <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-check"></i>
             <p>Absensi Harian</p>
           </a>
@@ -902,6 +902,157 @@
             <p>Input Point Siswa</p>
           </a>
         </li>
+
+        @elseif($user->role == 'tata_usaha')
+        <!-- ============================================== -->
+        <!-- TATA USAHA ROLE MENUS                          -->
+        <!-- ============================================== -->
+        <li class="nav-item">
+          <a href="/admin/dashboard" class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-th-large"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
+
+        <li class="nav-header">
+          Kesiswaan & Master
+        </li>
+        <li class="nav-item">
+          <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user-friends"></i>
+            <p>Data Siswa</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/alumni" class="nav-link {{ Request::is('admin/alumni*') || Request::is('admin/dataAlumni*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user-graduate"></i>
+            <p>Data Alumni</p>
+          </a>
+        </li>
+
+        <li class="nav-header">
+          Administrasi & Dokumen
+        </li>
+        <li class="nav-item">
+          <a href="/admin/dokumen" class="nav-link {{ Request::is('admin/dokumen*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-folder-open"></i>
+            <p>Dokumen Sekolah</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-bullhorn"></i>
+            <p>Informasi Sekolah</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/berita" class="nav-link {{ Request::is('admin/berita*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-newspaper"></i>
+            <p>Berita Sekolah</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/kalender" class="nav-link {{ Request::is('admin/kalender*') ? 'active' : '' }}">
+            <i class="nav-icon far fa-calendar-alt"></i>
+            <p>Kalender Pendidikan</p>
+          </a>
+        </li>
+
+        <li class="nav-header">
+          Presensi & Arsip
+        </li>
+        <!-- Absensi Siswa -->
+        <li class="nav-item has-treeview {{ Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-clipboard-list"></i>
+            <p>
+              Presensi Siswa
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Data Absensi Kelas</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/rekapAbsenSiswa" class="nav-link {{ Request::is('admin/rekapAbsenSiswa*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Rekap Absensi Siswa</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Absensi Guru -->
+        <li class="nav-item has-treeview {{ Request::is('admin/absensi_guru*') || Request::is('admin/rekapAbsenGuru*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/absensi_guru*') || Request::is('admin/rekapAbsenGuru*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-chalkboard-teacher"></i>
+            <p>
+              Absensi Guru
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="/admin/absensi_guru" class="nav-link {{ Request::is('admin/absensi_guru*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Absensi Harian Guru</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/rekapAbsenGuru" class="nav-link {{ Request::is('admin/rekapAbsenGuru*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Rekap Absensi Guru</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        @elseif($user->role == 'keuangan')
+        <!-- ============================================== -->
+        <!-- KEUANGAN ROLE MENUS                            -->
+        <!-- ============================================== -->
+        <li class="nav-item">
+          <a href="/admin/dashboard" class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-th-large"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
+
+        <li class="nav-header">
+          Keuangan & Tagihan
+        </li>
+        <li class="nav-item">
+          <a href="/admin/tagihan" class="nav-link {{ Request::is('admin/tagihan*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-file-invoice-dollar"></i>
+            <p>Tagihan Siswa</p>
+          </a>
+        </li>
+
+        <li class="nav-header">
+          Data & Informasi
+        </li>
+        <li class="nav-item">
+          <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user-friends"></i>
+            <p>Data Siswa</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-bullhorn"></i>
+            <p>Informasi Sekolah</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/kalender" class="nav-link {{ Request::is('admin/kalender*') ? 'active' : '' }}">
+            <i class="nav-icon far fa-calendar-alt"></i>
+            <p>Kalender Pendidikan</p>
+          </a>
+        </li>
         @endif
 
       </ul>
@@ -924,6 +1075,10 @@
           Administrator
         @elseif($user->role == 'wali_kelas')
           Wali Kelas
+        @elseif($user->role == 'tata_usaha')
+          Tata Usaha
+        @elseif($user->role == 'keuangan')
+          Keuangan
         @elseif($user->role == 'guru')
           Guru
         @elseif($user->role == 'kesiswaan')

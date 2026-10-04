@@ -932,7 +932,15 @@
           <p class="text-muted mb-0" style="font-size: 0.82rem;">
             Pilih jenis laporan yang ingin diunduh untuk 
             <span class="badge badge-light text-primary font-weight-bold px-2 py-1" style="background: #eff6ff; font-size: 0.72rem; border-radius: 6px;">
-              {{ $user->role == 'wali_kelas' ? 'Wali Kelas' : ucfirst($user->role) }}
+              @if($user->role == 'wali_kelas')
+                Wali Kelas
+              @elseif($user->role == 'tata_usaha')
+                Tata Usaha
+              @elseif($user->role == 'keuangan')
+                Keuangan
+              @else
+                {{ ucfirst($user->role) }}
+              @endif
             </span>
           </p>
         </div>
@@ -1181,6 +1189,101 @@
                 <div>
                   <div class="font-weight-bold text-dark" style="font-size: 0.85rem;">Rekap Jurnal Mengajar Saya</div>
                   <div class="text-muted" style="font-size: 0.74rem;">Unduh arsip agenda mengajar pribadi</div>
+                </div>
+              </div>
+              <i class="fas fa-download text-muted"></i>
+            </a>
+
+          @elseif($user->role == 'tata_usaha')
+            {{-- TATA USAHA: Master Siswa, Alumni, Dokumen & Rekap Absensi --}}
+            <a href="/admin/rekapAbsen" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3" style="border-radius: 10px; margin-bottom: 8px; border: 1px solid #f1f5f9;">
+              <div class="d-flex align-items-center" style="gap: 12px;">
+                <div class="stat-icon-wrapper stat-icon-blue" style="width: 34px; height: 34px;">
+                  <i class="fas fa-file-excel"></i>
+                </div>
+                <div>
+                  <div class="font-weight-bold text-dark" style="font-size: 0.85rem;">Rekap Absensi Siswa Harian</div>
+                  <div class="text-muted" style="font-size: 0.74rem;">Format Excel dan arsip tabel presensi kelas</div>
+                </div>
+              </div>
+              <i class="fas fa-download text-muted"></i>
+            </a>
+
+            <a href="/admin/download-siswa" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3" style="border-radius: 10px; margin-bottom: 8px; border: 1px solid #f1f5f9;">
+              <div class="d-flex align-items-center" style="gap: 12px;">
+                <div class="stat-icon-wrapper stat-icon-green" style="width: 34px; height: 34px;">
+                  <i class="fas fa-user-friends"></i>
+                </div>
+                <div>
+                  <div class="font-weight-bold text-dark" style="font-size: 0.85rem;">Unduh Data Siswa Aktif</div>
+                  <div class="text-muted" style="font-size: 0.74rem;">Rekapitulasi berkas data siswa per kelas</div>
+                </div>
+              </div>
+              <i class="fas fa-download text-muted"></i>
+            </a>
+
+            <a href="/admin/download-alumni" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3" style="border-radius: 10px; margin-bottom: 8px; border: 1px solid #f1f5f9;">
+              <div class="d-flex align-items-center" style="gap: 12px;">
+                <div class="stat-icon-wrapper stat-icon-purple" style="width: 34px; height: 34px;">
+                  <i class="fas fa-user-graduate"></i>
+                </div>
+                <div>
+                  <div class="font-weight-bold text-dark" style="font-size: 0.85rem;">Unduh Data Alumni</div>
+                  <div class="text-muted" style="font-size: 0.74rem;">Rekapitulasi arsip kelulusan siswa</div>
+                </div>
+              </div>
+              <i class="fas fa-download text-muted"></i>
+            </a>
+
+            <a href="/admin/rekapAbsenGuru" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3" style="border-radius: 10px; margin-bottom: 8px; border: 1px solid #f1f5f9;">
+              <div class="d-flex align-items-center" style="gap: 12px;">
+                <div class="stat-icon-wrapper stat-icon-purple" style="width: 34px; height: 34px;">
+                  <i class="fas fa-user-check"></i>
+                </div>
+                <div>
+                  <div class="font-weight-bold text-dark" style="font-size: 0.85rem;">Rekap Kehadiran Guru</div>
+                  <div class="text-muted" style="font-size: 0.74rem;">Data presensi dan ketepatan waktu guru</div>
+                </div>
+              </div>
+              <i class="fas fa-download text-muted"></i>
+            </a>
+
+            <a href="/admin/dokumen" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3" style="border-radius: 10px; border: 1px solid #f1f5f9;">
+              <div class="d-flex align-items-center" style="gap: 12px;">
+                <div class="stat-icon-wrapper stat-icon-amber" style="width: 34px; height: 34px;">
+                  <i class="fas fa-folder-open"></i>
+                </div>
+                <div>
+                  <div class="font-weight-bold text-dark" style="font-size: 0.85rem;">Dokumen & Arsip Sekolah</div>
+                  <div class="text-muted" style="font-size: 0.74rem;">Manajemen berkas dan surat dinas</div>
+                </div>
+              </div>
+              <i class="fas fa-download text-muted"></i>
+            </a>
+
+          @elseif($user->role == 'keuangan')
+            {{-- KEUANGAN: Tagihan & Rekap Siswa --}}
+            <a href="/admin/tagihan" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3" style="border-radius: 10px; margin-bottom: 8px; border: 1px solid #f1f5f9;">
+              <div class="d-flex align-items-center" style="gap: 12px;">
+                <div class="stat-icon-wrapper stat-icon-green" style="width: 34px; height: 34px;">
+                  <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div>
+                  <div class="font-weight-bold text-dark" style="font-size: 0.85rem;">Laporan & Data Tagihan Siswa</div>
+                  <div class="text-muted" style="font-size: 0.74rem;">Rekapitulasi tagihan dan pembayaran</div>
+                </div>
+              </div>
+              <i class="fas fa-download text-muted"></i>
+            </a>
+
+            <a href="/admin/download-siswa" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3" style="border-radius: 10px; border: 1px solid #f1f5f9;">
+              <div class="d-flex align-items-center" style="gap: 12px;">
+                <div class="stat-icon-wrapper stat-icon-blue" style="width: 34px; height: 34px;">
+                  <i class="fas fa-user-friends"></i>
+                </div>
+                <div>
+                  <div class="font-weight-bold text-dark" style="font-size: 0.85rem;">Unduh Data Siswa Aktif</div>
+                  <div class="text-muted" style="font-size: 0.74rem;">Rekap daftar siswa untuk verifikasi tagihan</div>
                 </div>
               </div>
               <i class="fas fa-download text-muted"></i>
