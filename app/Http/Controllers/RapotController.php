@@ -22,6 +22,7 @@ class RapotController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
+        $kelasId = $request->get('kelas', '');
         $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         if ($user && $user->role == 'wali_kelas') {
             $kelasWali = Kelas::where('id_guru', $user->id_guru)->orderBy('nama_kelas', 'asc')->get();
@@ -32,7 +33,6 @@ class RapotController extends Controller
                 }
             }
         }
-        $kelasId = $request->get('kelas', $kelasId);
 
         $query = Siswa::with(['kelas', 'rapot']);
 

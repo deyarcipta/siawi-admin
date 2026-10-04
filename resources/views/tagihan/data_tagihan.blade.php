@@ -31,9 +31,11 @@
                         <h3 class="card-title text-dark font-weight-bold mb-0">
                             <i class="fas fa-sliders-h text-primary mr-2"></i> Filter Tagihan Per Kelas
                         </h3>
+                        @if($user && in_array($user->role, ['admin', 'keuangan']))
                         <a href="/admin/tagihan/1/edit" class="btn btn-secondary btn-sm ml-auto">
                             <i class="fas fa-edit mr-1"></i> Edit Link Template
                         </a>
+                        @endif
                     </div>
                     <div class="card-body">
                         <form action="/admin/tagihan" method="GET">

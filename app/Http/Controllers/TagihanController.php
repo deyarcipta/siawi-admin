@@ -18,17 +18,35 @@ class TagihanController extends Controller
      */
     public function index(Request $request)
     {
-        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
         $tagihan = Tagihan::find('1');
         $kelasId = $request->input('kelas', '');
 
+        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
+        if ($user && $user->role == 'wali_kelas') {
+            $kelasWali = Kelas::where('id_guru', $user->id_guru)->orderBy('nama_kelas', 'asc')->get();
+            if ($kelasWali->isNotEmpty()) {
+                $kelas = $kelasWali;
+                if (empty($kelasId) || !$kelas->contains('id_kelas', $kelasId)) {
+                    $kelasId = $kelas->first()->id_kelas;
+                }
+            }
+        }
+
         $query = Siswa::with('kelas');
-        if (!empty($kelasId) && $kelasId !== 'all') {
+        if ($user && $user->role == 'wali_kelas') {
+            $kelasWaliIds = $kelas->pluck('id_kelas');
+            if (!empty($kelasId) && $kelasId !== 'all') {
+                $query->where('id_kelas', $kelasId);
+            } else {
+                $query->whereIn('id_kelas', $kelasWaliIds);
+            }
+        } elseif (!empty($kelasId) && $kelasId !== 'all') {
             $query->where('id_kelas', $kelasId);
         }
+
         $siswa = $query->orderBy('nama_siswa', 'asc')->get();
         $dataKelas = (!empty($kelasId) && $kelasId !== 'all') ? Kelas::find($kelasId) : null;
 
@@ -64,9 +82,13 @@ class TagihanController extends Controller
      */
     public function edit()
     {
+        $user = Auth::user();
+        if ($user && !in_array($user->role, ['admin', 'keuangan'])) {
+            return redirect('/admin/tagihan')->with('failed', 'Hanya Admin dan Staf Keuangan yang dapat mengubah template link tagihan.');
+        }
+
         $layout = 'layout.app';
         $setting = Setting::find('1');
-        $user = Auth::user();
         $edit = Tagihan::find('1');
         return view('tagihan.edit_tagihan', compact('layout','edit','setting','user'));
     }
@@ -76,6 +98,11 @@ class TagihanController extends Controller
      */
     public function update(Request $request, string $id_tagihan)
     {
+        $user = Auth::user();
+        if ($user && !in_array($user->role, ['admin', 'keuangan'])) {
+            return redirect('/admin/tagihan')->with('failed', 'Hanya Admin dan Staf Keuangan yang dapat mengubah template link tagihan.');
+        }
+
         $request->validate([
             'link' => 'required',
         ]);
@@ -84,7 +111,7 @@ class TagihanController extends Controller
             'link' => $request->link,
         ]);
 
-        return redirect('/admin/tagihan');
+        return redirect('/admin/tagihan')->with('success', 'Template link tagihan berhasil diperbarui.');
     }
 
     /**

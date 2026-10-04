@@ -60,9 +60,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::resource('berita', BeritaController::class);
 
     // =========================================================================
-    // 2. KEUANGAN & TAGIHAN (Admin & Keuangan)
+    // 2. KEUANGAN & TAGIHAN (Admin, Keuangan, Wali Kelas)
     // =========================================================================
-    Route::group(['middleware' => ['role:admin,keuangan']], function () {
+    Route::group(['middleware' => ['role:admin,keuangan,wali_kelas']], function () {
         Route::resource('tagihan', TagihanController::class);
     });
 

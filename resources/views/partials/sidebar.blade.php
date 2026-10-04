@@ -834,6 +834,16 @@
           </ul>
         </li>
 
+        <li class="nav-header">
+          Keuangan & Administrasi
+        </li>
+        <li class="nav-item">
+          <a href="/admin/tagihan" class="nav-link {{ Request::is('admin/tagihan*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-file-invoice-dollar"></i>
+            <p>Tagihan Siswa</p>
+          </a>
+        </li>
+
         @elseif($user->role == 'guru')
         <!-- ============================================== -->
         <!-- GURU ROLE MENUS                                -->
