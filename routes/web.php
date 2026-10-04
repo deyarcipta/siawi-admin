@@ -112,13 +112,19 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     });
 
     // =========================================================================
-    // 7. PEMBELAJARAN, JURNAL, RAPOT & MODUL (Admin, Kurikulum, Wali Kelas, Guru)
+    // 7. PEMBELAJARAN, JURNAL & MODUL (Admin, Kurikulum, Wali Kelas, Guru)
     // =========================================================================
     Route::group(['middleware' => ['role:admin,kurikulum,wali_kelas,guru']], function () {
         Route::resource('jurnal', JurnalMengajarController::class)->except(['show']);
         Route::get('/jurnal/download-pdf', [JurnalMengajarController::class, 'downloadPdf'])->name('jurnal.downloadPdf');
         Route::get('/get-jadwal', [JurnalMengajarController::class, 'getJadwal'])->name('jurnal.getJadwal');
         Route::resource('modul', ModulController::class);
+    });
+
+    // =========================================================================
+    // 7.1. E-RAPOT (Admin, Kurikulum, Wali Kelas)
+    // =========================================================================
+    Route::group(['middleware' => ['role:admin,kurikulum,wali_kelas']], function () {
         Route::resource('rapot', RapotController::class)->except(['create']);
         Route::get('rapot/create/{kelasId?}', [RapotController::class, 'create'])->name('rapot.create');
     });

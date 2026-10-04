@@ -692,12 +692,6 @@
           </a>
         </li>
 
-        <li class="nav-item">
-          <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot*') ? 'active' : '' }}">
-            <i class="nav-icon far fa-file-alt"></i>
-            <p>E - Rapot</p>
-          </a>
-        </li>
 
         <li class="nav-item">
           <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi*') ? 'active' : '' }}">
@@ -873,19 +867,12 @@
         </li>
 
         <li class="nav-header">
-          Pembelajaran & Rapot
+          Pembelajaran & Materi
         </li>
         <li class="nav-item">
           <a href="/admin/jurnal" class="nav-link {{ Request::is('admin/jurnal*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-book"></i>
             <p>Jurnal Mengajar</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot*') ? 'active' : '' }}">
-            <i class="nav-icon far fa-file-alt"></i>
-            <p>E - Rapot</p>
           </a>
         </li>
 
