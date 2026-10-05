@@ -18,10 +18,58 @@
       <span>{{ $tanggalHariIni ?? \Carbon\Carbon::now()->locale('id')->translatedFormat('l, d F Y') }}</span>
     </div>
 
-    <!-- Quick Action / Notification Circles -->
-    <button type="button" class="navbar-circle-btn d-none d-sm-flex" title="Notifikasi">
-      <i class="far fa-bell" style="font-size: 0.95rem;"></i>
-    </button>
+    <!-- Quick Action / Notification Dropdown -->
+    <div class="dropdown mr-2">
+      <button type="button" class="navbar-circle-btn dropdown-toggle d-none d-sm-flex position-relative" id="notifDropdownBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Notifikasi & Agenda">
+        <i class="far fa-bell" style="font-size: 0.95rem;"></i>
+        <span class="badge badge-danger notif-badge-pill d-none" id="notif-badge" style="position: absolute; top: -3px; right: -3px; font-size: 0.65rem; border-radius: 10px; padding: 2px 5px; font-weight: 700; border: 2px solid #ffffff; min-width: 18px;">0</span>
+      </button>
+
+      <div class="dropdown-menu dropdown-menu-right shadow-lg border-0 notif-dropdown-box" aria-labelledby="notifDropdownBtn" style="width: 360px; max-width: 92vw; border-radius: 14px; margin-top: 10px; padding: 0; overflow: hidden; border: 1px solid #e2e8f0 !important;">
+        <!-- Dropdown Header -->
+        <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom" style="background: #f8fafc;">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-bell text-primary mr-2" style="font-size: 0.85rem;"></i>
+            <span class="font-weight-bold text-dark" style="font-size: 0.88rem;">Notifikasi & Agenda</span>
+          </div>
+          <span class="badge badge-primary px-2 py-1" id="notif-total-badge" style="font-size: 0.72rem; border-radius: 6px; font-weight: 600;">0 Baru</span>
+        </div>
+
+        <!-- Dropdown List Container -->
+        <div id="notif-list-body" style="max-height: 380px; overflow-y: auto; background: #ffffff;">
+          <!-- Loading State -->
+          <div class="p-4 text-center text-muted" id="notif-loading-state" style="font-size: 0.85rem;">
+            <i class="fas fa-spinner fa-spin mr-2 text-primary"></i> Memuat notifikasi...
+          </div>
+          <!-- Empty State -->
+          <div class="p-4 text-center text-muted d-none" id="notif-empty-state">
+            <div style="width: 44px; height: 44px; background: #f1f5f9; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+              <i class="fas fa-check-circle text-success" style="font-size: 1.25rem;"></i>
+            </div>
+            <div class="font-weight-bold text-dark" style="font-size: 0.85rem;">Semua Terpantau Baik</div>
+            <div class="text-muted mt-1" style="font-size: 0.75rem;">Tidak ada peringatan atau agenda baru saat ini.</div>
+          </div>
+          <!-- Items Wrapper -->
+          <div id="notif-items-wrapper"></div>
+        </div>
+
+        <!-- Dropdown Footer -->
+        <div class="p-2 border-top bg-light text-center d-flex justify-content-around align-items-center" style="font-size: 0.78rem;">
+          <a href="/admin/informasi" class="text-primary font-weight-bold text-decoration-none">
+            <i class="fas fa-bullhorn mr-1"></i> Informasi
+          </a>
+          <span class="text-muted">•</span>
+          <a href="/admin/kalender" class="text-primary font-weight-bold text-decoration-none">
+            <i class="far fa-calendar-alt mr-1"></i> Kalender
+          </a>
+          <span class="text-muted">•</span>
+          <a href="javascript:void(0)" onclick="loadNotifications(true)" class="text-secondary font-weight-bold text-decoration-none" title="Muat Ulang">
+            <i class="fas fa-sync-alt mr-1"></i> Segarkan
+          </a>
+        </div>
+      </div>
+    </div>
+
     <button type="button" class="navbar-circle-btn d-none d-sm-flex" title="Bantuan / Info" onclick="location.href='/admin/informasi'">
       <i class="far fa-question-circle" style="font-size: 0.95rem;"></i>
     </button>
@@ -92,3 +140,159 @@
   </div>
 </nav>
 <!-- /.navbar -->
+
+<style>
+  /* Notification Dropdown Custom Styles */
+  .navbar-circle-btn.dropdown-toggle::after {
+    display: none !important;
+  }
+  .notif-dropdown-box {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12) !important;
+    animation: notifFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes notifFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .notif-item-link {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    text-decoration: none !important;
+    transition: background 0.15s ease;
+  }
+  .notif-item-link:hover, .notif-item-link:focus {
+    background-color: #f8fafc !important;
+  }
+  .notif-item-link:last-child {
+    border-bottom: none;
+  }
+  .notif-icon-circle {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #ffffff;
+    font-size: 0.82rem;
+  }
+  .notif-title {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: #0f172a;
+    line-height: 1.25;
+  }
+  .notif-time {
+    font-size: 0.68rem;
+    color: #94a3b8;
+    white-space: nowrap;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+  .notif-desc {
+    font-size: 0.74rem;
+    color: #475569;
+    line-height: 1.35;
+    margin-top: 2px;
+  }
+</style>
+
+<script>
+  function loadNotifications(isManual = false) {
+    var loadingEl = document.getElementById('notif-loading-state');
+    var emptyEl = document.getElementById('notif-empty-state');
+    var wrapperEl = document.getElementById('notif-items-wrapper');
+    var badgeEl = document.getElementById('notif-badge');
+    var totalBadgeEl = document.getElementById('notif-total-badge');
+
+    if (isManual && loadingEl) {
+      loadingEl.classList.remove('d-none');
+      if (emptyEl) emptyEl.classList.add('d-none');
+      if (wrapperEl) wrapperEl.innerHTML = '';
+    }
+
+    fetch('{{ route("admin.notifications.get") }}', {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(function(res) {
+      if (!res.ok) throw new Error('Network error');
+      return res.json();
+    })
+    .then(function(data) {
+      if (loadingEl) loadingEl.classList.add('d-none');
+
+      var total = data.count || 0;
+      if (badgeEl) {
+        if (total > 0) {
+          badgeEl.textContent = total > 99 ? '99+' : total;
+          badgeEl.classList.remove('d-none');
+        } else {
+          badgeEl.classList.add('d-none');
+        }
+      }
+
+      if (totalBadgeEl) {
+        totalBadgeEl.textContent = total + ' Baru';
+      }
+
+      if (!data.items || data.items.length === 0) {
+        if (emptyEl) emptyEl.classList.remove('d-none');
+        if (wrapperEl) wrapperEl.innerHTML = '';
+        return;
+      }
+
+      if (emptyEl) emptyEl.classList.add('d-none');
+
+      var html = '';
+      data.items.forEach(function(item) {
+        html += '<a href="' + item.url + '" class="notif-item-link">' +
+          '<div class="mr-3 mt-1">' +
+            '<div class="notif-icon-circle ' + item.icon_bg + '">' +
+              '<i class="' + item.icon + '"></i>' +
+            '</div>' +
+          '</div>' +
+          '<div class="flex-grow-1" style="min-width: 0;">' +
+            '<div class="d-flex align-items-center justify-content-between">' +
+              '<span class="notif-title">' + item.title + '</span>' +
+              '<span class="notif-time">' + item.time + '</span>' +
+            '</div>' +
+            '<div class="notif-desc">' + item.message + '</div>' +
+          '</div>' +
+        '</a>';
+      });
+
+      if (wrapperEl) wrapperEl.innerHTML = html;
+    })
+    .catch(function(err) {
+      console.warn('Gagal memuat notifikasi:', err);
+      if (loadingEl) loadingEl.classList.add('d-none');
+      if (wrapperEl) {
+        wrapperEl.innerHTML = '<div class="p-3 text-center text-muted" style="font-size: 0.8rem;">' +
+          '<i class="fas fa-exclamation-circle text-danger mr-1"></i> Gagal memuat notifikasi. ' +
+          '<a href="javascript:void(0)" onclick="loadNotifications(true)" class="text-primary font-weight-bold ml-1">Coba Lagi</a>' +
+        '</div>';
+      }
+    });
+  }
+
+  // Muat notifikasi otomatis saat halaman siap
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      loadNotifications();
+    });
+  } else {
+    loadNotifications();
+  }
+</script>

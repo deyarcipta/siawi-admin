@@ -37,6 +37,7 @@ use App\Http\Controllers\LaporanKedisiplinanController;
 use App\Http\Controllers\LaporanAbsensiMingguanController;
 use App\Http\Controllers\LaporanAbsensiBulananController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\NotificationController;
 
 // Auth Routes (Public)
 Route::get('/', [AuthController::class, 'index'])->name('login');
@@ -53,6 +54,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::post('/dashboard/ingatkan-wali-kelas/{id_kelas}', [DashboardController::class, 'ingatkanWaliKelas'])->name('dashboard.ingatkanWaliKelas');
     Route::post('/dashboard/ingatkan-semua-wali-kelas', [DashboardController::class, 'ingatkanSemuaWaliKelas'])->name('dashboard.ingatkanSemuaWaliKelas');
     Route::get('/guru/profile/{id_guru}', [DashboardController::class, 'edit'])->name('guru.profile');
+
+    // Notifikasi Sistem (Smart Alerts & Pengumuman)
+    Route::get('/notifications/get', [NotificationController::class, 'getNotifications'])->name('notifications.get');
 
     // Informasi, Kalender & Berita Sekolah
     Route::resource('informasi', InformasiSekolahController::class);
