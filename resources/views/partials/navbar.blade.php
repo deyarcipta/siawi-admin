@@ -327,29 +327,41 @@
     });
   }
 
-  // Jalankan saat dokumen siap dan saat dropdown diklik
-  $(document).ready(function() {
-    loadNotifications();
+  // Inisialisasi otomatis menggunakan pure Vanilla JavaScript
+  loadNotifications();
 
-    $('#notifDropdownBtn').on('click', function() {
-      fetch('{{ route("admin.notifications.get") }}', {
-        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-      })
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
-        renderNotificationData(data);
-        if (data.items && data.items.length > 0) {
-          var allIds = data.items.map(function(it) { return it.id; });
-          saveReadNotifIds(allIds);
-          var badgeEl = document.getElementById('notif-badge');
-          if (badgeEl) {
-            badgeEl.classList.add('d-none');
-          }
-        }
-      })
-      .catch(function() {
-        loadNotifications(true);
-      });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      loadNotifications();
+      initNotifListeners();
     });
-  });
+  } else {
+    initNotifListeners();
+  }
+
+  function initNotifListeners() {
+    var notifBtn = document.getElementById('notifDropdownBtn');
+    if (notifBtn) {
+      notifBtn.addEventListener('click', function() {
+        fetch('{{ route("admin.notifications.get") }}', {
+          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          renderNotificationData(data);
+          if (data.items && data.items.length > 0) {
+            var allIds = data.items.map(function(it) { return it.id; });
+            saveReadNotifIds(allIds);
+            var badgeEl = document.getElementById('notif-badge');
+            if (badgeEl) {
+              badgeEl.classList.add('d-none');
+            }
+          }
+        })
+        .catch(function() {
+          loadNotifications(true);
+        });
+      });
+    }
+  }
 </script>

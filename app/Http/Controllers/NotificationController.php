@@ -378,8 +378,9 @@ class NotificationController extends Controller
             \Log::error('Error generating notifications: ' . $e->getMessage());
         }
 
-        // Gabungkan semua item
+        // Gabungkan semua item dan batasi maksimal 5 notifikasi teratas
         $allItems = array_merge($alerts, $infoItems);
+        $allItems = array_slice($allItems, 0, 5);
 
         return response()->json([
             'success' => true,
