@@ -171,7 +171,7 @@
                   <td>
                     <div class="d-flex align-items-center">
                       <strong class="text-dark mr-2" style="font-family: monospace; font-size: 0.92rem;">{{ $surat->nomor_surat }}</strong>
-                      <button type="button" class="btn btn-xs btn-outline-secondary rounded-circle shadow-none btn-copy" data-clipboard="{{ $surat->nomor_surat }}" title="Salin Nomor Surat" style="width: 22px; height: 22px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
+                      <button type="button" class="btn btn-xs btn-outline-primary rounded-circle shadow-none btn-copy" data-clipboard="{{ $surat->nomor_surat }}" title="Salin Nomor Surat" style="width: 24px; height: 24px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
                         <i class="fas fa-copy" style="font-size: 10px;"></i>
                       </button>
                     </div>
@@ -220,8 +220,8 @@
                         $isPdf = strtolower($ext) === 'pdf';
                         $fileUrl = asset('storage/lampiran_surat_keluar/' . $surat->file_lampiran);
                       @endphp
-                      <a href="{{ $fileUrl }}" target="_blank" class="btn btn-sm btn-outline-info rounded-pill px-2 py-1 shadow-sm" title="Lihat Berkas">
-                        <i class="fas {{ $isPdf ? 'fa-file-pdf text-danger' : 'fa-file-image text-primary' }} mr-1"></i> Berkas
+                      <a href="{{ $fileUrl }}" target="_blank" class="btn btn-sm btn-info text-white rounded-pill px-2 py-1 shadow-sm" title="Lihat Berkas">
+                        <i class="fas {{ $isPdf ? 'fa-file-pdf' : 'fa-file-image' }} mr-1"></i> Berkas
                       </a>
                     @else
                       <span class="badge badge-light text-muted border px-2 py-1" style="font-size: 0.72rem;">Tanpa Berkas</span>
@@ -229,10 +229,10 @@
                   </td>
                   <td class="text-center">
                     <div class="btn-group btn-group-sm">
-                      <a href="{{ route('admin.surat-keluar.edit', $surat->id_surat_keluar) }}" class="btn btn-light border text-primary" title="Edit Surat">
+                      <a href="{{ route('admin.surat-keluar.edit', $surat->id_surat_keluar) }}" class="btn btn-warning btn-sm text-white shadow-sm" title="Edit Surat">
                         <i class="fas fa-edit"></i>
                       </a>
-                      <button type="button" class="btn btn-light border text-danger btn-delete" data-id="{{ $surat->id_surat_keluar }}" data-nomor="{{ $surat->nomor_surat }}" title="Hapus Surat">
+                      <button type="button" class="btn btn-danger btn-sm shadow-sm btn-delete" data-id="{{ $surat->id_surat_keluar }}" data-nomor="{{ $surat->nomor_surat }}" title="Hapus Surat">
                         <i class="fas fa-trash-alt"></i>
                       </button>
                     </div>
