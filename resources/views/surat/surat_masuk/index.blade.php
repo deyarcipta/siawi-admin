@@ -50,15 +50,15 @@
     <!-- Statistic & Quick Info Cards -->
     <div class="row mb-3">
       <div class="col-md-4 col-sm-6 mb-3 mb-md-0">
-        <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: #fff;">
+        <div class="card border-0 shadow-sm h-100 bg-white" style="border-radius: 12px; border-left: 4px solid #16a34a !important;">
           <div class="card-body p-3 d-flex align-items-center justify-content-between">
             <div>
-              <div class="text-white-50 text-uppercase font-weight-bold" style="font-size: 0.72rem; letter-spacing: 0.5px;">Surat Masuk (Tahun {{ $selectedTahun }})</div>
-              <div class="font-weight-bold mt-1" style="font-size: 1.7rem; line-height: 1;">{{ $totalSuratTahunIni }} <span style="font-size: 0.9rem; font-weight: 400;">Surat</span></div>
-              <small class="text-white-50 mt-1 d-block"><i class="fas fa-calendar-alt mr-1"></i> Bulan ini: {{ $totalSuratBulanIni }} surat diterima</small>
+              <div class="text-muted text-uppercase font-weight-bold" style="font-size: 0.72rem; letter-spacing: 0.5px;">Surat Masuk (Tahun {{ $selectedTahun }})</div>
+              <div class="font-weight-bold text-dark mt-1" style="font-size: 1.75rem; line-height: 1.1;">{{ $totalSuratTahunIni }} <span style="font-size: 0.9rem; font-weight: 500; color: #64748b;">Surat</span></div>
+              <small class="text-muted mt-1 d-block"><i class="fas fa-calendar-alt text-success mr-1"></i> Bulan ini: <strong class="text-dark">{{ $totalSuratBulanIni }}</strong> surat</small>
             </div>
-            <div class="bg-white text-success rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; font-size: 1.3rem; opacity: 0.95;">
-              <i class="fas fa-envelope-open"></i>
+            <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; font-size: 1.3rem; background: #f0fdf4; color: #16a34a; flex-shrink: 0;">
+              <i class="fas fa-inbox"></i>
             </div>
           </div>
         </div>
