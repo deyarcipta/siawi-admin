@@ -216,11 +216,14 @@
   </div>
 </div>
 
-@section('scripts')
+@endsection
+
+@push('scripts')
 <script>
 $(document).ready(function() {
-  bsCustomFileInput.init();
+  if (typeof bsCustomFileInput !== 'undefined') {
+    bsCustomFileInput.init();
+  }
 });
 </script>
-@endsection
-@endsection
+@endpush

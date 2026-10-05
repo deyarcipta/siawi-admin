@@ -70,7 +70,8 @@ class SuratKeluarController extends Controller
             ->count();
 
         // Estimasi nomor berikutnya untuk tombol cepat
-        $nextNumberPreview = SuratKeluar::generateNextNumber('TU', Carbon::now()->toDateString());
+        $previewKode = !empty($selectedKlasifikasi) ? $selectedKlasifikasi : 'TU';
+        $nextNumberPreview = SuratKeluar::generateNextNumber($previewKode, Carbon::now()->toDateString());
 
         // Daftar tahun yang tersedia di database
         $tahunList = SuratKeluar::select('tahun')->distinct()->orderBy('tahun', 'desc')->pluck('tahun')->toArray();
@@ -157,8 +158,11 @@ class SuratKeluarController extends Controller
             $tahun = (int) $date->format('Y');
             $bulanRomawi = SuratKeluar::getRomawiMonth((int) $date->format('n'));
 
-            // Mengambil no urut terakhir dalam tahun tersebut dengan lock
-            $maxUrut = SuratKeluar::where('tahun', $tahun)->lockForUpdate()->max('no_urut') ?? 0;
+            // Mengambil no urut terakhir dalam tahun dan klasifikasi tersebut dengan lock
+            $maxUrut = SuratKeluar::where('tahun', $tahun)
+                ->where('kode_klasifikasi', $kodeKlasifikasi)
+                ->lockForUpdate()
+                ->max('no_urut') ?? 0;
             $nextUrut = $maxUrut + 1;
             $formattedUrut = str_pad((string) $nextUrut, 3, '0', STR_PAD_LEFT);
 

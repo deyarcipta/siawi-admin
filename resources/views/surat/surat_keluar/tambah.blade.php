@@ -226,11 +226,15 @@
   </div>
 </div>
 
-@section('scripts')
+@endsection
+
+@push('scripts')
 <script>
 $(document).ready(function() {
   // Update label input custom file
-  bsCustomFileInput.init();
+  if (typeof bsCustomFileInput !== 'undefined') {
+    bsCustomFileInput.init();
+  }
 
   // Function untuk fetch preview nomor surat secara real-time via AJAX
   function updateNomorPreview() {
@@ -269,5 +273,4 @@ $(document).ready(function() {
   });
 });
 </script>
-@endsection
-@endsection
+@endpush

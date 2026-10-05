@@ -6,11 +6,9 @@
   <div class="container-fluid">
     <div class="row align-items-center mb-2">
       <div class="col-sm-7 d-flex align-items-center">
-        <div class="d-inline-flex align-items-center justify-content-center bg-success text-white rounded-circle shadow-sm mr-3" style="width: 46px; height: 46px; font-size: 1.25rem; flex-shrink: 0;">
-          <i class="fas fa-inbox"></i>
-        </div>
+        <i class="fas fa-inbox text-success mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
         <div class="d-flex flex-column justify-content-center">
-          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2; font-size: 1.35rem;">Buku Agenda Surat Masuk</h1>
+          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Buku Agenda Surat Masuk</h1>
           <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Pencatatan surat masuk, nomor agenda otomatis, arsip digital, dan disposisi pimpinan</p>
         </div>
       </div>
@@ -253,10 +251,12 @@
   </div>
 </div>
 
-@section('scripts')
+@endsection
+
+@push('scripts')
 <script>
 $(document).ready(function() {
-  $('.btn-copy').on('click', function() {
+  $(document).on('click', '.btn-copy', function() {
     var textToCopy = $(this).data('clipboard');
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(textToCopy).then(function() {
@@ -289,7 +289,8 @@ $(document).ready(function() {
     }
   }
 
-  $('.btn-delete').on('click', function() {
+  $(document).on('click', '.btn-delete', function(e) {
+    e.preventDefault();
     var id = $(this).data('id');
     var nomor = $(this).data('nomor');
 
@@ -316,5 +317,4 @@ $(document).ready(function() {
   });
 });
 </script>
-@endsection
-@endsection
+@endpush

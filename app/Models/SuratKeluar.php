@@ -62,8 +62,10 @@ class SuratKeluar extends Model
         $tahun = (int) $date->format('Y');
         $bulanRomawi = self::getRomawiMonth((int) $date->format('n'));
 
-        // Hitung nomor urut tertinggi pada tahun yang sama
-        $maxUrut = self::where('tahun', $tahun)->max('no_urut') ?? 0;
+        // Hitung nomor urut tertinggi pada tahun dan klasifikasi yang sama (reset 001 per klasifikasi)
+        $maxUrut = self::where('tahun', $tahun)
+            ->where('kode_klasifikasi', $kodeKlasifikasi)
+            ->max('no_urut') ?? 0;
         $nextUrut = $maxUrut + 1;
         $formattedUrut = str_pad((string) $nextUrut, 3, '0', STR_PAD_LEFT);
 
