@@ -321,8 +321,8 @@ class NotificationController extends Controller
             // 2. PENGUMUMAN & AGENDA SEKOLAH (OPSI 2 - UNTUK SEMUA ROLE)
             // =========================================================================
 
-            // A. Informasi Sekolah Terbaru (Maksimal 3 teratas)
-            $informasiSekolah = InformasiSekolah::orderBy('created_at', 'desc')->orderBy('id', 'desc')->limit(3)->get();
+            // A. Informasi Sekolah Terbaru (Maksimal 2 teratas)
+            $informasiSekolah = InformasiSekolah::orderBy('created_at', 'desc')->orderBy('id', 'desc')->limit(2)->get();
             foreach ($informasiSekolah as $info) {
                 $timeText = 'Terbaru';
                 if (!empty($info->created_at)) {
