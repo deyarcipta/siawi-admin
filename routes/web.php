@@ -38,6 +38,8 @@ use App\Http\Controllers\LaporanAbsensiMingguanController;
 use App\Http\Controllers\LaporanAbsensiBulananController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SuratKeluarController;
+use App\Http\Controllers\SuratMasukController;
 
 // Auth Routes (Public)
 Route::get('/', [AuthController::class, 'index'])->name('login');
@@ -75,7 +77,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     });
 
     // =========================================================================
-    // 3. DOKUMEN & KEARSIPAN (Admin & Tata Usaha)
+    // 3. DOKUMEN, PERSURATAN & KEARSIPAN (Admin & Tata Usaha)
     // =========================================================================
     Route::group(['middleware' => ['role:admin,tata_usaha']], function () {
         Route::resource('dokumen', DokumenController::class);
@@ -83,6 +85,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
         Route::post('kelas/proses-individual', [KelasController::class, 'prosesIndividu']);
         Route::post('kelas/{id_kelas}/pindah-semua-alumni', [SiswaController::class, 'pindahSemuaKeAlumni']);
         Route::post('siswa/{id}/alumni', [SiswaController::class, 'pindahKeAlumni']);
+
+        // Penomoran & Agenda Persuratan
+        Route::get('surat-keluar/preview-nomor', [SuratKeluarController::class, 'getNomorPreview'])->name('surat-keluar.preview-nomor');
+        Route::resource('surat-keluar', SuratKeluarController::class);
+        Route::resource('surat-masuk', SuratMasukController::class);
     });
 
     // =========================================================================

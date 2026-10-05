@@ -331,6 +331,31 @@
           </ul>
         </li>
 
+        <!-- Agenda Surat -->
+        <li class="nav-item has-treeview {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-mail-bulk"></i>
+            <p>
+              Agenda Surat
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="/admin/surat-keluar" class="nav-link {{ Request::is('admin/surat-keluar*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Surat Keluar (Penomoran)</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/surat-masuk" class="nav-link {{ Request::is('admin/surat-masuk*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Surat Masuk (Agenda)</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
         <!-- ============================================== -->
         <!-- 6. SISTEM & PENGATURAN                         -->
         <!-- ============================================== -->
@@ -938,6 +963,30 @@
             <i class="nav-icon fas fa-folder-open"></i>
             <p>Dokumen Sekolah</p>
           </a>
+        </li>
+        <!-- Agenda Surat -->
+        <li class="nav-item has-treeview {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-mail-bulk"></i>
+            <p>
+              Agenda Surat
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="/admin/surat-keluar" class="nav-link {{ Request::is('admin/surat-keluar*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Surat Keluar (Penomoran)</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/surat-masuk" class="nav-link {{ Request::is('admin/surat-masuk*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Surat Masuk (Agenda)</p>
+              </a>
+            </li>
+          </ul>
         </li>
         <li class="nav-item">
           <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi*') ? 'active' : '' }}">
