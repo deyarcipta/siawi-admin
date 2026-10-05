@@ -72,11 +72,10 @@
       </div>
     </div>
 
-    @if(in_array($user->role, ['admin', 'tata_usaha', 'kurikulum', 'keuangan']))
-    <button type="button" class="navbar-circle-btn d-none d-sm-flex" title="Informasi Sekolah" onclick="location.href='/admin/informasi'">
+    <!-- Tombol Bantuan & Layanan Kendala (Tersedia untuk semua role) -->
+    <button type="button" class="navbar-circle-btn d-none d-sm-flex ml-1" title="Pusat Bantuan & Kontak Layanan" data-toggle="modal" data-target="#modalBantuanKendala">
       <i class="far fa-question-circle" style="font-size: 0.95rem;"></i>
     </button>
-    @endif
 
     <!-- User Profile Dropdown Pill -->
     <div class="dropdown">
@@ -144,6 +143,98 @@
   </div>
 </nav>
 <!-- /.navbar -->
+
+<!-- Modal Pusat Bantuan & Kontak Kendala Sistem -->
+<div class="modal fade" id="modalBantuanKendala" tabindex="-1" role="dialog" aria-labelledby="modalBantuanKendalaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 520px;">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+      <!-- Modal Header -->
+      <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #1d72fe 0%, #0b1f3a 100%); border: none;">
+        <div class="d-flex align-items-center">
+          <div class="rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); font-size: 1.15rem;">
+            <i class="fas fa-headset"></i>
+          </div>
+          <div>
+            <h5 class="modal-title font-weight-bold mb-0" id="modalBantuanKendalaLabel" style="font-size: 1.05rem;">Pusat Bantuan & Layanan</h5>
+            <small style="opacity: 0.85;">Kontak pengelola jika mengalami kendala sistem</small>
+          </div>
+        </div>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body p-4 bg-light">
+        <!-- Informasi Sekolah -->
+        <div class="p-3 mb-3 bg-white rounded-lg shadow-sm border">
+          <div class="d-flex align-items-start">
+            <div class="mr-3 text-primary" style="font-size: 1.25rem; line-height: 1;">
+              <i class="fas fa-school"></i>
+            </div>
+            <div>
+              <div class="font-weight-bold text-dark" style="font-size: 0.92rem;">{{ $setting->nama_sekolah ?? 'SMK Wisata Indonesia' }}</div>
+              <div class="text-muted" style="font-size: 0.78rem; margin-top: 2px;">
+                {{ $setting->alamat ?? 'JL. Raya Lenteng Agung / Jl. Langgar RT 009/03 No. 1' }}, {{ $setting->kota ?? 'Jakarta Selatan' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panduan & Kanal Bantuan Berdasarkan Kendala -->
+        <div class="text-dark font-weight-bold mb-2" style="font-size: 0.85rem;">
+          <i class="fas fa-phone-alt text-success mr-1"></i> Kanal Bantuan Sesuai Kendala:
+        </div>
+
+        <div class="list-group shadow-sm mb-3">
+          <div class="list-group-item list-group-item-action d-flex align-items-center p-3 border-0 mb-2 bg-white" style="border-radius: 10px;">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mr-3 flex-shrink-0" style="width: 36px; height: 36px; font-size: 0.85rem;">
+              <i class="fas fa-laptop-code"></i>
+            </div>
+            <div class="flex-grow-1" style="font-size: 0.82rem;">
+              <div class="font-weight-bold text-dark">Tim IT & Administrator SIAWI</div>
+              <div class="text-muted" style="font-size: 0.75rem;">Kendala login akun, reset password, error sistem & presensi mesin.</div>
+            </div>
+          </div>
+
+          <div class="list-group-item list-group-item-action d-flex align-items-center p-3 border-0 mb-2 bg-white" style="border-radius: 10px;">
+            <div class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center mr-3 flex-shrink-0" style="width: 36px; height: 36px; font-size: 0.85rem;">
+              <i class="fas fa-user-tie"></i>
+            </div>
+            <div class="flex-grow-1" style="font-size: 0.82rem;">
+              <div class="font-weight-bold text-dark">Tata Usaha & Kurikulum</div>
+              <div class="text-muted" style="font-size: 0.75rem;">Koreksi data siswa/guru, jadwal pelajaran, e-rapot, dan administrasi surat.</div>
+            </div>
+          </div>
+
+          <div class="list-group-item list-group-item-action d-flex align-items-center p-3 border-0 bg-white" style="border-radius: 10px;">
+            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center mr-3 flex-shrink-0" style="width: 36px; height: 36px; font-size: 0.85rem;">
+              <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            <div class="flex-grow-1" style="font-size: 0.82rem;">
+              <div class="font-weight-bold text-dark">Bagian Keuangan</div>
+              <div class="text-muted" style="font-size: 0.75rem;">Penyesuaian tagihan pembayaran, konfirmasi transfer & administrasi SPP.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info py-2 px-3 mb-0" style="border-radius: 10px; font-size: 0.78rem; background-color: #e0f2fe; border-color: #bae6fd; color: #0369a1;">
+          <i class="fas fa-info-circle mr-1"></i> Layanan dapat dihubungi langsung di ruang Tata Usaha atau kontak piket pada jam kerja sekolah (07:00 - 16:00 WIB).
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer bg-white border-top px-4 py-2 d-flex justify-content-between">
+        <span class="text-muted" style="font-size: 0.75rem;">
+          <i class="fas fa-shield-alt text-primary mr-1"></i> SIAWI Helpdesk
+        </span>
+        <button type="button" class="btn btn-secondary btn-sm px-4" data-dismiss="modal" style="border-radius: 8px; font-weight: 600;">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <style>
   /* Notification Dropdown Custom Styles */
