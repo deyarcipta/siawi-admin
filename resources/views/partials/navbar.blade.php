@@ -144,19 +144,59 @@
 </nav>
 <!-- /.navbar -->
 
+@php
+  $contactsByRole = [
+    [
+      'role_name' => 'IT & Administrator SIAWI',
+      'category' => 'Kendala akun login, reset password, error sistem, dan sinkronisasi mesin presensi.',
+      'icon' => 'fas fa-laptop-code',
+      'icon_bg' => 'bg-primary',
+      'guru' => \App\Models\Guru::where('role', 'admin')->whereNotNull('no_hp')->where('no_hp', '!=', '')->first(),
+    ],
+    [
+      'role_name' => 'Tata Usaha (Administrasi)',
+      'category' => 'Koreksi data induk siswa/guru, nomor induk, mutasi, dan pengarsipan dokumen surat.',
+      'icon' => 'fas fa-file-alt',
+      'icon_bg' => 'bg-info',
+      'guru' => \App\Models\Guru::where('role', 'tata_usaha')->whereNotNull('no_hp')->where('no_hp', '!=', '')->first(),
+    ],
+    [
+      'role_name' => 'Kurikulum & Pembelajaran',
+      'category' => 'Jadwal pelajaran, pengaturan mapel, e-rapot, dan monitoring jurnal mengajar.',
+      'icon' => 'fas fa-book-reader',
+      'icon_bg' => 'bg-indigo',
+      'guru' => \App\Models\Guru::where('role', 'kurikulum')->whereNotNull('no_hp')->where('no_hp', '!=', '')->first(),
+    ],
+    [
+      'role_name' => 'Bagian Keuangan & SPP',
+      'category' => 'Penyesuaian tagihan pembayaran, konfirmasi transfer, dan administrasi keuangan.',
+      'icon' => 'fas fa-file-invoice-dollar',
+      'icon_bg' => 'bg-success',
+      'guru' => \App\Models\Guru::where('role', 'keuangan')->whereNotNull('no_hp')->where('no_hp', '!=', '')->first(),
+    ],
+    [
+      'role_name' => 'Kesiswaan & Kedisiplinan',
+      'category' => 'Pencatatan poin pelanggaran, pembinaan siswa, dan penerbitan Surat Peringatan (SP).',
+      'icon' => 'fas fa-user-shield',
+      'icon_bg' => 'bg-warning',
+      'guru' => \App\Models\Guru::where('role', 'kesiswaan')->whereNotNull('no_hp')->where('no_hp', '!=', '')->first(),
+    ],
+  ];
+@endphp
+
 <!-- Modal Pusat Bantuan & Kontak Kendala Sistem -->
 <div class="modal fade" id="modalBantuanKendala" tabindex="-1" role="dialog" aria-labelledby="modalBantuanKendalaLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 520px;">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document" style="max-width: 560px;">
     <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
       <!-- Modal Header -->
       <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #1d72fe 0%, #0b1f3a 100%); border: none;">
         <div class="d-flex align-items-center">
-          <div class="rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); font-size: 1.15rem;">
+          <div class="rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 42px; height: 42px; background: rgba(255, 255, 255, 0.15); font-size: 1.15rem;">
             <i class="fas fa-headset"></i>
           </div>
           <div>
-            <h5 class="modal-title font-weight-bold mb-0" id="modalBantuanKendalaLabel" style="font-size: 1.05rem;">Pusat Bantuan & Layanan</h5>
-            <small style="opacity: 0.85;">Kontak pengelola jika mengalami kendala sistem</small>
+            <h5 class="modal-title font-weight-bold mb-0" id="modalBantuanKendalaLabel" style="font-size: 1.05rem;">Pusat Bantuan & Layanan Kendala</h5>
+            <small style="opacity: 0.85;">Kontak penanggung jawab sesuai bidang kendala sistem</small>
           </div>
         </div>
         <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
@@ -165,68 +205,88 @@
       </div>
 
       <!-- Modal Body -->
-      <div class="modal-body p-4 bg-light">
+      <div class="modal-body p-3 p-md-4 bg-light">
         <!-- Informasi Sekolah -->
-        <div class="p-3 mb-3 bg-white rounded-lg shadow-sm border">
-          <div class="d-flex align-items-start">
-            <div class="mr-3 text-primary" style="font-size: 1.25rem; line-height: 1;">
+        <div class="p-3 mb-3 bg-white rounded-lg shadow-sm border" style="border-radius: 12px !important;">
+          <div class="d-flex align-items-center">
+            <div class="mr-3 text-primary" style="font-size: 1.4rem;">
               <i class="fas fa-school"></i>
             </div>
             <div>
-              <div class="font-weight-bold text-dark" style="font-size: 0.92rem;">{{ $setting->nama_sekolah ?? 'SMK Wisata Indonesia' }}</div>
-              <div class="text-muted" style="font-size: 0.78rem; margin-top: 2px;">
+              <div class="font-weight-bold text-dark" style="font-size: 0.95rem;">{{ $setting->nama_sekolah ?? 'SMK Wisata Indonesia' }}</div>
+              <div class="text-muted" style="font-size: 0.76rem;">
                 {{ $setting->alamat ?? 'JL. Raya Lenteng Agung / Jl. Langgar RT 009/03 No. 1' }}, {{ $setting->kota ?? 'Jakarta Selatan' }}
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Panduan & Kanal Bantuan Berdasarkan Kendala -->
-        <div class="text-dark font-weight-bold mb-2" style="font-size: 0.85rem;">
-          <i class="fas fa-phone-alt text-success mr-1"></i> Kanal Bantuan Sesuai Kendala:
+        <div class="text-dark font-weight-bold mb-2 d-flex align-items-center justify-content-between" style="font-size: 0.84rem;">
+          <span><i class="fab fa-whatsapp text-success mr-1"></i> Kontak Penanggung Jawab:</span>
+          <span class="badge badge-light border text-muted" style="font-size: 0.7rem; font-weight: 500;">Pilih Sesuai Kendala</span>
         </div>
 
-        <div class="list-group shadow-sm mb-3">
-          <div class="list-group-item list-group-item-action d-flex align-items-center p-3 border-0 mb-2 bg-white" style="border-radius: 10px;">
-            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mr-3 flex-shrink-0" style="width: 36px; height: 36px; font-size: 0.85rem;">
-              <i class="fas fa-laptop-code"></i>
-            </div>
-            <div class="flex-grow-1" style="font-size: 0.82rem;">
-              <div class="font-weight-bold text-dark">Tim IT & Administrator SIAWI</div>
-              <div class="text-muted" style="font-size: 0.75rem;">Kendala login akun, reset password, error sistem & presensi mesin.</div>
-            </div>
-          </div>
+        <!-- Daftar Kontak Berdasarkan Role -->
+        <div class="contact-cards-wrapper">
+          @foreach($contactsByRole as $contact)
+            @php
+              $guru = $contact['guru'];
+              $rawPhone = $guru ? preg_replace('/[^0-9]/', '', $guru->no_hp) : null;
+              $waNumber = $rawPhone ? (str_starts_with($rawPhone, '0') ? '62' . substr($rawPhone, 1) : $rawPhone) : null;
+              $waMessage = rawurlencode("Halo " . ($guru ? $guru->nama_guru : 'Bapak/Ibu') . ", saya ingin konsultasi/melaporkan kendala terkait " . $contact['role_name'] . " pada SIAWI.");
+            @endphp
+            <div class="p-3 mb-2 bg-white rounded-lg shadow-sm border" style="border-radius: 12px !important; transition: transform 0.15s ease, box-shadow 0.15s ease;">
+              <div class="d-flex align-items-start">
+                <div class="rounded-circle {{ $contact['icon_bg'] }} text-white d-flex align-items-center justify-content-center mr-3 flex-shrink-0" style="width: 38px; height: 38px; font-size: 0.9rem;">
+                  <i class="{{ $contact['icon'] }}"></i>
+                </div>
+                <div class="flex-grow-1" style="min-width: 0;">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="font-weight-bold text-dark text-truncate" style="font-size: 0.85rem;">{{ $contact['role_name'] }}</span>
+                  </div>
+                  
+                  @if($guru)
+                    <div class="text-primary font-weight-600 mt-1" style="font-size: 0.8rem;">
+                      <i class="fas fa-user-circle mr-1"></i> {{ $guru->nama_guru }}
+                    </div>
+                    <div class="text-muted" style="font-size: 0.74rem; line-height: 1.3; margin-top: 2px;">
+                      {{ $contact['category'] }}
+                    </div>
 
-          <div class="list-group-item list-group-item-action d-flex align-items-center p-3 border-0 mb-2 bg-white" style="border-radius: 10px;">
-            <div class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center mr-3 flex-shrink-0" style="width: 36px; height: 36px; font-size: 0.85rem;">
-              <i class="fas fa-user-tie"></i>
+                    <!-- Action Contact Buttons -->
+                    <div class="d-flex align-items-center mt-2 pt-2 border-top">
+                      @if($waNumber)
+                        <a href="https://wa.me/{{ $waNumber }}?text={{ $waMessage }}" target="_blank" class="btn btn-success btn-xs mr-2 px-2 py-1 d-inline-flex align-items-center font-weight-bold shadow-sm" style="border-radius: 6px; font-size: 0.75rem;">
+                          <i class="fab fa-whatsapp mr-1" style="font-size: 0.85rem;"></i> WhatsApp: {{ $guru->no_hp }}
+                        </a>
+                        <a href="tel:{{ $guru->no_hp }}" class="btn btn-outline-secondary btn-xs px-2 py-1 d-inline-flex align-items-center" style="border-radius: 6px; font-size: 0.75rem;" title="Panggil Telepon">
+                          <i class="fas fa-phone-alt mr-1"></i> Telp
+                        </a>
+                      @else
+                        <span class="text-muted" style="font-size: 0.75rem;">Nomor kontak belum diatur</span>
+                      @endif
+                    </div>
+                  @else
+                    <div class="text-muted" style="font-size: 0.75rem; margin-top: 2px;">
+                      {{ $contact['category'] }}
+                    </div>
+                    <div class="text-muted font-italic mt-1" style="font-size: 0.72rem;">(Belum ada data penanggung jawab dengan kontak terdaftar)</div>
+                  @endif
+                </div>
+              </div>
             </div>
-            <div class="flex-grow-1" style="font-size: 0.82rem;">
-              <div class="font-weight-bold text-dark">Tata Usaha & Kurikulum</div>
-              <div class="text-muted" style="font-size: 0.75rem;">Koreksi data siswa/guru, jadwal pelajaran, e-rapot, dan administrasi surat.</div>
-            </div>
-          </div>
-
-          <div class="list-group-item list-group-item-action d-flex align-items-center p-3 border-0 bg-white" style="border-radius: 10px;">
-            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center mr-3 flex-shrink-0" style="width: 36px; height: 36px; font-size: 0.85rem;">
-              <i class="fas fa-file-invoice-dollar"></i>
-            </div>
-            <div class="flex-grow-1" style="font-size: 0.82rem;">
-              <div class="font-weight-bold text-dark">Bagian Keuangan</div>
-              <div class="text-muted" style="font-size: 0.75rem;">Penyesuaian tagihan pembayaran, konfirmasi transfer & administrasi SPP.</div>
-            </div>
-          </div>
+          @endforeach
         </div>
 
-        <div class="alert alert-info py-2 px-3 mb-0" style="border-radius: 10px; font-size: 0.78rem; background-color: #e0f2fe; border-color: #bae6fd; color: #0369a1;">
-          <i class="fas fa-info-circle mr-1"></i> Layanan dapat dihubungi langsung di ruang Tata Usaha atau kontak piket pada jam kerja sekolah (07:00 - 16:00 WIB).
+        <div class="alert alert-info py-2 px-3 mb-0 mt-3" style="border-radius: 10px; font-size: 0.76rem; background-color: #e0f2fe; border-color: #bae6fd; color: #0369a1;">
+          <i class="fas fa-clock mr-1"></i> Layanan konsultasi & bantuan aktif pada jam kerja sekolah (07:00 – 16:00 WIB).
         </div>
       </div>
 
       <!-- Modal Footer -->
-      <div class="modal-footer bg-white border-top px-4 py-2 d-flex justify-content-between">
+      <div class="modal-footer bg-white border-top px-4 py-2 d-flex justify-content-between align-items-center">
         <span class="text-muted" style="font-size: 0.75rem;">
-          <i class="fas fa-shield-alt text-primary mr-1"></i> SIAWI Helpdesk
+          <i class="fas fa-shield-alt text-primary mr-1"></i> SIAWI Helpdesk Service
         </span>
         <button type="button" class="btn btn-secondary btn-sm px-4" data-dismiss="modal" style="border-radius: 8px; font-weight: 600;">
           Tutup
