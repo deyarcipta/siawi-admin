@@ -579,6 +579,22 @@
           </a>
         </li>
 
+        <li class="nav-header">
+          Informasi & Agenda
+        </li>
+        <li class="nav-item">
+          <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-bullhorn"></i>
+            <p>Informasi Sekolah</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/kalender" class="nav-link {{ Request::is('admin/kalender*') ? 'active' : '' }}">
+            <i class="nav-icon far fa-calendar-alt"></i>
+            <p>Kalender Pendidikan</p>
+          </a>
+        </li>
+
         @elseif($user->role == 'kesiswaan')
         <!-- ============================================== -->
         <!-- KESISWAAN ROLE MENUS                           -->
@@ -693,19 +709,6 @@
         </li>
 
 
-        <li class="nav-item">
-          <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-bullhorn"></i>
-            <p>Informasi Sekolah</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="/admin/berita" class="nav-link {{ Request::is('admin/berita*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-newspaper"></i>
-            <p>Berita</p>
-          </a>
-        </li>
 
         @elseif($user->role == 'wali_kelas')
         <!-- ============================================== -->

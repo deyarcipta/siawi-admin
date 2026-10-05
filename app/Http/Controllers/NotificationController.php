@@ -320,6 +320,9 @@ class NotificationController extends Controller
             // =========================================================================
             // 2. PENGUMUMAN & AGENDA SEKOLAH (OPSI 2 - UNTUK SEMUA ROLE)
             // =========================================================================
+            $canAccessInfoPage = in_array($user->role, ['admin', 'tata_usaha', 'kurikulum', 'keuangan']);
+            $targetInfoUrl = $canAccessInfoPage ? '/admin/informasi' : 'javascript:void(0)';
+            $targetKalenderUrl = $canAccessInfoPage ? '/admin/kalender' : 'javascript:void(0)';
 
             // A. Informasi Sekolah Terbaru (Maksimal 2 teratas)
             $informasiSekolah = InformasiSekolah::orderBy('created_at', 'desc')->orderBy('id', 'desc')->limit(2)->get();
@@ -342,7 +345,7 @@ class NotificationController extends Controller
                     'title' => $info->informasi ?? 'Pengumuman Sekolah',
                     'message' => \Illuminate\Support\Str::limit($msg, 85),
                     'time' => $timeText,
-                    'url' => '/admin/informasi',
+                    'url' => $targetInfoUrl,
                 ];
             }
 
@@ -371,7 +374,7 @@ class NotificationController extends Controller
                     'title' => 'Agenda: ' . $kalender->kegiatan,
                     'message' => 'Jadwal pelaksanaan: ' . $tglFormatted . '.',
                     'time' => 'Kalender',
-                    'url' => '/admin/kalender',
+                    'url' => $targetKalenderUrl,
                 ];
             }
         } catch (\Throwable $e) {

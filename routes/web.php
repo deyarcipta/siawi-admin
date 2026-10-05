@@ -58,10 +58,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     // Notifikasi Sistem (Smart Alerts & Pengumuman)
     Route::get('/notifications/get', [NotificationController::class, 'getNotifications'])->name('notifications.get');
 
-    // Informasi, Kalender & Berita Sekolah
-    Route::resource('informasi', InformasiSekolahController::class);
-    Route::resource('kalender', KalenderSekolahController::class);
-    Route::resource('berita', BeritaController::class);
+    // =========================================================================
+    // 1.1 INFORMASI, KALENDER & BERITA (Admin, Tata Usaha, Kurikulum, Keuangan)
+    // =========================================================================
+    Route::group(['middleware' => ['role:admin,tata_usaha,kurikulum,keuangan']], function () {
+        Route::resource('informasi', InformasiSekolahController::class);
+        Route::resource('kalender', KalenderSekolahController::class);
+        Route::resource('berita', BeritaController::class);
+    });
 
     // =========================================================================
     // 2. KEUANGAN & TAGIHAN (Admin, Keuangan, Wali Kelas)

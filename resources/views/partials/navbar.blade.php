@@ -55,14 +55,16 @@
 
         <!-- Dropdown Footer -->
         <div class="p-2 border-top bg-light text-center d-flex justify-content-around align-items-center" style="font-size: 0.78rem;">
-          <a href="/admin/informasi" class="text-primary font-weight-bold text-decoration-none">
-            <i class="fas fa-bullhorn mr-1"></i> Informasi
-          </a>
-          <span class="text-muted">•</span>
-          <a href="/admin/kalender" class="text-primary font-weight-bold text-decoration-none">
-            <i class="far fa-calendar-alt mr-1"></i> Kalender
-          </a>
-          <span class="text-muted">•</span>
+          @if(in_array($user->role, ['admin', 'tata_usaha', 'kurikulum', 'keuangan']))
+            <a href="/admin/informasi" class="text-primary font-weight-bold text-decoration-none">
+              <i class="fas fa-bullhorn mr-1"></i> Informasi
+            </a>
+            <span class="text-muted">•</span>
+            <a href="/admin/kalender" class="text-primary font-weight-bold text-decoration-none">
+              <i class="far fa-calendar-alt mr-1"></i> Kalender
+            </a>
+            <span class="text-muted">•</span>
+          @endif
           <a href="javascript:void(0)" onclick="loadNotifications(true)" class="text-secondary font-weight-bold text-decoration-none" title="Muat Ulang">
             <i class="fas fa-sync-alt mr-1"></i> Segarkan
           </a>
@@ -70,9 +72,11 @@
       </div>
     </div>
 
-    <button type="button" class="navbar-circle-btn d-none d-sm-flex" title="Bantuan / Info" onclick="location.href='/admin/informasi'">
+    @if(in_array($user->role, ['admin', 'tata_usaha', 'kurikulum', 'keuangan']))
+    <button type="button" class="navbar-circle-btn d-none d-sm-flex" title="Informasi Sekolah" onclick="location.href='/admin/informasi'">
       <i class="far fa-question-circle" style="font-size: 0.95rem;"></i>
     </button>
+    @endif
 
     <!-- User Profile Dropdown Pill -->
     <div class="dropdown">
