@@ -207,6 +207,24 @@
 </style>
 
 <script>
+  var currentUserId = '{{ $user->id_guru ?? $user->id ?? 1 }}';
+  var readStorageKey = 'siawi_read_notifs_' + currentUserId;
+
+  function getReadNotifIds() {
+    try {
+      var stored = localStorage.getItem(readStorageKey);
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveReadNotifIds(ids) {
+    try {
+      localStorage.setItem(readStorageKey, JSON.stringify(ids));
+    } catch (e) {}
+  }
+
   function loadNotifications(isManual = false) {
     var loadingEl = document.getElementById('notif-loading-state');
     var emptyEl = document.getElementById('notif-empty-state');
@@ -233,10 +251,28 @@
     .then(function(data) {
       if (loadingEl) loadingEl.classList.add('d-none');
 
-      var total = data.count || 0;
+      if (!data.items || data.items.length === 0) {
+        if (badgeEl) badgeEl.classList.add('d-none');
+        if (totalBadgeEl) totalBadgeEl.textContent = '0 Baru';
+        if (emptyEl) emptyEl.classList.remove('d-none');
+        if (wrapperEl) wrapperEl.innerHTML = '';
+        return;
+      }
+
+      var readIds = getReadNotifIds();
+      var unreadCount = 0;
+      var currentIds = [];
+
+      data.items.forEach(function(item) {
+        currentIds.push(item.id);
+        if (readIds.indexOf(item.id) === -1) {
+          unreadCount++;
+        }
+      });
+
       if (badgeEl) {
-        if (total > 0) {
-          badgeEl.textContent = total > 99 ? '99+' : total;
+        if (unreadCount > 0) {
+          badgeEl.textContent = unreadCount > 99 ? '99+' : unreadCount;
           badgeEl.classList.remove('d-none');
         } else {
           badgeEl.classList.add('d-none');
@@ -244,20 +280,15 @@
       }
 
       if (totalBadgeEl) {
-        totalBadgeEl.textContent = total + ' Baru';
-      }
-
-      if (!data.items || data.items.length === 0) {
-        if (emptyEl) emptyEl.classList.remove('d-none');
-        if (wrapperEl) wrapperEl.innerHTML = '';
-        return;
+        totalBadgeEl.textContent = (unreadCount > 0 ? unreadCount : data.items.length) + (unreadCount > 0 ? ' Baru' : ' Total');
       }
 
       if (emptyEl) emptyEl.classList.add('d-none');
 
       var html = '';
       data.items.forEach(function(item) {
-        html += '<a href="' + item.url + '" class="notif-item-link">' +
+        var isUnread = readIds.indexOf(item.id) === -1;
+        html += '<a href="' + item.url + '" class="notif-item-link ' + (isUnread ? 'bg-light' : '') + '">' +
           '<div class="mr-3 mt-1">' +
             '<div class="notif-icon-circle ' + item.icon_bg + '">' +
               '<i class="' + item.icon + '"></i>' +
@@ -265,7 +296,10 @@
           '</div>' +
           '<div class="flex-grow-1" style="min-width: 0;">' +
             '<div class="d-flex align-items-center justify-content-between">' +
-              '<span class="notif-title">' + item.title + '</span>' +
+              '<span class="notif-title ' + (isUnread ? 'font-weight-bold text-primary' : '') + '">' +
+                (isUnread ? '<span class="badge badge-danger mr-1" style="font-size: 0.6rem; padding: 2px 4px; vertical-align: middle;">Baru</span> ' : '') +
+                item.title +
+              '</span>' +
               '<span class="notif-time">' + item.time + '</span>' +
             '</div>' +
             '<div class="notif-desc">' + item.message + '</div>' +
@@ -287,12 +321,29 @@
     });
   }
 
-  // Muat notifikasi otomatis saat halaman siap
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      loadNotifications();
+  // Saat dropdown dibuka oleh user, tandai semua notifikasi saat ini sudah dilihat
+  $(document).ready(function() {
+    $('#notifDropdownBtn').on('click', function() {
+      fetch('{{ route("admin.notifications.get") }}', {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.items && data.items.length > 0) {
+          var allIds = data.items.map(function(it) { return it.id; });
+          saveReadNotifIds(allIds);
+          var badgeEl = document.getElementById('notif-badge');
+          if (badgeEl) {
+            badgeEl.classList.add('d-none');
+          }
+          var totalBadgeEl = document.getElementById('notif-total-badge');
+          if (totalBadgeEl) {
+            totalBadgeEl.textContent = data.items.length + ' Total';
+          }
+        }
+      });
     });
-  } else {
+
     loadNotifications();
-  }
+  });
 </script>
