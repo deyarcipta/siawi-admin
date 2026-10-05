@@ -40,25 +40,22 @@ class NotificationController extends Controller
         }
 
         $today = Carbon::now()->toDateString();
-        $cacheKey = 'siawi_notif_' . ($user->id_guru ?? 'usr_' . $user->id) . '_' . $today;
+        $daysInIndonesian = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu'
+        ];
+        $todayDayEng = Carbon::now()->format('l');
+        $todayDayInd = $daysInIndonesian[$todayDayEng] ?? 'Senin';
 
-        // Cache for 60 seconds to ensure high performance without database load
-        $data = Cache::remember($cacheKey, 60, function () use ($user, $today) {
-            $daysInIndonesian = [
-                'Sunday' => 'Minggu',
-                'Monday' => 'Senin',
-                'Tuesday' => 'Selasa',
-                'Wednesday' => 'Rabu',
-                'Thursday' => 'Kamis',
-                'Friday' => 'Jumat',
-                'Saturday' => 'Sabtu'
-            ];
-            $todayDayEng = Carbon::now()->format('l');
-            $todayDayInd = $daysInIndonesian[$todayDayEng] ?? 'Senin';
+        $alerts = [];
+        $infoItems = [];
 
-            $alerts = [];
-            $infoItems = [];
-
+        try {
             // =========================================================================
             // 1. SMART ACTION ALERTS (BERDASARKAN ROLE)
             // =========================================================================
@@ -118,8 +115,8 @@ class NotificationController extends Controller
                             'type' => 'poin',
                             'icon' => 'fas fa-exclamation-triangle',
                             'icon_bg' => 'bg-warning',
-                            'title' => 'Catatan Poin Siswa',
-                            'message' => $namaSiswa . ' tercatat: ' . $namaPoin . ' (+' . ($ps->point->point ?? 0) . ' poin).',
+                            'title' => 'Catatan Poin: ' . $namaSiswa,
+                            'message' => $namaPoin . ' (+' . ($ps->point->point ?? 0) . ' poin).',
                             'time' => $ps->created_at ? $ps->created_at->locale('id')->diffForHumans() : 'Baru saja',
                             'url' => '/admin/pointSiswa',
                         ];
@@ -140,9 +137,9 @@ class NotificationController extends Controller
                             'type' => 'sp',
                             'icon' => 'fas fa-envelope-open-text',
                             'icon_bg' => 'bg-danger',
-                            'title' => 'Penerbitan Surat Peringatan',
-                            'message' => ($sp->siswa->nama_siswa ?? 'Siswa') . ' diterbitkan ' . ($sp->tingkat ?? 'Surat Peringatan') . '.',
-                            'time' => $sp->created_at ? $sp->created_at->locale('id')->diffForHumans() : 'Mendadak',
+                            'title' => 'Surat Peringatan Terbit',
+                            'message' => ($sp->siswa->nama_siswa ?? 'Siswa') . ' menerima ' . ($sp->tingkat ?? 'Surat Peringatan') . '.',
+                            'time' => $sp->created_at ? $sp->created_at->locale('id')->diffForHumans() : 'Baru',
                             'url' => '/admin/surat-peringatan',
                         ];
                     }
@@ -324,18 +321,27 @@ class NotificationController extends Controller
             // 2. PENGUMUMAN & AGENDA SEKOLAH (OPSI 2 - UNTUK SEMUA ROLE)
             // =========================================================================
 
-            // A. Informasi Sekolah Terbaru (Maksimal 2 teratas)
-            $informasiSekolah = InformasiSekolah::latest()->limit(2)->get();
+            // A. Informasi Sekolah Terbaru (Maksimal 3 teratas)
+            $informasiSekolah = InformasiSekolah::orderBy('created_at', 'desc')->orderBy('id', 'desc')->limit(3)->get();
             foreach ($informasiSekolah as $info) {
+                $timeText = 'Terbaru';
+                if (!empty($info->created_at)) {
+                    $timeText = Carbon::parse($info->created_at)->locale('id')->diffForHumans();
+                } elseif (!empty($info->tanggal_awal)) {
+                    $timeText = $info->tanggal_awal;
+                }
+
+                $msg = !empty($info->ket_informasi) ? strip_tags($info->ket_informasi) : ($info->informasi ?? 'Pengumuman informasi sekolah.');
+
                 $infoItems[] = [
                     'id' => 'info_' . $info->id,
                     'category' => 'info',
                     'type' => 'informasi',
                     'icon' => 'fas fa-bullhorn',
                     'icon_bg' => 'bg-info',
-                    'title' => 'Pengumuman Sekolah',
-                    'message' => $info->informasi,
-                    'time' => $info->tanggal ? Carbon::parse($info->tanggal)->locale('id')->translatedFormat('d M Y') : 'Terbaru',
+                    'title' => $info->informasi ?? 'Pengumuman Sekolah',
+                    'message' => \Illuminate\Support\Str::limit($msg, 85),
+                    'time' => $timeText,
                     'url' => '/admin/informasi',
                 ];
             }
@@ -347,7 +353,7 @@ class NotificationController extends Controller
                 ->get();
 
             if ($agendaMendatang->isEmpty()) {
-                $agendaMendatang = KalenderSekolah::latest()->limit(1)->get();
+                $agendaMendatang = KalenderSekolah::orderBy('created_at', 'desc')->limit(1)->get();
             }
 
             foreach ($agendaMendatang as $kalender) {
@@ -368,19 +374,19 @@ class NotificationController extends Controller
                     'url' => '/admin/kalender',
                 ];
             }
+        } catch (\Throwable $e) {
+            \Log::error('Error generating notifications: ' . $e->getMessage());
+        }
 
-            // Gabungkan semua item
-            $allItems = array_merge($alerts, $infoItems);
+        // Gabungkan semua item
+        $allItems = array_merge($alerts, $infoItems);
 
-            return [
-                'success' => true,
-                'count' => count($allItems),
-                'alerts_count' => count($alerts),
-                'info_count' => count($infoItems),
-                'items' => $allItems,
-            ];
-        });
-
-        return response()->json($data);
+        return response()->json([
+            'success' => true,
+            'count' => count($allItems),
+            'alerts_count' => count($alerts),
+            'info_count' => count($infoItems),
+            'items' => $allItems,
+        ]);
     }
 }
