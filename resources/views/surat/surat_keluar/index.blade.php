@@ -231,14 +231,14 @@
                   </td>
                   <td class="text-center">
                     <div class="btn-group btn-group-sm">
-                      <a href="{{ route('admin.surat-keluar.edit', $surat->id) }}" class="btn btn-light border text-primary" title="Edit Surat">
+                      <a href="{{ route('admin.surat-keluar.edit', $surat->id_surat_keluar) }}" class="btn btn-light border text-primary" title="Edit Surat">
                         <i class="fas fa-edit"></i>
                       </a>
-                      <button type="button" class="btn btn-light border text-danger btn-delete" data-id="{{ $surat->id }}" data-nomor="{{ $surat->nomor_surat }}" title="Hapus Surat">
+                      <button type="button" class="btn btn-light border text-danger btn-delete" data-id="{{ $surat->id_surat_keluar }}" data-nomor="{{ $surat->nomor_surat }}" title="Hapus Surat">
                         <i class="fas fa-trash-alt"></i>
                       </button>
                     </div>
-                    <form id="delete-form-{{ $surat->id }}" action="{{ route('admin.surat-keluar.destroy', $surat->id) }}" method="POST" style="display: none;">
+                    <form id="delete-form-{{ $surat->id_surat_keluar }}" action="{{ route('admin.surat-keluar.destroy', $surat->id_surat_keluar) }}" method="POST" style="display: none;">
                       @csrf
                       @method('DELETE')
                     </form>

@@ -147,14 +147,14 @@
         <!-- Kolom Kanan: Preview No Agenda & Aksi -->
         <div class="col-lg-4">
           <!-- Preview Box Agenda -->
-          <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px; background: linear-gradient(135deg, #0b4b2e 0%, #177245 100%); color: #fff;">
+          <div class="card border-0 shadow-sm mb-4 bg-white" style="border-radius: 12px; border-top: 4px solid #16a34a !important;">
             <div class="card-body p-4 text-center">
-              <div class="text-white-50 text-uppercase font-weight-bold" style="font-size: 0.72rem; letter-spacing: 1px;">
+              <div class="text-success text-uppercase font-weight-bold" style="font-size: 0.75rem; letter-spacing: 1px;">
                 <i class="fas fa-barcode mr-1"></i> Nomor Agenda Masuk
               </div>
               
-              <div class="my-3 p-3 bg-white rounded shadow-sm text-dark">
-                <div class="text-muted small mb-1">No. Agenda Otomatis:</div>
+              <div class="my-3 p-3 rounded text-dark" style="background: #f8fafc; border: 1px dashed #cbd5e1;">
+                <div class="text-muted small mb-1" style="font-size: 0.78rem;">No. Agenda Otomatis:</div>
                 <div class="font-weight-bold text-success font-monospace" style="font-size: 1.3rem;">
                   {{ $nextAgendaPreview['nomor_agenda'] }}
                 </div>
@@ -162,17 +162,17 @@
 
               <div class="row text-left mt-3">
                 <div class="col-6 mb-2">
-                  <small class="text-white-50 d-block">Urutan Agenda:</small>
-                  <span class="font-weight-bold text-warning">#{{ str_pad($nextAgendaPreview['no_urut'], 3, '0', STR_PAD_LEFT) }}</span>
+                  <small class="text-muted d-block" style="font-size: 0.75rem;">Urutan Agenda:</small>
+                  <span class="font-weight-bold text-dark font-monospace" style="font-size: 0.95rem;">#{{ str_pad($nextAgendaPreview['no_urut'], 3, '0', STR_PAD_LEFT) }}</span>
                 </div>
                 <div class="col-6 mb-2">
-                  <small class="text-white-50 d-block">Tahun Buku:</small>
-                  <span class="font-weight-bold text-white">{{ $nextAgendaPreview['tahun'] }}</span>
+                  <small class="text-muted d-block" style="font-size: 0.75rem;">Tahun Buku:</small>
+                  <span class="font-weight-bold text-dark font-monospace" style="font-size: 0.95rem;">{{ $nextAgendaPreview['tahun'] }}</span>
                 </div>
               </div>
 
-              <div class="border-top border-secondary pt-3 mt-3 text-left">
-                <small class="text-white-50" style="font-size: 0.75rem; line-height: 1.3; display: block;">
+              <div class="border-top pt-3 mt-3 text-left">
+                <small class="text-muted" style="font-size: 0.75rem; line-height: 1.3; display: block;">
                   <i class="fas fa-check-circle text-success mr-1"></i> Nomor agenda dicatat secara berurutan dan direset otomatis per awal tahun baru.
                 </small>
               </div>

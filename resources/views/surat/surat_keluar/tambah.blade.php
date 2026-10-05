@@ -167,14 +167,14 @@
         <!-- Kolom Kanan: Live Preview Penomoran & Card Aksi -->
         <div class="col-lg-4">
           <!-- Live Preview Box -->
-          <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px; background: linear-gradient(135deg, #0d2346 0%, #1a365d 100%); color: #fff;">
+          <div class="card border-0 shadow-sm mb-4 bg-white" style="border-radius: 12px; border-top: 4px solid #1d72fe !important;">
             <div class="card-body p-4 text-center">
-              <div class="text-white-50 text-uppercase font-weight-bold" style="font-size: 0.72rem; letter-spacing: 1px;">
+              <div class="text-primary text-uppercase font-weight-bold" style="font-size: 0.75rem; letter-spacing: 1px;">
                 <i class="fas fa-magic mr-1"></i> Preview Nomor Otomatis
               </div>
               
-              <div class="my-3 p-3 bg-white rounded shadow-sm text-dark">
-                <div class="text-muted small mb-1">Nomor Surat Yang Akan Diterbitkan:</div>
+              <div class="my-3 p-3 rounded text-dark" style="background: #f8fafc; border: 1px dashed #cbd5e1;">
+                <div class="text-muted small mb-1" style="font-size: 0.78rem;">Nomor Surat Yang Akan Diterbitkan:</div>
                 <div id="previewNomorSurat" class="font-weight-bold text-primary font-monospace" style="font-size: 1.15rem; word-break: break-all;">
                   {{ $nextNumberPreview['nomor_surat'] }}
                 </div>
@@ -182,25 +182,25 @@
 
               <div class="row text-left mt-3">
                 <div class="col-6 mb-2">
-                  <small class="text-white-50 d-block">No. Urut:</small>
-                  <span id="previewNoUrut" class="font-weight-bold text-warning">#{{ str_pad($nextNumberPreview['no_urut'], 3, '0', STR_PAD_LEFT) }}</span>
+                  <small class="text-muted d-block" style="font-size: 0.75rem;">No. Urut:</small>
+                  <span id="previewNoUrut" class="font-weight-bold text-dark font-monospace" style="font-size: 0.95rem;">#{{ str_pad($nextNumberPreview['no_urut'], 3, '0', STR_PAD_LEFT) }}</span>
                 </div>
                 <div class="col-6 mb-2">
-                  <small class="text-white-50 d-block">Bulan Romawi:</small>
-                  <span id="previewBulan" class="font-weight-bold text-white">{{ $nextNumberPreview['bulan_romawi'] }}</span>
+                  <small class="text-muted d-block" style="font-size: 0.75rem;">Bulan Romawi:</small>
+                  <span id="previewBulan" class="font-weight-bold text-dark font-monospace" style="font-size: 0.95rem;">{{ $nextNumberPreview['bulan_romawi'] }}</span>
                 </div>
                 <div class="col-6">
-                  <small class="text-white-50 d-block">Tahun Arsip:</small>
-                  <span id="previewTahun" class="font-weight-bold text-white">{{ $nextNumberPreview['tahun'] }}</span>
+                  <small class="text-muted d-block" style="font-size: 0.75rem;">Tahun Arsip:</small>
+                  <span id="previewTahun" class="font-weight-bold text-dark font-monospace" style="font-size: 0.95rem;">{{ $nextNumberPreview['tahun'] }}</span>
                 </div>
                 <div class="col-6">
-                  <small class="text-white-50 d-block">Identitas Sekolah:</small>
-                  <span class="font-weight-bold text-white">SMK-WI</span>
+                  <small class="text-muted d-block" style="font-size: 0.75rem;">Kode Sekolah:</small>
+                  <span class="font-weight-bold text-dark font-monospace" style="font-size: 0.95rem;">SMK-WI</span>
                 </div>
               </div>
 
-              <div class="border-top border-secondary pt-3 mt-3 text-left">
-                <small class="text-white-50" style="font-size: 0.75rem; line-height: 1.3; display: block;">
+              <div class="border-top pt-3 mt-3 text-left">
+                <small class="text-muted" style="font-size: 0.75rem; line-height: 1.3; display: block;">
                   <i class="fas fa-shield-alt text-info mr-1"></i> Sistem menjamin nomor urut tidak duplikat dengan database lock otomatis saat penyimpanan.
                 </small>
               </div>

@@ -44,7 +44,7 @@
       </div>
     @endif
 
-    <form action="{{ route('admin.surat-keluar.update', $surat->id) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('admin.surat-keluar.update', $surat->id_surat_keluar) }}" method="POST" enctype="multipart/form-data">
       @csrf
       @method('PUT')
 
