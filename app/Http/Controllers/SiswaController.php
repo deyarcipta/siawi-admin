@@ -87,9 +87,15 @@ class SiswaController extends Controller
             // 'kota' => 'required',
         ]);
 
-	$nama_file = 'avatar.jpg';
+        $nama_file = 'avatar.jpg';
         // Periksa apakah file diunggah
         if ($request->hasFile('foto')) {
+            $request->validate([
+                'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+            ]);
+            if (!Storage::disk('public')->exists('foto-siswa')) {
+                Storage::disk('public')->makeDirectory('foto-siswa');
+            }
             $file = $request->file('foto');
             $nama_file = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $tujuan_upload = 'foto-siswa';
@@ -209,9 +215,18 @@ class SiswaController extends Controller
 
         // Periksa apakah file diunggah
         if ($request->hasFile('foto')) {
+            $request->validate([
+                'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+            ]);
+            if (!Storage::disk('public')->exists('foto-siswa')) {
+                Storage::disk('public')->makeDirectory('foto-siswa');
+            }
             if ($siswa->foto && $siswa->foto != 'avatar.jpg') {
                 // Hapus foto lama dari penyimpanan jika bukan "avatar.jpg"
                 Storage::disk('public')->delete('foto-siswa/' . $siswa->foto);
+                if (file_exists(public_path('storage/foto-siswa/' . $siswa->foto))) {
+                    @unlink(public_path('storage/foto-siswa/' . $siswa->foto));
+                }
             }
             $file = $request->file('foto');
             $nama_file = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
@@ -219,11 +234,9 @@ class SiswaController extends Controller
             $file->storeAs($tujuan_upload, $nama_file, 'public');
             $siswa->foto = $nama_file;
         } else {
-            $foto = session('old_foto');
-            $siswa->foto = $foto;
+            // Pertahankan foto yang sudah ada jika tidak mengunggah file baru
+            $siswa->foto = $siswa->foto ?? session('old_foto') ?? 'avatar.jpg';
         }
-        //dd($siswa->foto);
-        // Proses penyimpanan data lainnya
 
         // Hapus nama file dari session setelah digunakan
         session()->forget('old_foto');

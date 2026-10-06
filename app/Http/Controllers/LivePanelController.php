@@ -157,8 +157,14 @@ class LivePanelController extends Controller
 
                 // Foto siswa
                 $fotoUrl = null;
-                if ($siswa && $siswa->foto && file_exists(public_path('storage/gambar/' . $siswa->foto))) {
-                    $fotoUrl = asset('storage/gambar/' . $siswa->foto);
+                if ($siswa && $siswa->foto && $siswa->foto !== 'avatar.jpg') {
+                    if (file_exists(public_path('storage/foto-siswa/' . $siswa->foto))) {
+                        $fotoUrl = asset('storage/foto-siswa/' . $siswa->foto);
+                    } elseif (file_exists(storage_path('app/public/foto-siswa/' . $siswa->foto))) {
+                        $fotoUrl = asset('storage/foto-siswa/' . $siswa->foto);
+                    } elseif (file_exists(public_path('storage/gambar/' . $siswa->foto))) {
+                        $fotoUrl = asset('storage/gambar/' . $siswa->foto);
+                    }
                 }
 
                 return [

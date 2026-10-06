@@ -173,22 +173,29 @@
                   </div>
                   <div class="form-group col-3">
                     <label for="foto">Foto Siswa</label>
-                    <div class="input-group">
-                      <div class="custom-file">
-                        <input type="file" class="custom-file-input" name="foto" id="foto">
-                        <label class="custom-file-label" id='foto-label' for="foto">Choose file</label>
-                        <script>
-                          document.getElementById('foto').addEventListener('change', function(e) {
-                              var fileName = e.target.files[0].name;
-                              var label = document.getElementById('foto-label');
-                              label.textContent = fileName;
-                          });
-                      </script>
+                    <div class="d-flex align-items-center">
+                      <div class="mr-2">
+                        <img id="preview-foto-siswa" src="{{ asset('lte/dist/img/avatar.png') }}" alt="Avatar" class="img-thumbnail rounded" style="width: 42px; height: 42px; object-fit: cover;">
                       </div>
-                      {{-- <div class="input-group-append">
-                        <span class="input-group-text">Upload</span>
-                      </div> --}}
+                      <div class="custom-file flex-grow-1">
+                        <input type="file" class="custom-file-input" name="foto" id="foto" accept="image/png,image/jpeg,image/jpg,image/webp">
+                        <label class="custom-file-label text-truncate" id='foto-label' for="foto">Choose file</label>
+                      </div>
                     </div>
+                    <script>
+                      document.getElementById('foto').addEventListener('change', function(e) {
+                          var file = e.target.files[0];
+                          if (file) {
+                              var label = document.getElementById('foto-label');
+                              label.textContent = file.name;
+                              var reader = new FileReader();
+                              reader.onload = function(evt) {
+                                  document.getElementById('preview-foto-siswa').src = evt.target.result;
+                              };
+                              reader.readAsDataURL(file);
+                          }
+                      });
+                    </script>
                   </div>
                 </div>
                 <div class="row">
