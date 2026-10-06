@@ -131,28 +131,11 @@
                                   <i class="fa fa-eye mr-1"></i> Detail
                                 </button>
 
-                                <!-- Button WhatsApp Notification to Wali Kelas -->
-                                @if(!empty($item['waUrl']))
-                                  <div class="btn-group">
-                                    <a href="{{ $item['waUrl'] }}" target="_blank" class="btn btn-success btn-sm font-weight-bold" title="Kirim data nama siswa yang belum absen ke nomor WhatsApp Wali Kelas">
-                                      <i class="fab fa-whatsapp mr-1"></i> Kirim WA
-                                    </a>
-                                    <button type="button" class="btn btn-success btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Pilihan Pengiriman">
-                                      <span class="sr-only">Toggle Dropdown</span>
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-right shadow-sm border-0">
-                                      <a class="dropdown-item py-2" href="{{ $item['waUrl'] }}" target="_blank">
-                                        <i class="fab fa-whatsapp text-success mr-2"></i> Buka WhatsApp Chat
-                                      </a>
-                                      <a class="dropdown-item py-2" href="javascript:void(0)" onclick="kirimWaGateway('{{ $item['kelas']->id_kelas }}', '{{ $item['kelas']->nama_kelas }}', '{{ $item['waliKelas']?->nama_guru ?? '' }}')">
-                                        <i class="fas fa-paper-plane text-primary mr-2"></i> Kirim via WA Gateway
-                                      </a>
-                                      <div class="dropdown-divider"></div>
-                                      <a class="dropdown-item py-2" href="javascript:void(0)" onclick="salinTeksPesan('{{ $item['kelas']->id_kelas }}')">
-                                        <i class="fas fa-copy text-secondary mr-2"></i> Salin Teks Pesan
-                                      </a>
-                                    </div>
-                                  </div>
+                                <!-- Button WhatsApp Notification to Wali Kelas (1-Click Langsung Kirim) -->
+                                @if(!empty($item['waliNoHp']))
+                                  <button type="button" class="btn btn-success btn-sm font-weight-bold" onclick="kirimWaGateway('{{ $item['kelas']->id_kelas }}', '{{ $item['kelas']->nama_kelas }}', '{{ $item['waliKelas']?->nama_guru ?? '' }}')" title="Kirim data kelalaian absen langsung ke WhatsApp Wali Kelas">
+                                    <i class="fab fa-whatsapp mr-1"></i> Kirim WA
+                                  </button>
                                 @else
                                   <button type="button" class="btn btn-secondary btn-sm" onclick="alertNoWa('{{ $item['kelas']->nama_kelas }}', '{{ $item['waliKelas']?->nama_guru ?? '' }}')" title="Nomor WhatsApp Wali Kelas belum diisi">
                                     <i class="fab fa-whatsapp mr-1"></i> Kirim WA
@@ -160,7 +143,7 @@
                                 @endif
                               </div>
 
-                              <!-- Hidden Textarea for copying formatted WA message -->
+                              <!-- Hidden Textarea for formatted WA message if needed -->
                               <textarea id="rawPesanWa{{ $item['kelas']->id_kelas }}" style="display: none;">{{ $item['pesanWa'] }}</textarea>
 
                               <!-- Modal Detail Siswa Belum Absen -->
@@ -190,10 +173,10 @@
                                               Tanggal: {{ \Carbon\Carbon::parse($date)->translatedFormat('d F Y') }} | Belum Terinput: <span class="text-danger font-weight-bold">{{ $item['jumlahBelumAbsen'] }} Siswa</span>
                                             </div>
                                           </div>
-                                          @if(!empty($item['waUrl']))
-                                            <a href="{{ $item['waUrl'] }}" target="_blank" class="btn btn-sm btn-success font-weight-bold shadow-sm">
+                                          @if(!empty($item['waliNoHp']))
+                                            <button type="button" class="btn btn-sm btn-success font-weight-bold shadow-sm" onclick="kirimWaGateway('{{ $item['kelas']->id_kelas }}', '{{ $item['kelas']->nama_kelas }}', '{{ $item['waliKelas']?->nama_guru ?? '' }}')">
                                               <i class="fab fa-whatsapp mr-1"></i> Kirim ke Wali Kelas
-                                            </a>
+                                            </button>
                                           @endif
                                         </div>
                                         
@@ -320,11 +303,12 @@
     });
   }
 
-  // Kirim Pesan via WhatsApp Gateway (Background Queue)
+  // Kirim Pesan via WhatsApp Gateway
   function kirimWaGateway(idKelas, namaKelas, namaWali) {
+    var walasName = namaWali ? 'Bapak/Ibu ' + namaWali : 'Wali Kelas ' + namaKelas;
     Swal.fire({
-      title: 'Kirim via WhatsApp Gateway?',
-      text: 'Data kelalaian absen kelas ' + namaKelas + ' akan dikirimkan otomatis ke WhatsApp ' + (namaWali ? namaWali : 'Wali Kelas') + ' melalui sistem gateway.',
+      title: 'Kirim WA ke ' + (namaWali ? namaWali : namaKelas) + '?',
+      text: 'Pemberitahuan siswa belum absen untuk kelas ' + namaKelas + ' akan dikirim langsung ke WhatsApp ' + walasName + ' menggunakan nomor pengirim di Pengaturan.',
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#10b981',
@@ -350,7 +334,7 @@
       if (result.isConfirmed && result.value) {
         Swal.fire({
           icon: 'success',
-          title: 'Berhasil!',
+          title: 'Berhasil Terkirim!',
           text: result.value.message,
           confirmButtonColor: '#1d72fe'
         });

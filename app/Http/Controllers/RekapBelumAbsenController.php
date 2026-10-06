@@ -235,8 +235,13 @@ class RekapBelumAbsenController extends Controller
         $pesan = self::generateWaMessage($kelas, $siswaBelumAbsen, $date, $namaSekolah);
         $wali = $kelas->waliKelas;
 
+        $targetSessionId = null;
+        if ($setting && isset($setting->rekap_wa_settings['walas']['session_id']) && $setting->rekap_wa_settings['walas']['session_id'] !== 'auto') {
+            $targetSessionId = $setting->rekap_wa_settings['walas']['session_id'];
+        }
+
         try {
-            \App\Jobs\SendWhatsAppAttendanceNotification::dispatch($wali->no_hp, $pesan);
+            \App\Jobs\SendWhatsAppAttendanceNotification::dispatch($wali->no_hp, $pesan, $targetSessionId);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -259,6 +264,11 @@ class RekapBelumAbsenController extends Controller
         $setting = Setting::first();
         $namaSekolah = $setting->nama_sekolah ?? 'SMK Wisata Indonesia';
 
+        $targetSessionId = null;
+        if ($setting && isset($setting->rekap_wa_settings['walas']['session_id']) && $setting->rekap_wa_settings['walas']['session_id'] !== 'auto') {
+            $targetSessionId = $setting->rekap_wa_settings['walas']['session_id'];
+        }
+
         $allClasses = Kelas::with(['siswa', 'waliKelas'])->orderBy('nama_kelas', 'asc')->get();
         $terkirimCount = 0;
         $tidakAdaNomorCount = 0;
@@ -278,7 +288,7 @@ class RekapBelumAbsenController extends Controller
                 if ($wali && !empty($wali->no_hp)) {
                     $pesan = self::generateWaMessage($kelas, $siswaBelumAbsen, $date, $namaSekolah);
                     try {
-                        \App\Jobs\SendWhatsAppAttendanceNotification::dispatch($wali->no_hp, $pesan);
+                        \App\Jobs\SendWhatsAppAttendanceNotification::dispatch($wali->no_hp, $pesan, $targetSessionId);
                         $terkirimCount++;
                     } catch (\Exception $e) {
                         \Log::error("Gagal kirim WA kelalaian massal ke {$wali->no_hp}: " . $e->getMessage());
