@@ -144,8 +144,8 @@
             <a href="{{ url('/admin/siswa-tidak-hadir?today=1') }}" class="btn btn-sm btn-outline-danger {{ $tanggalMulai == Carbon\Carbon::today()->toDateString() && $tanggalAkhir == Carbon\Carbon::today()->toDateString() ? 'active' : '' }}">
               <i class="fas fa-calendar-day mr-1"></i> Hari Ini ({{ Carbon\Carbon::today()->locale('id')->isoFormat('D MMM Y') }})
             </a>
-            <a href="{{ url('/admin/absensi') }}" class="btn btn-sm btn-outline-secondary">
-              <i class="fas fa-clipboard-check mr-1"></i> Input Absensi Harian
+            <a href="{{ url('/admin/siswa-tidak-hadir/export-excel') }}?tanggal_mulai={{ $tanggalMulai }}&tanggal_akhir={{ $tanggalAkhir }}&id_kelas={{ $selectedKelas }}&status={{ $selectedStatus }}" class="btn btn-sm btn-success shadow-sm">
+              <i class="fas fa-file-excel mr-1"></i> Download Excel
             </a>
           </div>
           <div>

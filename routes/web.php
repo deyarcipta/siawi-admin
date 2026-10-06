@@ -165,6 +165,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
         Route::get('/showRekapAbsen', [AbsensiController::class, 'showRekapAbsen']);
         Route::get('/rekapAbsenSiswa', [AbsensiController::class, 'rekapAbsenSiswa'])->name('rekap.siswa');
         Route::get('/siswa-tidak-hadir', [AbsensiController::class, 'siswaTidakHadir'])->name('siswa.tidak.hadir');
+        Route::get('/siswa-tidak-hadir/export-excel', [AbsensiController::class, 'exportSiswaTidakHadir'])->name('siswa.tidak.hadir.export');
         Route::get('/exportExcelRekapSiswa', [AbsensiController::class, 'exportRekapSiswa']);
         Route::get('/absensi/download', [AbsensiController::class, 'downloadShowRekap']);
     });

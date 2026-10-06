@@ -29,20 +29,11 @@
         <div class="card">
           <div class="card-header d-flex align-items-center justify-content-between flex-wrap">
             <h3 class="card-title text-dark font-weight-bold mb-0">
-              <i class="fas fa-table text-primary mr-2"></i> Absensi Harian - {{ $hari }}, {{ \Carbon\Carbon::parse($tanggal)->translatedFormat('d F Y') }}
+              <i class="fas fa-th-large text-primary mr-2"></i> Absensi Harian - {{ $hari }}, {{ \Carbon\Carbon::parse($tanggal)->translatedFormat('d F Y') }}
             </h3>
             
-            <div class="d-flex align-items-center ml-auto flex-wrap">
-              @if($user && $user->role == 'admin')
-                <form action="{{ route('admin.absensi.index') }}" method="GET" class="form-inline mr-2 my-1">
-                  <div class="form-group mr-2">
-                    <input type="date" name="tanggal" id="tanggal_filter" class="form-control form-control-sm" value="{{ $tanggal }}">
-                  </div>
-                  <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter mr-1"></i> Filter</button>
-                </form>
-              @endif
-              
-              <a href="{{ url('/admin/downloadAbsensiHarianSiswa') }}{{ ($user && $user->role == 'admin') ? '?tanggal=' . $tanggal : '' }}" class="btn btn-success btn-sm mr-2 my-1">
+            <div class="d-flex align-items-center ml-auto flex-wrap" style="gap: 8px;">
+              <a href="{{ url('/admin/downloadAbsensiHarianSiswa') }}" class="btn btn-success btn-sm my-1">
                 <i class="fa fa-file-excel mr-1"></i> Download Data
               </a>
               <button type="button" class="btn btn-primary btn-sm my-1" data-toggle="modal" data-target="#tambahKehadiranModal">

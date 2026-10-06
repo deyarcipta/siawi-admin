@@ -11,6 +11,7 @@ use App\Models\Setting;
 use App\Exports\AbsensiExport;
 use App\Exports\AbsensiSiswaExport;
 use App\Exports\AbsensiSiswaRekapExport;
+use App\Exports\SiswaTidakHadirExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 
@@ -24,13 +25,7 @@ class AbsensiController extends Controller
         $user = Auth::user();
         $now = Carbon::now('Asia/Jakarta');
         
-        // Hanya role admin yang dapat menyaring tanggal
-        if ($user && $user->role == 'admin') {
-            $tanggal = $request->input('tanggal', $now->toDateString());
-        } else {
-            $tanggal = $now->toDateString();
-        }
-        
+        $tanggal = $now->toDateString();
         $hari = Carbon::parse($tanggal)->locale('id')->dayName;
         $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
         $absensiQuery = Absensi::whereDate('tanggal', $tanggal)
@@ -468,19 +463,11 @@ class AbsensiController extends Controller
 
     public function AbsensiSiswaExport(Request $request)
     {
-        $user = Auth::user();
         $now = Carbon::now('Asia/Jakarta');
-        
-        // Hanya role admin yang dapat mengekspor tanggal filter
-        if ($user && $user->role == 'admin') {
-            $tanggal = $request->input('tanggal', $now->format('Y-m-d'));
-        } else {
-            $tanggal = $now->format('Y-m-d');
-        }
-        
+        $tanggal = $now->format('Y-m-d');
         $hari = Carbon::parse($tanggal)->locale('id')->translatedFormat('l');
 
-        $fileName = "Kehadiran_Siswa_{$hari}_{$tanggal}.xlsx"; // Contoh: Absensi_Selasa_2025-02-25.xlsx
+        $fileName = "Kehadiran_Siswa_{$hari}_{$tanggal}.xlsx";
 
         return Excel::download(new AbsensiSiswaExport($tanggal), $fileName);
     }
@@ -651,6 +638,33 @@ class AbsensiController extends Controller
             'selectedKelas', 'selectedStatus', 'tanggalMulai', 'tanggalAkhir',
             'countSakit', 'countIzin', 'countAlfa', 'countTotal'
         ));
+    }
+
+    public function exportSiswaTidakHadir(Request $request)
+    {
+        $user = Auth::user();
+        $tanggalMulai = $request->input('tanggal_mulai', Carbon::today()->toDateString());
+        $tanggalAkhir = $request->input('tanggal_akhir', Carbon::today()->toDateString());
+        $idKelas = $request->input('id_kelas');
+        $status = $request->input('status');
+
+        if ($request->has('today')) {
+            $tanggalMulai = Carbon::today()->toDateString();
+            $tanggalAkhir = Carbon::today()->toDateString();
+        }
+
+        $fileName = "Rekap_Siswa_Tidak_Hadir_{$tanggalMulai}_sd_{$tanggalAkhir}.xlsx";
+        if ($tanggalMulai === $tanggalAkhir) {
+            $fileName = "Rekap_Siswa_Tidak_Hadir_{$tanggalMulai}.xlsx";
+        }
+
+        return Excel::download(new SiswaTidakHadirExport(
+            $tanggalMulai,
+            $tanggalAkhir,
+            $idKelas,
+            $status,
+            $user
+        ), $fileName);
     }
 
     public function destroy(string $id_absensi)
