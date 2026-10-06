@@ -240,18 +240,18 @@ class RekapBelumAbsenController extends Controller
             $targetSessionId = $setting->rekap_wa_settings['walas']['session_id'];
         }
 
-        try {
-            \App\Jobs\SendWhatsAppAttendanceNotification::dispatch($wali->no_hp, $pesan, $targetSessionId);
-        } catch (\Exception $e) {
+        $result = self::kirimPesanLangsung($wali->no_hp, $pesan, $targetSessionId);
+
+        if (!$result['success']) {
             return response()->json([
                 'success' => false,
-                'message' => "Gagal mengirim ke antrean WhatsApp: " . $e->getMessage()
+                'message' => $result['message']
             ], 500);
         }
 
         return response()->json([
             'success' => true,
-            'message' => "Pesan data kelalaian berhasil dikirimkan ke nomor WhatsApp Wali Kelas {$wali->nama_guru} ({$kelas->nama_kelas})."
+            'message' => "Pesan data kelalaian berhasil dikirimkan ke nomor WhatsApp {$wali->nama_guru} ({$kelas->nama_kelas})."
         ]);
     }
 
@@ -287,12 +287,8 @@ class RekapBelumAbsenController extends Controller
                 $wali = $kelas->waliKelas;
                 if ($wali && !empty($wali->no_hp)) {
                     $pesan = self::generateWaMessage($kelas, $siswaBelumAbsen, $date, $namaSekolah);
-                    try {
-                        \App\Jobs\SendWhatsAppAttendanceNotification::dispatch($wali->no_hp, $pesan, $targetSessionId);
-                        $terkirimCount++;
-                    } catch (\Exception $e) {
-                        \Log::error("Gagal kirim WA kelalaian massal ke {$wali->no_hp}: " . $e->getMessage());
-                    }
+                    self::kirimPesanLangsung($wali->no_hp, $pesan, $targetSessionId);
+                    $terkirimCount++;
                 } else {
                     $tidakAdaNomorCount++;
                 }
@@ -306,7 +302,7 @@ class RekapBelumAbsenController extends Controller
             ]);
         }
 
-        $pesanHasil = "Berhasil mengirimkan data kelalaian ke {$terkirimCount} Wali Kelas.";
+        $pesanHasil = "Berhasil memproses pengiriman data kelalaian ke {$terkirimCount} Wali Kelas.";
         if ($tidakAdaNomorCount > 0) {
             $pesanHasil .= " ({$tidakAdaNomorCount} kelas dilewati karena nomor WhatsApp Wali Kelas belum terdaftar).";
         }
@@ -315,6 +311,81 @@ class RekapBelumAbsenController extends Controller
             'success' => true,
             'message' => $pesanHasil
         ]);
+    }
+
+    /**
+     * Helper kirim pesan langsung ke OpenWA API dengan fallback Queue
+     */
+    protected static function kirimPesanLangsung($phoneNumber, $pesan, $targetSessionId = null)
+    {
+        $setting = Setting::first();
+        if ($setting && $setting->wa_status == 0) {
+            return [
+                'success' => false,
+                'message' => 'Notifikasi WhatsApp sedang dinonaktifkan di Pengaturan sistem.'
+            ];
+        }
+
+        $cleanNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
+        if (str_starts_with($cleanNumber, '0')) {
+            $cleanNumber = '62' . substr($cleanNumber, 1);
+        } elseif (str_starts_with($cleanNumber, '8')) {
+            $cleanNumber = '62' . $cleanNumber;
+        }
+        $targetChatId = $cleanNumber . '@c.us';
+
+        $baseUrl = ($setting && $setting->wa_api_url) ? $setting->wa_api_url : env('OPEN_WA_API_URL', 'http://localhost:2785/api');
+        $apiKey = ($setting && $setting->wa_api_key) ? $setting->wa_api_key : env('OPEN_WA_API_KEY');
+
+        $sessionId = $targetSessionId;
+        if (!$sessionId || $sessionId === 'auto') {
+            $connectedSession = \App\Models\WhatsAppSession::where('is_active', true)->where('status', 'CONNECTED')->first();
+            $sessionId = $connectedSession ? $connectedSession->session_id : (($setting && $setting->wa_session_id) ? $setting->wa_session_id : env('OPEN_WA_SESSION_ID', 'default'));
+        }
+
+        $headers = [
+            'Content-Type' => 'application/json',
+        ];
+        if ($apiKey) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['X-API-Key'] = $apiKey;
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withHeaders($headers)
+                ->timeout(10)
+                ->post("{$baseUrl}/sessions/{$sessionId}/messages/send-text", [
+                    'chatId' => $targetChatId,
+                    'text' => $pesan,
+                ]);
+
+            if ($response->successful()) {
+                $resData = $response->json();
+                if (is_array($resData) && ($resData['success'] ?? true) === true) {
+                    return [
+                        'success' => true,
+                        'message' => 'Pesan WhatsApp berhasil langsung dikirimkan ke nomor tujuan.'
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::warning("Direct WA send warning: " . $e->getMessage() . ". Memasukkan ke antrean queue.");
+        }
+
+        // Fallback ke Queue
+        try {
+            \App\Jobs\SendWhatsAppAttendanceNotification::dispatch($phoneNumber, $pesan, $targetSessionId);
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Gagal mengirim pesan: ' . $e->getMessage()
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Pesan WhatsApp telah dimasukkan ke antrean pengiriman sistem.'
+        ];
     }
 
     /**

@@ -133,11 +133,11 @@
 
                                 <!-- Button WhatsApp Notification to Wali Kelas (1-Click Langsung Kirim) -->
                                 @if(!empty($item['waliNoHp']))
-                                  <button type="button" class="btn btn-success btn-sm font-weight-bold" onclick="kirimWaGateway('{{ $item['kelas']->id_kelas }}', '{{ $item['kelas']->nama_kelas }}', '{{ $item['waliKelas']?->nama_guru ?? '' }}')" title="Kirim data kelalaian absen langsung ke WhatsApp Wali Kelas">
+                                  <button type="button" class="btn btn-success btn-sm font-weight-bold btn-kirim-wa-walas" data-id="{{ $item['kelas']->id_kelas }}" data-kelas="{{ $item['kelas']->nama_kelas }}" data-wali="{{ $item['waliKelas']?->nama_guru ?? '' }}" title="Kirim data kelalaian absen langsung ke WhatsApp Wali Kelas">
                                     <i class="fab fa-whatsapp mr-1"></i> Kirim WA
                                   </button>
                                 @else
-                                  <button type="button" class="btn btn-secondary btn-sm" onclick="alertNoWa('{{ $item['kelas']->nama_kelas }}', '{{ $item['waliKelas']?->nama_guru ?? '' }}')" title="Nomor WhatsApp Wali Kelas belum diisi">
+                                  <button type="button" class="btn btn-secondary btn-sm btn-no-wa-walas" data-kelas="{{ $item['kelas']->nama_kelas }}" data-wali="{{ $item['waliKelas']?->nama_guru ?? '' }}" title="Nomor WhatsApp Wali Kelas belum diisi">
                                     <i class="fab fa-whatsapp mr-1"></i> Kirim WA
                                   </button>
                                 @endif
@@ -174,7 +174,7 @@
                                             </div>
                                           </div>
                                           @if(!empty($item['waliNoHp']))
-                                            <button type="button" class="btn btn-sm btn-success font-weight-bold shadow-sm" onclick="kirimWaGateway('{{ $item['kelas']->id_kelas }}', '{{ $item['kelas']->nama_kelas }}', '{{ $item['waliKelas']?->nama_guru ?? '' }}')">
+                                            <button type="button" class="btn btn-sm btn-success font-weight-bold shadow-sm btn-kirim-wa-walas" data-id="{{ $item['kelas']->id_kelas }}" data-kelas="{{ $item['kelas']->nama_kelas }}" data-wali="{{ $item['waliKelas']?->nama_guru ?? '' }}">
                                               <i class="fab fa-whatsapp mr-1"></i> Kirim ke Wali Kelas
                                             </button>
                                           @endif
@@ -262,50 +262,63 @@
 @push('scripts')
 <script>
   $(document).ready(function() {
+    // Tombol Pilih Semua Hadir di Modal
     $('.btn-pilih-semua-hadir').on('click', function(e) {
       e.preventDefault();
       var targetModal = $(this).closest('.modal');
       targetModal.find('.select-kehadiran').val('hadir');
     });
-  });
 
-  // Salin Teks Pesan WhatsApp ke Clipboard
-  function salinTeksPesan(idKelas) {
-    var textEl = document.getElementById('rawPesanWa' + idKelas);
-    if (textEl) {
-      navigator.clipboard.writeText(textEl.value).then(function() {
-        Swal.fire({
-          icon: 'success',
-          title: 'Tersalin!',
-          text: 'Teks pesan pengingat beserta daftar nama siswa telah disalin ke clipboard.',
-          timer: 2000,
-          showConfirmButton: false
-        });
-      }).catch(function(err) {
-        Swal.fire({
-          icon: 'info',
-          title: 'Teks Pesan:',
-          html: '<textarea class="form-control" rows="10" readonly>' + textEl.value + '</textarea>'
-        });
-      });
-    }
-  }
+    // Delegasi klik Tombol Kirim WA ke Walas
+    $(document).on('click', '.btn-kirim-wa-walas', function(e) {
+      e.preventDefault();
+      var idKelas = $(this).data('id');
+      var namaKelas = $(this).data('kelas');
+      var namaWali = $(this).data('wali');
+      kirimWaGateway(idKelas, namaKelas, namaWali);
+    });
+
+    // Delegasi klik Tombol No WA Kosong
+    $(document).on('click', '.btn-no-wa-walas', function(e) {
+      e.preventDefault();
+      var namaKelas = $(this).data('kelas');
+      var namaWali = $(this).data('wali');
+      alertNoWa(namaKelas, namaWali);
+    });
+  });
 
   // Peringatan jika No WA belum ada
   function alertNoWa(namaKelas, namaWali) {
     var walasText = namaWali ? 'Bapak/Ibu ' + namaWali : 'Wali Kelas ' + namaKelas;
-    Swal.fire({
-      icon: 'warning',
-      title: 'Nomor WhatsApp Belum Terdaftar',
-      text: walasText + ' belum memiliki nomor WhatsApp yang terdaftar di Data Guru. Silakan lengkapi nomor telepon guru terlebih dahulu di menu Data Guru.',
-      confirmButtonText: 'Mengerti',
-      confirmButtonColor: '#3085d6'
-    });
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Nomor WhatsApp Belum Terdaftar',
+        text: walasText + ' belum memiliki nomor WhatsApp yang terdaftar di Data Guru. Silakan lengkapi nomor telepon guru terlebih dahulu di menu Data Guru.',
+        confirmButtonText: 'Mengerti',
+        confirmButtonColor: '#3085d6'
+      });
+    } else {
+      alert('Nomor WhatsApp ' + walasText + ' belum terdaftar di data guru.');
+    }
   }
 
   // Kirim Pesan via WhatsApp Gateway
   function kirimWaGateway(idKelas, namaKelas, namaWali) {
     var walasName = namaWali ? 'Bapak/Ibu ' + namaWali : 'Wali Kelas ' + namaKelas;
+    var targetUrl = '{{ url("admin/rekap-belum-absen/kirim-wa") }}/' + idKelas;
+
+    if (typeof Swal === 'undefined') {
+      if (confirm('Kirim WA ke ' + walasName + ' (' + namaKelas + ')?')) {
+        $.post(targetUrl, { tanggal: '{{ $date }}', _token: '{{ csrf_token() }}' }, function(res) {
+          alert(res.message || 'Pesan berhasil dikirim.');
+        }).fail(function(err) {
+          alert((err.responseJSON && err.responseJSON.message) ? err.responseJSON.message : 'Gagal mengirim pesan.');
+        });
+      }
+      return;
+    }
+
     Swal.fire({
       title: 'Kirim WA ke ' + (namaWali ? namaWali : namaKelas) + '?',
       text: 'Pemberitahuan siswa belum absen untuk kelas ' + namaKelas + ' akan dikirim langsung ke WhatsApp ' + walasName + ' menggunakan nomor pengirim di Pengaturan.',
@@ -318,8 +331,9 @@
       showLoaderOnConfirm: true,
       preConfirm: () => {
         return $.ajax({
-          url: '/admin/rekap-belum-absen/kirim-wa/' + idKelas,
+          url: targetUrl,
           type: 'POST',
+          dataType: 'json',
           data: {
             tanggal: '{{ $date }}',
             _token: '{{ csrf_token() }}'
@@ -344,6 +358,19 @@
 
   // Kirim WhatsApp ke Semua Wali Kelas Sekaligus
   function kirimWaSemuaKelas() {
+    var targetUrl = '{{ url("admin/rekap-belum-absen/kirim-wa-semua") }}';
+
+    if (typeof Swal === 'undefined') {
+      if (confirm('Kirim WA pemberitahuan kelalaian input ke semua Wali Kelas?')) {
+        $.post(targetUrl, { tanggal: '{{ $date }}', _token: '{{ csrf_token() }}' }, function(res) {
+          alert(res.message || 'Pengiriman diproses.');
+        }).fail(function(err) {
+          alert((err.responseJSON && err.responseJSON.message) ? err.responseJSON.message : 'Gagal mengirim pesan massal.');
+        });
+      }
+      return;
+    }
+
     Swal.fire({
       title: 'Kirim WA ke Semua Wali Kelas?',
       text: 'Pemberitahuan kelalaian input absensi beserta daftar siswa yang belum absen akan dikirimkan ke seluruh Wali Kelas terkait.',
@@ -356,8 +383,9 @@
       showLoaderOnConfirm: true,
       preConfirm: () => {
         return $.ajax({
-          url: '/admin/rekap-belum-absen/kirim-wa-semua',
+          url: targetUrl,
           type: 'POST',
+          dataType: 'json',
           data: {
             tanggal: '{{ $date }}',
             _token: '{{ csrf_token() }}'
