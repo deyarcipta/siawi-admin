@@ -8,7 +8,7 @@
   <!-- Google Fonts: Inter & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,9 +18,9 @@
 
   <style>
     :root {
-      --bg-dark: #070b14;
-      --bg-card: rgba(13, 22, 41, 0.85);
-      --bg-card-border: rgba(0, 168, 255, 0.28);
+      --bg-dark: #060a12;
+      --bg-card: rgba(11, 19, 36, 0.85);
+      --bg-card-border: rgba(0, 168, 255, 0.22);
       --neon-blue: #00d2ff;
       --neon-cyan: #00f0ff;
       --neon-amber: #f59e0b;
@@ -43,9 +43,9 @@
       overflow: hidden;
       background-color: var(--bg-dark);
       background-image: 
-        radial-gradient(at 15% 15%, rgba(0, 168, 255, 0.12) 0px, transparent 50%),
-        radial-gradient(at 85% 85%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.95) 0px, transparent 100%);
+        radial-gradient(at 10% 10%, rgba(0, 168, 255, 0.15) 0px, transparent 45%),
+        radial-gradient(at 90% 90%, rgba(99, 102, 241, 0.12) 0px, transparent 45%),
+        radial-gradient(at 50% 50%, rgba(10, 16, 30, 0.98) 0px, transparent 100%);
       color: var(--text-main);
       font-family: 'Plus Jakarta Sans', sans-serif;
       display: flex;
@@ -56,38 +56,38 @@
     /* Top Navigation / Status Header */
     .top-bar {
       flex-shrink: 0;
-      padding: 10px 20px;
+      padding: 8px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(7, 11, 20, 0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(6, 10, 18, 0.9);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(0, 168, 255, 0.18);
       z-index: 100;
-      height: 60px;
+      height: 56px;
     }
 
     .brand-logo-img {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       object-fit: contain;
-      filter: drop-shadow(0 2px 8px rgba(0, 168, 255, 0.4));
+      filter: drop-shadow(0 2px 8px rgba(0, 168, 255, 0.5));
     }
 
     .brand-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: clamp(1rem, 1.3vw, 1.25rem);
-      letter-spacing: -0.02em;
+      font-size: 1.15rem;
+      letter-spacing: -0.01em;
       color: #ffffff;
       line-height: 1.1;
     }
 
     .brand-subtitle {
-      font-size: clamp(0.68rem, 0.8vw, 0.78rem);
+      font-size: 0.72rem;
       color: var(--neon-cyan);
-      font-weight: 600;
-      letter-spacing: 0.05em;
+      font-weight: 700;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
     }
 
@@ -98,9 +98,9 @@
       background: rgba(16, 185, 129, 0.15);
       border: 1px solid rgba(16, 185, 129, 0.4);
       color: #34d399;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 4px 10px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      padding: 4px 12px;
       border-radius: 20px;
       letter-spacing: 0.05em;
     }
@@ -121,12 +121,12 @@
     }
 
     .btn-panel-action {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       color: #ffffff;
-      padding: 5px 12px;
+      padding: 4px 12px;
       border-radius: 8px;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       font-weight: 600;
       transition: all 0.2s ease;
       text-decoration: none !important;
@@ -137,27 +137,27 @@
 
     .btn-panel-action:hover {
       background: var(--neon-blue);
-      color: #070b14;
+      color: #060a12;
       border-color: var(--neon-blue);
       box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
     }
 
-    /* Main Grid Layout filling 100% remaining viewport */
+    /* Main Dashboard Layout */
     .panel-container {
-      padding: clamp(8px, 1.2vh, 16px) clamp(12px, 1.4vw, 24px);
+      padding: 12px 18px 14px;
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: clamp(8px, 1.2vh, 14px);
+      gap: 12px;
       min-height: 0;
       overflow: hidden;
     }
 
     .main-grid-row {
       display: grid;
-      grid-template-columns: 1.65fr 1fr;
-      gap: clamp(10px, 1.2vw, 18px);
-      flex: 2.3;
+      grid-template-columns: 1.75fr 1fr;
+      gap: 14px;
+      flex: 1;
       min-height: 0;
       align-items: stretch;
     }
@@ -168,13 +168,13 @@
       }
     }
 
-    /* Central Video Screen */
+    /* Video Player Frame with Ambient Glow */
     .video-screen-frame {
       position: relative;
-      background: #000000;
-      border-radius: clamp(12px, 1.6vh, 18px);
-      border: 2px solid rgba(0, 168, 255, 0.6);
-      box-shadow: 0 0 30px rgba(0, 168, 255, 0.25), inset 0 0 20px rgba(0, 168, 255, 0.15);
+      background: #03060c;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 168, 255, 0.35);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 168, 255, 0.1);
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -183,60 +183,74 @@
       min-height: 0;
     }
 
-    .video-element {
+    /* Ambient backdrop video for smooth fill on vertical/portrait videos */
+    .video-ambient-backdrop {
+      position: absolute;
+      top: -10%;
+      left: -10%;
+      width: 120%;
+      height: 120%;
+      object-fit: cover;
+      filter: blur(24px) brightness(0.5);
+      opacity: 0.55;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .video-element-main {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      z-index: 1;
+      object-fit: contain;
+      z-index: 2;
     }
 
     .video-overlay-banner {
       position: relative;
       z-index: 10;
-      background: linear-gradient(180deg, rgba(7, 15, 33, 0.2) 0%, rgba(7, 15, 33, 0.95) 100%);
-      backdrop-filter: blur(8px);
-      padding: clamp(6px, 1.2vh, 14px) clamp(12px, 1.5vw, 22px);
+      background: linear-gradient(180deg, rgba(6, 10, 18, 0) 0%, rgba(6, 10, 18, 0.95) 100%);
+      backdrop-filter: blur(6px);
+      padding: 10px 18px 14px;
       text-align: center;
-      border-top: 1px solid rgba(0, 210, 255, 0.35);
+      border-top: 1px solid rgba(0, 210, 255, 0.2);
     }
 
     .greeting-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: clamp(1.05rem, 1.7vw, 1.55rem);
+      font-size: clamp(1.1rem, 1.6vw, 1.45rem);
       letter-spacing: -0.01em;
       color: #ffffff;
       text-transform: uppercase;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
       margin-bottom: 2px;
-      line-height: 1.2;
+      line-height: 1.15;
     }
 
     .greeting-subtitle {
-      font-size: clamp(0.75rem, 1vw, 0.95rem);
+      font-size: clamp(0.78rem, 0.95vw, 0.9rem);
       font-weight: 600;
       color: var(--neon-cyan);
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
     }
 
-    /* Right Side Ranking Cards */
+    /* Right Column: Sleek Top 5 Rankings */
     .sidebar-ranking-column {
       display: flex;
       flex-direction: column;
-      gap: clamp(8px, 1vh, 12px);
+      gap: 12px;
       height: 100%;
       min-height: 0;
     }
 
     .ranking-card {
-      background: var(--bg-card);
+      background: linear-gradient(145deg, rgba(14, 23, 44, 0.88) 0%, rgba(8, 14, 28, 0.95) 100%);
       border: 1px solid var(--bg-card-border);
-      border-radius: clamp(10px, 1.4vh, 16px);
-      padding: clamp(8px, 1.1vh, 14px) clamp(10px, 1.2vw, 16px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      border-radius: 14px;
+      padding: 12px 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(14px);
       flex: 1;
       min-height: 0;
@@ -248,21 +262,23 @@
     .ranking-card-header {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding-bottom: clamp(4px, 0.6vh, 8px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      margin-bottom: clamp(4px, 0.6vh, 8px);
+      justify-content: space-between;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      margin-bottom: 6px;
       flex-shrink: 0;
     }
 
-    .ranking-card-icon {
-      font-size: clamp(0.95rem, 1.1vw, 1.2rem);
+    .ranking-card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .ranking-card-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: clamp(0.76rem, 0.95vw, 0.92rem);
+      font-size: 0.86rem;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: #ffffff;
@@ -275,7 +291,7 @@
       margin: 0;
       display: flex;
       flex-direction: column;
-      gap: clamp(3px, 0.5vh, 6px);
+      gap: 6px;
       flex: 1;
       min-height: 0;
       justify-content: space-evenly;
@@ -285,22 +301,23 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: clamp(3px, 0.5vh, 6px) clamp(8px, 0.8vw, 12px);
+      padding: 5px 12px;
       border-radius: 8px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.04);
-      font-size: clamp(0.75rem, 0.9vw, 0.9rem);
+      font-size: 0.86rem;
+      transition: all 0.2s ease;
     }
 
     .ranking-item:hover {
       background: rgba(0, 168, 255, 0.08);
-      border-color: rgba(0, 168, 255, 0.2);
+      border-color: rgba(0, 168, 255, 0.3);
     }
 
     .rank-num-name {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       font-weight: 700;
       color: #f1f5f9;
       white-space: nowrap;
@@ -316,19 +333,46 @@
       text-overflow: ellipsis;
     }
 
-    .rank-num {
-      color: var(--neon-blue);
+    .rank-pill {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-family: 'Outfit', sans-serif;
-      font-weight: 800;
-      font-size: clamp(0.8rem, 0.95vw, 0.95rem);
-      width: 18px;
+      font-weight: 900;
+      font-size: 0.76rem;
       flex-shrink: 0;
+    }
+
+    .rank-pill-1 {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
+    }
+
+    .rank-pill-2 {
+      background: linear-gradient(135deg, #94a3b8, #64748b);
+      color: #ffffff;
+      box-shadow: 0 0 8px rgba(148, 163, 184, 0.35);
+    }
+
+    .rank-pill-3 {
+      background: linear-gradient(135deg, #b45309, #78350f);
+      color: #ffffff;
+      box-shadow: 0 0 8px rgba(180, 83, 9, 0.35);
+    }
+
+    .rank-pill-default {
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--neon-blue);
     }
 
     .badge-percent {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: clamp(0.72rem, 0.85vw, 0.88rem);
+      font-size: 0.82rem;
       color: #34d399;
       background: rgba(16, 185, 129, 0.12);
       padding: 2px 8px;
@@ -342,7 +386,7 @@
     .badge-time {
       font-family: 'Outfit', sans-serif;
       font-weight: 700;
-      font-size: clamp(0.72rem, 0.85vw, 0.86rem);
+      font-size: 0.82rem;
       color: #38bdf8;
       background: rgba(56, 189, 248, 0.12);
       padding: 2px 8px;
@@ -353,50 +397,62 @@
       margin-left: 8px;
     }
 
-    /* Bottom Late Students Section - Responsively Scaled with Flex */
+    /* Bottom Broadcast News Ticker: Siswa Terlambat */
     .late-students-section {
-      background: var(--bg-card);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: clamp(12px, 1.6vh, 18px);
-      padding: clamp(8px, 1.2vh, 14px) clamp(12px, 1.4vw, 20px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.1) 0%, rgba(13, 22, 41, 0.92) 20%, rgba(13, 22, 41, 0.92) 100%);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 12px;
+      padding: 8px 14px 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(14px);
-      flex: 1.15;
-      min-height: 0;
+      flex-shrink: 0;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      gap: 6px;
     }
 
     .late-section-header {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: clamp(4px, 0.8vh, 8px);
+      justify-content: space-between;
       flex-shrink: 0;
+    }
+
+    .late-section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .late-section-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: clamp(0.82rem, 1.05vw, 1.05rem);
+      font-size: 0.86rem;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: #f87171;
       margin-bottom: 0;
     }
 
+    .late-section-badge {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      font-size: 0.74rem;
+      font-weight: 800;
+      padding: 1px 8px;
+      border-radius: 12px;
+      font-family: 'Outfit', sans-serif;
+    }
+
     .late-cards-container {
       display: flex;
-      gap: clamp(10px, 1.2vw, 16px);
+      gap: 12px;
       overflow-x: auto;
-      padding-bottom: 2px;
       scrollbar-width: none;
       -ms-overflow-style: none;
       scroll-behavior: auto;
-      flex: 1;
-      min-height: 0;
-      align-items: stretch;
+      padding: 2px 0;
     }
 
     .late-cards-container::-webkit-scrollbar {
@@ -404,64 +460,57 @@
     }
 
     .late-student-card {
-      min-width: clamp(250px, 20vw, 360px);
-      max-width: clamp(280px, 24vw, 420px);
-      background: #090e1a;
-      border: 1px solid rgba(239, 68, 68, 0.45);
-      border-radius: clamp(10px, 1.4vh, 14px);
-      padding: clamp(6px, 1vh, 12px) clamp(10px, 1.1vw, 16px);
+      min-width: 265px;
+      max-width: 295px;
+      height: 68px;
+      background: linear-gradient(135deg, rgba(20, 30, 52, 0.95) 0%, rgba(9, 15, 27, 0.95) 100%);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-left: 3.5px solid #ef4444;
+      border-radius: 10px;
+      padding: 6px 12px;
       display: flex;
       align-items: center;
-      gap: clamp(10px, 1.2vw, 16px);
+      gap: 12px;
       position: relative;
       flex-shrink: 0;
-      height: 100%;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+      transition: transform 0.2s ease, border-color 0.2s ease;
     }
 
     .late-student-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
-      border-color: rgba(239, 68, 68, 0.7);
+      transform: translateY(-1px);
+      border-color: rgba(239, 68, 68, 0.8);
     }
 
     .student-avatar-wrapper {
       position: relative;
-      height: 100%;
-      aspect-ratio: 1 / 1;
-      max-height: clamp(54px, 10vh, 90px);
-      width: auto;
+      width: 48px;
+      height: 48px;
       flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .student-avatar-img {
-      width: 100%;
-      height: 100%;
-      aspect-ratio: 1 / 1;
-      border-radius: clamp(8px, 1.2vh, 12px);
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
       object-fit: cover;
-      border: 2px solid #ef4444;
+      border: 1.5px solid #ef4444;
       background: #1e293b;
       display: block;
     }
 
     .student-avatar-fallback {
-      width: 100%;
-      height: 100%;
-      aspect-ratio: 1 / 1;
-      border-radius: clamp(8px, 1.2vh, 12px);
-      background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.08));
-      border: 2px solid #ef4444;
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.1));
+      border: 1.5px solid #ef4444;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(1.3rem, 2vh, 1.8rem);
+      font-size: 1.25rem;
       font-weight: 800;
-      color: #f87171;
+      color: #fca5a5;
     }
 
     .point-badge-corner {
@@ -472,11 +521,10 @@
       color: #ffffff;
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: clamp(0.68rem, 0.8vw, 0.82rem);
-      padding: 2px 5px;
-      border-radius: 8px;
-      border: 2px solid #090e1a;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.6);
+      font-size: 0.66rem;
+      padding: 1px 5px;
+      border-radius: 6px;
+      border: 1.5px solid #090e1a;
       line-height: 1;
     }
 
@@ -491,23 +539,23 @@
 
     .student-card-name {
       font-weight: 800;
-      font-size: clamp(0.85rem, 1.1vw, 1.15rem);
+      font-size: 0.86rem;
       color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-bottom: clamp(1px, 0.4vh, 4px);
+      margin-bottom: 2px;
       line-height: 1.2;
     }
 
     .student-card-class {
-      font-size: clamp(0.72rem, 0.9vw, 0.92rem);
+      font-size: 0.72rem;
       font-weight: 600;
       color: #94a3b8;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-bottom: clamp(3px, 0.6vh, 6px);
+      margin-bottom: 3px;
     }
 
     .time-badge-late {
@@ -515,29 +563,29 @@
       align-items: center;
       align-self: flex-start;
       gap: 4px;
-      background: rgba(239, 68, 68, 0.16);
+      background: rgba(239, 68, 68, 0.18);
       border: 1px solid rgba(239, 68, 68, 0.45);
       color: #fca5a5;
       font-family: 'Outfit', sans-serif;
-      font-weight: 800;
-      font-size: clamp(0.72rem, 0.9vw, 0.88rem);
-      padding: clamp(1px, 0.3vh, 4px) clamp(6px, 0.6vw, 10px);
-      border-radius: 5px;
+      font-weight: 700;
+      font-size: 0.72rem;
+      padding: 1px 7px;
+      border-radius: 4px;
     }
 
     .empty-late-state {
-      padding: 16px;
+      padding: 12px;
       text-align: center;
       width: 100%;
-      height: 100%;
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #34d399;
       font-weight: 600;
-      font-size: clamp(0.85rem, 1vw, 1.05rem);
+      font-size: 0.88rem;
       background: rgba(16, 185, 129, 0.05);
-      border-radius: 10px;
+      border-radius: 8px;
       border: 1px dashed rgba(16, 185, 129, 0.3);
     }
   </style>
@@ -550,7 +598,7 @@
       @if($setting && $setting->logo && file_exists(public_path('storage/gambar/' . $setting->logo)))
         <img src="{{ asset('storage/gambar/' . $setting->logo) }}" alt="Logo" class="brand-logo-img mr-3">
       @else
-        <div class="mr-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 40px; height: 40px; background: var(--neon-blue); color: #070b14; font-weight: 900; font-size: 1.2rem;">
+        <div class="mr-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 36px; height: 36px; background: var(--neon-blue); color: #060a12; font-weight: 900; font-size: 1.1rem;">
           S
         </div>
       @endif
@@ -579,19 +627,24 @@
     <!-- Row 1: Central Media + Sidebar Top 5 Rankings -->
     <div class="main-grid-row">
       
-      <!-- Central Video Frame -->
+      <!-- Central Video Frame with Ambient Backdrop -->
       <div class="video-screen-frame">
         @if($videoUrl)
-          <video class="video-element" id="mainVideoPlayer" autoplay muted loop playsinline>
+          <!-- Ambient blurred background for non-16:9 videos -->
+          <video class="video-ambient-backdrop" autoplay muted loop playsinline>
+            <source src="{{ $videoUrl }}" type="video/mp4">
+          </video>
+          <!-- Sharp foreground main video -->
+          <video class="video-element-main" id="mainVideoPlayer" autoplay muted loop playsinline>
             <source src="{{ $videoUrl }}" type="video/mp4">
             Video format tidak didukung browser.
           </video>
         @else
           <!-- Default Animated School Display if no custom MP4 uploaded -->
-          <div class="video-element d-flex align-items-center justify-content-center" style="background: radial-gradient(circle at center, #0f1f3d 0%, #050b18 100%);">
+          <div class="video-element-main d-flex align-items-center justify-content-center" style="background: radial-gradient(circle at center, #0f1f3d 0%, #050b18 100%);">
             <div class="text-center p-4">
               <div class="mb-3">
-                <i class="fas fa-school text-primary" style="font-size: 4.5rem; filter: drop-shadow(0 0 20px rgba(0, 168, 255, 0.6));"></i>
+                <i class="fas fa-school text-primary" style="font-size: 4rem; filter: drop-shadow(0 0 20px rgba(0, 168, 255, 0.6));"></i>
               </div>
               <h2 class="font-weight-bold text-white mb-1" style="font-family: 'Outfit'; letter-spacing: 0.05em;">{{ $setting->nama_sekolah ?? 'SMK WISATA INDONESIA' }}</h2>
               <p class="text-muted small mb-0">Video dapat diunggah melalui menu Pengaturan Aplikasi</p>
@@ -614,14 +667,19 @@
         <!-- 1. TOP 5 KEHADIRAN KELAS BULAN INI -->
         <div class="ranking-card">
           <div class="ranking-card-header">
-            <span class="ranking-card-icon">🥇</span>
-            <h4 class="ranking-card-title">TOP 5 KEHADIRAN KELAS (BULAN INI)</h4>
+            <div class="ranking-card-title-group">
+              <span style="font-size: 1.1rem;">🏆</span>
+              <h4 class="ranking-card-title">TOP 5 KEHADIRAN KELAS (BULAN INI)</h4>
+            </div>
           </div>
           <ul class="ranking-list" id="topKelasListContainer">
             @forelse($topKelasBulanan as $index => $kelas)
+              @php
+                $pillClass = $index === 0 ? 'rank-pill-1' : ($index === 1 ? 'rank-pill-2' : ($index === 2 ? 'rank-pill-3' : 'rank-pill-default'));
+              @endphp
               <li class="ranking-item">
                 <div class="rank-num-name">
-                  <span class="rank-num">{{ $loop->iteration }}.</span>
+                  <span class="rank-pill {{ $pillClass }}">{{ $loop->iteration }}</span>
                   <span>{{ $kelas['nama_kelas'] }}</span>
                 </div>
                 <span class="badge-percent">({{ $kelas['persen_label'] }})</span>
@@ -637,14 +695,19 @@
         <!-- 2. TOP 5 KEHADIRAN SISWA TERCEPAT HARI INI -->
         <div class="ranking-card">
           <div class="ranking-card-header">
-            <span class="ranking-card-icon" style="color: #38bdf8;"><i class="fas fa-bolt"></i></span>
-            <h4 class="ranking-card-title">TOP 5 SISWA TERCEPAT (HARI INI)</h4>
+            <div class="ranking-card-title-group">
+              <span style="font-size: 1.1rem; color: #38bdf8;"><i class="fas fa-bolt"></i></span>
+              <h4 class="ranking-card-title">TOP 5 SISWA TERCEPAT (HARI INI)</h4>
+            </div>
           </div>
           <ul class="ranking-list" id="topSiswaTercepatContainer">
             @forelse($topSiswaTercepat as $index => $siswa)
+              @php
+                $pillClass = $index === 0 ? 'rank-pill-1' : ($index === 1 ? 'rank-pill-2' : ($index === 2 ? 'rank-pill-3' : 'rank-pill-default'));
+              @endphp
               <li class="ranking-item">
                 <div class="rank-num-name">
-                  <span class="rank-num">{{ $loop->iteration }}.</span>
+                  <span class="rank-pill {{ $pillClass }}">{{ $loop->iteration }}</span>
                   <span title="{{ $siswa['nama'] }} ({{ $siswa['kelas'] }})">{{ $siswa['nama'] }}</span>
                 </div>
                 <span class="badge-time">{{ $siswa['jam_masuk'] }}</span>
@@ -660,11 +723,14 @@
       </div>
     </div>
 
-    <!-- Row 2: Bottom Late Students Live Ticker -->
+    <!-- Row 2: Bottom Broadcast News Ticker (Siswa Terlambat) -->
     <div class="late-students-section">
       <div class="late-section-header">
-        <i class="fas fa-exclamation-triangle text-danger" style="font-size: 1.25rem;"></i>
-        <h4 class="late-section-title">DATA SISWA TERLAMBAT HARI INI (<span id="totalLateCount">{{ $totalTerlambat }}</span>)</h4>
+        <div class="late-section-title-wrap">
+          <i class="fas fa-exclamation-triangle text-danger" style="font-size: 0.95rem;"></i>
+          <h4 class="late-section-title">DATA SISWA TERLAMBAT HARI INI</h4>
+        </div>
+        <span class="late-section-badge"><span id="totalLateCount">{{ $totalTerlambat }}</span> SISWA</span>
       </div>
 
       <div class="late-cards-container" id="lateStudentsContainer">
@@ -746,6 +812,14 @@
       }
     });
 
+    // Helper for Rank Pills
+    function getPillClass(index) {
+      if (index === 0) return 'rank-pill-1';
+      if (index === 1) return 'rank-pill-2';
+      if (index === 2) return 'rank-pill-3';
+      return 'rank-pill-default';
+    }
+
     // 3. Background Live Polling (Every 25 seconds) tanpa reload video
     function fetchLivePanelData() {
       fetch('{{ url("/admin/live-panel/data") }}', {
@@ -772,9 +846,10 @@
           } else {
             let html = '';
             d.topKelasBulanan.forEach((k, i) => {
+              const pClass = getPillClass(i);
               html += `<li class="ranking-item">
                 <div class="rank-num-name">
-                  <span class="rank-num">${i + 1}.</span>
+                  <span class="rank-pill ${pClass}">${i + 1}</span>
                   <span>${k.nama_kelas}</span>
                 </div>
                 <span class="badge-percent">(${k.persen_label})</span>
@@ -792,9 +867,10 @@
           } else {
             let html = '';
             d.topSiswaTercepat.forEach((s, i) => {
+              const pClass = getPillClass(i);
               html += `<li class="ranking-item">
                 <div class="rank-num-name">
-                  <span class="rank-num">${i + 1}.</span>
+                  <span class="rank-pill ${pClass}">${i + 1}</span>
                   <span title="${s.nama} (${s.kelas})">${s.nama}</span>
                 </div>
                 <span class="badge-time">${s.jam_masuk}</span>
@@ -894,3 +970,4 @@
   </script>
 </body>
 </html>
+
