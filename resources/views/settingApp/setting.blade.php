@@ -156,8 +156,28 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <div class="form-group">
+                                                        <label for="video_panel">Video Display Panel TV / Wallboard (MP4)</label>
+                                                        <div class="row align-items-center">
+                                                            <div class="col-sm-8 mb-2 mb-sm-0">
+                                                                <div class="custom-file">
+                                                                    <input type="file" class="custom-file-input" name="video_panel" id="video_panel" accept="video/mp4,video/webm,video/ogg">
+                                                                    <label class="custom-file-label text-truncate" id="video-label" for="video_panel">Pilih video MP4...</label>
+                                                                </div>
+                                                                <small class="text-muted d-block mt-1">Format: MP4, WebM (Maks. 100MB). Video akan diputar otomatis secara loop di Live Panel TV.</small>
+                                                            </div>
+                                                            <div class="col-sm-4 text-center">
+                                                                @if($setting->video_panel && file_exists(public_path('storage/video/' . $setting->video_panel)))
+                                                                    <span class="badge badge-success px-2 py-1"><i class="fas fa-video mr-1"></i> Tersedia (MP4)</span>
+                                                                    <small class="d-block text-muted text-truncate" style="max-width: 120px; margin: 2px auto 0;" title="{{ $setting->video_panel }}">{{ $setting->video_panel }}</small>
+                                                                @else
+                                                                    <span class="text-muted small">Video default sistem</span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                     <button type="submit" class="btn btn-primary btn-block font-weight-bold mt-3">
-                                                        <i class="fas fa-save mr-1"></i> Simpan Identitas Sekolah
+                                                        <i class="fas fa-save mr-1"></i> Simpan Identitas & Media Sekolah
                                                     </button>
                                                 </form>
                                             </div>
@@ -1234,6 +1254,14 @@
             if (e.target.getAttribute('href') === '#settingWhatsapp') {
                 checkAllSessions();
             }
+        // Update label custom-file-input
+        $('#video_panel').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $('#video-label').text(fileName || 'Pilih video MP4...');
+        });
+        $('#logo').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $('#logo-label').text(fileName || 'Pilih file logo...');
         });
     });
 </script>

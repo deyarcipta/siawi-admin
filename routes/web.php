@@ -40,6 +40,7 @@ use App\Http\Controllers\BackupController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SuratKeluarController;
 use App\Http\Controllers\SuratMasukController;
+use App\Http\Controllers\LivePanelController;
 
 // Auth Routes (Public)
 Route::get('/', [AuthController::class, 'index'])->name('login');
@@ -265,6 +266,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
         Route::post('/setting-test-rekap-wa', [SettingController::class, 'testRekapWa'])->name('setting.testRekapWa');
         Route::resource('setting', SettingController::class);
         Route::put('/setting-versi/{id_version}', [SettingController::class, 'updateVersiAplikasi'])->name('setting.updateVersiAplikasi');
+
+        // Live Wallboard Panel TV (Strict Admin-Only)
+        Route::get('/live-panel', [LivePanelController::class, 'index'])->name('live.panel');
+        Route::get('/live-panel/data', [LivePanelController::class, 'getLiveStreamData'])->name('live.panel.data');
 
         // Backup & Restore Database
         Route::get('/backup', [BackupController::class, 'index'])->name('backup.index');

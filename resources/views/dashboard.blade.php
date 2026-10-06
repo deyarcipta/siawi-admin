@@ -464,6 +464,11 @@
       </div>
     </div>
     <div class="col-md-5 col-12 text-md-right">
+      @if($user && $user->role == 'admin')
+        <a href="/admin/live-panel" target="_blank" class="btn-outline-custom mr-2" title="Buka Tampilan Live Panel TV Wallboard">
+          <i class="fas fa-tv text-primary"></i> Live Panel TV
+        </a>
+      @endif
       <button type="button" class="btn-outline-custom mr-2" data-toggle="modal" data-target="#modalExportReport">
         <i class="fas fa-file-export"></i> Ekspor laporan
       </button>

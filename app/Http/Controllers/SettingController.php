@@ -138,6 +138,20 @@ class SettingController extends Controller
                 // Jika tidak ada file logo yang diunggah, biarkan logo lama tetap digunakan
                 $nama_file = $setting->logo; 
             }
+            // Cek apakah ada file video_panel yang diunggah
+            if ($request->hasFile('video_panel')) {
+                $request->validate([
+                    'video_panel' => 'nullable|mimes:mp4,mov,ogg,webm,m4v|max:102400', // max 100MB
+                ]);
+                if ($setting->video_panel && Storage::exists('public/video/' . $setting->video_panel)) {
+                    Storage::delete('public/video/' . $setting->video_panel);
+                }
+                $fileVideo = $request->file('video_panel');
+                $nama_video = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $fileVideo->getClientOriginalName());
+                $fileVideo->storeAs('public/video/', $nama_video);
+                $setting->video_panel = $nama_video;
+            }
+
             // Update settingDasar
             $setting->update([
                 'nama_app' => $request->nama_app,
@@ -149,7 +163,8 @@ class SettingController extends Controller
                 'kec' => $request->kec,
                 'prov' => $request->prov,
                 'kota' => $request->kota,
-                'logo' => $nama_file
+                'logo' => $nama_file,
+                'video_panel' => $setting->video_panel
             ]);
         }
 

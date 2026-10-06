@@ -34,6 +34,15 @@
             <p>Dashboard</p>
           </a>
         </li>
+        <li class="nav-item">
+          <a href="/admin/live-panel" target="_blank" class="nav-link {{ Request::is('admin/live-panel*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-tv"></i>
+            <p>
+              Live Panel TV
+              <span class="right badge badge-info" style="font-size: 0.65rem; font-weight: 700;">LIVE</span>
+            </p>
+          </a>
+        </li>
 
         <!-- ============================================== -->
         <!-- 2. PRESENSI & OPERASIONAL HARIAN               -->
