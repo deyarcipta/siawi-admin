@@ -6,7 +6,7 @@
   <div class="container-fluid">
     <div class="row align-items-center mb-2">
       <div class="col-sm-7 d-flex align-items-center">
-        <i class="fas fa-user-times text-danger mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+        <i class="fas fa-user-times text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
         <div class="d-flex flex-column justify-content-center">
           <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Data Siswa Tidak Hadir</h1>
           <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Pemantauan dan rekapitulasi siswa yang tidak hadir (Sakit, Izin, Alfa)</p>
@@ -98,12 +98,12 @@
     <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px;">
       <div class="card-body p-3">
         <form method="GET" action="{{ url('/admin/siswa-tidak-hadir') }}" class="row align-items-end">
-          <div class="col-md-3 col-sm-6 mb-2 mb-md-0">
+          <div class="{{ $user->role == 'wali_kelas' ? 'col-md-4' : 'col-md-3' }} col-sm-6 mb-2 mb-md-0">
             <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Tanggal Mulai</label>
             <input type="date" name="tanggal_mulai" id="tanggal_mulai" class="form-control form-control-sm" value="{{ $tanggalMulai }}">
           </div>
 
-          <div class="col-md-3 col-sm-6 mb-2 mb-md-0">
+          <div class="{{ $user->role == 'wali_kelas' ? 'col-md-4' : 'col-md-3' }} col-sm-6 mb-2 mb-md-0">
             <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Tanggal Akhir</label>
             <input type="date" name="tanggal_akhir" id="tanggal_akhir" class="form-control form-control-sm" value="{{ $tanggalAkhir }}">
           </div>
@@ -122,20 +122,21 @@
             </div>
           @endif
 
-          <div class="col-md-2 col-sm-6 mb-2 mb-md-0">
+          <div class="{{ $user->role == 'wali_kelas' ? 'col-md-4' : 'col-md-3' }} col-sm-6 mb-2 mb-md-0">
             <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Status</label>
-            <select name="status" class="form-control form-control-sm">
-              <option value="">-- Semua Status --</option>
-              <option value="sakit" {{ $selectedStatus == 'sakit' ? 'selected' : '' }}>Sakit</option>
-              <option value="izin" {{ $selectedStatus == 'izin' ? 'selected' : '' }}>Izin</option>
-              <option value="alfa" {{ $selectedStatus == 'alfa' ? 'selected' : '' }}>Alfa</option>
-            </select>
-          </div>
-
-          <div class="col-md-1 col-sm-12 text-right d-flex align-items-center" style="gap: 5px;">
-            <button type="submit" class="btn btn-primary btn-sm btn-block shadow-sm" title="Terapkan Filter">
-              <i class="fas fa-search"></i>
-            </button>
+            <div class="input-group input-group-sm">
+              <select name="status" class="form-control form-control-sm">
+                <option value="">-- Semua Status --</option>
+                <option value="sakit" {{ $selectedStatus == 'sakit' ? 'selected' : '' }}>Sakit</option>
+                <option value="izin" {{ $selectedStatus == 'izin' ? 'selected' : '' }}>Izin</option>
+                <option value="alfa" {{ $selectedStatus == 'alfa' ? 'selected' : '' }}>Alfa</option>
+              </select>
+              <div class="input-group-append">
+                <button type="submit" class="btn btn-primary btn-sm px-3 shadow-none" title="Terapkan Filter">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </form>
 
