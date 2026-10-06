@@ -399,16 +399,16 @@
 
     /* Bottom Broadcast News Ticker: Siswa Terlambat */
     .late-students-section {
-      background: linear-gradient(90deg, rgba(239, 68, 68, 0.1) 0%, rgba(13, 22, 41, 0.92) 20%, rgba(13, 22, 41, 0.92) 100%);
-      border: 1px solid rgba(239, 68, 68, 0.35);
-      border-radius: 12px;
-      padding: 8px 14px 10px;
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.12) 0%, rgba(13, 22, 41, 0.92) 20%, rgba(13, 22, 41, 0.92) 100%);
+      border: 1px solid rgba(239, 68, 68, 0.38);
+      border-radius: 14px;
+      padding: 10px 16px 12px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(14px);
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
     .late-section-header {
@@ -427,7 +427,7 @@
     .late-section-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 0.86rem;
+      font-size: 0.94rem;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: #f87171;
@@ -435,19 +435,19 @@
     }
 
     .late-section-badge {
-      background: rgba(239, 68, 68, 0.2);
-      border: 1px solid rgba(239, 68, 68, 0.4);
+      background: rgba(239, 68, 68, 0.22);
+      border: 1px solid rgba(239, 68, 68, 0.45);
       color: #fca5a5;
-      font-size: 0.74rem;
+      font-size: 0.78rem;
       font-weight: 800;
-      padding: 1px 8px;
+      padding: 2px 10px;
       border-radius: 12px;
       font-family: 'Outfit', sans-serif;
     }
 
     .late-cards-container {
       display: flex;
-      gap: 12px;
+      gap: 14px;
       overflow-x: auto;
       scrollbar-width: none;
       -ms-overflow-style: none;
@@ -460,17 +460,17 @@
     }
 
     .late-student-card {
-      min-width: 265px;
-      max-width: 295px;
-      height: 68px;
+      min-width: 310px;
+      max-width: 340px;
+      height: 84px;
       background: linear-gradient(135deg, rgba(20, 30, 52, 0.95) 0%, rgba(9, 15, 27, 0.95) 100%);
-      border: 1px solid rgba(239, 68, 68, 0.35);
-      border-left: 3.5px solid #ef4444;
-      border-radius: 10px;
-      padding: 6px 12px;
+      border: 1px solid rgba(239, 68, 68, 0.38);
+      border-left: 4px solid #ef4444;
+      border-radius: 12px;
+      padding: 8px 14px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       position: relative;
       flex-shrink: 0;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
@@ -479,52 +479,53 @@
 
     .late-student-card:hover {
       transform: translateY(-1px);
-      border-color: rgba(239, 68, 68, 0.8);
+      border-color: rgba(239, 68, 68, 0.85);
     }
 
     .student-avatar-wrapper {
       position: relative;
-      width: 48px;
-      height: 48px;
+      width: 66px;
+      height: 66px;
       flex-shrink: 0;
     }
 
     .student-avatar-img {
-      width: 48px;
-      height: 48px;
-      border-radius: 8px;
+      width: 66px;
+      height: 66px;
+      border-radius: 10px;
       object-fit: cover;
-      border: 1.5px solid #ef4444;
+      border: 2px solid #ef4444;
       background: #1e293b;
       display: block;
     }
 
     .student-avatar-fallback {
-      width: 48px;
-      height: 48px;
-      border-radius: 8px;
+      width: 66px;
+      height: 66px;
+      border-radius: 10px;
       background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.1));
-      border: 1.5px solid #ef4444;
+      border: 2px solid #ef4444;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
+      font-size: 1.65rem;
       font-weight: 800;
       color: #fca5a5;
     }
 
     .point-badge-corner {
       position: absolute;
-      top: -4px;
-      right: -5px;
+      top: -5px;
+      right: -6px;
       background: #ef4444;
       color: #ffffff;
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 0.66rem;
-      padding: 1px 5px;
-      border-radius: 6px;
-      border: 1.5px solid #090e1a;
+      font-size: 0.74rem;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 2px solid #090e1a;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
       line-height: 1;
     }
 
@@ -539,7 +540,7 @@
 
     .student-card-name {
       font-weight: 800;
-      font-size: 0.86rem;
+      font-size: 0.98rem;
       color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
@@ -549,43 +550,43 @@
     }
 
     .student-card-class {
-      font-size: 0.72rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: #94a3b8;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
     }
 
     .time-badge-late {
       display: inline-flex;
       align-items: center;
       align-self: flex-start;
-      gap: 4px;
-      background: rgba(239, 68, 68, 0.18);
+      gap: 5px;
+      background: rgba(239, 68, 68, 0.2);
       border: 1px solid rgba(239, 68, 68, 0.45);
       color: #fca5a5;
       font-family: 'Outfit', sans-serif;
-      font-weight: 700;
-      font-size: 0.72rem;
-      padding: 1px 7px;
-      border-radius: 4px;
+      font-weight: 800;
+      font-size: 0.76rem;
+      padding: 2px 8px;
+      border-radius: 5px;
     }
 
     .empty-late-state {
-      padding: 12px;
+      padding: 14px;
       text-align: center;
       width: 100%;
-      height: 60px;
+      height: 75px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #34d399;
       font-weight: 600;
-      font-size: 0.88rem;
+      font-size: 0.92rem;
       background: rgba(16, 185, 129, 0.05);
-      border-radius: 8px;
+      border-radius: 10px;
       border: 1px dashed rgba(16, 185, 129, 0.3);
     }
   </style>
