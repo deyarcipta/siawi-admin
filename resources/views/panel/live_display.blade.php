@@ -548,11 +548,11 @@
       <!-- Right Column: Top 5 Attendance Rankings -->
       <div class="sidebar-ranking-column">
         
-        <!-- 1. TOP 5 KEHADIRAN SISWA BULAN INI (KELAS) -->
+        <!-- 1. TOP 5 KEHADIRAN KELAS BULAN INI -->
         <div class="ranking-card">
           <div class="ranking-card-header">
             <span class="ranking-card-icon">🥇</span>
-            <h4 class="ranking-card-title">TOP 5 KEHADIRAN SISWA (BULAN INI)</h4>
+            <h4 class="ranking-card-title">TOP 5 KEHADIRAN KELAS (BULAN INI)</h4>
           </div>
           <ul class="ranking-list" id="topKelasListContainer">
             @forelse($topKelasBulanan as $index => $kelas)
