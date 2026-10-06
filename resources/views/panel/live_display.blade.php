@@ -620,29 +620,36 @@
       </div>
 
       <div class="late-cards-container" id="lateStudentsContainer">
-        @forelse($siswaTerlambatList as $item)
-          <div class="late-student-card">
-            <div class="student-avatar-wrapper">
-              @if($item['foto_url'])
-                <img src="{{ $item['foto_url'] }}" alt="{{ $item['nama'] }}" class="student-avatar-img">
-              @else
-                <div class="student-avatar-fallback">{{ $item['inisial'] }}</div>
-              @endif
-              <span class="point-badge-corner" title="Poin Pelanggaran">{{ $item['poin'] }}</span>
-            </div>
-            <div class="student-card-info">
-              <div class="student-card-name" title="{{ $item['nama'] }}">{{ $item['nama'] }}</div>
-              <div class="student-card-class">{{ $item['kelas'] }}</div>
-              <div class="time-badge-late">
-                <i class="far fa-clock"></i> {{ $item['jam_masuk'] }}
+        @if(count($siswaTerlambatList) > 0)
+          @php
+            $repeatCount = count($siswaTerlambatList) <= 3 ? 4 : 2;
+          @endphp
+          @for($r = 0; $r < $repeatCount; $r++)
+            @foreach($siswaTerlambatList as $item)
+              <div class="late-student-card">
+                <div class="student-avatar-wrapper">
+                  @if($item['foto_url'])
+                    <img src="{{ $item['foto_url'] }}" alt="{{ $item['nama'] }}" class="student-avatar-img">
+                  @else
+                    <div class="student-avatar-fallback">{{ $item['inisial'] }}</div>
+                  @endif
+                  <span class="point-badge-corner" title="Poin Pelanggaran">{{ $item['poin'] }}</span>
+                </div>
+                <div class="student-card-info">
+                  <div class="student-card-name" title="{{ $item['nama'] }}">{{ $item['nama'] }}</div>
+                  <div class="student-card-class">{{ $item['kelas'] }}</div>
+                  <div class="time-badge-late">
+                    <i class="far fa-clock"></i> {{ $item['jam_masuk'] }}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        @empty
+            @endforeach
+          @endfor
+        @else
           <div class="empty-late-state" id="emptyLateState">
             <i class="fas fa-check-circle mr-2"></i> Tidak ada siswa terlambat pada hari ini. Semua siswa hadir tepat waktu!
           </div>
-        @endforelse
+        @endif
       </div>
     </div>
 
@@ -754,14 +761,15 @@
         if (lateContainer && d.siswaTerlambatList) {
           if (d.siswaTerlambatList.length === 0) {
             lateContainer.innerHTML = '<div class="empty-late-state" id="emptyLateState"><i class="fas fa-check-circle mr-2"></i> Tidak ada siswa terlambat pada hari ini. Semua siswa hadir tepat waktu!</div>';
+            currentRepeatCount = 1;
           } else {
-            let html = '';
+            let singleSetHtml = '';
             d.siswaTerlambatList.forEach(item => {
               const avatar = item.foto_url 
                 ? `<img src="${item.foto_url}" alt="${item.nama}" class="student-avatar-img">`
                 : `<div class="student-avatar-fallback">${item.inisial}</div>`;
 
-              html += `<div class="late-student-card">
+              singleSetHtml += `<div class="late-student-card">
                 <div class="student-avatar-wrapper">
                   ${avatar}
                   <span class="point-badge-corner" title="Poin Pelanggaran">${item.poin}</span>
@@ -775,7 +783,13 @@
                 </div>
               </div>`;
             });
-            lateContainer.innerHTML = html;
+
+            currentRepeatCount = d.siswaTerlambatList.length <= 3 ? 4 : 2;
+            let fullHtml = '';
+            for (let r = 0; r < currentRepeatCount; r++) {
+              fullHtml += singleSetHtml;
+            }
+            lateContainer.innerHTML = fullHtml;
           }
         }
       })
@@ -787,10 +801,11 @@
     // Interval background update setiap 25 detik
     setInterval(fetchLivePanelData, 25000);
 
-    // 4. Smooth Auto-Scrolling Ticker untuk Kartu Siswa Terlambat di TV
+    // 4. Infinite Seamless Marquee Loop untuk Kartu Siswa Terlambat di TV
     let isTickerPaused = false;
     let scrollPos = 0;
-    const scrollSpeed = 0.75; // Kecepatan scroll (pixel per frame)
+    const scrollSpeed = 0.8; // Kecepatan gerak kontinu (pixel per frame)
+    let currentRepeatCount = {{ count($siswaTerlambatList) > 0 ? (count($siswaTerlambatList) <= 3 ? 4 : 2) : 1 }};
 
     function initAutoScrollLateCards() {
       const container = document.getElementById('lateStudentsContainer');
@@ -802,25 +817,16 @@
       container.addEventListener('touchend', () => isTickerPaused = false, { passive: true });
 
       function tickerStep() {
-        if (!isTickerPaused && container.scrollWidth > container.clientWidth) {
-          scrollPos += scrollSpeed;
-          container.scrollLeft = scrollPos;
+        if (!isTickerPaused && container) {
+          const totalScrollWidth = container.scrollWidth;
+          const setWidth = totalScrollWidth / currentRepeatCount;
 
-          // Jika sudah mencapai ujung kanan container
-          const maxScrollLeft = container.scrollWidth - container.clientWidth;
-          if (container.scrollLeft >= maxScrollLeft - 1) {
-            isTickerPaused = true;
-            // Jeda 3 detik di akhir agar siswa terakhir terbaca jelas
-            setTimeout(() => {
-              // Animasi scroll kembali ke awal
-              container.scrollTo({ left: 0, behavior: 'smooth' });
-              setTimeout(() => {
-                scrollPos = 0;
-                container.scrollLeft = 0;
-                // Jeda 1.5 detik di awal sebelum mulai scroll kembali
-                isTickerPaused = false;
-              }, 1200);
-            }, 3000);
+          if (setWidth > 0 && totalScrollWidth > container.clientWidth) {
+            scrollPos += scrollSpeed;
+            if (scrollPos >= setWidth) {
+              scrollPos -= setWidth;
+            }
+            container.scrollLeft = scrollPos;
           }
         }
         requestAnimationFrame(tickerStep);
