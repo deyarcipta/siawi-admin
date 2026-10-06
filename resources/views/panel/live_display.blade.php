@@ -18,9 +18,9 @@
 
   <style>
     :root {
-      --bg-dark: #060a12;
-      --bg-card: rgba(11, 19, 36, 0.85);
-      --bg-card-border: rgba(0, 168, 255, 0.22);
+      --bg-dark: #050811;
+      --bg-card: rgba(10, 18, 36, 0.88);
+      --bg-card-border: rgba(0, 168, 255, 0.25);
       --neon-blue: #00d2ff;
       --neon-cyan: #00f0ff;
       --neon-amber: #f59e0b;
@@ -43,9 +43,9 @@
       overflow: hidden;
       background-color: var(--bg-dark);
       background-image: 
-        radial-gradient(at 10% 10%, rgba(0, 168, 255, 0.15) 0px, transparent 45%),
-        radial-gradient(at 90% 90%, rgba(99, 102, 241, 0.12) 0px, transparent 45%),
-        radial-gradient(at 50% 50%, rgba(10, 16, 30, 0.98) 0px, transparent 100%);
+        radial-gradient(at 5% 5%, rgba(0, 168, 255, 0.16) 0px, transparent 40%),
+        radial-gradient(at 95% 95%, rgba(99, 102, 241, 0.14) 0px, transparent 40%),
+        radial-gradient(at 50% 50%, rgba(7, 12, 24, 0.98) 0px, transparent 100%);
       color: var(--text-main);
       font-family: 'Plus Jakarta Sans', sans-serif;
       display: flex;
@@ -60,49 +60,56 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(6, 10, 18, 0.9);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(0, 168, 255, 0.18);
+      background: rgba(5, 9, 18, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0, 168, 255, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
       z-index: 100;
-      height: 56px;
+      height: 58px;
     }
 
     .brand-logo-img {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       object-fit: contain;
-      filter: drop-shadow(0 2px 8px rgba(0, 168, 255, 0.5));
+      border-radius: 8px;
+      padding: 2px;
+      background: rgba(0, 168, 255, 0.1);
+      border: 1px solid rgba(0, 168, 255, 0.35);
+      filter: drop-shadow(0 2px 10px rgba(0, 168, 255, 0.5));
     }
 
     .brand-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 1.15rem;
+      font-size: 1.18rem;
       letter-spacing: -0.01em;
       color: #ffffff;
       line-height: 1.1;
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
     }
 
     .brand-subtitle {
       font-size: 0.72rem;
       color: var(--neon-cyan);
       font-weight: 700;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
     .status-badge-live {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.4);
+      gap: 7px;
+      background: rgba(16, 185, 129, 0.16);
+      border: 1px solid rgba(16, 185, 129, 0.45);
       color: #34d399;
-      font-size: 0.74rem;
+      font-size: 0.75rem;
       font-weight: 800;
       padding: 4px 12px;
       border-radius: 20px;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
     }
 
     .pulse-dot {
@@ -122,11 +129,11 @@
 
     .btn-panel-action {
       background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       color: #ffffff;
-      padding: 4px 12px;
+      padding: 5px 14px;
       border-radius: 8px;
-      font-size: 0.76rem;
+      font-size: 0.78rem;
       font-weight: 600;
       transition: all 0.2s ease;
       text-decoration: none !important;
@@ -137,9 +144,9 @@
 
     .btn-panel-action:hover {
       background: var(--neon-blue);
-      color: #060a12;
+      color: #050811;
       border-color: var(--neon-blue);
-      box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+      box-shadow: 0 0 15px rgba(0, 210, 255, 0.45);
     }
 
     /* Main Dashboard Layout */
@@ -171,10 +178,10 @@
     /* Video Player Frame with Ambient Glow */
     .video-screen-frame {
       position: relative;
-      background: #03060c;
+      background: #020409;
       border-radius: 14px;
       border: 1px solid rgba(0, 168, 255, 0.35);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 168, 255, 0.1);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), inset 0 0 25px rgba(0, 168, 255, 0.12);
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -191,8 +198,8 @@
       width: 120%;
       height: 120%;
       object-fit: cover;
-      filter: blur(24px) brightness(0.5);
-      opacity: 0.55;
+      filter: blur(24px) brightness(0.55);
+      opacity: 0.6;
       z-index: 1;
       pointer-events: none;
     }
@@ -210,11 +217,11 @@
     .video-overlay-banner {
       position: relative;
       z-index: 10;
-      background: linear-gradient(180deg, rgba(6, 10, 18, 0) 0%, rgba(6, 10, 18, 0.95) 100%);
-      backdrop-filter: blur(6px);
+      background: linear-gradient(180deg, rgba(5, 9, 18, 0) 0%, rgba(5, 9, 18, 0.95) 85%);
+      backdrop-filter: blur(8px);
       padding: 10px 18px 14px;
       text-align: center;
-      border-top: 1px solid rgba(0, 210, 255, 0.2);
+      border-top: 1px solid rgba(0, 210, 255, 0.22);
     }
 
     .greeting-title {
@@ -230,10 +237,13 @@
     }
 
     .greeting-subtitle {
-      font-size: clamp(0.78rem, 0.95vw, 0.9rem);
+      font-size: clamp(0.78rem, 0.95vw, 0.92rem);
       font-weight: 600;
       color: var(--neon-cyan);
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
 
     /* Right Column: Sleek Top 5 Rankings */
@@ -246,17 +256,28 @@
     }
 
     .ranking-card {
-      background: linear-gradient(145deg, rgba(14, 23, 44, 0.88) 0%, rgba(8, 14, 28, 0.95) 100%);
+      background: linear-gradient(145deg, rgba(14, 24, 46, 0.9) 0%, rgba(7, 13, 27, 0.95) 100%);
       border: 1px solid var(--bg-card-border);
       border-radius: 14px;
       padding: 12px 16px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
       backdrop-filter: blur(14px);
       flex: 1;
       min-height: 0;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      position: relative;
+    }
+
+    .ranking-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 20px;
+      right: 20px;
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.6), transparent);
     }
 
     .ranking-card-header {
@@ -278,7 +299,7 @@
     .ranking-card-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 0.86rem;
+      font-size: 0.88rem;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: #ffffff;
@@ -304,14 +325,16 @@
       padding: 5px 12px;
       border-radius: 8px;
       background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      font-size: 0.86rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.88rem;
       transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
     }
 
     .ranking-item:hover {
       background: rgba(0, 168, 255, 0.08);
-      border-color: rgba(0, 168, 255, 0.3);
+      border-color: rgba(0, 168, 255, 0.35);
     }
 
     .rank-num-name {
@@ -349,19 +372,19 @@
     .rank-pill-1 {
       background: linear-gradient(135deg, #f59e0b, #d97706);
       color: #ffffff;
-      box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
     }
 
     .rank-pill-2 {
       background: linear-gradient(135deg, #94a3b8, #64748b);
       color: #ffffff;
-      box-shadow: 0 0 8px rgba(148, 163, 184, 0.35);
+      box-shadow: 0 0 8px rgba(148, 163, 184, 0.4);
     }
 
     .rank-pill-3 {
       background: linear-gradient(135deg, #b45309, #78350f);
       color: #ffffff;
-      box-shadow: 0 0 8px rgba(180, 83, 9, 0.35);
+      box-shadow: 0 0 8px rgba(180, 83, 9, 0.4);
     }
 
     .rank-pill-default {
@@ -372,29 +395,31 @@
     .badge-percent {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 0.82rem;
+      font-size: 0.84rem;
       color: #34d399;
       background: rgba(16, 185, 129, 0.12);
       padding: 2px 8px;
       border-radius: 6px;
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      border: 1px solid rgba(16, 185, 129, 0.35);
       white-space: nowrap;
       flex-shrink: 0;
       margin-left: 8px;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.15);
     }
 
     .badge-time {
       font-family: 'Outfit', sans-serif;
       font-weight: 700;
-      font-size: 0.82rem;
+      font-size: 0.84rem;
       color: #38bdf8;
       background: rgba(56, 189, 248, 0.12);
       padding: 2px 8px;
       border-radius: 6px;
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      border: 1px solid rgba(56, 189, 248, 0.35);
       white-space: nowrap;
       flex-shrink: 0;
       margin-left: 8px;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.15);
     }
 
     /* Bottom Broadcast News Ticker: Siswa Terlambat */
@@ -599,7 +624,7 @@
       @if($setting && $setting->logo && file_exists(public_path('storage/gambar/' . $setting->logo)))
         <img src="{{ asset('storage/gambar/' . $setting->logo) }}" alt="Logo" class="brand-logo-img mr-3">
       @else
-        <div class="mr-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 36px; height: 36px; background: var(--neon-blue); color: #060a12; font-weight: 900; font-size: 1.1rem;">
+        <div class="mr-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 38px; height: 38px; background: var(--neon-blue); color: #050811; font-weight: 900; font-size: 1.1rem; box-shadow: 0 0 12px rgba(0, 210, 255, 0.5);">
           S
         </div>
       @endif
@@ -657,7 +682,9 @@
         <div class="video-overlay-banner">
           <div class="greeting-title" id="liveGreetingText">{{ $greetingHeader }}</div>
           <div class="greeting-subtitle">
-            <span id="liveDateText">{{ $tanggalFormatted }}</span> | <span id="liveClockText">{{ $jamFormatted }}</span>
+            <span><i class="far fa-calendar-alt mr-1"></i> <span id="liveDateText">{{ $tanggalFormatted }}</span></span>
+            <span style="opacity: 0.4;">|</span>
+            <span><i class="far fa-clock mr-1"></i> <span id="liveClockText">{{ $jamFormatted }}</span></span>
           </div>
         </div>
       </div>
@@ -669,7 +696,7 @@
         <div class="ranking-card">
           <div class="ranking-card-header">
             <div class="ranking-card-title-group">
-              <span style="font-size: 1.1rem;">🏆</span>
+              <span style="font-size: 1.1rem; filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));">🏆</span>
               <h4 class="ranking-card-title">TOP 5 KEHADIRAN KELAS (BULAN INI)</h4>
             </div>
           </div>
@@ -697,7 +724,7 @@
         <div class="ranking-card">
           <div class="ranking-card-header">
             <div class="ranking-card-title-group">
-              <span style="font-size: 1.1rem; color: #38bdf8;"><i class="fas fa-bolt"></i></span>
+              <span style="font-size: 1.1rem; color: #38bdf8; filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.6));"><i class="fas fa-bolt"></i></span>
               <h4 class="ranking-card-title">TOP 5 SISWA TERCEPAT (HARI INI)</h4>
             </div>
           </div>
@@ -728,7 +755,7 @@
     <div class="late-students-section">
       <div class="late-section-header">
         <div class="late-section-title-wrap">
-          <i class="fas fa-exclamation-triangle text-danger" style="font-size: 0.95rem;"></i>
+          <i class="fas fa-exclamation-triangle text-danger" style="font-size: 0.95rem; filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));"></i>
           <h4 class="late-section-title">DATA SISWA TERLAMBAT HARI INI</h4>
         </div>
         <span class="late-section-badge"><span id="totalLateCount">{{ $totalTerlambat }}</span> SISWA</span>
