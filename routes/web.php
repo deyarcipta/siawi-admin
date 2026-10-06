@@ -161,6 +161,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     // =========================================================================
     Route::group(['middleware' => ['role:admin,kesiswaan,wali_kelas,tata_usaha,kurikulum']], function () {
         Route::get('rekapAbsen', [AbsensiController::class, 'rekapAbsen'])->name('absensi.rekap');
+        Route::get('dataAbsen', [AbsensiController::class, 'rekapAbsen'])->name('dataAbsen');
         Route::get('/showRekapAbsen', [AbsensiController::class, 'showRekapAbsen']);
         Route::get('/rekapAbsenSiswa', [AbsensiController::class, 'rekapAbsenSiswa'])->name('rekap.siswa');
         Route::get('/siswa-tidak-hadir', [AbsensiController::class, 'siswaTidakHadir'])->name('siswa.tidak.hadir');

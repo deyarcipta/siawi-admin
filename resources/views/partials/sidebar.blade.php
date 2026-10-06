@@ -454,8 +454,8 @@
         <li class="nav-header">
           Presensi Harian
         </li>
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/dataAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/dataAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen*') || Request::is('admin/dataAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/rekapAbsen*') || Request::is('admin/dataAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-check"></i>
             <p>Absensi Siswa <i class="right fas fa-angle-left"></i></p>
           </a>
@@ -467,9 +467,15 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/dataAbsen" class="nav-link {{ Request::is('admin/dataAbsen*') ? 'active' : '' }}">
+              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/dataAbsen*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Data Absensi Siswa</p>
+                <p>Data Absensi Kelas</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/rekapAbsenSiswa" class="nav-link {{ Request::is('admin/rekapAbsenSiswa*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Rekap Absensi Siswa</p>
               </a>
             </li>
             <li class="nav-item">
