@@ -265,6 +265,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
         Route::get('/scheduler/status', [SettingController::class, 'getSchedulerStatus'])->name('scheduler.status');
         Route::post('/setting-test-rekap-wa', [SettingController::class, 'testRekapWa'])->name('setting.testRekapWa');
         Route::resource('setting', SettingController::class);
+        Route::post('/setting/{id}/delete-video', [SettingController::class, 'deleteVideoPanel'])->name('setting.delete-video');
         Route::put('/setting-versi/{id_version}', [SettingController::class, 'updateVersiAplikasi'])->name('setting.updateVersiAplikasi');
 
         // Live Wallboard Panel TV (Strict Admin-Only)

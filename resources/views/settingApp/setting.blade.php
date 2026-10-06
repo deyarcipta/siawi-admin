@@ -71,7 +71,7 @@
                                                 </h3>
                                             </div>
                                             <div class="card-body">
-                                                <form action="/admin/setting/{{$setting->id}}" method="POST" enctype="multipart/form-data">
+                                                <form id="formSettingIdentitas" action="/admin/setting/{{$setting->id}}" method="POST" enctype="multipart/form-data">
                                                     @method('PUT')
                                                     @csrf
                                                     <div class="form-group">
@@ -155,19 +155,22 @@
                                                                     <input type="file" class="custom-file-input" name="video_panel" id="video_panel" accept="video/mp4,video/webm,video/ogg">
                                                                     <label class="custom-file-label text-truncate" id="video-label" for="video_panel">Pilih video MP4...</label>
                                                                 </div>
-                                                                <small class="text-muted d-block mt-1">Format: MP4, WebM (Maks. 100MB). Video akan diputar otomatis secara loop di Live Panel TV.</small>
+                                                                <small class="text-muted d-block mt-1">Format: MP4, WebM (Maks. 100MB). Video lama otomatis terhapus saat mengupload video baru.</small>
                                                             </div>
                                                             <div class="col-sm-4 text-center">
                                                                 @if($setting->video_panel && file_exists(public_path('storage/video/' . $setting->video_panel)))
                                                                     <span class="badge badge-success px-2 py-1"><i class="fas fa-video mr-1"></i> Tersedia (MP4)</span>
                                                                     <small class="d-block text-muted text-truncate" style="max-width: 120px; margin: 2px auto 0;" title="{{ $setting->video_panel }}">{{ $setting->video_panel }}</small>
+                                                                    <button type="button" class="btn btn-xs btn-outline-danger mt-1" id="btnHapusVideo" data-id="{{ $setting->id }}">
+                                                                        <i class="fas fa-trash-alt mr-1"></i> Hapus Video
+                                                                    </button>
                                                                 @else
                                                                     <span class="text-muted small">Video default sistem</span>
                                                                 @endif
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <button type="submit" class="btn btn-primary btn-block font-weight-bold mt-3">
+                                                    <button type="submit" class="btn btn-primary btn-block font-weight-bold mt-3" id="btnSimpanIdentitas">
                                                         <i class="fas fa-save mr-1"></i> Simpan Identitas & Media Sekolah
                                                     </button>
                                                 </form>
@@ -1245,6 +1248,8 @@
             if (e.target.getAttribute('href') === '#settingWhatsapp') {
                 checkAllSessions();
             }
+        });
+
         // Update label custom-file-input
         $('#video_panel').on('change', function() {
             var fileName = $(this).val().split('\\').pop();
@@ -1253,6 +1258,161 @@
         $('#logo').on('change', function() {
             var fileName = $(this).val().split('\\').pop();
             $('#logo-label').text(fileName || 'Pilih file logo...');
+        });
+
+        // Form Submit Handler dengan Realtime Upload Progress Bar
+        $('#formSettingIdentitas').on('submit', function(e) {
+            var videoInput = document.getElementById('video_panel');
+            var hasVideo = videoInput && videoInput.files && videoInput.files.length > 0;
+            var logoInput = document.getElementById('logo');
+            var hasLogo = logoInput && logoInput.files && logoInput.files.length > 0;
+
+            // Jika mengunggah video atau logo, gunakan AJAX XHR dengan progress bar interaktif
+            if (hasVideo || hasLogo) {
+                e.preventDefault();
+                var form = this;
+                var formData = new FormData(form);
+                var activeFile = hasVideo ? videoInput.files[0] : logoInput.files[0];
+                var uploadFileName = activeFile.name;
+                var uploadFileSizeMB = (activeFile.size / (1024 * 1024)).toFixed(1);
+
+                Swal.fire({
+                    title: '<span style="font-size: 1.15rem; font-weight: 700;"><i class="fas fa-cloud-upload-alt text-primary mr-2"></i> Mengunggah Media Sekolah</span>',
+                    html: `
+                        <div class="text-left mt-2 px-1">
+                            <div class="d-flex justify-content-between small text-muted mb-2">
+                                <span class="text-truncate font-weight-bold" style="max-width: 220px;" title="${uploadFileName}">${uploadFileName}</span>
+                                <span class="badge badge-light border px-2">${uploadFileSizeMB} MB</span>
+                            </div>
+                            <div class="progress" style="height: 22px; border-radius: 11px; background-color: #e9ecef; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);">
+                                <div id="swalUploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary font-weight-bold" role="progressbar" style="width: 0%; font-size: 11px; line-height: 22px; transition: width 0.2s ease;">0%</div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2 small">
+                                <span id="swalUploadStatus" class="text-muted"><i class="fas fa-spinner fa-spin mr-1"></i> Sedang mengunggah...</span>
+                                <span id="swalUploadBytes" class="font-weight-bold text-primary">0 MB / ${uploadFileSizeMB} MB</span>
+                            </div>
+                        </div>
+                    `,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false
+                });
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', form.action, true);
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+                xhr.upload.onprogress = function(event) {
+                    if (event.lengthComputable) {
+                        var percent = Math.round((event.loaded / event.total) * 100);
+                        var loadedMB = (event.loaded / (1024 * 1024)).toFixed(1);
+                        var totalMB = (event.total / (1024 * 1024)).toFixed(1);
+
+                        $('#swalUploadProgressBar').css('width', percent + '%').text(percent + '%');
+                        $('#swalUploadBytes').text(loadedMB + ' MB / ' + totalMB + ' MB');
+
+                        if (percent >= 100) {
+                            $('#swalUploadProgressBar').removeClass('bg-primary').addClass('bg-success');
+                            $('#swalUploadStatus').html('<i class="fas fa-cog fa-spin text-success mr-1"></i> Memproses & menyimpan file di server...');
+                        } else {
+                            $('#swalUploadStatus').html('<i class="fas fa-arrow-up text-primary mr-1"></i> Mengunggah: ' + percent + '%');
+                        }
+                    }
+                };
+
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        var res = {};
+                        try { res = JSON.parse(xhr.responseText); } catch(e) {}
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil Disimpan!',
+                            text: res.message || 'Identitas dan media sekolah berhasil diperbarui.',
+                            confirmButtonColor: '#007bff'
+                        }).then(function() {
+                            window.location.reload();
+                        });
+                    } else {
+                        var errorMsg = 'Gagal menyimpan pengaturan.';
+                        try {
+                            var res = JSON.parse(xhr.responseText);
+                            if (res.errors) {
+                                errorMsg = Object.values(res.errors).flat().join('<br>');
+                            } else if (res.message) {
+                                errorMsg = res.message;
+                            }
+                        } catch(e) {}
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal Menyimpan',
+                            html: errorMsg,
+                            confirmButtonColor: '#d33'
+                        });
+                    }
+                };
+
+                xhr.onerror = function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Koneksi Terputus',
+                        text: 'Gagal menghubungi server saat mengunggah file.',
+                        confirmButtonColor: '#d33'
+                    });
+                };
+
+                xhr.send(formData);
+            }
+        });
+
+        // Handler Hapus Video Panel
+        $('#btnHapusVideo').on('click', function() {
+            var settingId = $(this).data('id');
+            Swal.fire({
+                title: 'Hapus Video Display Panel?',
+                text: 'File video akan dihapus dari storage lokal dan tampilan panel TV akan kembali menggunakan video default.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-trash-alt mr-1"></i> Ya, Hapus',
+                cancelButtonText: 'Batal'
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Menghapus Video...',
+                        allowOutsideClick: false,
+                        didOpen: function() {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        url: '/admin/setting/' + settingId + '/delete-video',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(res) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: res.message || 'Video berhasil dihapus.',
+                                confirmButtonColor: '#007bff'
+                            }).then(function() {
+                                window.location.reload();
+                            });
+                        },
+                        error: function(xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: 'Gagal menghapus video dari server.',
+                                confirmButtonColor: '#d33'
+                            });
+                        }
+                    });
+                }
+            });
         });
     });
 </script>

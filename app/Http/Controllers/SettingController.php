@@ -143,9 +143,23 @@ class SettingController extends Controller
                 $request->validate([
                     'video_panel' => 'nullable|mimes:mp4,mov,ogg,webm,m4v|max:102400', // max 100MB
                 ]);
-                if ($setting->video_panel && Storage::exists('public/video/' . $setting->video_panel)) {
-                    Storage::delete('public/video/' . $setting->video_panel);
+
+                // Hapus video lama dari local storage agar tidak memenuhi ruang penyimpanan
+                if (!empty($setting->video_panel)) {
+                    if (Storage::exists('public/video/' . $setting->video_panel)) {
+                        Storage::delete('public/video/' . $setting->video_panel);
+                    }
+                    if (Storage::disk('public')->exists('video/' . $setting->video_panel)) {
+                        Storage::disk('public')->delete('video/' . $setting->video_panel);
+                    }
+                    if (file_exists(public_path('storage/video/' . $setting->video_panel))) {
+                        @unlink(public_path('storage/video/' . $setting->video_panel));
+                    }
+                    if (file_exists(storage_path('app/public/video/' . $setting->video_panel))) {
+                        @unlink(storage_path('app/public/video/' . $setting->video_panel));
+                    }
                 }
+
                 $fileVideo = $request->file('video_panel');
                 $nama_video = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $fileVideo->getClientOriginalName());
                 $fileVideo->storeAs('public/video/', $nama_video);
@@ -166,6 +180,13 @@ class SettingController extends Controller
                 'logo' => $nama_file,
                 'video_panel' => $setting->video_panel
             ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Identitas dan media sekolah berhasil diperbarui.'
+                ]);
+            }
         }
 
         // Cek apakah request mengandung data yang perlu diproses dari settingAplikasi
@@ -876,6 +897,35 @@ class SettingController extends Controller
             'ram' => $ramUsage,
             'engine' => $engine,
             'version' => $version,
+        ]);
+    }
+
+    /**
+     * Menghapus video display panel yang tersimpan di storage.
+     */
+    public function deleteVideoPanel($id)
+    {
+        $setting = Setting::findOrFail($id);
+        if (!empty($setting->video_panel)) {
+            if (Storage::exists('public/video/' . $setting->video_panel)) {
+                Storage::delete('public/video/' . $setting->video_panel);
+            }
+            if (Storage::disk('public')->exists('video/' . $setting->video_panel)) {
+                Storage::disk('public')->delete('video/' . $setting->video_panel);
+            }
+            if (file_exists(public_path('storage/video/' . $setting->video_panel))) {
+                @unlink(public_path('storage/video/' . $setting->video_panel));
+            }
+            if (file_exists(storage_path('app/public/video/' . $setting->video_panel))) {
+                @unlink(storage_path('app/public/video/' . $setting->video_panel));
+            }
+            $setting->video_panel = null;
+            $setting->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Video display panel berhasil dihapus dari storage.'
         ]);
     }
 }
