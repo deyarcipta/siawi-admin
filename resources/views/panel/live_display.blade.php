@@ -371,99 +371,117 @@
     }
 
     .late-student-card {
-      min-width: 175px;
-      max-width: 185px;
+      min-width: 255px;
+      max-width: 285px;
       background: #090e1a;
       border: 1px solid rgba(239, 68, 68, 0.45);
       border-radius: 14px;
-      padding: 14px 12px;
-      text-align: center;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
       position: relative;
       flex-shrink: 0;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
     .late-student-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
+      border-color: rgba(239, 68, 68, 0.7);
     }
 
     .student-avatar-wrapper {
       position: relative;
-      width: 58px;
-      height: 58px;
-      margin: 0 auto 10px;
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
     }
 
     .student-avatar-img {
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
       object-fit: cover;
       border: 2px solid #ef4444;
+      background: #1e293b;
+      display: block;
     }
 
     .student-avatar-fallback {
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      background: rgba(239, 68, 68, 0.15);
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.08));
       border: 2px solid #ef4444;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.35rem;
+      font-size: 1.55rem;
       font-weight: 800;
       color: #f87171;
     }
 
     .point-badge-corner {
       position: absolute;
-      top: -4px;
-      right: -10px;
+      top: -6px;
+      right: -7px;
       background: #ef4444;
       color: #ffffff;
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
       font-size: 0.72rem;
-      padding: 2px 7px;
+      padding: 2px 6px;
       border-radius: 10px;
       border: 2px solid #090e1a;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.6);
+      line-height: 1;
+    }
+
+    .student-card-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: left;
     }
 
     .student-card-name {
       font-weight: 700;
-      font-size: 0.84rem;
+      font-size: 0.88rem;
       color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       margin-bottom: 2px;
+      line-height: 1.25;
     }
 
     .student-card-class {
-      font-size: 0.72rem;
+      font-size: 0.74rem;
       font-weight: 600;
       color: #94a3b8;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .time-badge-late {
       display: inline-flex;
       align-items: center;
+      align-self: flex-start;
       gap: 5px;
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      color: #f87171;
+      background: rgba(239, 68, 68, 0.16);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #fca5a5;
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 0.78rem;
-      padding: 3px 10px;
-      border-radius: 20px;
+      font-size: 0.74rem;
+      padding: 2px 8px;
+      border-radius: 6px;
     }
 
     .empty-late-state {
@@ -615,10 +633,12 @@
               @endif
               <span class="point-badge-corner" title="Poin Pelanggaran">{{ $item['poin'] }}</span>
             </div>
-            <div class="student-card-name" title="{{ $item['nama'] }}">{{ $item['nama'] }}</div>
-            <div class="student-card-class">{{ $item['kelas'] }}</div>
-            <div class="time-badge-late">
-              <i class="far fa-clock"></i> {{ $item['jam_masuk'] }}
+            <div class="student-card-info">
+              <div class="student-card-name" title="{{ $item['nama'] }}">{{ $item['nama'] }}</div>
+              <div class="student-card-class">{{ $item['kelas'] }}</div>
+              <div class="time-badge-late">
+                <i class="far fa-clock"></i> {{ $item['jam_masuk'] }}
+              </div>
             </div>
           </div>
         @empty
@@ -749,10 +769,12 @@
                   ${avatar}
                   <span class="point-badge-corner" title="Poin Pelanggaran">${item.poin}</span>
                 </div>
-                <div class="student-card-name" title="${item.nama}">${item.nama}</div>
-                <div class="student-card-class">${item.kelas}</div>
-                <div class="time-badge-late">
-                  <i class="far fa-clock"></i> ${item.jam_masuk}
+                <div class="student-card-info">
+                  <div class="student-card-name" title="${item.nama}">${item.nama}</div>
+                  <div class="student-card-class">${item.kelas}</div>
+                  <div class="time-badge-late">
+                    <i class="far fa-clock"></i> ${item.jam_masuk}
+                  </div>
                 </div>
               </div>`;
             });
