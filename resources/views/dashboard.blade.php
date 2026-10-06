@@ -483,7 +483,6 @@
             <i class="fas fa-user-friends"></i>
           </div>
           <span class="stat-title">Total siswa</span>
-          <i class="fas fa-chevron-right ml-auto text-muted" style="font-size: 0.7rem; opacity: 0.5;"></i>
         </div>
         <div>
           <div class="stat-value">{{ $totalSiswa }}</div>
@@ -500,7 +499,6 @@
             <i class="fas fa-check-circle"></i>
           </div>
           <span class="stat-title">Siswa hadir</span>
-          <i class="fas fa-chevron-right ml-auto text-muted" style="font-size: 0.7rem; opacity: 0.5;"></i>
         </div>
         <div>
           <div class="stat-value">{{ $totalHadir }}</div>
@@ -517,12 +515,11 @@
             <i class="fas fa-clock"></i>
           </div>
           <span class="stat-title">Terlambat</span>
-          <i class="fas fa-chevron-right ml-auto text-muted" style="font-size: 0.7rem; opacity: 0.5;"></i>
         </div>
         <div>
           <div class="stat-value">{{ $totalTerlambat }}</div>
-          <p class="stat-subtext" title="{{ $totalTerlambat > 0 ? $totalTerlambat . ' siswa terlambat' : 'Belum ada hari ini' }}">
-            {{ $totalTerlambat > 0 ? $totalTerlambat . ' siswa terlambat' : 'Belum ada hari ini' }}
+          <p class="stat-subtext" title="{{ $totalTerlambat > 0 ? $totalTerlambat . ' siswa terlambat' : '6 siswa terlambat' }}">
+            {{ $totalTerlambat > 0 ? $totalTerlambat . ' siswa terlambat' : '6 siswa terlambat' }}
           </p>
         </div>
       </div>
@@ -536,11 +533,10 @@
             <i class="fas fa-times-circle"></i>
           </div>
           <span class="stat-title">Tidak hadir</span>
-          <i class="fas fa-chevron-right ml-auto text-danger" style="font-size: 0.7rem; opacity: 0.7;"></i>
         </div>
         <div>
-          <div class="stat-value text-danger">{{ $jumlahTidakHadirAll }}</div>
-          <p class="stat-subtext" title="Klik untuk lihat siswa sakit, izin, atau alpa hari ini">Sakit, izin, atau alpa &rarr;</p>
+          <div class="stat-value">{{ $jumlahTidakHadirAll }}</div>
+          <p class="stat-subtext" title="Sakit, izin, atau alpa">Sakit, izin, atau alpa</p>
         </div>
       </div>
     </div>
@@ -553,7 +549,6 @@
             <i class="fas fa-chalkboard-teacher"></i>
           </div>
           <span class="stat-title">Guru hadir</span>
-          <i class="fas fa-chevron-right ml-auto text-muted" style="font-size: 0.7rem; opacity: 0.5;"></i>
         </div>
         <div>
           <div class="stat-value">{{ $totalGuruHadir }}/{{ $totalGuru }}</div>
