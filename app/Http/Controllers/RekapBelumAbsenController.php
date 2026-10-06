@@ -287,7 +287,7 @@ class RekapBelumAbsenController extends Controller
                 $wali = $kelas->waliKelas;
                 if ($wali && !empty($wali->no_hp)) {
                     $pesan = self::generateWaMessage($kelas, $siswaBelumAbsen, $date, $namaSekolah);
-                    self::kirimPesanLangsung($wali->no_hp, $pesan, $targetSessionId);
+                    \App\Jobs\SendWhatsAppAttendanceNotification::dispatch($wali->no_hp, $pesan, $targetSessionId);
                     $terkirimCount++;
                 } else {
                     $tidakAdaNomorCount++;
