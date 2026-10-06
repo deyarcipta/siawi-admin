@@ -358,16 +358,13 @@
       gap: 14px;
       overflow-x: auto;
       padding-bottom: 6px;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(239, 68, 68, 0.4) transparent;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      scroll-behavior: auto;
     }
 
     .late-cards-container::-webkit-scrollbar {
-      height: 5px;
-    }
-    .late-cards-container::-webkit-scrollbar-thumb {
-      background: rgba(239, 68, 68, 0.4);
-      border-radius: 10px;
+      display: none;
     }
 
     .late-student-card {
@@ -790,12 +787,55 @@
     // Interval background update setiap 25 detik
     setInterval(fetchLivePanelData, 25000);
 
-    // Otomatis play video saat termuat
+    // 4. Smooth Auto-Scrolling Ticker untuk Kartu Siswa Terlambat di TV
+    let isTickerPaused = false;
+    let scrollPos = 0;
+    const scrollSpeed = 0.75; // Kecepatan scroll (pixel per frame)
+
+    function initAutoScrollLateCards() {
+      const container = document.getElementById('lateStudentsContainer');
+      if (!container) return;
+
+      container.addEventListener('mouseenter', () => isTickerPaused = true);
+      container.addEventListener('mouseleave', () => isTickerPaused = false);
+      container.addEventListener('touchstart', () => isTickerPaused = true, { passive: true });
+      container.addEventListener('touchend', () => isTickerPaused = false, { passive: true });
+
+      function tickerStep() {
+        if (!isTickerPaused && container.scrollWidth > container.clientWidth) {
+          scrollPos += scrollSpeed;
+          container.scrollLeft = scrollPos;
+
+          // Jika sudah mencapai ujung kanan container
+          const maxScrollLeft = container.scrollWidth - container.clientWidth;
+          if (container.scrollLeft >= maxScrollLeft - 1) {
+            isTickerPaused = true;
+            // Jeda 3 detik di akhir agar siswa terakhir terbaca jelas
+            setTimeout(() => {
+              // Animasi scroll kembali ke awal
+              container.scrollTo({ left: 0, behavior: 'smooth' });
+              setTimeout(() => {
+                scrollPos = 0;
+                container.scrollLeft = 0;
+                // Jeda 1.5 detik di awal sebelum mulai scroll kembali
+                isTickerPaused = false;
+              }, 1200);
+            }, 3000);
+          }
+        }
+        requestAnimationFrame(tickerStep);
+      }
+
+      requestAnimationFrame(tickerStep);
+    }
+
+    // Inisialisasi saat halaman selesai dimuat
     window.addEventListener('DOMContentLoaded', function() {
       const vid = document.getElementById('mainVideoPlayer');
       if (vid) {
         vid.play().catch(e => console.log('Autoplay handled:', e));
       }
+      initAutoScrollLateCards();
     });
   </script>
 </body>
