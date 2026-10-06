@@ -51,7 +51,7 @@ class RekapBelumAbsenController extends Controller
 
         if ($criteriaMet) {
             // 3. Get classes that have NOT completed attendance
-            $allClasses = Kelas::with('siswa')->orderBy('nama_kelas', 'asc')->get();
+            $allClasses = Kelas::with(['siswa', 'waliKelas'])->orderBy('nama_kelas', 'asc')->get();
             
             foreach ($allClasses as $kelas) {
                 $totalSiswa = $kelas->siswa->count();
@@ -67,11 +67,20 @@ class RekapBelumAbsenController extends Controller
                     });
 
                     if ($siswaBelumAbsen->count() > 0) {
+                        $pesanWa = self::generateWaMessage($kelas, $siswaBelumAbsen, $date, $setting->nama_sekolah ?? null);
+                        $waliNoHp = $kelas->waliKelas?->no_hp;
+                        $waliWaLinkNumber = self::formatWaLinkNumber($waliNoHp);
+                        $waUrl = $waliWaLinkNumber ? "https://wa.me/{$waliWaLinkNumber}?text=" . rawurlencode($pesanWa) : null;
+
                         $kelasBelumAbsen[] = [
                             'kelas' => $kelas,
                             'totalSiswa' => $totalSiswa,
                             'jumlahBelumAbsen' => $siswaBelumAbsen->count(),
-                            'siswaBelumAbsen' => $siswaBelumAbsen
+                            'siswaBelumAbsen' => $siswaBelumAbsen,
+                            'waliKelas' => $kelas->waliKelas,
+                            'waliNoHp' => $waliNoHp,
+                            'waUrl' => $waUrl,
+                            'pesanWa' => $pesanWa
                         ];
                     }
                 }
@@ -116,6 +125,186 @@ class RekapBelumAbsenController extends Controller
             'guruPiket',
             'dayInd'
         ));
+    }
+
+    /**
+     * Format WhatsApp phone number for link (wa.me)
+     */
+    public static function formatWaLinkNumber($number)
+    {
+        if (empty($number)) return null;
+        $clean = preg_replace('/[^0-9]/', '', $number);
+        if (str_starts_with($clean, '620')) {
+            $clean = '62' . substr($clean, 3);
+        } elseif (str_starts_with($clean, '0')) {
+            $clean = '62' . substr($clean, 1);
+        } elseif (str_starts_with($clean, '8')) {
+            $clean = '62' . $clean;
+        }
+        return $clean;
+    }
+
+    /**
+     * Generate standard WhatsApp message for informing Wali Kelas about uninputted students.
+     */
+    public static function generateWaMessage($kelas, $siswaBelumAbsen, $date, $namaSekolah = null)
+    {
+        if (!$namaSekolah) {
+            $setting = Setting::first();
+            $namaSekolah = $setting->nama_sekolah ?? 'SMK Wisata Indonesia';
+        }
+
+        $carbonDate = Carbon::parse($date);
+        $daysInIndonesian = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu'
+        ];
+        $dayEng = $carbonDate->format('l');
+        $dayInd = $daysInIndonesian[$dayEng] ?? 'Senin';
+        $tanggalFormatted = $dayInd . ', ' . $carbonDate->translatedFormat('d F Y');
+
+        $wali = $kelas->waliKelas;
+        $namaWali = $wali ? $wali->nama_guru : 'Wali Kelas ' . $kelas->nama_kelas;
+        $totalBelum = count($siswaBelumAbsen);
+
+        $daftarSiswaText = "";
+        $no = 1;
+        foreach ($siswaBelumAbsen as $s) {
+            $nis = $s->nis ?? '-';
+            $daftarSiswaText .= "{$no}. *{$s->nama_siswa}* (NIS: {$nis})\n";
+            $no++;
+        }
+
+        $pesan = "📢 *PEMBERITAHUAN KELALAIAN INPUT ABSENSI*\n"
+               . "*{$namaSekolah}*\n\n"
+               . "Yth. Bapak/Ibu *{$namaWali}*\n"
+               . "Wali Kelas: *{$kelas->nama_kelas}*\n\n"
+               . "Berdasarkan rekap data absensi sistem SIAWI pada:\n"
+               . "📅 *Hari/Tanggal:* {$tanggalFormatted}\n\n"
+               . "Daftar *{$totalBelum} siswa* di kelas Anda yang *BELUM TERINPUT* data absensinya:\n\n"
+               . $daftarSiswaText . "\n"
+               . "⚠️ *INFORMASI PENTING:*\n"
+               . "Penginputan data absensi susulan *HANYA DAPAT DILAKUKAN OLEH ADMIN*.\n\n"
+               . "Mohon kesediaan Bapak/Ibu untuk segera mengonfirmasi status kehadiran siswa-siswa di atas (Hadir / Sakit / Izin / Alfa) dengan menghubungi Admin SIAWI melalui kontak WhatsApp berikut:\n\n"
+               . "📱 *WhatsApp Admin:* 081382053328\n"
+               . "🔗 *Chat Admin Langsung:* https://wa.me/6281382053328\n\n"
+               . "Terima kasih atas kerja sama dan perhatian Bapak/Ibu.\n"
+               . "_Pesan otomatis sistem SIAWI_";
+
+        return $pesan;
+    }
+
+    /**
+     * Kirim pengingat WhatsApp kelalaian input ke Wali Kelas via Gateway
+     */
+    public function kirimWaWaliKelas(Request $request, $id_kelas)
+    {
+        $date = $request->input('tanggal', Carbon::today()->toDateString());
+        $kelas = Kelas::with(['waliKelas', 'siswa'])->findOrFail($id_kelas);
+        $setting = Setting::first();
+        $namaSekolah = $setting->nama_sekolah ?? 'SMK Wisata Indonesia';
+
+        if (!$kelas->waliKelas || empty($kelas->waliKelas->no_hp)) {
+            return response()->json([
+                'success' => false,
+                'message' => "Wali Kelas untuk kelas {$kelas->nama_kelas} belum diatur atau nomor WhatsApp belum terisi di data guru."
+            ], 422);
+        }
+
+        $siswaSudahAbsenIds = \App\Models\Absensi::where('tanggal', $date)
+            ->where('id_kelas', $kelas->id_kelas)
+            ->pluck('id_siswa')
+            ->toArray();
+
+        $siswaBelumAbsen = $kelas->siswa->filter(function ($siswa) use ($siswaSudahAbsenIds) {
+            return !in_array($siswa->id_siswa, $siswaSudahAbsenIds);
+        });
+
+        if ($siswaBelumAbsen->count() == 0) {
+            return response()->json([
+                'success' => false,
+                'message' => "Seluruh siswa di kelas {$kelas->nama_kelas} sudah selesai diabsen pada tanggal tersebut."
+            ], 422);
+        }
+
+        $pesan = self::generateWaMessage($kelas, $siswaBelumAbsen, $date, $namaSekolah);
+        $wali = $kelas->waliKelas;
+
+        try {
+            \App\Jobs\SendWhatsAppAttendanceNotification::dispatch($wali->no_hp, $pesan);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Gagal mengirim ke antrean WhatsApp: " . $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Pesan data kelalaian berhasil dikirimkan ke nomor WhatsApp Wali Kelas {$wali->nama_guru} ({$kelas->nama_kelas})."
+        ]);
+    }
+
+    /**
+     * Kirim pengingat WhatsApp ke semua Wali Kelas yang kelasnya belum selesai absen
+     */
+    public function kirimWaSemua(Request $request)
+    {
+        $date = $request->input('tanggal', Carbon::today()->toDateString());
+        $setting = Setting::first();
+        $namaSekolah = $setting->nama_sekolah ?? 'SMK Wisata Indonesia';
+
+        $allClasses = Kelas::with(['siswa', 'waliKelas'])->orderBy('nama_kelas', 'asc')->get();
+        $terkirimCount = 0;
+        $tidakAdaNomorCount = 0;
+
+        foreach ($allClasses as $kelas) {
+            $siswaSudahAbsenIds = \App\Models\Absensi::where('tanggal', $date)
+                ->where('id_kelas', $kelas->id_kelas)
+                ->pluck('id_siswa')
+                ->toArray();
+
+            $siswaBelumAbsen = $kelas->siswa->filter(function ($siswa) use ($siswaSudahAbsenIds) {
+                return !in_array($siswa->id_siswa, $siswaSudahAbsenIds);
+            });
+
+            if ($siswaBelumAbsen->count() > 0) {
+                $wali = $kelas->waliKelas;
+                if ($wali && !empty($wali->no_hp)) {
+                    $pesan = self::generateWaMessage($kelas, $siswaBelumAbsen, $date, $namaSekolah);
+                    try {
+                        \App\Jobs\SendWhatsAppAttendanceNotification::dispatch($wali->no_hp, $pesan);
+                        $terkirimCount++;
+                    } catch (\Exception $e) {
+                        \Log::error("Gagal kirim WA kelalaian massal ke {$wali->no_hp}: " . $e->getMessage());
+                    }
+                } else {
+                    $tidakAdaNomorCount++;
+                }
+            }
+        }
+
+        if ($terkirimCount == 0 && $tidakAdaNomorCount == 0) {
+            return response()->json([
+                'success' => true,
+                'message' => "Seluruh kelas telah menyelesaikan absensi pada tanggal tersebut."
+            ]);
+        }
+
+        $pesanHasil = "Berhasil mengirimkan data kelalaian ke {$terkirimCount} Wali Kelas.";
+        if ($tidakAdaNomorCount > 0) {
+            $pesanHasil .= " ({$tidakAdaNomorCount} kelas dilewati karena nomor WhatsApp Wali Kelas belum terdaftar).";
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $pesanHasil
+        ]);
     }
 
     /**

@@ -179,6 +179,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
         Route::get('rekap-belum-absen', [RekapBelumAbsenController::class, 'index'])->name('rekapBelumAbsen.index');
         Route::post('rekap-belum-absen', [RekapBelumAbsenController::class, 'store'])->name('rekapBelumAbsen.store');
         Route::get('rekap-belum-absen/export', [RekapBelumAbsenController::class, 'export'])->name('rekapBelumAbsen.export');
+        Route::post('rekap-belum-absen/kirim-wa/{id_kelas}', [RekapBelumAbsenController::class, 'kirimWaWaliKelas'])->name('rekapBelumAbsen.kirimWa');
+        Route::post('rekap-belum-absen/kirim-wa-semua', [RekapBelumAbsenController::class, 'kirimWaSemua'])->name('rekapBelumAbsen.kirimWaSemua');
     });
 
     // Laporan Kedisiplinan Mesin RFID (Admin, Kesiswaan, Wali Kelas)
