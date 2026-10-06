@@ -200,6 +200,9 @@
                         <label class="custom-file-label text-truncate" id="foto-label" for="foto">{{ $edit->foto && $edit->foto != 'avatar.jpg' ? $edit->foto : 'Choose file' }}</label>
                       </div>
                     </div>
+                    @error('foto')
+                      <div class="text-danger small mt-1 font-weight-bold">{{ $message }}</div>
+                    @enderror
                     <script>
                       document.getElementById('foto').addEventListener('change', function(e) {
                           var file = e.target.files[0];

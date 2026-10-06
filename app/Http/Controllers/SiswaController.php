@@ -76,7 +76,7 @@ class SiswaController extends Controller
             // 'jenis_kelamin' => 'required',
             // 'no_hp' => 'required',
             // 'email' => 'required',
-            'foto' => 'max:2048|mimes:png,PNG,jpg,JPG,jpeg,JPEG',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp,jfif,heic,heif,PNG,JPG,JPEG,WEBP|max:10240',
             // 'alamat' => 'required',
             // 'rt' => 'required',
             // 'rw' => 'required',
@@ -90,9 +90,6 @@ class SiswaController extends Controller
         $nama_file = 'avatar.jpg';
         // Periksa apakah file diunggah
         if ($request->hasFile('foto')) {
-            $request->validate([
-                'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
-            ]);
             if (!Storage::disk('public')->exists('foto-siswa')) {
                 Storage::disk('public')->makeDirectory('foto-siswa');
             }
@@ -200,7 +197,7 @@ class SiswaController extends Controller
             'jenis_kelamin' => 'required',
             'no_hp' => 'required',
             'email' => 'required',
-            'foto' => 'max:2048|mimes:png,PNG,jpg,JPG,jpeg,JPEG',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp,jfif,heic,heif,PNG,JPG,JPEG,WEBP|max:10240',
             'alamat' => 'required',
             'rt' => 'required',
             'rw' => 'required',
@@ -215,9 +212,6 @@ class SiswaController extends Controller
 
         // Periksa apakah file diunggah
         if ($request->hasFile('foto')) {
-            $request->validate([
-                'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
-            ]);
             if (!Storage::disk('public')->exists('foto-siswa')) {
                 Storage::disk('public')->makeDirectory('foto-siswa');
             }

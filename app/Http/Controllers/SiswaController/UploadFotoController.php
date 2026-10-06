@@ -18,21 +18,27 @@ class UploadFotoController extends Controller
     {
         // dd($request->all());
         $request->validate([
-            'foto' => 'max:2048|mimes:png,PNG,jpg,JPG,jpeg,JPEG',
+            'foto' => 'required|image|mimes:jpeg,png,jpg,webp,jfif,heic,heif,PNG,JPG,JPEG,WEBP|max:10240',
         ]);
 
         $siswa = Siswa::findOrFail($idSiswa);
 
         // Periksa apakah file diunggah
         if ($request->hasFile('foto')) {
+            if (!Storage::disk('public')->exists('foto-siswa')) {
+                Storage::disk('public')->makeDirectory('foto-siswa');
+            }
             if ($siswa->foto && $siswa->foto != 'avatar.jpg') {
                 // Hapus foto lama dari penyimpanan jika bukan "avatar.jpg"
-                Storage::delete('public/foto-siswa/' . $siswa->foto);
+                Storage::disk('public')->delete('foto-siswa/' . $siswa->foto);
+                if (file_exists(public_path('storage/foto-siswa/' . $siswa->foto))) {
+                    @unlink(public_path('storage/foto-siswa/' . $siswa->foto));
+                }
             }
             $file = $request->file('foto');
-            $nama_file = $file->getClientOriginalName();
-            $tujuan_upload = 'public/foto-siswa/';
-            $imeagePath = $file->storeAs($tujuan_upload, $nama_file);
+            $nama_file = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $tujuan_upload = 'foto-siswa';
+            $file->storeAs($tujuan_upload, $nama_file, 'public');
 
             // Simpan nama file baru ke dalam data
             $siswa->foto = $nama_file;
