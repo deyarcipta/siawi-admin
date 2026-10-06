@@ -149,7 +149,7 @@ class LivePanelController extends Controller
                 // Ambil total poin pelanggaran siswa
                 $totalPoin = 0;
                 if ($siswa) {
-                    $totalPoin = PointSiswa::where('id_siswa', $siswa->id_siswa)->sum('total_point');
+                    $totalPoin = PointSiswa::where('id_siswa', $siswa->id_siswa)->sum('skor_point');
                     if (!$totalPoin || $totalPoin == 0) {
                         $totalPoin = 5; // Default poin keterlambatan
                     }
