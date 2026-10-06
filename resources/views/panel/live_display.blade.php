@@ -36,7 +36,11 @@
       padding: 0;
     }
 
-    body {
+    html, body {
+      width: 100%;
+      height: 100vh;
+      max-height: 100vh;
+      overflow: hidden;
       background-color: var(--bg-dark);
       background-image: 
         radial-gradient(at 15% 15%, rgba(0, 168, 255, 0.12) 0px, transparent 50%),
@@ -44,29 +48,28 @@
         radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.95) 0px, transparent 100%);
       color: var(--text-main);
       font-family: 'Plus Jakarta Sans', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
       user-select: none;
     }
 
     /* Top Navigation / Status Header */
     .top-bar {
-      padding: 12px 24px;
+      flex-shrink: 0;
+      padding: 10px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(7, 11, 20, 0.8);
+      background: rgba(7, 11, 20, 0.85);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       z-index: 100;
+      height: 60px;
     }
 
     .brand-logo-img {
-      width: 42px;
-      height: 42px;
+      width: 38px;
+      height: 38px;
       object-fit: contain;
       filter: drop-shadow(0 2px 8px rgba(0, 168, 255, 0.4));
     }
@@ -74,14 +77,14 @@
     .brand-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 1.25rem;
+      font-size: clamp(1rem, 1.3vw, 1.25rem);
       letter-spacing: -0.02em;
       color: #ffffff;
       line-height: 1.1;
     }
 
     .brand-subtitle {
-      font-size: 0.75rem;
+      font-size: clamp(0.68rem, 0.8vw, 0.78rem);
       color: var(--neon-cyan);
       font-weight: 600;
       letter-spacing: 0.05em;
@@ -95,9 +98,9 @@
       background: rgba(16, 185, 129, 0.15);
       border: 1px solid rgba(16, 185, 129, 0.4);
       color: #34d399;
-      font-size: 0.76rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      padding: 5px 12px;
+      padding: 4px 10px;
       border-radius: 20px;
       letter-spacing: 0.05em;
     }
@@ -121,9 +124,9 @@
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.15);
       color: #ffffff;
-      padding: 6px 14px;
+      padding: 5px 12px;
       border-radius: 8px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
       transition: all 0.2s ease;
       text-decoration: none !important;
@@ -139,19 +142,23 @@
       box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
     }
 
-    /* Main Grid Layout */
+    /* Main Grid Layout filling 100% remaining viewport */
     .panel-container {
-      padding: 16px 24px 20px;
+      padding: 10px 18px 12px;
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 10px;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .main-grid-row {
       display: grid;
       grid-template-columns: 1.65fr 1fr;
-      gap: 20px;
+      gap: 14px;
+      flex: 1;
+      min-height: 0;
       align-items: stretch;
     }
 
@@ -172,8 +179,8 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      min-height: 380px;
       height: 100%;
+      min-height: 0;
     }
 
     .video-element {
@@ -191,7 +198,7 @@
       z-index: 10;
       background: linear-gradient(180deg, rgba(7, 15, 33, 0.2) 0%, rgba(7, 15, 33, 0.95) 100%);
       backdrop-filter: blur(8px);
-      padding: 16px 20px;
+      padding: clamp(8px, 1.5vh, 16px) 20px;
       text-align: center;
       border-top: 1px solid rgba(0, 210, 255, 0.35);
     }
@@ -199,16 +206,17 @@
     .greeting-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 1.5rem;
+      font-size: clamp(1.1rem, 1.8vw, 1.55rem);
       letter-spacing: -0.01em;
       color: #ffffff;
       text-transform: uppercase;
       text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
-      margin-bottom: 4px;
+      margin-bottom: 2px;
+      line-height: 1.2;
     }
 
     .greeting-subtitle {
-      font-size: 0.92rem;
+      font-size: clamp(0.78rem, 1.1vw, 0.95rem);
       font-weight: 600;
       color: var(--neon-cyan);
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
@@ -218,38 +226,43 @@
     .sidebar-ranking-column {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 10px;
+      height: 100%;
+      min-height: 0;
     }
 
     .ranking-card {
       background: var(--bg-card);
       border: 1px solid var(--bg-card-border);
-      border-radius: 16px;
-      padding: 16px 18px;
+      border-radius: 14px;
+      padding: 10px 14px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
       backdrop-filter: blur(14px);
       flex: 1;
+      min-height: 0;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
     }
 
     .ranking-card-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding-bottom: 12px;
+      gap: 8px;
+      padding-bottom: 6px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      margin-bottom: 12px;
+      margin-bottom: 6px;
+      flex-shrink: 0;
     }
 
     .ranking-card-icon {
-      font-size: 1.15rem;
+      font-size: 1.05rem;
     }
 
     .ranking-card-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 0.92rem;
+      font-size: clamp(0.78rem, 1vw, 0.92rem);
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: #ffffff;
@@ -262,20 +275,21 @@
       margin: 0;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 5px;
       flex: 1;
-      justify-content: space-around;
+      min-height: 0;
+      justify-content: space-evenly;
     }
 
     .ranking-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 10px;
+      padding: clamp(3px, 0.6vh, 6px) 10px;
       border-radius: 8px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.04);
-      font-size: 0.88rem;
+      font-size: clamp(0.78rem, 0.95vw, 0.9rem);
     }
 
     .ranking-item:hover {
@@ -286,9 +300,17 @@
     .rank-num-name {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       font-weight: 700;
       color: #f1f5f9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .rank-num-name span:last-child {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -298,55 +320,61 @@
       color: var(--neon-blue);
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 0.95rem;
+      font-size: clamp(0.82rem, 1vw, 0.95rem);
       width: 18px;
+      flex-shrink: 0;
     }
 
     .badge-percent {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 0.88rem;
+      font-size: clamp(0.75rem, 0.9vw, 0.88rem);
       color: #34d399;
       background: rgba(16, 185, 129, 0.12);
-      padding: 2px 10px;
+      padding: 2px 8px;
       border-radius: 6px;
       border: 1px solid rgba(16, 185, 129, 0.3);
       white-space: nowrap;
+      flex-shrink: 0;
+      margin-left: 8px;
     }
 
     .badge-time {
       font-family: 'Outfit', sans-serif;
       font-weight: 700;
-      font-size: 0.86rem;
+      font-size: clamp(0.75rem, 0.9vw, 0.86rem);
       color: #38bdf8;
       background: rgba(56, 189, 248, 0.12);
-      padding: 2px 10px;
+      padding: 2px 8px;
       border-radius: 6px;
       border: 1px solid rgba(56, 189, 248, 0.3);
       white-space: nowrap;
+      flex-shrink: 0;
+      margin-left: 8px;
     }
 
     /* Bottom Late Students Section */
     .late-students-section {
       background: var(--bg-card);
       border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 16px;
-      padding: 16px 20px;
+      border-radius: 14px;
+      padding: 10px 16px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(14px);
+      flex-shrink: 0;
     }
 
     .late-section-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 8px;
+      margin-bottom: 8px;
     }
 
     .late-section-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 0.98rem;
+      font-size: clamp(0.82rem, 1vw, 0.95rem);
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: #f87171;
@@ -355,9 +383,9 @@
 
     .late-cards-container {
       display: flex;
-      gap: 14px;
+      gap: 12px;
       overflow-x: auto;
-      padding-bottom: 6px;
+      padding-bottom: 2px;
       scrollbar-width: none;
       -ms-overflow-style: none;
       scroll-behavior: auto;
@@ -368,15 +396,15 @@
     }
 
     .late-student-card {
-      min-width: 255px;
-      max-width: 285px;
+      min-width: 250px;
+      max-width: 280px;
       background: #090e1a;
       border: 1px solid rgba(239, 68, 68, 0.45);
-      border-radius: 14px;
-      padding: 10px 14px;
+      border-radius: 12px;
+      padding: 8px 12px;
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       position: relative;
       flex-shrink: 0;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -391,15 +419,15 @@
 
     .student-avatar-wrapper {
       position: relative;
-      width: 64px;
-      height: 64px;
+      width: 58px;
+      height: 58px;
       flex-shrink: 0;
     }
 
     .student-avatar-img {
-      width: 64px;
-      height: 64px;
-      border-radius: 12px;
+      width: 58px;
+      height: 58px;
+      border-radius: 10px;
       object-fit: cover;
       border: 2px solid #ef4444;
       background: #1e293b;
@@ -407,30 +435,30 @@
     }
 
     .student-avatar-fallback {
-      width: 64px;
-      height: 64px;
-      border-radius: 12px;
+      width: 58px;
+      height: 58px;
+      border-radius: 10px;
       background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.08));
       border: 2px solid #ef4444;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.55rem;
+      font-size: 1.4rem;
       font-weight: 800;
       color: #f87171;
     }
 
     .point-badge-corner {
       position: absolute;
-      top: -6px;
-      right: -7px;
+      top: -5px;
+      right: -6px;
       background: #ef4444;
       color: #ffffff;
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 0.72rem;
-      padding: 2px 6px;
-      border-radius: 10px;
+      font-size: 0.7rem;
+      padding: 2px 5px;
+      border-radius: 8px;
       border: 2px solid #090e1a;
       box-shadow: 0 2px 5px rgba(0,0,0,0.6);
       line-height: 1;
@@ -447,49 +475,49 @@
 
     .student-card-name {
       font-weight: 700;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       margin-bottom: 2px;
-      line-height: 1.25;
+      line-height: 1.2;
     }
 
     .student-card-class {
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       font-weight: 600;
       color: #94a3b8;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .time-badge-late {
       display: inline-flex;
       align-items: center;
       align-self: flex-start;
-      gap: 5px;
+      gap: 4px;
       background: rgba(239, 68, 68, 0.16);
       border: 1px solid rgba(239, 68, 68, 0.45);
       color: #fca5a5;
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 0.74rem;
-      padding: 2px 8px;
-      border-radius: 6px;
+      font-size: 0.72rem;
+      padding: 1px 7px;
+      border-radius: 5px;
     }
 
     .empty-late-state {
-      padding: 24px;
+      padding: 16px;
       text-align: center;
       width: 100%;
       color: #34d399;
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       background: rgba(16, 185, 129, 0.05);
-      border-radius: 12px;
+      border-radius: 10px;
       border: 1px dashed rgba(16, 185, 129, 0.3);
     }
   </style>
