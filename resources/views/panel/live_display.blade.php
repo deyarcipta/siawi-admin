@@ -144,11 +144,11 @@
 
     /* Main Grid Layout filling 100% remaining viewport */
     .panel-container {
-      padding: 10px 18px 12px;
+      padding: clamp(8px, 1.2vh, 16px) clamp(12px, 1.4vw, 24px);
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: clamp(8px, 1.2vh, 14px);
       min-height: 0;
       overflow: hidden;
     }
@@ -156,8 +156,8 @@
     .main-grid-row {
       display: grid;
       grid-template-columns: 1.65fr 1fr;
-      gap: 14px;
-      flex: 1;
+      gap: clamp(10px, 1.2vw, 18px);
+      flex: 2.3;
       min-height: 0;
       align-items: stretch;
     }
@@ -172,7 +172,7 @@
     .video-screen-frame {
       position: relative;
       background: #000000;
-      border-radius: 16px;
+      border-radius: clamp(12px, 1.6vh, 18px);
       border: 2px solid rgba(0, 168, 255, 0.6);
       box-shadow: 0 0 30px rgba(0, 168, 255, 0.25), inset 0 0 20px rgba(0, 168, 255, 0.15);
       overflow: hidden;
@@ -198,7 +198,7 @@
       z-index: 10;
       background: linear-gradient(180deg, rgba(7, 15, 33, 0.2) 0%, rgba(7, 15, 33, 0.95) 100%);
       backdrop-filter: blur(8px);
-      padding: clamp(8px, 1.5vh, 16px) 20px;
+      padding: clamp(6px, 1.2vh, 14px) clamp(12px, 1.5vw, 22px);
       text-align: center;
       border-top: 1px solid rgba(0, 210, 255, 0.35);
     }
@@ -206,7 +206,7 @@
     .greeting-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: clamp(1.1rem, 1.8vw, 1.55rem);
+      font-size: clamp(1.05rem, 1.7vw, 1.55rem);
       letter-spacing: -0.01em;
       color: #ffffff;
       text-transform: uppercase;
@@ -216,7 +216,7 @@
     }
 
     .greeting-subtitle {
-      font-size: clamp(0.78rem, 1.1vw, 0.95rem);
+      font-size: clamp(0.75rem, 1vw, 0.95rem);
       font-weight: 600;
       color: var(--neon-cyan);
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
@@ -226,7 +226,7 @@
     .sidebar-ranking-column {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: clamp(8px, 1vh, 12px);
       height: 100%;
       min-height: 0;
     }
@@ -234,8 +234,8 @@
     .ranking-card {
       background: var(--bg-card);
       border: 1px solid var(--bg-card-border);
-      border-radius: 14px;
-      padding: 10px 14px;
+      border-radius: clamp(10px, 1.4vh, 16px);
+      padding: clamp(8px, 1.1vh, 14px) clamp(10px, 1.2vw, 16px);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
       backdrop-filter: blur(14px);
       flex: 1;
@@ -249,20 +249,20 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding-bottom: 6px;
+      padding-bottom: clamp(4px, 0.6vh, 8px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      margin-bottom: 6px;
+      margin-bottom: clamp(4px, 0.6vh, 8px);
       flex-shrink: 0;
     }
 
     .ranking-card-icon {
-      font-size: 1.05rem;
+      font-size: clamp(0.95rem, 1.1vw, 1.2rem);
     }
 
     .ranking-card-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: clamp(0.78rem, 1vw, 0.92rem);
+      font-size: clamp(0.76rem, 0.95vw, 0.92rem);
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: #ffffff;
@@ -275,7 +275,7 @@
       margin: 0;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: clamp(3px, 0.5vh, 6px);
       flex: 1;
       min-height: 0;
       justify-content: space-evenly;
@@ -285,11 +285,11 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: clamp(3px, 0.6vh, 6px) 10px;
+      padding: clamp(3px, 0.5vh, 6px) clamp(8px, 0.8vw, 12px);
       border-radius: 8px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.04);
-      font-size: clamp(0.78rem, 0.95vw, 0.9rem);
+      font-size: clamp(0.75rem, 0.9vw, 0.9rem);
     }
 
     .ranking-item:hover {
@@ -320,7 +320,7 @@
       color: var(--neon-blue);
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: clamp(0.82rem, 1vw, 0.95rem);
+      font-size: clamp(0.8rem, 0.95vw, 0.95rem);
       width: 18px;
       flex-shrink: 0;
     }
@@ -328,7 +328,7 @@
     .badge-percent {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: clamp(0.75rem, 0.9vw, 0.88rem);
+      font-size: clamp(0.72rem, 0.85vw, 0.88rem);
       color: #34d399;
       background: rgba(16, 185, 129, 0.12);
       padding: 2px 8px;
@@ -342,7 +342,7 @@
     .badge-time {
       font-family: 'Outfit', sans-serif;
       font-weight: 700;
-      font-size: clamp(0.75rem, 0.9vw, 0.86rem);
+      font-size: clamp(0.72rem, 0.85vw, 0.86rem);
       color: #38bdf8;
       background: rgba(56, 189, 248, 0.12);
       padding: 2px 8px;
@@ -353,28 +353,33 @@
       margin-left: 8px;
     }
 
-    /* Bottom Late Students Section */
+    /* Bottom Late Students Section - Responsively Scaled with Flex */
     .late-students-section {
       background: var(--bg-card);
       border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 14px;
-      padding: 10px 16px;
+      border-radius: clamp(12px, 1.6vh, 18px);
+      padding: clamp(8px, 1.2vh, 14px) clamp(12px, 1.4vw, 20px);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(14px);
-      flex-shrink: 0;
+      flex: 1.15;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .late-section-header {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 8px;
+      margin-bottom: clamp(4px, 0.8vh, 8px);
+      flex-shrink: 0;
     }
 
     .late-section-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: clamp(0.82rem, 1vw, 0.95rem);
+      font-size: clamp(0.82rem, 1.05vw, 1.05rem);
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: #f87171;
@@ -383,12 +388,15 @@
 
     .late-cards-container {
       display: flex;
-      gap: 12px;
+      gap: clamp(10px, 1.2vw, 16px);
       overflow-x: auto;
       padding-bottom: 2px;
       scrollbar-width: none;
       -ms-overflow-style: none;
       scroll-behavior: auto;
+      flex: 1;
+      min-height: 0;
+      align-items: stretch;
     }
 
     .late-cards-container::-webkit-scrollbar {
@@ -396,17 +404,18 @@
     }
 
     .late-student-card {
-      min-width: 250px;
-      max-width: 280px;
+      min-width: clamp(250px, 20vw, 360px);
+      max-width: clamp(280px, 24vw, 420px);
       background: #090e1a;
       border: 1px solid rgba(239, 68, 68, 0.45);
-      border-radius: 12px;
-      padding: 8px 12px;
+      border-radius: clamp(10px, 1.4vh, 14px);
+      padding: clamp(6px, 1vh, 12px) clamp(10px, 1.1vw, 16px);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: clamp(10px, 1.2vw, 16px);
       position: relative;
       flex-shrink: 0;
+      height: 100%;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
@@ -419,15 +428,21 @@
 
     .student-avatar-wrapper {
       position: relative;
-      width: 58px;
-      height: 58px;
+      height: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: clamp(54px, 10vh, 90px);
+      width: auto;
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .student-avatar-img {
-      width: 58px;
-      height: 58px;
-      border-radius: 10px;
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: clamp(8px, 1.2vh, 12px);
       object-fit: cover;
       border: 2px solid #ef4444;
       background: #1e293b;
@@ -435,28 +450,29 @@
     }
 
     .student-avatar-fallback {
-      width: 58px;
-      height: 58px;
-      border-radius: 10px;
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: clamp(8px, 1.2vh, 12px);
       background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.08));
       border: 2px solid #ef4444;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
+      font-size: clamp(1.3rem, 2vh, 1.8rem);
       font-weight: 800;
       color: #f87171;
     }
 
     .point-badge-corner {
       position: absolute;
-      top: -5px;
-      right: -6px;
+      top: -4px;
+      right: -5px;
       background: #ef4444;
       color: #ffffff;
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 0.7rem;
+      font-size: clamp(0.68rem, 0.8vw, 0.82rem);
       padding: 2px 5px;
       border-radius: 8px;
       border: 2px solid #090e1a;
@@ -474,24 +490,24 @@
     }
 
     .student-card-name {
-      font-weight: 700;
-      font-size: 0.85rem;
+      font-weight: 800;
+      font-size: clamp(0.85rem, 1.1vw, 1.15rem);
       color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-bottom: 2px;
+      margin-bottom: clamp(1px, 0.4vh, 4px);
       line-height: 1.2;
     }
 
     .student-card-class {
-      font-size: 0.72rem;
+      font-size: clamp(0.72rem, 0.9vw, 0.92rem);
       font-weight: 600;
       color: #94a3b8;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-bottom: 4px;
+      margin-bottom: clamp(3px, 0.6vh, 6px);
     }
 
     .time-badge-late {
@@ -504,8 +520,8 @@
       color: #fca5a5;
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 0.72rem;
-      padding: 1px 7px;
+      font-size: clamp(0.72rem, 0.9vw, 0.88rem);
+      padding: clamp(1px, 0.3vh, 4px) clamp(6px, 0.6vw, 10px);
       border-radius: 5px;
     }
 
@@ -513,9 +529,13 @@
       padding: 16px;
       text-align: center;
       width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: #34d399;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: clamp(0.85rem, 1vw, 1.05rem);
       background: rgba(16, 185, 129, 0.05);
       border-radius: 10px;
       border: 1px dashed rgba(16, 185, 129, 0.3);
