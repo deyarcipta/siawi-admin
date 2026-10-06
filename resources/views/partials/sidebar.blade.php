@@ -467,7 +467,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/dataAbsen*') ? 'active' : '' }}">
+              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/dataAbsen*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Data Absensi Kelas</p>
               </a>
