@@ -457,7 +457,7 @@
       if (wrapperEl) wrapperEl.innerHTML = '';
     }
 
-    fetch('{{ route("admin.notifications.get") }}', {
+    fetch('{{ url("/admin/notifications/get") }}', {
       headers: {
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest'
@@ -498,7 +498,7 @@
     var notifBtn = document.getElementById('notifDropdownBtn');
     if (notifBtn) {
       notifBtn.addEventListener('click', function() {
-        fetch('{{ route("admin.notifications.get") }}', {
+        fetch('{{ url("/admin/notifications/get") }}', {
           headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(function(res) { return res.json(); })
