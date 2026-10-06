@@ -124,18 +124,16 @@
 
           <div class="{{ $user->role == 'wali_kelas' ? 'col-md-4' : 'col-md-3' }} col-sm-6 mb-2 mb-md-0">
             <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Status</label>
-            <div class="input-group input-group-sm">
-              <select name="status" class="form-control form-control-sm">
+            <div class="d-flex align-items-center" style="gap: 8px;">
+              <select name="status" class="form-control form-control-sm" style="flex: 1;">
                 <option value="">-- Semua Status --</option>
                 <option value="sakit" {{ $selectedStatus == 'sakit' ? 'selected' : '' }}>Sakit</option>
                 <option value="izin" {{ $selectedStatus == 'izin' ? 'selected' : '' }}>Izin</option>
                 <option value="alfa" {{ $selectedStatus == 'alfa' ? 'selected' : '' }}>Alfa</option>
               </select>
-              <div class="input-group-append">
-                <button type="submit" class="btn btn-primary btn-sm px-3 shadow-none" title="Terapkan Filter">
-                  <i class="fas fa-search"></i>
-                </button>
-              </div>
+              <button type="submit" class="btn btn-primary btn-sm px-3 d-flex align-items-center justify-content-center shadow-sm" style="height: 31px; flex-shrink: 0;" title="Terapkan Filter">
+                <i class="fas fa-search"></i>
+              </button>
             </div>
           </div>
         </form>
