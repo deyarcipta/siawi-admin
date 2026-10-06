@@ -477,12 +477,13 @@
   <div class="row mb-4">
     <!-- 1. Total Siswa -->
     <div class="col-xl col-lg-4 col-md-6 col-12 mb-3 mb-xl-0">
-      <div class="stat-card">
+      <div class="stat-card" onclick="window.location.href='/admin/siswa'" style="cursor: pointer;" title="Lihat Data Siswa">
         <div class="stat-card-header">
           <div class="stat-icon-wrapper stat-icon-blue">
             <i class="fas fa-user-friends"></i>
           </div>
           <span class="stat-title">Total siswa</span>
+          <i class="fas fa-chevron-right ml-auto text-muted" style="font-size: 0.7rem; opacity: 0.5;"></i>
         </div>
         <div>
           <div class="stat-value">{{ $totalSiswa }}</div>
@@ -493,12 +494,13 @@
 
     <!-- 2. Siswa Hadir -->
     <div class="col-xl col-lg-4 col-md-6 col-12 mb-3 mb-xl-0">
-      <div class="stat-card">
+      <div class="stat-card" onclick="window.location.href='/admin/absensi'" style="cursor: pointer;" title="Lihat Absensi Siswa">
         <div class="stat-card-header">
           <div class="stat-icon-wrapper stat-icon-green">
             <i class="fas fa-check-circle"></i>
           </div>
           <span class="stat-title">Siswa hadir</span>
+          <i class="fas fa-chevron-right ml-auto text-muted" style="font-size: 0.7rem; opacity: 0.5;"></i>
         </div>
         <div>
           <div class="stat-value">{{ $totalHadir }}</div>
@@ -509,12 +511,13 @@
 
     <!-- 3. Terlambat -->
     <div class="col-xl col-lg-4 col-md-6 col-12 mb-3 mb-xl-0">
-      <div class="stat-card">
+      <div class="stat-card" onclick="window.location.href='/admin/laporan-kedisiplinan-siswa'" style="cursor: pointer;" title="Lihat Laporan Kedisiplinan & Keterlambatan">
         <div class="stat-card-header">
           <div class="stat-icon-wrapper stat-icon-amber">
             <i class="fas fa-clock"></i>
           </div>
           <span class="stat-title">Terlambat</span>
+          <i class="fas fa-chevron-right ml-auto text-muted" style="font-size: 0.7rem; opacity: 0.5;"></i>
         </div>
         <div>
           <div class="stat-value">{{ $totalTerlambat }}</div>
@@ -527,28 +530,30 @@
 
     <!-- 4. Tidak Hadir -->
     <div class="col-xl col-lg-4 col-md-6 col-12 mb-3 mb-xl-0">
-      <div class="stat-card">
+      <div class="stat-card" onclick="window.location.href='/admin/siswa-tidak-hadir?today=1'" style="cursor: pointer;" title="Lihat Data Siswa Tidak Hadir Hari Ini">
         <div class="stat-card-header">
           <div class="stat-icon-wrapper stat-icon-red">
             <i class="fas fa-times-circle"></i>
           </div>
           <span class="stat-title">Tidak hadir</span>
+          <i class="fas fa-chevron-right ml-auto text-danger" style="font-size: 0.7rem; opacity: 0.7;"></i>
         </div>
         <div>
-          <div class="stat-value">{{ $jumlahTidakHadirAll }}</div>
-          <p class="stat-subtext" title="Sakit, izin, atau alpa">Sakit, izin, atau alpa</p>
+          <div class="stat-value text-danger">{{ $jumlahTidakHadirAll }}</div>
+          <p class="stat-subtext" title="Klik untuk lihat siswa sakit, izin, atau alpa hari ini">Sakit, izin, atau alpa &rarr;</p>
         </div>
       </div>
     </div>
 
     <!-- 5. Guru Hadir -->
     <div class="col-xl col-lg-4 col-md-6 col-12 mb-3 mb-xl-0">
-      <div class="stat-card">
+      <div class="stat-card" onclick="window.location.href='/admin/absensi_guru'" style="cursor: pointer;" title="Lihat Absensi Guru">
         <div class="stat-card-header">
           <div class="stat-icon-wrapper stat-icon-purple">
             <i class="fas fa-chalkboard-teacher"></i>
           </div>
           <span class="stat-title">Guru hadir</span>
+          <i class="fas fa-chevron-right ml-auto text-muted" style="font-size: 0.7rem; opacity: 0.5;"></i>
         </div>
         <div>
           <div class="stat-value">{{ $totalGuruHadir }}/{{ $totalGuru }}</div>

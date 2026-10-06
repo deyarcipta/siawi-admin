@@ -601,27 +601,56 @@ class AbsensiController extends Controller
 
     public function siswaTidakHadir(Request $request)
     {
-        $dataTidakHadir = null;
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
 
-        if ($request->has(['tanggal_mulai', 'tanggal_akhir'])) {
-            $dataTidakHadir = Absensi::with('siswa')
-                ->whereBetween('tanggal', [$request->tanggal_mulai, $request->tanggal_akhir])
-                ->whereIn('kehadiran', ['sakit', 'izin', 'alfa'])
-                ->orderBy('tanggal', 'asc')
-                ->get();
-        } elseif ($request->has('today')) {
-            $today = now()->toDateString();
-            $dataTidakHadir = Absensi::with('siswa')
-                ->whereDate('tanggal', $today)
-                ->whereIn('kehadiran', ['sakit', 'izin', 'alfa'])
-                ->orderBy('tanggal', 'asc')
-                ->get();
+        $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
+        $selectedKelas = $request->input('id_kelas');
+        $selectedStatus = $request->input('status'); // sakit, izin, alfa, all
+
+        // Default tanggal: Jika ada filter rentang gunakan rentang, jika tidak default hari ini
+        $tanggalMulai = $request->input('tanggal_mulai', Carbon::today()->toDateString());
+        $tanggalAkhir = $request->input('tanggal_akhir', Carbon::today()->toDateString());
+
+        // Jika ada param today, override ke hari ini
+        if ($request->has('today')) {
+            $tanggalMulai = Carbon::today()->toDateString();
+            $tanggalAkhir = Carbon::today()->toDateString();
         }
 
-        return view('dataAbsen.data_siswaTidakHadir', compact('layout', 'setting', 'user', 'dataTidakHadir'));
+        $query = Absensi::with(['siswa.kelas', 'kelas'])
+            ->whereBetween('tanggal', [$tanggalMulai, $tanggalAkhir])
+            ->whereIn('kehadiran', ['sakit', 'izin', 'alfa']);
+
+        // Filter role wali_kelas
+        if ($user && $user->role == 'wali_kelas') {
+            $kelasWali = Kelas::where('id_guru', $user->id_guru)->first();
+            if ($kelasWali) {
+                $query->where('id_kelas', $kelasWali->id_kelas);
+                $selectedKelas = $kelasWali->id_kelas;
+            }
+        } elseif (!empty($selectedKelas)) {
+            $query->where('id_kelas', $selectedKelas);
+        }
+
+        if (!empty($selectedStatus) && in_array($selectedStatus, ['sakit', 'izin', 'alfa'])) {
+            $query->where('kehadiran', $selectedStatus);
+        }
+
+        $dataTidakHadir = $query->orderBy('tanggal', 'desc')->orderBy('created_at', 'desc')->get();
+
+        // Statistik rekap
+        $countSakit = $dataTidakHadir->where('kehadiran', 'sakit')->count();
+        $countIzin = $dataTidakHadir->where('kehadiran', 'izin')->count();
+        $countAlfa = $dataTidakHadir->where('kehadiran', 'alfa')->count();
+        $countTotal = $dataTidakHadir->count();
+
+        return view('dataAbsen.data_siswaTidakHadir', compact(
+            'layout', 'setting', 'user', 'dataTidakHadir', 'kelasList',
+            'selectedKelas', 'selectedStatus', 'tanggalMulai', 'tanggalAkhir',
+            'countSakit', 'countIzin', 'countAlfa', 'countTotal'
+        ));
     }
 
     public function destroy(string $id_absensi)
