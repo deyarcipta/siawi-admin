@@ -102,8 +102,34 @@ class SettingController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        // 1. Deteksi jika upload melebihi batas post_max_size PHP di server
+        if ($request->isMethod('post') || $request->isMethod('put')) {
+            $contentLength = (int) ($request->server('CONTENT_LENGTH') ?? 0);
+            if ($contentLength > 0 && empty($request->all()) && empty($request->allFiles())) {
+                $maxPost = ini_get('post_max_size');
+                $maxUpload = ini_get('upload_max_filesize');
+                $errorMsg = "Ukuran file video melebihi batas upload PHP server Anda (upload_max_filesize: {$maxUpload}, post_max_size: {$maxPost}). Silakan naikkan limit PHP di cPanel / php.ini atau kompres file video menjadi lebih kecil.";
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMsg
+                    ], 413);
+                }
+                return redirect()->back()->with('failed', $errorMsg);
+            }
+        }
+
         // Mengambil data setting berdasarkan ID
         $setting = Setting::find($id);
+
+        // 2. Pastikan kolom video_panel sudah ada di database (auto-recovery jika migrasi belum dijalankan di server)
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('setting', 'video_panel')) {
+                \Illuminate\Support\Facades\Schema::table('setting', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('video_panel')->nullable()->after('logo');
+                });
+            }
+        } catch (\Exception $e) {}
 
         // Cek apakah request mengandung data yang perlu diproses dari settingDasar
         if ($request->has('nama_sekolah')) {
@@ -117,75 +143,90 @@ class SettingController extends Controller
                 'kec' => 'required',
                 'prov' => 'required',
                 'kota' => 'required',
-                // 'logo' => 'required',
-            ]);
-            // Cek apakah ada file logo yang diunggah
-            if ($request->hasFile('logo')) {
-                
-                // Hapus logo lama jika ada
-                if ($setting->logo) {
-                    Storage::delete('public/gambar/' . $setting->logo);
-                }
-
-                // Simpan logo baru
-                $file = $request->file('logo');
-                $nama_file = time() . '_' . $file->getClientOriginalName(); // Tambahkan timestamp agar unik
-                $file->storeAs('public/gambar/', $nama_file);
-
-                // Simpan nama file baru
-                $setting->logo = $nama_file;
-            } else {
-                // Jika tidak ada file logo yang diunggah, biarkan logo lama tetap digunakan
-                $nama_file = $setting->logo; 
-            }
-            // Cek apakah ada file video_panel yang diunggah
-            if ($request->hasFile('video_panel')) {
-                $request->validate([
-                    'video_panel' => 'nullable|mimes:mp4,mov,ogg,webm,m4v|max:102400', // max 100MB
-                ]);
-
-                // Hapus video lama dari local storage agar tidak memenuhi ruang penyimpanan
-                if (!empty($setting->video_panel)) {
-                    if (Storage::exists('public/video/' . $setting->video_panel)) {
-                        Storage::delete('public/video/' . $setting->video_panel);
-                    }
-                    if (Storage::disk('public')->exists('video/' . $setting->video_panel)) {
-                        Storage::disk('public')->delete('video/' . $setting->video_panel);
-                    }
-                    if (file_exists(public_path('storage/video/' . $setting->video_panel))) {
-                        @unlink(public_path('storage/video/' . $setting->video_panel));
-                    }
-                    if (file_exists(storage_path('app/public/video/' . $setting->video_panel))) {
-                        @unlink(storage_path('app/public/video/' . $setting->video_panel));
-                    }
-                }
-
-                $fileVideo = $request->file('video_panel');
-                $nama_video = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $fileVideo->getClientOriginalName());
-                $fileVideo->storeAs('public/video/', $nama_video);
-                $setting->video_panel = $nama_video;
-            }
-
-            // Update settingDasar
-            $setting->update([
-                'nama_app' => $request->nama_app,
-                'nama_sekolah' => $request->nama_sekolah,
-                'nama_kepsek' => $request->nama_kepsek,
-                'nip_kepsek' => $request->nip_kepsek,
-                'alamat' => $request->alamat,
-                'kel' => $request->kel,
-                'kec' => $request->kec,
-                'prov' => $request->prov,
-                'kota' => $request->kota,
-                'logo' => $nama_file,
-                'video_panel' => $setting->video_panel
             ]);
 
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Identitas dan media sekolah berhasil diperbarui.'
+            try {
+                // Cek apakah ada file logo yang diunggah
+                if ($request->hasFile('logo')) {
+                    // Hapus logo lama jika ada
+                    if ($setting->logo) {
+                        Storage::delete('public/gambar/' . $setting->logo);
+                    }
+
+                    // Simpan logo baru
+                    $file = $request->file('logo');
+                    $nama_file = time() . '_' . $file->getClientOriginalName();
+                    $file->storeAs('public/gambar/', $nama_file);
+                    $setting->logo = $nama_file;
+                } else {
+                    $nama_file = $setting->logo; 
+                }
+
+                // Cek apakah ada file video_panel yang diunggah
+                if ($request->hasFile('video_panel')) {
+                    $request->validate([
+                        'video_panel' => 'nullable|mimes:mp4,mov,ogg,webm,m4v|max:102400', // max 100MB
+                    ]);
+
+                    // Pastikan direktori tujuan tersedia
+                    if (!Storage::exists('public/video')) {
+                        Storage::makeDirectory('public/video');
+                    }
+                    if (!file_exists(public_path('storage/video'))) {
+                        @mkdir(public_path('storage/video'), 0775, true);
+                    }
+
+                    // Hapus video lama dari local storage agar tidak memenuhi ruang penyimpanan
+                    if (!empty($setting->video_panel)) {
+                        if (Storage::exists('public/video/' . $setting->video_panel)) {
+                            Storage::delete('public/video/' . $setting->video_panel);
+                        }
+                        if (Storage::disk('public')->exists('video/' . $setting->video_panel)) {
+                            Storage::disk('public')->delete('video/' . $setting->video_panel);
+                        }
+                        if (file_exists(public_path('storage/video/' . $setting->video_panel))) {
+                            @unlink(public_path('storage/video/' . $setting->video_panel));
+                        }
+                        if (file_exists(storage_path('app/public/video/' . $setting->video_panel))) {
+                            @unlink(storage_path('app/public/video/' . $setting->video_panel));
+                        }
+                    }
+
+                    $fileVideo = $request->file('video_panel');
+                    $nama_video = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $fileVideo->getClientOriginalName());
+                    $fileVideo->storeAs('public/video/', $nama_video);
+                    $setting->video_panel = $nama_video;
+                }
+
+                // Update settingDasar
+                $setting->update([
+                    'nama_app' => $request->nama_app,
+                    'nama_sekolah' => $request->nama_sekolah,
+                    'nama_kepsek' => $request->nama_kepsek,
+                    'nip_kepsek' => $request->nip_kepsek,
+                    'alamat' => $request->alamat,
+                    'kel' => $request->kel,
+                    'kec' => $request->kec,
+                    'prov' => $request->prov,
+                    'kota' => $request->kota,
+                    'logo' => $nama_file,
+                    'video_panel' => $setting->video_panel
                 ]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Identitas dan media sekolah berhasil diperbarui.'
+                    ]);
+                }
+            } catch (\Exception $e) {
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal menyimpan data: ' . $e->getMessage()
+                    ], 500);
+                }
+                return redirect()->back()->with('failed', 'Gagal menyimpan: ' . $e->getMessage());
             }
         }
 

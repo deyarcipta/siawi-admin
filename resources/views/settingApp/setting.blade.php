@@ -1250,10 +1250,22 @@
             }
         });
 
-        // Update label custom-file-input
+        // Update label custom-file-input & validasi ukuran file
         $('#video_panel').on('change', function() {
-            var fileName = $(this).val().split('\\').pop();
-            $('#video-label').text(fileName || 'Pilih video MP4...');
+            var file = this.files[0];
+            if (file) {
+                var sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                if (file.size > 100 * 1024 * 1024) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Ukuran Video Terlalu Besar',
+                        html: `Ukuran file video yang dipilih: <strong>${sizeMB} MB</strong>.<br>Batas maksimal upload yang disarankan adalah <strong>100 MB</strong>. Silakan pilih video yang lebih ringkas atau kompres terlebih dahulu.`
+                    });
+                }
+                $('#video-label').text(file.name + ' (' + sizeMB + ' MB)');
+            } else {
+                $('#video-label').text('Pilih video MP4...');
+            }
         });
         $('#logo').on('change', function() {
             var fileName = $(this).val().split('\\').pop();
@@ -1334,14 +1346,26 @@
                         });
                     } else {
                         var errorMsg = 'Gagal menyimpan pengaturan.';
-                        try {
-                            var res = JSON.parse(xhr.responseText);
-                            if (res.errors) {
-                                errorMsg = Object.values(res.errors).flat().join('<br>');
-                            } else if (res.message) {
-                                errorMsg = res.message;
+                        if (xhr.status === 413) {
+                            errorMsg = '<strong>Ukuran file terlalu besar untuk server (HTTP 413)</strong><br><br><div class="text-left small text-muted">File yang diunggah melebihi batas <code>upload_max_filesize</code> / <code>post_max_size</code> di PHP server hosting Anda.<br><br><strong>Solusi:</strong><br>1. Naikkan batas upload di cPanel > <em>Select PHP Version</em> > <em>Options</em> (atur <code>upload_max_filesize</code> & <code>post_max_size</code> ke 128M).<br>2. Atau kompres video Anda menjadi ukuran yang lebih kecil (di bawah 30MB).</div>';
+                        } else if (xhr.status === 419) {
+                            errorMsg = '<strong>Sesi telah kedaluwarsa (CSRF Token Expired)</strong><br><small class="text-muted">Halaman sudah terbuka terlalu lama. Silakan muat ulang (refresh) halaman lalu coba lagi.</small>';
+                        } else {
+                            try {
+                                var res = JSON.parse(xhr.responseText);
+                                if (res.errors) {
+                                    errorMsg = Object.values(res.errors).flat().join('<br>');
+                                } else if (res.message) {
+                                    errorMsg = res.message;
+                                }
+                            } catch(e) {
+                                if (xhr.responseText && xhr.responseText.length < 300) {
+                                    errorMsg = xhr.responseText;
+                                } else if (xhr.statusText) {
+                                    errorMsg = 'Server merespon dengan status: ' + xhr.status + ' (' + xhr.statusText + ')';
+                                }
                             }
-                        } catch(e) {}
+                        }
                         Swal.fire({
                             icon: 'error',
                             title: 'Gagal Menyimpan',
@@ -1355,7 +1379,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Koneksi Terputus',
-                        text: 'Gagal menghubungi server saat mengunggah file.',
+                        text: 'Gagal menghubungi server saat mengunggah file. Periksa koneksi internet atau batas timeout server.',
                         confirmButtonColor: '#d33'
                     });
                 };
