@@ -18,20 +18,9 @@ class KlasifikasiSuratController extends Controller
         $setting = Setting::find(1);
         $user = Auth::user();
 
-        $search = $request->input('search', '');
-        $query = KlasifikasiSurat::query();
+        $klasifikasi = KlasifikasiSurat::orderBy('urutan', 'asc')->orderBy('id', 'asc')->get();
 
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('kode', 'like', "%{$search}%")
-                  ->orWhere('nama', 'like', "%{$search}%")
-                  ->orWhere('keterangan', 'like', "%{$search}%");
-            });
-        }
-
-        $klasifikasi = $query->orderBy('urutan', 'asc')->orderBy('id', 'asc')->paginate(15)->appends($request->query());
-
-        return view('surat.klasifikasi.index', compact('layout', 'setting', 'user', 'klasifikasi', 'search'));
+        return view('surat.klasifikasi.index', compact('layout', 'setting', 'user', 'klasifikasi'));
     }
 
     /**

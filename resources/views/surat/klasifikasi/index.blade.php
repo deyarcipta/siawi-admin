@@ -63,43 +63,19 @@
     <!-- Action Bar & Card -->
     <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px;">
       <div class="card-header bg-white py-3 border-0 d-flex flex-wrap align-items-center justify-content-between">
-        <div class="d-flex align-items-center mb-2 mb-md-0">
-          <h5 class="m-0 font-weight-bold text-dark">
-            <i class="fas fa-list text-primary mr-2"></i> Daftar Klasifikasi Surat
-          </h5>
-          <span class="badge badge-pill badge-light border ml-2 px-3 py-1 font-weight-bold text-muted">
-            Total: {{ $klasifikasi->total() }} Data
-          </span>
-        </div>
+        <h5 class="m-0 font-weight-bold text-dark">
+          <i class="fas fa-list text-primary mr-2"></i> Daftar Klasifikasi Surat
+        </h5>
 
-        <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
-          <!-- Search Form -->
-          <form action="{{ route('admin.klasifikasi-surat.index') }}" method="GET" class="d-flex align-items-center">
-            <div class="input-group input-group-sm" style="width: 240px;">
-              <input type="text" name="search" class="form-control rounded-left" placeholder="Cari kode / nama..." value="{{ $search }}">
-              <div class="input-group-append">
-                <button type="submit" class="btn btn-primary rounded-right px-3">
-                  <i class="fas fa-search"></i>
-                </button>
-              </div>
-            </div>
-            @if(!empty($search))
-              <a href="{{ route('admin.klasifikasi-surat.index') }}" class="btn btn-sm btn-outline-secondary ml-2" title="Reset Filter">
-                <i class="fas fa-times"></i>
-              </a>
-            @endif
-          </form>
-
-          <!-- Button Tambah -->
-          <button type="button" class="btn btn-sm btn-primary font-weight-bold shadow-sm px-3" data-toggle="modal" data-target="#modalTambah" style="border-radius: 8px;">
-            <i class="fas fa-plus mr-1"></i> Tambah Klasifikasi
-          </button>
-        </div>
+        <!-- Button Tambah -->
+        <button type="button" class="btn btn-sm btn-primary font-weight-bold shadow-sm px-3 ml-auto mt-2 mt-md-0" data-toggle="modal" data-target="#modalTambah" style="border-radius: 8px;">
+          <i class="fas fa-plus mr-1"></i> Tambah Klasifikasi
+        </button>
       </div>
 
-      <div class="card-body p-0">
+      <div class="card-body">
         <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+          <table id="example2" class="table table-bordered table-hover align-middle mb-0" style="font-size: 0.9rem;">
             <thead class="bg-light text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
               <tr>
                 <th class="text-center py-3" style="width: 60px;">No</th>
@@ -112,10 +88,10 @@
               </tr>
             </thead>
             <tbody>
-              @forelse($klasifikasi as $index => $item)
+              @forelse($klasifikasi as $item)
                 <tr>
                   <td class="text-center font-weight-bold text-muted">
-                    {{ $klasifikasi->firstItem() + $index }}
+                    {{ $loop->iteration }}
                   </td>
                   <td>
                     <span class="badge badge-primary px-2 py-1 font-weight-bold" style="font-size: 0.85rem; letter-spacing: 0.5px;">
@@ -177,12 +153,6 @@
           </table>
         </div>
       </div>
-
-      @if($klasifikasi->hasPages())
-        <div class="card-footer bg-white py-3 border-0 d-flex justify-content-end">
-          {{ $klasifikasi->links() }}
-        </div>
-      @endif
     </div>
 
   </div>
