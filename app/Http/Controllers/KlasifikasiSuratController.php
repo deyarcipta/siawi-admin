@@ -89,9 +89,9 @@ class KlasifikasiSuratController extends Controller
         $klasifikasi = KlasifikasiSurat::findOrFail($id);
 
         // Periksa apakah kode klasifikasi sedang digunakan di SuratKeluar
-        $isUsed = \App\Models\SuratKeluar::where('kode_klasifikasi', $klasifikasi->kode)->exists();
-        if ($isUsed) {
-            return redirect()->route('admin.klasifikasi-surat.index')->with('error', "Klasifikasi '{$klasifikasi->kode}' tidak dapat dihapus karena sudah digunakan dalam data Surat Keluar. Anda dapat menonaktifkannya jika tidak ingin digunakan lagi.");
+        $countUsed = \App\Models\SuratKeluar::where('kode_klasifikasi', $klasifikasi->kode)->count();
+        if ($countUsed > 0) {
+            return redirect()->route('admin.klasifikasi-surat.index')->with('error', "Klasifikasi '{$klasifikasi->kode}' tidak dapat dihapus karena telah digunakan oleh {$countUsed} data Surat Keluar. Demi keamanan nomor arsip, silakan nonaktifkan statusnya agar tidak muncul pada pembuatan surat baru.");
         }
 
         $klasifikasi->delete();

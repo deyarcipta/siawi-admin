@@ -218,6 +218,12 @@ class SuratKeluarController extends Controller
 
         $surat = SuratKeluar::findOrFail($id);
         $klasifikasiList = self::getKlasifikasiList();
+
+        // Jika klasifikasi surat lama sedang dinonaktifkan, tetap sertakan pada form edit agar tidak hilang
+        if (!empty($surat->kode_klasifikasi) && !isset($klasifikasiList[$surat->kode_klasifikasi])) {
+            $klasifikasiList[$surat->kode_klasifikasi] = ($surat->nama_klasifikasi ?: $surat->kode_klasifikasi) . ' (Nonaktif)';
+        }
+
         $siswaList = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
         $guruList = Guru::orderBy('nama_guru', 'asc')->get();
 
