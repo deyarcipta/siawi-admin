@@ -161,12 +161,18 @@ class FcmService
 
     /**
      * Generate OAuth2 Access Token using Google Service Account Credentials.
+     * Caches token for 50 minutes to avoid re-authenticating on every push.
      *
      * @param string $keyFilepath
      * @return string|null
      */
     private static function getGoogleAccessToken($keyFilepath)
     {
+        $cachedToken = \Illuminate\Support\Facades\Cache::get('fcm_google_access_token');
+        if (!empty($cachedToken)) {
+            return $cachedToken;
+        }
+
         $key = json_decode(file_get_contents($keyFilepath), true);
         if (!isset($key['client_email']) || !isset($key['private_key'])) {
             return null;
@@ -200,7 +206,11 @@ class FcmService
             ]);
 
             if ($response->successful()) {
-                return $response->json()['access_token'] ?? null;
+                $token = $response->json()['access_token'] ?? null;
+                if ($token) {
+                    \Illuminate\Support\Facades\Cache::put('fcm_google_access_token', $token, 3000);
+                    return $token;
+                }
             }
         } catch (\Exception $e) {
             Log::error('FCM Token Request Exception: ' . $e->getMessage());

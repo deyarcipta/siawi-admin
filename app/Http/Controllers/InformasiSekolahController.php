@@ -64,22 +64,20 @@ class InformasiSekolahController extends Controller
             'file' => $nama_file,
         ]);
 
-        // Broadcast Push Notifikasi FCM ke seluruh HP Siswa & Orang Tua yang aktif
+        // Broadcast Push Notifikasi FCM ke seluruh HP Siswa & Orang Tua yang aktif via background queue
         try {
-            if (class_exists('\App\Services\FcmService')) {
-                $judul = "📢 Informasi Sekolah: " . $request->informasi;
-                $ringkasan = strip_tags($request->ket_informasi);
-                if (mb_strlen($ringkasan) > 120) {
-                    $ringkasan = mb_substr($ringkasan, 0, 117) . '...';
-                }
-
-                \App\Services\FcmService::broadcastToAllStudents($judul, $ringkasan, [
-                    'type' => 'informasi',
-                    'id_informasi' => (string) ($informasi->id ?? ''),
-                ]);
+            $judul = "📢 Informasi Sekolah: " . $request->informasi;
+            $ringkasan = strip_tags($request->ket_informasi);
+            if (mb_strlen($ringkasan) > 120) {
+                $ringkasan = mb_substr($ringkasan, 0, 117) . '...';
             }
+
+            \App\Jobs\BroadcastFcmNotification::dispatch($judul, $ringkasan, [
+                'type' => 'informasi',
+                'id_informasi' => (string) ($informasi->id ?? ''),
+            ]);
         } catch (\Throwable $e) {
-            \Log::error('FCM Broadcast Error saat tambah informasi: ' . $e->getMessage());
+            \Log::error('FCM Broadcast Dispatch Error saat tambah informasi: ' . $e->getMessage());
         }
 
         return redirect('/admin/informasi')->with('success','Data Berhasil Ditambah');
