@@ -335,14 +335,19 @@ class AbsensiController extends Controller
     public function downloadShowRekap(Request $request)
     {
         $id_kelas = $request->query('kelas');
-        $tanggal_awal = $request->query('tanggal_awal');
-        $tanggal_akhir = $request->query('tanggal_akhir');
+        $tanggal_awal = $request->query('tanggal_awal', Carbon::now()->startOfWeek()->toDateString());
+        $tanggal_akhir = $request->query('tanggal_akhir', Carbon::now()->toDateString());
+
+        if (!$id_kelas) {
+            return redirect()->back()->with('error', 'Kelas tidak dipilih.');
+        }
 
         $dataKelas = Kelas::where('id_kelas', $id_kelas)->first();
+        if (!$dataKelas) {
+            return redirect()->back()->with('error', 'Data kelas tidak ditemukan.');
+        }
 
-        $siswa = Siswa::whereHas('kelas', function ($query) use ($id_kelas) {
-            $query->where('id_kelas', $id_kelas);
-        })->orderBy('nama_siswa', 'asc')->get();
+        $siswa = Siswa::where('id_kelas', $id_kelas)->orderBy('nama_siswa', 'asc')->get();
 
         $absensiSiswa = [];
         $countSakit = [];
@@ -359,15 +364,19 @@ class AbsensiController extends Controller
         }
 
         // ✅ Ambil data absensi berdasarkan kelas DAN filter tanggal
+        $tglAwal = Carbon::parse($tanggal_awal)->toDateString();
+        $tglAkhir = Carbon::parse($tanggal_akhir)->toDateString();
+
         $dataAbsen = Absensi::where('id_kelas', $id_kelas)
-            ->whereDate('tanggal', '>=', Carbon::parse($tanggal_awal)->toDateString())
-            ->whereDate('tanggal', '<=', Carbon::parse($tanggal_akhir)->toDateString())
+            ->whereDate('tanggal', '>=', $tglAwal)
+            ->whereDate('tanggal', '<=', $tglAkhir)
             ->get();
 
         foreach ($dataAbsen as $absensi) {
             if (isset($absensiSiswa[$absensi->id_siswa])) {
                 $absensiSiswa[$absensi->id_siswa]++;
-                switch ($absensi->kehadiran) {
+                $kehadiran = strtolower(trim($absensi->kehadiran ?? ''));
+                switch ($kehadiran) {
                     case 'sakit':
                         $countSakit[$absensi->id_siswa]++;
                         break;
@@ -378,13 +387,15 @@ class AbsensiController extends Controller
                         $countAlfa[$absensi->id_siswa]++;
                         break;
                     case 'hadir':
+                    case 'masuk':
                         $countMasuk[$absensi->id_siswa]++;
                         break;
                 }
             }
         }
 
-        $filename = 'data_absensi_' . $dataKelas->nama_kelas . '_' . $tanggal_awal . '_sampai_' . $tanggal_akhir . '.xlsx';
+        $safeKelas = preg_replace('/[^A-Za-z0-9_\-]/', '_', $dataKelas->nama_kelas);
+        $filename = 'data_absensi_' . $safeKelas . '_' . $tglAwal . '_sampai_' . $tglAkhir . '.xlsx';
 
         return Excel::download(new AbsensiExport(
             $siswa,

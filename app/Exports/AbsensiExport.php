@@ -80,18 +80,24 @@ class AbsensiExport implements FromCollection, WithHeadings, WithMapping, WithSt
 
     public function map($data): array
     {
-        $totalAbsen = $this->absensiSiswa[$data->id_siswa];
-        $presentase = $totalAbsen > 0 ? ($this->countMasuk[$data->id_siswa] / $totalAbsen) * 100 : 0;
+        $id = $data->id_siswa;
+        $totalAbsen = $this->absensiSiswa[$id] ?? 0;
+        $masuk = $this->countMasuk[$id] ?? 0;
+        $sakit = $this->countSakit[$id] ?? 0;
+        $izin = $this->countIzin[$id] ?? 0;
+        $alfa = $this->countAlfa[$id] ?? 0;
+        $totalTidakHadir = $sakit + $izin + $alfa;
+        $presentase = $totalAbsen > 0 ? ($masuk / $totalAbsen) * 100 : 0;
 
         return [
-            $data->id_siswa,
+            $id,
             $data->nama_siswa,
-            $totalAbsen?: '0',
-            $this->countMasuk[$data->id_siswa]?: '0',
-            $this->countSakit[$data->id_siswa]?: '-',
-            $this->countIzin[$data->id_siswa]?: '-',
-            $this->countAlfa[$data->id_siswa]?: '-',
-            $this->countAlfa[$data->id_siswa] + $this->countIzin[$data->id_siswa] + $this->countSakit[$data->id_siswa]?: '-',
+            (string) $totalAbsen,
+            (string) $masuk,
+            $sakit > 0 ? (string) $sakit : '-',
+            $izin > 0 ? (string) $izin : '-',
+            $alfa > 0 ? (string) $alfa : '-',
+            $totalTidakHadir > 0 ? (string) $totalTidakHadir : '-',
             round($presentase, 2) . '%',
         ];
     }
@@ -105,15 +111,17 @@ class AbsensiExport implements FromCollection, WithHeadings, WithMapping, WithSt
 
                 for ($row = 5; $row <= $rowCount; $row++) { // 5 karena data dimulai dari baris 5
                     $presentaseCell = "I{$row}"; // Sel presentase
-                    $presentaseValue = (float)str_replace('%', '', $sheet->getCell($presentaseCell)->getValue());
+                    $cell = $sheet->getCell($presentaseCell);
+                    $val = $cell ? $cell->getValue() : '0';
+                    $presentaseValue = (float) str_replace('%', '', (string) $val);
 
                     // Set warna berdasarkan nilai presentase
                     if ($presentaseValue < 90) {
                         $sheet->getStyle($presentaseCell)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
-                        $sheet->getStyle($presentaseCell)->getFill()->getStartColor()->setARGB('FF0000'); // Merah
+                        $sheet->getStyle($presentaseCell)->getFill()->getStartColor()->setARGB('FFFFCCCC');
                     } else {
                         $sheet->getStyle($presentaseCell)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
-                        $sheet->getStyle($presentaseCell)->getFill()->getStartColor()->setARGB('00FF00'); // Hijau
+                        $sheet->getStyle($presentaseCell)->getFill()->getStartColor()->setARGB('FFD4EDDA');
                     }
                 }
             },
