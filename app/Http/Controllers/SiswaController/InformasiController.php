@@ -19,7 +19,7 @@ class InformasiController extends Controller
     public function index()
     {
         $informasiArray = [];
-        $informasi = InformasiSekolah::orderBy('created_at', 'desc')->orderBy('id_informasi', 'desc')->get();
+        $informasi = InformasiSekolah::orderBy('created_at', 'desc')->orderBy('id', 'desc')->get();
 
         foreach ($informasi as $item) {
             // Mengonversi tanggal_awal ke nama hari dalam format Indonesia

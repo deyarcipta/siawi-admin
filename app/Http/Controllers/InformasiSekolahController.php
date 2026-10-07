@@ -75,7 +75,7 @@ class InformasiSekolahController extends Controller
 
                 \App\Services\FcmService::broadcastToAllStudents($judul, $ringkasan, [
                     'type' => 'informasi',
-                    'id_informasi' => (string) $informasi->id_informasi,
+                    'id_informasi' => (string) ($informasi->id ?? ''),
                 ]);
             }
         } catch (\Throwable $e) {
