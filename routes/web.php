@@ -151,12 +151,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     // 8. PRESENSI HARIAN SISWA (Admin, Kesiswaan, Wali Kelas, Kurikulum, Guru)
     // =========================================================================
     Route::group(['middleware' => ['role:admin,kesiswaan,wali_kelas,kurikulum,guru']], function () {
+        Route::get('/absensi/download', [AbsensiController::class, 'downloadShowRekap'])->name('absensi.download');
         Route::post('absensi/absen', [AbsensiController::class, 'absen'])->name('absensi.absen');
         Route::post('/absensi/tambah-kehadiran', [AbsensiController::class, 'tambahKehadiran'])->name('absensi.tambah-kehadiran');
         Route::post('/absensi/simpan', [AbsensiController::class, 'simpan'])->name('absensi.simpan');
         Route::get('/downloadAbsensiHarianSiswa', [AbsensiController::class, 'AbsensiSiswaExport']);
         Route::get('/get-siswa-by-kelas/{id_kelas}', [AbsensiController::class, 'getSiswaByKelas']);
-        Route::resource('absensi', AbsensiController::class);
+        Route::resource('absensi', AbsensiController::class)->except(['show']);
     });
 
     // =========================================================================
@@ -170,7 +171,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
         Route::get('/siswa-tidak-hadir', [AbsensiController::class, 'siswaTidakHadir'])->name('siswa.tidak.hadir');
         Route::get('/siswa-tidak-hadir/export-excel', [AbsensiController::class, 'exportSiswaTidakHadir'])->name('siswa.tidak.hadir.export');
         Route::get('/exportExcelRekapSiswa', [AbsensiController::class, 'exportRekapSiswa']);
-        Route::get('/absensi/download', [AbsensiController::class, 'downloadShowRekap']);
     });
 
     // =========================================================================

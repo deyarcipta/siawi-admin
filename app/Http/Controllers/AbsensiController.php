@@ -411,6 +411,14 @@ class AbsensiController extends Controller
         }
     }
 
+    /**
+     * Fallback show method.
+     */
+    public function show($id)
+    {
+        return redirect()->route('admin.absensi.index');
+    }
+
     // Kontroller Untuk Menampilkan Rekap Waktu Kehadiran dan Pulang Siswa
     public function rekapAbsenSiswa(Request $request)
     {
