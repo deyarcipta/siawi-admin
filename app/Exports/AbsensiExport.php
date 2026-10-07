@@ -7,7 +7,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Events\AfterSheet;
@@ -15,7 +15,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class AbsensiExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, ShouldAutoSize, WithEvents
+class AbsensiExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, WithEvents
 {
     protected $siswa;
     protected $absensiSiswa;
@@ -90,8 +90,8 @@ class AbsensiExport implements FromCollection, WithHeadings, WithMapping, WithSt
         $headerRange = 'A5:I5';
         $sheet->getStyle($headerRange)->getFont()->setBold(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFFFF'));
         $sheet->getStyle($headerRange)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FF1E3A8A');
-        $sheet->getStyle($headerRange)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
-        $sheet->getRowDimension(5)->setRowHeight(28);
+        $sheet->getStyle($headerRange)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
+        $sheet->getRowDimension(5)->setRowHeight(30);
 
         // Border Tabel
         $rowCount = count($this->siswa) + 5;
@@ -102,6 +102,24 @@ class AbsensiExport implements FromCollection, WithHeadings, WithMapping, WithSt
         $sheet->getStyle("A6:A{$rowCount}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle("B6:B{$rowCount}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
         $sheet->getStyle("C6:I{$rowCount}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+    }
+
+    /**
+     * Menentukan lebar kolom presisi (kolom D, E, F, G ~70px).
+     */
+    public function columnWidths(): array
+    {
+        return [
+            'A' => 6,   // No
+            'B' => 34,  // Nama Siswa
+            'C' => 12,  // Total Hari
+            'D' => 10,  // Hadir (~70px)
+            'E' => 10,  // Sakit (S) (~70px)
+            'F' => 10,  // Izin (I) (~70px)
+            'G' => 10,  // Alfa (A) (~70px)
+            'H' => 14,  // Total S / I / A
+            'I' => 18,  // Persentase Kehadiran
+        ];
     }
 
     public function map($data): array
