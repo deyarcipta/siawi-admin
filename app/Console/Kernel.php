@@ -18,6 +18,8 @@ class Kernel extends ConsoleKernel
         })->everyMinute();
 
         $schedule->command('clear:data-txt')->dailyAt('00:00')->timezone('Asia/Jakarta');
+        // Pembersihan otomatis log lama yang melebihi 7 hari setiap hari jam 00:05
+        $schedule->command('log:clean')->dailyAt('00:05')->timezone('Asia/Jakarta');
         // Notifikasi Rekap Absensi Terjadwal Dinamis (Walas Mingguan / Ortu Bulanan sesuai Setting Admin)
         $schedule->command('absensi:kirim-rekap-terjadwal')->hourly()->timezone('Asia/Jakarta');
     }
