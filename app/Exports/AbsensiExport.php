@@ -2,17 +2,18 @@
 
 namespace App\Exports;
 
-use App\Models\Siswa;
-use App\Models\Absensi;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithEvents; // Pastikan ini ditambahkan
+use Maatwebsite\Excel\Concerns\WithEvents;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class AbsensiExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, ShouldAutoSize, WithEvents
 {
@@ -23,8 +24,12 @@ class AbsensiExport implements FromCollection, WithHeadings, WithMapping, WithSt
     protected $countIzin;
     protected $countAlfa;
     protected $kelasNama;
+    protected $tanggalAwal;
+    protected $tanggalAkhir;
+    protected $waliKelas;
+    protected $rowNumber = 0;
 
-    public function __construct($siswa, $absensiSiswa, $countMasuk, $countSakit, $countIzin, $countAlfa, $kelasNama)
+    public function __construct($siswa, $absensiSiswa, $countMasuk, $countSakit, $countIzin, $countAlfa, $kelasNama, $tanggalAwal = null, $tanggalAkhir = null, $waliKelas = null)
     {
         $this->siswa = $siswa;
         $this->absensiSiswa = $absensiSiswa;
@@ -33,6 +38,9 @@ class AbsensiExport implements FromCollection, WithHeadings, WithMapping, WithSt
         $this->countIzin = $countIzin;
         $this->countAlfa = $countAlfa;
         $this->kelasNama = $kelasNama;
+        $this->tanggalAwal = $tanggalAwal;
+        $this->tanggalAkhir = $tanggalAkhir;
+        $this->waliKelas = $waliKelas;
     }
 
     public function collection()
@@ -42,44 +50,63 @@ class AbsensiExport implements FromCollection, WithHeadings, WithMapping, WithSt
 
     public function headings(): array
     {
+        $periodeText = ($this->tanggalAwal && $this->tanggalAkhir)
+            ? 'PERIODE: ' . \Carbon\Carbon::parse($this->tanggalAwal)->translatedFormat('d F Y') . ' s/d ' . \Carbon\Carbon::parse($this->tanggalAkhir)->translatedFormat('d F Y')
+            : 'REKAPITULASI PRESENSI';
+
         return [
-            ['REKAP KEHADIRAN SISWA'],
-            ['NAMA KELAS: ' . $this->kelasNama],
+            ['REKAPITULASI PRESENSI KEHADIRAN SISWA'],
+            ['KELAS: ' . strtoupper($this->kelasNama) . ($this->waliKelas ? '  |  WALI KELAS: ' . strtoupper($this->waliKelas) : '')],
+            [$periodeText],
             [],
             [
                 'No',
                 'Nama Siswa',
-                'Total Absen',
-                'Masuk',
-                'S',
-                'I',
-                'A',
-                'Total S,I,A',
-                'Presentase'
+                'Total Hari Absen',
+                'Hadir',
+                'Sakit (S)',
+                'Izin (I)',
+                'Alfa (A)',
+                'Total S / I / A',
+                'Persentase Kehadiran'
             ],
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
-        $sheet->getStyle('A1:I1')->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-        $sheet->getStyle('A2:I2')->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-        $sheet->getStyle('A4:I4')->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-
-        $sheet->getStyle('A1')->getAlignment()->setHorizontal('center');
-        $sheet->getStyle('A2')->getAlignment()->setHorizontal('center');
-
+        // Styling Judul Header (Baris 1 - 3)
         $sheet->mergeCells('A1:I1');
         $sheet->mergeCells('A2:I2');
+        $sheet->mergeCells('A3:I3');
 
-        $rowCount = count($this->siswa) + 4;
-        for ($row = 4; $row <= $rowCount; $row++) {
-            $sheet->getStyle("A{$row}:I{$row}")->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-        }
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FF1E3A8A'));
+        $sheet->getStyle('A2')->getFont()->setBold(true)->setSize(11)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FF334155'));
+        $sheet->getStyle('A3')->getFont()->setBold(true)->setSize(10)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FF64748B'));
+
+        $sheet->getStyle('A1:A3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // Header Tabel di Baris 5
+        $headerRange = 'A5:I5';
+        $sheet->getStyle($headerRange)->getFont()->setBold(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFFFF'));
+        $sheet->getStyle($headerRange)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FF1E3A8A');
+        $sheet->getStyle($headerRange)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getRowDimension(5)->setRowHeight(28);
+
+        // Border Tabel
+        $rowCount = count($this->siswa) + 5;
+        $tableRange = "A5:I{$rowCount}";
+        $sheet->getStyle($tableRange)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFCBD5E1'));
+
+        // Alignments Kolom Data
+        $sheet->getStyle("A6:A{$rowCount}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("B6:B{$rowCount}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        $sheet->getStyle("C6:I{$rowCount}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
     }
 
     public function map($data): array
     {
+        $this->rowNumber++;
         $id = $data->id_siswa;
         $totalAbsen = $this->absensiSiswa[$id] ?? 0;
         $masuk = $this->countMasuk[$id] ?? 0;
@@ -90,15 +117,15 @@ class AbsensiExport implements FromCollection, WithHeadings, WithMapping, WithSt
         $presentase = $totalAbsen > 0 ? ($masuk / $totalAbsen) * 100 : 0;
 
         return [
-            $id,
-            $data->nama_siswa,
-            (string) $totalAbsen,
-            (string) $masuk,
-            $sakit > 0 ? (string) $sakit : '-',
-            $izin > 0 ? (string) $izin : '-',
-            $alfa > 0 ? (string) $alfa : '-',
-            $totalTidakHadir > 0 ? (string) $totalTidakHadir : '-',
-            round($presentase, 2) . '%',
+            $this->rowNumber,
+            strtoupper($data->nama_siswa),
+            $totalAbsen > 0 ? $totalAbsen : 0,
+            $masuk > 0 ? $masuk : 0,
+            $sakit > 0 ? $sakit : '-',
+            $izin > 0 ? $izin : '-',
+            $alfa > 0 ? $alfa : '-',
+            $totalTidakHadir > 0 ? $totalTidakHadir : '-',
+            round($presentase, 1) . '%',
         ];
     }
 
@@ -107,29 +134,41 @@ class AbsensiExport implements FromCollection, WithHeadings, WithMapping, WithSt
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet;
-                $rowCount = count($this->siswa) + 4;
+                $rowCount = count($this->siswa) + 5;
 
-                for ($row = 5; $row <= $rowCount; $row++) { // 5 karena data dimulai dari baris 5
-                    $presentaseCell = "I{$row}"; // Sel presentase
+                // Pewarnaan Badge Persentase
+                for ($row = 6; $row <= $rowCount; $row++) {
+                    $sheet->getRowDimension($row)->setRowHeight(20);
+                    $presentaseCell = "I{$row}";
                     $cell = $sheet->getCell($presentaseCell);
                     $val = $cell ? $cell->getValue() : '0';
                     $presentaseValue = (float) str_replace('%', '', (string) $val);
 
-                    // Set warna berdasarkan nilai presentase
                     if ($presentaseValue < 90) {
-                        $sheet->getStyle($presentaseCell)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
-                        $sheet->getStyle($presentaseCell)->getFill()->getStartColor()->setARGB('FFFFCCCC');
+                        // Merah lembut jika < 90%
+                        $sheet->getStyle($presentaseCell)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FFF8D7DA');
+                        $sheet->getStyle($presentaseCell)->getFont()->setBold(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FF721C24'));
                     } else {
-                        $sheet->getStyle($presentaseCell)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
-                        $sheet->getStyle($presentaseCell)->getFill()->getStartColor()->setARGB('FFD4EDDA');
+                        // Hijau lembut jika >= 90%
+                        $sheet->getStyle($presentaseCell)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FFD4EDDA');
+                        $sheet->getStyle($presentaseCell)->getFont()->setBold(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FF155724'));
                     }
                 }
+
+                // Tanda Tangan Wali Kelas di Bawah Tabel
+                $signRowStart = $rowCount + 2;
+                $sheet->setCellValue("G{$signRowStart}", 'Jakarta, ' . \Carbon\Carbon::now()->translatedFormat('d F Y'));
+                $sheet->setCellValue("G" . ($signRowStart + 1), 'Wali Kelas ' . $this->kelasNama);
+                
+                $signRowEnd = $signRowStart + 4;
+                $sheet->setCellValue("G{$signRowEnd}", $this->waliKelas ? strtoupper($this->waliKelas) : '(...............................................)');
+                $sheet->getStyle("G{$signRowEnd}")->getFont()->setBold(true)->setUnderline(true);
             },
         ];
     }
 
     public function title(): string
     {
-        return 'Absensi'; // Nama worksheet
+        return 'Rekap Presensi';
     }
 }

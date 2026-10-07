@@ -152,6 +152,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     // =========================================================================
     Route::group(['middleware' => ['role:admin,kesiswaan,wali_kelas,kurikulum,guru']], function () {
         Route::get('/absensi/download', [AbsensiController::class, 'downloadShowRekap'])->name('absensi.download');
+        Route::get('/absensi/download-pdf', [AbsensiController::class, 'downloadShowRekapPdf'])->name('absensi.downloadPdf');
         Route::post('absensi/absen', [AbsensiController::class, 'absen'])->name('absensi.absen');
         Route::post('/absensi/tambah-kehadiran', [AbsensiController::class, 'tambahKehadiran'])->name('absensi.tambah-kehadiran');
         Route::post('/absensi/simpan', [AbsensiController::class, 'simpan'])->name('absensi.simpan');

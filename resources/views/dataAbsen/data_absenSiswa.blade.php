@@ -61,11 +61,18 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
-                    <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="card-header d-flex align-items-center justify-content-between flex-wrap">
                         <h3 class="card-title text-dark font-weight-bold mb-0">
                             <i class="fas fa-table text-primary mr-2"></i> Data Absensi Siswa
                         </h3>
-                        <a href="/admin/absensi/download?kelas={{ $kelasId }}&tanggal_awal={{ $tanggal_awal }}&tanggal_akhir={{ $tanggal_akhir }}" class="btn btn-success btn-sm ml-auto"><i class="fas fa-download mr-1"></i> Unduh Data</a>
+                        <div class="d-flex align-items-center ml-auto mt-2 mt-md-0" style="gap: 8px;">
+                            <a href="/admin/absensi/download?kelas={{ $kelasId }}&tanggal_awal={{ $tanggal_awal }}&tanggal_akhir={{ $tanggal_akhir }}" class="btn btn-success btn-sm shadow-sm font-weight-bold px-3" style="border-radius: 8px;">
+                                <i class="fas fa-file-excel mr-1"></i> Unduh Excel
+                            </a>
+                            <a href="/admin/absensi/download-pdf?kelas={{ $kelasId }}&tanggal_awal={{ $tanggal_awal }}&tanggal_akhir={{ $tanggal_akhir }}" target="_blank" class="btn btn-danger btn-sm shadow-sm font-weight-bold px-3" style="border-radius: 8px;">
+                                <i class="fas fa-file-pdf mr-1"></i> Unduh PDF
+                            </a>
+                        </div>
                     </div>
                     <div class="card-body">
                         <table style="font-size: 18px;">

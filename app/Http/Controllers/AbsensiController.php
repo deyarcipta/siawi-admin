@@ -396,6 +396,7 @@ class AbsensiController extends Controller
 
         $safeKelas = preg_replace('/[^A-Za-z0-9_\-]/', '_', $dataKelas->nama_kelas);
         $filename = 'data_absensi_' . $safeKelas . '_' . $tglAwal . '_sampai_' . $tglAkhir . '.xlsx';
+        $waliKelasNama = $dataKelas->guru->nama_guru ?? null;
 
         try {
             return Excel::download(new AbsensiExport(
@@ -405,11 +406,95 @@ class AbsensiController extends Controller
                 $countSakit,
                 $countIzin,
                 $countAlfa,
-                $dataKelas->nama_kelas
+                $dataKelas->nama_kelas,
+                $tglAwal,
+                $tglAkhir,
+                $waliKelasNama
             ), $filename);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Download Rekap Absensi Excel Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
             return redirect()->back()->with('error', 'Gagal mengunduh Excel: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Controller Untuk Mendownload Rekap Presensi Siswa Format PDF.
+     */
+    public function downloadShowRekapPdf(Request $request)
+    {
+        $id_kelas = $request->query('kelas');
+        $tanggal_awal = $request->query('tanggal_awal', Carbon::now()->startOfWeek()->toDateString());
+        $tanggal_akhir = $request->query('tanggal_akhir', Carbon::now()->toDateString());
+
+        if (!$id_kelas) {
+            return redirect()->back()->with('error', 'Kelas tidak dipilih.');
+        }
+
+        $dataKelas = Kelas::with('guru')->where('id_kelas', $id_kelas)->first();
+        if (!$dataKelas) {
+            return redirect()->back()->with('error', 'Data kelas tidak ditemukan.');
+        }
+
+        $setting = Setting::find(1) ?? new Setting();
+        $siswa = Siswa::where('id_kelas', $id_kelas)->orderBy('nama_siswa', 'asc')->get();
+
+        $absensiSiswa = [];
+        $countSakit = [];
+        $countIzin = [];
+        $countAlfa = [];
+        $countMasuk = [];
+
+        foreach ($siswa as $s) {
+            $absensiSiswa[$s->id_siswa] = 0;
+            $countSakit[$s->id_siswa] = 0;
+            $countIzin[$s->id_siswa] = 0;
+            $countAlfa[$s->id_siswa] = 0;
+            $countMasuk[$s->id_siswa] = 0;
+        }
+
+        $tglAwal = Carbon::parse($tanggal_awal)->toDateString();
+        $tglAkhir = Carbon::parse($tanggal_akhir)->toDateString();
+
+        $dataAbsen = Absensi::where('id_kelas', $id_kelas)
+            ->whereDate('tanggal', '>=', $tglAwal)
+            ->whereDate('tanggal', '<=', $tglAkhir)
+            ->get();
+
+        foreach ($dataAbsen as $absensi) {
+            if (isset($absensiSiswa[$absensi->id_siswa])) {
+                $absensiSiswa[$absensi->id_siswa]++;
+                $kehadiran = strtolower(trim($absensi->kehadiran ?? ''));
+                switch ($kehadiran) {
+                    case 'sakit':
+                        $countSakit[$absensi->id_siswa]++;
+                        break;
+                    case 'izin':
+                        $countIzin[$absensi->id_siswa]++;
+                        break;
+                    case 'alfa':
+                        $countAlfa[$absensi->id_siswa]++;
+                        break;
+                    case 'hadir':
+                    case 'masuk':
+                        $countMasuk[$absensi->id_siswa]++;
+                        break;
+                }
+            }
+        }
+
+        $safeKelas = preg_replace('/[^A-Za-z0-9_\-]/', '_', $dataKelas->nama_kelas);
+        $filename = 'rekap_presensi_' . $safeKelas . '_' . $tglAwal . '_sampai_' . $tglAkhir . '.pdf';
+
+        try {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('dataAbsen.rekap_absensi_pdf', compact(
+                'dataKelas', 'setting', 'siswa', 'tanggal_awal', 'tanggal_akhir',
+                'absensiSiswa', 'countMasuk', 'countSakit', 'countIzin', 'countAlfa'
+            ))->setPaper('a4', 'portrait');
+
+            return $pdf->download($filename);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Download Rekap Absensi PDF Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return redirect()->back()->with('error', 'Gagal mencetak PDF: ' . $e->getMessage());
         }
     }
 
