@@ -607,25 +607,33 @@ class AbsensiController extends Controller
         }
 
         $query = Absensi::with(['siswa.kelas', 'kelas'])
-            ->whereBetween('tanggal', [$tanggalMulai, $tanggalAkhir])
-            ->whereIn('kehadiran', ['sakit', 'izin', 'alfa']);
+            ->leftJoin('kelas', 'absensi.id_kelas', '=', 'kelas.id_kelas')
+            ->leftJoin('siswa', 'absensi.id_siswa', '=', 'siswa.id_siswa')
+            ->whereBetween('absensi.tanggal', [$tanggalMulai, $tanggalAkhir])
+            ->whereIn('absensi.kehadiran', ['sakit', 'izin', 'alfa'])
+            ->select('absensi.*');
 
         // Filter role wali_kelas
         if ($user && $user->role == 'wali_kelas') {
             $kelasWali = Kelas::where('id_guru', $user->id_guru)->first();
             if ($kelasWali) {
-                $query->where('id_kelas', $kelasWali->id_kelas);
+                $query->where('absensi.id_kelas', $kelasWali->id_kelas);
                 $selectedKelas = $kelasWali->id_kelas;
             }
         } elseif (!empty($selectedKelas)) {
-            $query->where('id_kelas', $selectedKelas);
+            $query->where('absensi.id_kelas', $selectedKelas);
         }
 
         if (!empty($selectedStatus) && in_array($selectedStatus, ['sakit', 'izin', 'alfa'])) {
-            $query->where('kehadiran', $selectedStatus);
+            $query->where('absensi.kehadiran', $selectedStatus);
         }
 
-        $dataTidakHadir = $query->orderBy('tanggal', 'desc')->orderBy('created_at', 'desc')->get();
+        // Urutkan berdasarkan Kelas terlebih dahulu, kemudian Nama Siswa secara alfabetis (A-Z)
+        $dataTidakHadir = $query
+            ->orderBy('kelas.nama_kelas', 'asc')
+            ->orderBy('siswa.nama_siswa', 'asc')
+            ->orderBy('absensi.tanggal', 'desc')
+            ->get();
 
         // Statistik rekap
         $countSakit = $dataTidakHadir->where('kehadiran', 'sakit')->count();

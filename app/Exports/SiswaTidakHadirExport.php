@@ -38,17 +38,20 @@ class SiswaTidakHadirExport implements FromCollection, WithHeadings, WithMapping
         $this->user = $user;
 
         $query = Absensi::with(['siswa.kelas', 'kelas'])
-            ->whereBetween('tanggal', [$this->tanggalMulai, $this->tanggalAkhir])
-            ->whereIn('kehadiran', ['sakit', 'izin', 'alfa']);
+            ->leftJoin('kelas', 'absensi.id_kelas', '=', 'kelas.id_kelas')
+            ->leftJoin('siswa', 'absensi.id_siswa', '=', 'siswa.id_siswa')
+            ->whereBetween('absensi.tanggal', [$this->tanggalMulai, $this->tanggalAkhir])
+            ->whereIn('absensi.kehadiran', ['sakit', 'izin', 'alfa'])
+            ->select('absensi.*');
 
         if ($this->user && $this->user->role == 'wali_kelas') {
             $kelasWali = Kelas::where('id_guru', $this->user->id_guru)->first();
             if ($kelasWali) {
-                $query->where('id_kelas', $kelasWali->id_kelas);
+                $query->where('absensi.id_kelas', $kelasWali->id_kelas);
                 $this->namaKelasText = 'Kelas ' . $kelasWali->nama_kelas;
             }
         } elseif (!empty($this->idKelas)) {
-            $query->where('id_kelas', $this->idKelas);
+            $query->where('absensi.id_kelas', $this->idKelas);
             $kelas = Kelas::find($this->idKelas);
             $this->namaKelasText = $kelas ? 'Kelas ' . $kelas->nama_kelas : 'Semua Kelas';
         } else {
@@ -56,10 +59,14 @@ class SiswaTidakHadirExport implements FromCollection, WithHeadings, WithMapping
         }
 
         if (!empty($this->status) && in_array(strtolower($this->status), ['sakit', 'izin', 'alfa'])) {
-            $query->where('kehadiran', strtolower($this->status));
+            $query->where('absensi.kehadiran', strtolower($this->status));
         }
 
-        $this->data = $query->orderBy('tanggal', 'asc')->orderBy('created_at', 'asc')->get();
+        $this->data = $query
+            ->orderBy('kelas.nama_kelas', 'asc')
+            ->orderBy('siswa.nama_siswa', 'asc')
+            ->orderBy('absensi.tanggal', 'asc')
+            ->get();
     }
 
     public function collection()
