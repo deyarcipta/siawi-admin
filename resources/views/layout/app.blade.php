@@ -1204,6 +1204,14 @@
     .dataTables_wrapper {
       padding: 8px 0 !important;
       font-size: 0.86rem;
+      width: 100% !important;
+      display: block !important;
+    }
+    .dataTables_wrapper::before,
+    .dataTables_wrapper::after {
+      content: "" !important;
+      display: table !important;
+      clear: both !important;
     }
     .dataTables_wrapper .dataTables_length,
     .dataTables_wrapper .dataTables_filter {
@@ -1276,6 +1284,56 @@
       box-shadow: 0 0 0 3px rgba(29, 114, 254, 0.12) !important;
       width: 260px !important;
     }
+
+    /* Mencegah tabrakan kontrol DataTables di kolom sempit (seperti panel piket col-lg-5, col-lg-4, col-md-6) */
+    .col-lg-3 .dataTables_wrapper .dataTables_length,
+    .col-lg-4 .dataTables_wrapper .dataTables_length,
+    .col-lg-5 .dataTables_wrapper .dataTables_length,
+    .col-lg-6 .dataTables_wrapper .dataTables_length,
+    .col-md-4 .dataTables_wrapper .dataTables_length,
+    .col-md-5 .dataTables_wrapper .dataTables_length,
+    .col-md-6 .dataTables_wrapper .dataTables_length {
+      float: none !important;
+      width: 100% !important;
+      margin-bottom: 8px !important;
+      text-align: left !important;
+    }
+    .col-lg-3 .dataTables_wrapper .dataTables_filter,
+    .col-lg-4 .dataTables_wrapper .dataTables_filter,
+    .col-lg-5 .dataTables_wrapper .dataTables_filter,
+    .col-lg-6 .dataTables_wrapper .dataTables_filter,
+    .col-md-4 .dataTables_wrapper .dataTables_filter,
+    .col-md-5 .dataTables_wrapper .dataTables_filter,
+    .col-md-6 .dataTables_wrapper .dataTables_filter {
+      float: none !important;
+      width: 100% !important;
+      text-align: left !important;
+      margin-bottom: 12px !important;
+    }
+    .col-lg-3 .dataTables_wrapper .dataTables_filter label,
+    .col-lg-4 .dataTables_wrapper .dataTables_filter label,
+    .col-lg-5 .dataTables_wrapper .dataTables_filter label,
+    .col-lg-6 .dataTables_wrapper .dataTables_filter label,
+    .col-md-4 .dataTables_wrapper .dataTables_filter label,
+    .col-md-5 .dataTables_wrapper .dataTables_filter label,
+    .col-md-6 .dataTables_wrapper .dataTables_filter label {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      width: 100% !important;
+      gap: 4px !important;
+    }
+    .col-lg-3 .dataTables_wrapper .dataTables_filter input,
+    .col-lg-4 .dataTables_wrapper .dataTables_filter input,
+    .col-lg-5 .dataTables_wrapper .dataTables_filter input,
+    .col-lg-6 .dataTables_wrapper .dataTables_filter input,
+    .col-md-4 .dataTables_wrapper .dataTables_filter input,
+    .col-md-5 .dataTables_wrapper .dataTables_filter input,
+    .col-md-6 .dataTables_wrapper .dataTables_filter input {
+      width: 100% !important;
+      margin-left: 0 !important;
+    }
+
     .dataTables_wrapper .dataTables_info {
       padding-top: 12px !important;
       font-size: 0.86rem !important;

@@ -96,43 +96,45 @@
                         <h3 class="card-title"><i class="fas fa-list mr-2"></i> Daftar Keterlambatan Hari Ini</h3>
                     </div>
                     <div class="card-body">
-                        <table id="terlambatHariIniTable" class="table table-bordered table-hover">
-                            <thead>
-                                <tr>
-                                    <th style="width: 10px">No</th>
-                                    <th>Siswa</th>
-                                    <th>Jam</th>
-                                    <th>Keterangan</th>
-                                    <th style="width: 50px">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($absensiTerlambat as $at)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>
-                                        <strong>{{ $at->siswa->nama_siswa }}</strong><br>
-                                        <small class="text-muted">{{ $at->kelas->nama_kelas ?? '-' }}</small>
-                                    </td>
-                                    <td><span class="badge badge-warning">{{ $at->jam_masuk }}</span></td>
-                                    <td><small>{{ $at->keterangan }}</small></td>
-                                    <td>
-                                        <form action="{{ route('admin.guruPiket.hapusTerlambat', $at->id_absensi) }}" method="POST" class="form-hapus-terlambat">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm btn-hapus-terlambat" title="Hapus Keterlambatan">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted">Belum ada siswa yang dicatat terlambat hari ini.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table id="terlambatHariIniTable" class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 10px">No</th>
+                                        <th>Siswa</th>
+                                        <th>Jam</th>
+                                        <th>Keterangan</th>
+                                        <th style="width: 50px">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($absensiTerlambat as $at)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>
+                                            <strong>{{ $at->siswa->nama_siswa }}</strong><br>
+                                            <small class="text-muted">{{ $at->kelas->nama_kelas ?? '-' }}</small>
+                                        </td>
+                                        <td><span class="badge badge-warning">{{ $at->jam_masuk }}</span></td>
+                                        <td><small>{{ $at->keterangan }}</small></td>
+                                        <td>
+                                            <form action="{{ route('admin.guruPiket.hapusTerlambat', $at->id_absensi) }}" method="POST" class="form-hapus-terlambat">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm btn-hapus-terlambat" title="Hapus Keterlambatan">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">Belum ada siswa yang dicatat terlambat hari ini.</td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
