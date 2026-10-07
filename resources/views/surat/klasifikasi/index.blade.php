@@ -115,9 +115,9 @@
                     @endif
                   </td>
                   <td class="text-center">
-                    <div class="btn-group btn-group-sm" role="group">
+                    <div class="d-inline-flex align-items-center" style="gap: 5px;">
                       <!-- Edit Button -->
-                      <button type="button" class="btn btn-outline-info btn-edit" 
+                      <button type="button" class="btn-action btn-action-edit btn-edit" 
                         data-toggle="modal" 
                         data-target="#modalEdit"
                         data-id="{{ $item->id }}"
@@ -127,15 +127,15 @@
                         data-urutan="{{ $item->urutan }}"
                         data-is_active="{{ $item->is_active ? '1' : '0' }}"
                         title="Edit Klasifikasi">
-                        <i class="fas fa-edit"></i>
+                        <i class="fa fa-pencil-alt"></i>
                       </button>
 
                       <!-- Delete Form -->
                       <form action="{{ route('admin.klasifikasi-surat.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus klasifikasi {{ $item->kode }}?');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-outline-danger" title="Hapus Klasifikasi">
-                          <i class="fas fa-trash-alt"></i>
+                        <button type="submit" class="btn-action btn-action-delete" title="Hapus Klasifikasi">
+                          <i class="fa fa-trash"></i>
                         </button>
                       </form>
                     </div>
