@@ -76,6 +76,16 @@ class FcmService
                 return true;
             }
 
+            $resBody = $response->json();
+            $errorCode = $resBody['error']['details'][0]['errorCode'] ?? ($resBody['error']['message'] ?? null);
+
+            // Jika token sudah kedaluwarsa, aplikasi di-uninstall, atau tidak terdaftar lagi
+            if ($response->status() === 404 || $errorCode === 'UNREGISTERED' || $errorCode === 'NotRegistered') {
+                \App\Models\Siswa::where('fcm_token', $deviceToken)->update(['fcm_token' => null]);
+                Log::warning("FCM Self-Healing: Token perangkat sudah tidak terdaftar/UNREGISTERED ({$deviceToken}). Token otomatis dibersihkan dari database siswa.");
+                return false;
+            }
+
             Log::error('FCM Send Error: ' . $response->body());
         } catch (\Throwable $e) {
             Log::error('FCM Send Exception: ' . $e->getMessage());
