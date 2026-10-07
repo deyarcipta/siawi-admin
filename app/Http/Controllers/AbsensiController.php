@@ -395,17 +395,20 @@ class AbsensiController extends Controller
         }
 
         $safeKelas = preg_replace('/[^A-Za-z0-9_\-]/', '_', $dataKelas->nama_kelas);
-        $filename = 'data_absensi_' . $safeKelas . '_' . $tglAwal . '_sampai_' . $tglAkhir . '.xlsx';
-
-        return Excel::download(new AbsensiExport(
-            $siswa,
-            $absensiSiswa,
-            $countMasuk,
-            $countSakit,
-            $countIzin,
-            $countAlfa,
-            $dataKelas->nama_kelas
-        ), $filename);
+        try {
+            return Excel::download(new AbsensiExport(
+                $siswa,
+                $absensiSiswa,
+                $countMasuk,
+                $countSakit,
+                $countIzin,
+                $countAlfa,
+                $dataKelas->nama_kelas
+            ), $filename);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Download Rekap Absensi Excel Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return redirect()->back()->with('error', 'Gagal mengunduh Excel: ' . $e->getMessage());
+        }
     }
 
     // Kontroller Untuk Menampilkan Rekap Waktu Kehadiran dan Pulang Siswa
