@@ -133,10 +133,10 @@ class AbsensiController extends Controller
 
             \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
 
-            // Send push notification if student exists and has FCM token
-            if ($siswa && !empty($siswa->fcm_token)) {
-                \App\Services\FcmService::sendNotification(
-                    $siswa->fcm_token,
+            // Send push notification if student exists (Multi-Device)
+            if ($siswa) {
+                \App\Services\FcmService::sendToSiswa(
+                    $siswa,
                     'Absensi Hari Ini',
                     "Status absensi kamu hari ini (" . date('d-m-Y') . ") telah diperbarui: " . ucfirst($kehadiran)
                 );
@@ -200,10 +200,10 @@ class AbsensiController extends Controller
 
         \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
 
-        // Fetch student and notify
-        if ($siswa && !empty($siswa->fcm_token)) {
-            \App\Services\FcmService::sendNotification(
-                $siswa->fcm_token,
+        // Fetch student and notify (Multi-Device)
+        if ($siswa) {
+            \App\Services\FcmService::sendToSiswa(
+                $siswa,
                 'Absensi Hari Ini',
                 "Status absensi kamu hari ini (" . date('d-m-Y') . ") telah dicatat: " . ucfirst($kehadiran)
             );
@@ -523,11 +523,11 @@ class AbsensiController extends Controller
 
             \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
 
-            // Fetch student and notify
+            // Fetch student and notify (Multi-Device)
             $siswa = Siswa::find($siswaId);
-            if ($siswa && !empty($siswa->fcm_token)) {
-                \App\Services\FcmService::sendNotification(
-                    $siswa->fcm_token,
+            if ($siswa) {
+                \App\Services\FcmService::sendToSiswa(
+                    $siswa,
                     'Absensi Hari Ini',
                     "Status absensi kamu hari ini (" . date('d-m-Y') . ") telah disimpan: " . ucfirst($kehadiran[$index])
                 );
@@ -573,11 +573,11 @@ class AbsensiController extends Controller
 
         \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
 
-        // Notify student about attendance update
+        // Notify student about attendance update (Multi-Device)
         $siswa = Siswa::find($absensi->id_siswa);
-        if ($siswa && !empty($siswa->fcm_token)) {
-            \App\Services\FcmService::sendNotification(
-                $siswa->fcm_token,
+        if ($siswa) {
+            \App\Services\FcmService::sendToSiswa(
+                $siswa,
                 'Perubahan Absensi',
                 "Status absensi kamu pada tanggal " . $absensi->tanggal . " telah diubah menjadi: " . ucfirst($newKehadiran)
             );

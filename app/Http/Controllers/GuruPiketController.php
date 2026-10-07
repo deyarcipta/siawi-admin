@@ -244,10 +244,10 @@ class GuruPiketController extends Controller
             'tanggal' => $now->locale('id')->translatedFormat('d F Y') . ' ' . $jam
         ]);
         
-        // Send push notification if student has FCM token
-        if ($siswa && !empty($siswa->fcm_token)) {
-            \App\Services\FcmService::sendNotification(
-                $siswa->fcm_token,
+        // Send push notification if student exists (Multi-Device)
+        if ($siswa) {
+            \App\Services\FcmService::sendToSiswa(
+                $siswa,
                 'Absensi Hari Ini',
                 "Status absensi kamu hari ini (" . $now->format('d-m-Y') . ") telah dicatat: Hadir (Terlambat)"
             );

@@ -8,6 +8,46 @@ use Illuminate\Support\Facades\Log;
 class FcmService
 {
     /**
+     * Send Push Notification to all active devices registered under a student (Multi-Device).
+     *
+     * @param \App\Models\Siswa|int $siswa
+     * @param string $title
+     * @param string $body
+     * @param array $data
+     * @return int Number of devices sent to
+     */
+    public static function sendToSiswa($siswa, $title, $body, $data = [])
+    {
+        if (is_numeric($siswa)) {
+            $siswa = \App\Models\Siswa::with('fcmTokens')->find($siswa);
+        }
+
+        if (!$siswa) {
+            return 0;
+        }
+
+        // Ambil semua token dari tabel multi-device
+        $tokens = [];
+        if ($siswa->relationLoaded('fcmTokens') || method_exists($siswa, 'fcmTokens')) {
+            $tokens = $siswa->fcmTokens->pluck('fcm_token')->filter()->toArray();
+        }
+
+        // Fallback jika belum ada di tabel multi-device, gunakan fcm_token di tabel siswa
+        if (empty($tokens) && !empty($siswa->fcm_token)) {
+            $tokens[] = $siswa->fcm_token;
+        }
+
+        $sentCount = 0;
+        foreach (array_unique($tokens) as $token) {
+            if (self::sendNotification($token, $title, $body, $data)) {
+                $sentCount++;
+            }
+        }
+
+        return $sentCount;
+    }
+
+    /**
      * Send Push Notification using Firebase Cloud Messaging HTTP v1 API.
      *
      * @param string $deviceToken
@@ -81,8 +121,9 @@ class FcmService
 
             // Jika token sudah kedaluwarsa, aplikasi di-uninstall, atau tidak terdaftar lagi
             if ($response->status() === 404 || $errorCode === 'UNREGISTERED' || $errorCode === 'NotRegistered') {
+                \App\Models\SiswaFcmToken::where('fcm_token', $deviceToken)->orWhere('token_hash', md5($deviceToken))->delete();
                 \App\Models\Siswa::where('fcm_token', $deviceToken)->update(['fcm_token' => null]);
-                Log::warning("FCM Self-Healing: Token perangkat sudah tidak terdaftar/UNREGISTERED ({$deviceToken}). Token otomatis dibersihkan dari database siswa.");
+                Log::warning("FCM Self-Healing: Token perangkat sudah tidak terdaftar/UNREGISTERED ({$deviceToken}). Token otomatis dibersihkan dari database.");
                 return false;
             }
 

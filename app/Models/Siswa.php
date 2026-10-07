@@ -49,6 +49,11 @@ class Siswa extends Model implements Authenticatable
     public function rapot() {
         return $this->hasMany('App\Models\Rapot', 'id_siswa', 'id_siswa');
     }
+
+    public function fcmTokens()
+    {
+        return $this->hasMany(SiswaFcmToken::class, 'id_siswa', 'id_siswa');
+    }
     // public function jurusan()
     // {
     //     return $this->belongsTo('App\Models\Jurusan', 'kode_jurusan');

@@ -242,10 +242,10 @@ class AbsensiController extends Controller
                     Log::error('Gagal mengirim notifikasi absensi siswa: ' . $e->getMessage());
                 }
 
-                if (!empty($siswa->fcm_token)) {
+                if ($siswa) {
                     try {
-                        \App\Services\FcmService::sendNotification(
-                            $siswa->fcm_token,
+                        \App\Services\FcmService::sendToSiswa(
+                            $siswa,
                             $isCheckOut ? 'Absensi Pulang Berhasil' : 'Absensi Masuk Berhasil',
                             $isCheckOut
                                 ? "Kamu telah melakukan absensi pulang (Check Out) pada jam $jam."

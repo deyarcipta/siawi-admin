@@ -151,6 +151,19 @@ class HomeController extends Controller
             $siswa->update([
                 'fcm_token' => $request->fcm_token
             ]);
+
+            // Simpan ke tabel multi-device token (agar HP siswa & HP orang tua bisa menerima notifikasi bersamaan)
+            $tokenHash = md5($request->fcm_token);
+            \App\Models\SiswaFcmToken::updateOrCreate(
+                ['token_hash' => $tokenHash],
+                [
+                    'id_siswa' => $siswa->id_siswa,
+                    'fcm_token' => $request->fcm_token,
+                    'device_name' => $request->input('device_name', 'Mobile Device'),
+                    'updated_at' => now(),
+                ]
+            );
+
             return response()->json([
                 'success' => true,
                 'message' => 'FCM Token updated successfully'

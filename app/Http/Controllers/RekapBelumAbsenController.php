@@ -489,12 +489,12 @@ class RekapBelumAbsenController extends Controller
                 \Log::error('Gagal mengirim WhatsApp notifikasi: ' . $e->getMessage());
             }
 
-            // Send push notification if student exists and has FCM token
-            if ($siswa && !empty($siswa->fcm_token)) {
+            // Send push notification if student exists (Multi-Device)
+            if ($siswa) {
                 try {
                     if (class_exists('\App\Services\FcmService')) {
-                        \App\Services\FcmService::sendNotification(
-                            $siswa->fcm_token,
+                        \App\Services\FcmService::sendToSiswa(
+                            $siswa,
                             'Absensi Hari Ini',
                             "Status absensi kamu pada tanggal " . $carbonDate->format('d-m-Y') . " telah dicatat: " . ucfirst($kehadiran)
                         );
