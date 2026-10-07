@@ -48,6 +48,30 @@ class FcmService
     }
 
     /**
+     * Broadcast Push Notification to all active student & parent devices.
+     *
+     * @param string $title
+     * @param string $body
+     * @param array $data
+     * @return int
+     */
+    public static function broadcastToAllStudents($title, $body, $data = [])
+    {
+        $tokens = \App\Models\SiswaFcmToken::pluck('fcm_token')->toArray();
+        $legacyTokens = \App\Models\Siswa::whereNotNull('fcm_token')->where('fcm_token', '!=', '')->pluck('fcm_token')->toArray();
+        $allTokens = array_unique(array_filter(array_merge($tokens, $legacyTokens)));
+
+        $sentCount = 0;
+        foreach ($allTokens as $token) {
+            if (self::sendNotification($token, $title, $body, $data)) {
+                $sentCount++;
+            }
+        }
+
+        return $sentCount;
+    }
+
+    /**
      * Send Push Notification using Firebase Cloud Messaging HTTP v1 API.
      *
      * @param string $deviceToken
