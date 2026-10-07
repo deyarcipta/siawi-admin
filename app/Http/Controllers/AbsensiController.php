@@ -395,6 +395,8 @@ class AbsensiController extends Controller
         }
 
         $safeKelas = preg_replace('/[^A-Za-z0-9_\-]/', '_', $dataKelas->nama_kelas);
+        $filename = 'data_absensi_' . $safeKelas . '_' . $tglAwal . '_sampai_' . $tglAkhir . '.xlsx';
+
         try {
             return Excel::download(new AbsensiExport(
                 $siswa,
