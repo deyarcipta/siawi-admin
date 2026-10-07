@@ -15,10 +15,26 @@ use Carbon\Carbon;
 class SuratKeluarController extends Controller
 {
     /**
-     * Daftar klasifikasi standar surat keluar sekolah.
+     * Daftar klasifikasi standar surat keluar sekolah (dinamis dari database).
      */
     public static function getKlasifikasiList(): array
     {
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('klasifikasi_surat')) {
+                $fromDb = \App\Models\KlasifikasiSurat::where('is_active', true)
+                    ->orderBy('urutan', 'asc')
+                    ->orderBy('id', 'asc')
+                    ->pluck('nama', 'kode')
+                    ->toArray();
+
+                if (!empty($fromDb)) {
+                    return $fromDb;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fallback ke default array jika ada kendala database
+        }
+
         return [
             'TU' => 'Tata Usaha / Administrasi Umum',
             'SK-SISWA' => 'Surat Keterangan Siswa Aktif',

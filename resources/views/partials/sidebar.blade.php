@@ -347,8 +347,8 @@
         </li>
 
         <!-- Agenda Surat -->
-        <li class="nav-item has-treeview {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') || Request::is('admin/klasifikasi-surat*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') || Request::is('admin/klasifikasi-surat*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-mail-bulk"></i>
             <p>
               Agenda Surat
@@ -366,6 +366,12 @@
               <a href="/admin/surat-masuk" class="nav-link {{ Request::is('admin/surat-masuk*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Surat Masuk (Agenda)</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/klasifikasi-surat" class="nav-link {{ Request::is('admin/klasifikasi-surat*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Klasifikasi Surat</p>
               </a>
             </li>
           </ul>
@@ -1004,8 +1010,8 @@
           </a>
         </li>
         <!-- Agenda Surat -->
-        <li class="nav-item has-treeview {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') || Request::is('admin/klasifikasi-surat*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') || Request::is('admin/klasifikasi-surat*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-mail-bulk"></i>
             <p>
               Agenda Surat
@@ -1023,6 +1029,12 @@
               <a href="/admin/surat-masuk" class="nav-link {{ Request::is('admin/surat-masuk*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Surat Masuk (Agenda)</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/klasifikasi-surat" class="nav-link {{ Request::is('admin/klasifikasi-surat*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Klasifikasi Surat</p>
               </a>
             </li>
           </ul>

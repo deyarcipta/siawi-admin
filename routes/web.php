@@ -40,6 +40,7 @@ use App\Http\Controllers\BackupController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SuratKeluarController;
 use App\Http\Controllers\SuratMasukController;
+use App\Http\Controllers\KlasifikasiSuratController;
 use App\Http\Controllers\LivePanelController;
 
 // Auth Routes (Public)
@@ -91,6 +92,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
         Route::get('surat-keluar/preview-nomor', [SuratKeluarController::class, 'getNomorPreview'])->name('surat-keluar.preview-nomor');
         Route::resource('surat-keluar', SuratKeluarController::class);
         Route::resource('surat-masuk', SuratMasukController::class);
+        Route::resource('klasifikasi-surat', KlasifikasiSuratController::class);
     });
 
     // =========================================================================
