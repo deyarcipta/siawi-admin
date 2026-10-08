@@ -25,17 +25,47 @@ class AbsensiController extends Controller
         $user = Auth::user();
         $now = Carbon::now('Asia/Jakarta');
         
-        $tanggal = $now->toDateString();
-        $hari = Carbon::parse($tanggal)->locale('id')->dayName;
+        $todayDate = $now->toDateString();
+        $tanggal = $request->input('tanggal', $todayDate);
+        $isToday = ($tanggal === $todayDate);
+        $hari = Carbon::parse($tanggal)->locale('id')->isoFormat('dddd');
+        
         $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
+        $selectedKelas = $request->input('kelas') ?? $request->input('id_kelas');
+
         $absensiQuery = Absensi::whereDate('tanggal', $tanggal)
                               ->with(['siswa.kelas', 'kelas'])
                               ->orderBy('created_at', 'desc');
+
+        if ($selectedKelas) {
+            $absensiQuery->where(function($q) use ($selectedKelas) {
+                $q->where('id_kelas', $selectedKelas)
+                  ->orWhereHas('siswa', function($sq) use ($selectedKelas) {
+                      $sq->where('id_kelas', $selectedKelas);
+                  });
+            });
+        }
+
         $siswaQuery = Siswa::orderBy('nama_siswa', 'asc');
+        if ($selectedKelas) {
+            $siswaQuery->where('id_kelas', $selectedKelas);
+        }
 
         $siswaList = $siswaQuery->get();
         $absensiSiswa = $absensiQuery->get();
-        return view('absensi.index', compact('absensiSiswa', 'layout', 'setting', 'user', 'hari', 'tanggal', 'siswaList', 'kelasList'));
+
+        return view('absensi.index', compact(
+            'absensiSiswa', 
+            'layout', 
+            'setting', 
+            'user', 
+            'hari', 
+            'tanggal', 
+            'isToday', 
+            'selectedKelas', 
+            'siswaList', 
+            'kelasList'
+        ));
     }
 
     // public function index(Request $request)
@@ -154,11 +184,14 @@ class AbsensiController extends Controller
 
     public function tambahKehadiran(Request $request)
     {
-        // Validasi input (tanpa tanggal dan hari karena otomatis)
         $request->validate([
             'id_kelas' => 'required|exists:kelas,id_kelas',
             'id_siswa' => 'required|exists:siswa,id_siswa',
-            'kehadiran' => 'required|in:Hadir,Izin,Sakit,Alfa',
+            'kehadiran' => 'required|in:Hadir,Izin,Sakit,Alfa,hadir,izin,sakit,alfa',
+            'tanggal' => 'nullable|date',
+            'keterangan' => 'nullable|string|max:255',
+            'jam_masuk' => 'nullable|string|max:10',
+            'jam_pulang' => 'nullable|string|max:10',
         ]);
 
         $siswaId = $request->input('id_siswa');
@@ -166,9 +199,8 @@ class AbsensiController extends Controller
         $kehadiran = strtolower($request->input('kehadiran'));
         $keterangan = $request->input('keterangan') ?? '-';
 
-        // Ambil tanggal dan hari sekarang
-        $tanggal = Carbon::today()->toDateString(); // contoh hasil: 2025-04-28
-        $hari = Carbon::today()->isoFormat('dddd'); // contoh hasil: Senin, Selasa, dst.
+        $tanggal = $request->input('tanggal') ?: Carbon::today()->toDateString();
+        $hari = Carbon::parse($tanggal)->locale('id')->isoFormat('dddd');
         $jam = now()->format('H:i:s');
 
         // Ambil id_jurusan dari data siswa
@@ -176,7 +208,8 @@ class AbsensiController extends Controller
         $jurusanId = $siswa->id_jurusan;
 
         $isHadir = $kehadiran === 'hadir';
-        $jamMasuk = $isHadir ? $jam : '-';
+        $jamMasuk = $request->filled('jam_masuk') ? $request->input('jam_masuk') : ($isHadir ? $jam : '-');
+        $jamPulang = $request->filled('jam_pulang') ? $request->input('jam_pulang') : '-';
 
         $existingAbsensi = Absensi::where('id_siswa', $siswaId)->where('tanggal', $tanggal)->first();
         $tipeMasuk = $existingAbsensi ? ($existingAbsensi->tipe_masuk ?? 'manual') : 'manual';
@@ -194,6 +227,7 @@ class AbsensiController extends Controller
                 'kehadiran' => $kehadiran,
                 'keterangan' => $keterangan,
                 'jam_masuk' => $jamMasuk,
+                'jam_pulang' => $jamPulang,
                 'tipe_masuk' => $tipeMasuk,
             ]
         );
@@ -204,12 +238,12 @@ class AbsensiController extends Controller
         if ($siswa) {
             \App\Services\FcmService::sendToSiswa(
                 $siswa,
-                'Absensi Hari Ini',
-                "Status absensi kamu hari ini (" . date('d-m-Y') . ") telah dicatat: " . ucfirst($kehadiran)
+                'Absensi Siswa',
+                "Status absensi kamu pada tanggal " . $tanggal . " telah dicatat: " . ucfirst($kehadiran)
             );
         }
 
-        return back()->with('success', 'Data kehadiran berhasil disimpan.');
+        return redirect()->to('/admin/absensi?tanggal=' . $tanggal . ($kelasId ? '&kelas=' . $kelasId : ''))->with('success', 'Data kehadiran berhasil disimpan.');
     }
 
     // Controller Data Absensi Kelas
@@ -573,7 +607,7 @@ class AbsensiController extends Controller
     public function AbsensiSiswaExport(Request $request)
     {
         $now = Carbon::now('Asia/Jakarta');
-        $tanggal = $now->format('Y-m-d');
+        $tanggal = $request->input('tanggal', $now->format('Y-m-d'));
         $hari = Carbon::parse($tanggal)->locale('id')->translatedFormat('l');
 
         $fileName = "Kehadiran_Siswa_{$hari}_{$tanggal}.xlsx";
@@ -646,35 +680,61 @@ class AbsensiController extends Controller
         return redirect()->back()->with('success', 'Absensi berhasil disimpan!');
     }
 
-    // Controller untuk melakukan perubahan kehadiran siswa di hari ini
+    // Controller untuk melakukan perubahan kehadiran siswa (hari ini atau tanggal sebelumnya)
     public function update(Request $request, $id_absensi)
     {
         $request->validate([
-            'kehadiran' => 'required|in:Hadir,Izin,Sakit,Alfa',
+            'kehadiran' => 'required|in:Hadir,Izin,Sakit,Alfa,hadir,izin,sakit,alfa',
+            'keterangan' => 'nullable|string|max:255',
+            'jam_masuk' => 'nullable|string|max:10',
+            'jam_pulang' => 'nullable|string|max:10',
         ]);
 
         $absensi = Absensi::findOrFail($id_absensi);
         $jam = now()->format('H:i:s');
         
-        $oldKehadiran = $absensi->kehadiran;
+        $oldKehadiran = strtolower($absensi->kehadiran);
         $oldKeterangan = $absensi->keterangan;
-        $newKehadiran = $request->kehadiran;
+        $newKehadiran = strtolower($request->input('kehadiran'));
 
-        // Cek jika status sebelumnya bukan 'Hadir' (case-insensitive) dan akan diubah menjadi 'Hadir'
-        if (strtolower($oldKehadiran) !== 'hadir' && strtolower($newKehadiran) === 'hadir') {
-            $absensi->jam_masuk = $jam; // isi jam masuk sekarang
-            $absensi->keterangan = '-'; // set keterangan to '-'
+        // Cek jika status sebelumnya bukan 'hadir' dan diubah menjadi 'hadir'
+        if ($oldKehadiran !== 'hadir' && $newKehadiran === 'hadir') {
+            $absensi->jam_masuk = $request->filled('jam_masuk') && $request->input('jam_masuk') !== '-' ? $request->input('jam_masuk') : $jam;
+            $absensi->keterangan = $request->filled('keterangan') ? $request->input('keterangan') : '-';
+        } elseif ($newKehadiran !== 'hadir') {
+            // Jika diubah dari Hadir menjadi Sakit/Izin/Alfa
+            if ($request->filled('jam_masuk')) {
+                $absensi->jam_masuk = $request->input('jam_masuk');
+            } else {
+                $absensi->jam_masuk = '-';
+            }
+            if ($request->filled('jam_pulang')) {
+                $absensi->jam_pulang = $request->input('jam_pulang');
+            } else {
+                $absensi->jam_pulang = '-';
+            }
+        }
+
+        if ($request->filled('jam_masuk')) {
+            $absensi->jam_masuk = $request->input('jam_masuk');
+        }
+        if ($request->filled('jam_pulang')) {
+            $absensi->jam_pulang = $request->input('jam_pulang');
+        }
+        if ($request->has('keterangan')) {
+            $absensi->keterangan = $request->input('keterangan') ?? '-';
         }
 
         // JIKA diubah dari Hadir (Terlambat) menjadi Sakit/Izin/Alfa, hapus poin pelanggaran keterlambatannya
-        if (strtolower($oldKehadiran) === 'hadir' && str_contains(strtolower($oldKeterangan), 'terlambat') && strtolower($newKehadiran) !== 'hadir') {
-            // Hapus poin pelanggaran hari ini untuk siswa tersebut (ID Point 1)
+        if ($oldKehadiran === 'hadir' && str_contains(strtolower($oldKeterangan), 'terlambat') && $newKehadiran !== 'hadir') {
             \App\Models\PointSiswa::where('id_siswa', $absensi->id_siswa)
                 ->where('id_point', 1)
                 ->whereDate('created_at', $absensi->tanggal)
                 ->delete();
             
-            $absensi->keterangan = '-'; // Reset keterangan agar tidak mengandung kata "Terlambat"
+            if (!$request->filled('keterangan')) {
+                $absensi->keterangan = '-';
+            }
         }
 
         $absensi->kehadiran = $newKehadiran;
