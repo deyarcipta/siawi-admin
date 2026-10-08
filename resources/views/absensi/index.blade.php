@@ -29,7 +29,7 @@
       <!-- Filter & Mode Card -->
       <div class="card shadow-sm border-0 mb-3">
         <div class="card-body p-3">
-          <form action="{{ route('absensi.index') }}" method="GET" class="row align-items-end" id="filter-absensi-form">
+          <form action="{{ url('/admin/absensi') }}" method="GET" class="row align-items-end" id="filter-absensi-form">
             <div class="col-md-3 col-sm-6 mb-2 mb-md-0">
               <label for="filter-tanggal" class="small font-weight-bold text-muted mb-1"><i class="fas fa-calendar-alt mr-1"></i> Pilih Tanggal</label>
               <input type="date" class="form-control form-control-sm" id="filter-tanggal" name="tanggal" value="{{ $tanggal }}">
@@ -52,7 +52,7 @@
                 <i class="fas fa-filter mr-1"></i> Filter
               </button>
               @if(!$isToday || $selectedKelas)
-                <a href="{{ route('absensi.index') }}" class="btn btn-outline-secondary btn-sm" title="Kembali ke Hari Ini">
+                <a href="{{ url('/admin/absensi') }}" class="btn btn-outline-secondary btn-sm" title="Kembali ke Hari Ini">
                   <i class="fas fa-undo mr-1"></i> Hari Ini
                 </a>
               @endif
