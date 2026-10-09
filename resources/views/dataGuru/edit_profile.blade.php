@@ -145,22 +145,23 @@
             <div class="d-flex flex-wrap justify-content-center align-items-center mb-3" style="gap: 6px;">
               @php
                 $roleBadges = [
-                  'admin' => 'badge-danger',
-                  'kurikulum' => 'badge-warning',
-                  'kesiswaan' => 'badge-info',
-                  'guru' => 'badge-primary'
+                  'admin' => ['class' => 'badge-danger', 'label' => 'Admin'],
+                  'guru' => ['class' => 'badge-primary', 'label' => 'Guru Mapel'],
+                  'wali_kelas' => ['class' => 'badge-success', 'label' => 'Wali Kelas'],
+                  'kesiswaan' => ['class' => 'badge-info', 'label' => 'Kesiswaan'],
+                  'kurikulum' => ['class' => 'badge-warning text-dark', 'label' => 'Kurikulum'],
+                  'tata_usaha' => ['class' => 'badge-secondary', 'label' => 'Tata Usaha'],
+                  'keuangan' => ['class' => 'badge-success', 'label' => 'Keuangan'],
                 ];
-                $roleLabel = ucfirst($edit->role);
+                $activeRoles = $edit->roles_list ?? [$edit->role];
+                $roleLabelsCombined = collect($activeRoles)->map(fn($r) => $roleBadges[$r]['label'] ?? ucfirst($r))->join(', ');
               @endphp
-              <span class="badge {{ $roleBadges[$edit->role] ?? 'badge-primary' }} px-3 py-1 text-uppercase" style="letter-spacing: 0.5px; font-size: 0.75rem; border-radius: 20px;">
-                <i class="fas fa-shield-alt mr-1"></i> {{ $roleLabel }}
-              </span>
-
-              @if(isset($kelasWali) && $kelasWali->isNotEmpty())
-                <span class="badge badge-success px-3 py-1 text-uppercase" style="letter-spacing: 0.5px; font-size: 0.75rem; border-radius: 20px;">
-                  <i class="fas fa-chalkboard-teacher mr-1"></i> Wali Kelas
+              @foreach($activeRoles as $r)
+                @php $badgeMeta = $roleBadges[$r] ?? ['class' => 'badge-secondary', 'label' => ucfirst($r)]; @endphp
+                <span class="badge {{ $badgeMeta['class'] }} px-3 py-1 text-uppercase" style="letter-spacing: 0.5px; font-size: 0.75rem; border-radius: 20px;">
+                  <i class="fas fa-shield-alt mr-1"></i> {{ $badgeMeta['label'] }}
                 </span>
-              @endif
+              @endforeach
             </div>
 
             <!-- Mini KPI Stats -->
@@ -331,7 +332,7 @@
                     <div class="input-icon">
                       <i class="fas fa-user-shield"></i>
                     </div>
-                    <input type="text" value="{{ $roleLabel }}" disabled style="font-weight: 600;">
+                    <input type="text" value="{{ $roleLabelsCombined }}" disabled style="font-weight: 600;">
                   </div>
                   <input type="hidden" name="role" value="{{ $edit->role }}">
                 </div>

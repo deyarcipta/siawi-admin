@@ -19,6 +19,12 @@ class Guru extends Model implements Authenticatable
 
     protected $primaryKey = 'id_guru';
 
+    protected $casts = [
+        'roles' => 'array',
+    ];
+
+    protected $_cachedRolesList = null;
+
     public function absensi_guru()
     {
         return $this->hasMany(AbsensiGuru::class, 'id_guru', 'id_guru'); 
@@ -49,5 +55,65 @@ class Guru extends Model implements Authenticatable
         return $this->hasMany(PiketPembiasaanPagi::class, 'id_guru', 'id_guru');
     }
 
-    // protected $fillable = ['id_face'];
+    /**
+     * Get list of all roles held by the teacher (combining primary role, roles array, and wali kelas)
+     */
+    public function getRolesListAttribute(): array
+    {
+        if ($this->_cachedRolesList !== null) {
+            return $this->_cachedRolesList;
+        }
+
+        $roleList = [];
+
+        if (!empty($this->roles)) {
+            $parsed = is_array($this->roles) ? $this->roles : json_decode($this->roles, true);
+            if (is_array($parsed)) {
+                $roleList = array_merge($roleList, $parsed);
+            }
+        }
+
+        if (!empty($this->role)) {
+            $roleList[] = $this->role;
+        }
+
+        try {
+            if ($this->kelasWali()->exists()) {
+                $roleList[] = 'wali_kelas';
+            }
+        } catch (\Throwable $e) {
+            // Ignore during migrations or unmigrated tests
+        }
+
+        $this->_cachedRolesList = array_values(array_unique(array_filter($roleList)));
+        return $this->_cachedRolesList;
+    }
+
+    /**
+     * Check if teacher has a specific role.
+     */
+    public function hasRole(string $role): bool
+    {
+        if ($this->role === 'admin' || in_array('admin', $this->roles_list)) {
+            return true;
+        }
+
+        return in_array($role, $this->roles_list);
+    }
+
+    /**
+     * Check if teacher has at least one of the specified roles.
+     */
+    public function hasAnyRole($roles): bool
+    {
+        if ($this->role === 'admin' || in_array('admin', $this->roles_list)) {
+            return true;
+        }
+
+        if (is_string($roles)) {
+            $roles = [$roles];
+        }
+
+        return count(array_intersect($roles, $this->roles_list)) > 0;
+    }
 }

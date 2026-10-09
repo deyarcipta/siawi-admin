@@ -41,24 +41,33 @@ class GuruController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'username' => 'required',
-            // 'password' => 'required',
+            'username' => 'required|unique:guru,username',
             'nama_guru' => 'required',
-            'role' => 'required',
+            'roles' => 'nullable|array',
+            'roles.*' => 'string',
+            'role' => 'nullable|string',
             'no_hp' => 'nullable|string',
         ]);
         $id_face = '0';
         $changPass = 'admin123';
         $password = Hash::make($changPass);
-        
-        // $hashedPassword = Hash::make($request['password']);
+
+        $selectedRoles = $request->input('roles', []);
+        if (empty($selectedRoles) && $request->filled('role')) {
+            $selectedRoles = [$request->role];
+        }
+        if (empty($selectedRoles)) {
+            $selectedRoles = ['guru'];
+        }
+        $primaryRole = $request->input('role') ?: $selectedRoles[0];
 
         $guru = Guru::create([
             'id_face' => $id_face,
             'username' => $request->username,
             'password' => $password,
             'nama_guru' => $request->nama_guru,
-            'role' => $request->role,
+            'role' => $primaryRole,
+            'roles' => $selectedRoles,
             'no_hp' => $request->no_hp,
         ]);
 
@@ -85,20 +94,33 @@ class GuruController extends Controller
     {
         $request->validate([
             'username' => 'required',
-            // 'password' => 'required',
             'nama_guru' => 'required',
-            'id_face' => 'required',
-            'role' => 'required',
+            'id_face' => 'nullable',
+            'roles' => 'nullable|array',
+            'roles.*' => 'string',
+            'role' => 'nullable|string',
             'no_hp' => 'nullable|string',
         ]);
-        
-        Guru::where('id_guru', $id_guru)->update([
-            'username' => $request->username,
-            'nama_guru' => $request->nama_guru,
-            'id_face' => $request->id_face,
-            'role' => $request->role,
-            'no_hp' => $request->no_hp,
-        ]);
+
+        $selectedRoles = $request->input('roles', []);
+        if (empty($selectedRoles) && $request->filled('role')) {
+            $selectedRoles = [$request->role];
+        }
+        if (empty($selectedRoles)) {
+            $selectedRoles = ['guru'];
+        }
+        $primaryRole = $request->input('role') ?: $selectedRoles[0];
+
+        $guru = Guru::findOrFail($id_guru);
+        $guru->username = $request->username;
+        $guru->nama_guru = $request->nama_guru;
+        $guru->role = $primaryRole;
+        $guru->roles = $selectedRoles;
+        $guru->no_hp = $request->no_hp;
+        if ($request->filled('id_face')) {
+            $guru->id_face = $request->id_face;
+        }
+        $guru->save();
 
         return redirect('/admin/guru')->with('success', 'Data guru berhasil diperbarui.');
     }

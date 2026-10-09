@@ -55,19 +55,27 @@
                 {{-- <td>{{ $gru->password }}</td> --}}
                 <td>{{$gru->no_hp ?? '-'}}</td>
                 <td>
-                  @if($gru->role == 'admin')
-                    <span class="badge badge-primary px-2 py-1">Admin</span>
-                  @elseif($gru->role == 'wali_kelas')
-                    <span class="badge badge-success px-2 py-1">Wali Kelas</span>
-                  @elseif($gru->role == 'kurikulum')
-                    <span class="badge badge-info px-2 py-1">Kurikulum</span>
-                  @elseif($gru->role == 'kesiswaan')
-                    <span class="badge badge-warning px-2 py-1">Kesiswaan</span>
-                  @elseif($gru->role == 'guru')
-                    <span class="badge badge-secondary px-2 py-1">Guru</span>
-                  @else
-                    <span class="badge badge-light px-2 py-1">{{ ucfirst($gru->role) }}</span>
-                  @endif
+                  <div class="d-flex flex-wrap" style="gap: 4px;">
+                    @foreach($gru->roles_list as $r)
+                      @if($r == 'admin')
+                        <span class="badge badge-primary px-2 py-1">Admin</span>
+                      @elseif($r == 'wali_kelas')
+                        <span class="badge badge-success px-2 py-1">Wali Kelas</span>
+                      @elseif($r == 'kurikulum')
+                        <span class="badge badge-info px-2 py-1">Kurikulum</span>
+                      @elseif($r == 'kesiswaan')
+                        <span class="badge badge-warning px-2 py-1">Kesiswaan</span>
+                      @elseif($r == 'guru')
+                        <span class="badge badge-secondary px-2 py-1">Guru</span>
+                      @elseif($r == 'tata_usaha')
+                        <span class="badge badge-dark px-2 py-1">Tata Usaha</span>
+                      @elseif($r == 'keuangan')
+                        <span class="badge badge-danger px-2 py-1">Keuangan</span>
+                      @else
+                        <span class="badge badge-light px-2 py-1">{{ ucfirst($r) }}</span>
+                      @endif
+                    @endforeach
+                  </div>
                 </td>
                 <td>
                   <form action="guru/{{$gru->id_guru}}" method="POST">

@@ -23,8 +23,8 @@ class CheckRole
 
         $user = Auth::user();
 
-        // Check if user role matches one of allowed roles
-        if (!empty($roles) && !in_array($user->role, $roles)) {
+        // Check if user role matches one of allowed roles (Multi-Role Support)
+        if (!empty($roles) && !$user->hasAnyRole($roles)) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['message' => 'Unauthorized action.'], 403);
             }

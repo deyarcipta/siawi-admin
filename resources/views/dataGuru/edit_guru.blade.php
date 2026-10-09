@@ -63,18 +63,35 @@
                   @enderror
                 </div>
 
-                <div class="col-md-6 mb-3">
-                  <label for="role" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Hak Akses Sistem (Role) <span class="text-danger">*</span></label>
-                  <select class="form-control @error('role') is-invalid @enderror" name="role" id="role" style="border-radius: 8px; height: 42px;">
-                    <option value="admin" {{ (old('role', $edit->role) == 'admin') ? 'selected' : '' }}>Admin</option>
-                    <option value="tata_usaha" {{ (old('role', $edit->role) == 'tata_usaha') ? 'selected' : '' }}>Tata Usaha</option>
-                    <option value="keuangan" {{ (old('role', $edit->role) == 'keuangan') ? 'selected' : '' }}>Keuangan</option>
-                    <option value="kurikulum" {{ (old('role', $edit->role) == 'kurikulum') ? 'selected' : '' }}>Kurikulum</option>
-                    <option value="kesiswaan" {{ (old('role', $edit->role) == 'kesiswaan') ? 'selected' : '' }}>Kesiswaan</option>
-                    <option value="wali_kelas" {{ (old('role', $edit->role) == 'wali_kelas') ? 'selected' : '' }}>Wali Kelas</option>
-                    <option value="guru" {{ (old('role', $edit->role) == 'guru') ? 'selected' : '' }}>Guru</option>
-                  </select>
-                  @error('role')
+                <div class="col-12 mb-3">
+                  <label class="font-weight-bold text-dark d-block" style="font-size: 0.85rem;">
+                    Hak Akses Sistem (Multi-Role / Bisa Pilih Lebih Dari 1) <span class="text-danger">*</span>
+                  </label>
+                  <p class="text-muted small mb-2">Centang semua jabatan/peran yang dipegang oleh guru ini. Guru akan otomatis mendapatkan hak akses gabungan.</p>
+                  <div class="d-flex flex-wrap" style="gap: 10px;">
+                    @php
+                      $availableRoles = [
+                        'guru' => ['label' => 'Guru Mapel', 'desc' => 'Jurnal mengajar & jadwal'],
+                        'wali_kelas' => ['label' => 'Wali Kelas', 'desc' => 'E-Rapot & rekap kelas'],
+                        'kesiswaan' => ['label' => 'Kesiswaan', 'desc' => 'Poin pelanggaran, kelalaian'],
+                        'kurikulum' => ['label' => 'Kurikulum', 'desc' => 'Jadwal, modul, & kalender'],
+                        'tata_usaha' => ['label' => 'Tata Usaha', 'desc' => 'Persuratan & data master'],
+                        'keuangan' => ['label' => 'Keuangan', 'desc' => 'Tagihan siswa'],
+                        'admin' => ['label' => 'Admin', 'desc' => 'Akses penuh sistem'],
+                      ];
+                      $selectedRoles = old('roles', $edit->roles_list ?? ['guru']);
+                    @endphp
+                    @foreach($availableRoles as $rKey => $rMeta)
+                      <div class="custom-control custom-checkbox mr-3 mb-2" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 16px 8px 36px; min-width: 175px;">
+                        <input type="checkbox" class="custom-control-input" id="role_{{ $rKey }}" name="roles[]" value="{{ $rKey }}" {{ in_array($rKey, $selectedRoles) ? 'checked' : '' }}>
+                        <label class="custom-control-label font-weight-bold text-dark" for="role_{{ $rKey }}" style="cursor: pointer; font-size: 0.84rem;">
+                          {{ $rMeta['label'] }}
+                          <small class="d-block text-muted font-weight-normal" style="font-size: 0.72rem;">{{ $rMeta['desc'] }}</small>
+                        </label>
+                      </div>
+                    @endforeach
+                  </div>
+                  @error('roles')
                     <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
                   @enderror
                 </div>

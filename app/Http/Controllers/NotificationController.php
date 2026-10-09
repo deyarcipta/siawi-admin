@@ -61,7 +61,7 @@ class NotificationController extends Controller
             // =========================================================================
 
             // --- WALI KELAS ---
-            if ($user->role == 'wali_kelas') {
+            if ($user->hasRole('wali_kelas')) {
                 $kelasWali = Kelas::where('id_guru', $user->id_guru)->get();
                 if ($kelasWali->isNotEmpty()) {
                     $kelasIds = $kelasWali->pluck('id_kelas')->toArray();
@@ -147,7 +147,7 @@ class NotificationController extends Controller
             }
 
             // --- GURU ---
-            if ($user->role == 'guru' || $user->role == 'wali_kelas') {
+            if ($user->hasAnyRole(['guru', 'wali_kelas'])) {
                 // A. Guru Piket Hari Ini
                 $isGuruPiket = GuruPiket::where('hari', $todayDayInd)
                     ->where('id_guru', $user->id_guru)
@@ -214,7 +214,7 @@ class NotificationController extends Controller
             }
 
             // --- ADMIN & KESISWAAN ---
-            if ($user->role == 'admin' || $user->role == 'kesiswaan') {
+            if ($user->hasAnyRole(['admin', 'kesiswaan'])) {
                 // A. Rekap Ketidakhadiran Siswa Sekolah Hari Ini
                 $totalTidakHadir = Absensi::where('tanggal', $today)
                     ->whereIn('kehadiran', ['alfa', 'izin', 'sakit'])
@@ -268,7 +268,7 @@ class NotificationController extends Controller
             }
 
             // --- TATA USAHA ---
-            if ($user->role == 'tata_usaha' || $user->role == 'admin') {
+            if ($user->hasAnyRole(['tata_usaha', 'admin'])) {
                 $guruHadir = AbsensiGuru::where('tanggal', $today)->count();
                 $totalGuru = Guru::count();
                 if ($totalGuru > 0 && $guruHadir < $totalGuru) {
@@ -287,7 +287,7 @@ class NotificationController extends Controller
             }
 
             // --- KEUANGAN ---
-            if ($user->role == 'keuangan') {
+            if ($user->hasRole('keuangan')) {
                 $alerts[] = [
                     'id' => 'keuangan_tagihan_' . $today,
                     'category' => 'alert',
@@ -302,7 +302,7 @@ class NotificationController extends Controller
             }
 
             // --- KURIKULUM ---
-            if ($user->role == 'kurikulum') {
+            if ($user->hasRole('kurikulum')) {
                 $jurnalCount = JurnalMengajar::where('tanggal', $today)->count();
                 $alerts[] = [
                     'id' => 'kurikulum_jurnal_' . $today,
@@ -320,7 +320,7 @@ class NotificationController extends Controller
             // =========================================================================
             // 2. PENGUMUMAN & AGENDA SEKOLAH (OPSI 2 - UNTUK SEMUA ROLE)
             // =========================================================================
-            $canAccessInfoPage = in_array($user->role, ['admin', 'tata_usaha', 'kurikulum', 'keuangan']);
+            $canAccessInfoPage = $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum', 'keuangan']);
             $targetInfoUrl = $canAccessInfoPage ? '/admin/informasi' : 'javascript:void(0)';
             $targetKalenderUrl = $canAccessInfoPage ? '/admin/kalender' : 'javascript:void(0)';
 

@@ -24,9 +24,8 @@
     <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="true">
         
-        @if($user->role == 'admin')
         <!-- ============================================== -->
-        <!-- 1. DASHBOARD                                   -->
+        <!-- 1. DASHBOARD & LIVE PANEL (Semua Pengguna)     -->
         <!-- ============================================== -->
         <li class="nav-item">
           <a href="/admin/dashboard" class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}">
@@ -34,6 +33,8 @@
             <p>Dashboard</p>
           </a>
         </li>
+
+        @if($user->hasAnyRole(['admin', 'kurikulum', 'kesiswaan', 'wali_kelas', 'guru', 'tata_usaha']))
         <li class="nav-item">
           <a href="/admin/live-panel" target="_blank" class="nav-link {{ Request::is('admin/live-panel*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-tv"></i>
@@ -43,15 +44,18 @@
             </p>
           </a>
         </li>
+        @endif
 
         <!-- ============================================== -->
         <!-- 2. PRESENSI & OPERASIONAL HARIAN               -->
         <!-- ============================================== -->
+        @if($user->hasAnyRole(['admin', 'kurikulum', 'kesiswaan', 'wali_kelas', 'guru', 'tata_usaha']))
         <li class="nav-header">
           Presensi Harian
         </li>
 
         <!-- Absensi Siswa -->
+        @if($user->hasAnyRole(['admin', 'kurikulum', 'kesiswaan', 'wali_kelas', 'guru', 'tata_usaha']))
         <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/siswa-tidak-hadir*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/siswa-tidak-hadir*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-check"></i>
@@ -61,12 +65,16 @@
             </p>
           </a>
           <ul class="nav nav-treeview">
+            @if($user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru']))
             <li class="nav-item">
               <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Absensi Harian Siswa</p>
               </a>
             </li>
+            @endif
+
+            @if($user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'tata_usaha', 'kurikulum']))
             <li class="nav-item">
               <a href="/admin/siswa-tidak-hadir?today=1" class="nav-link {{ Request::is('admin/siswa-tidak-hadir*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
@@ -85,28 +93,40 @@
                 <p>Rekap Absensi Siswa</p>
               </a>
             </li>
+            @endif
+
+            @if($user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas']))
             <li class="nav-item">
               <a href="/admin/laporan-kedisiplinan-siswa" class="nav-link {{ Request::is('admin/laporan-kedisiplinan-siswa*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Kedisiplinan Absensi Mesin</p>
               </a>
             </li>
+            @endif
+
+            @if($user->hasAnyRole(['admin', 'kesiswaan']))
             <li class="nav-item">
               <a href="/admin/rekap-belum-absen" class="nav-link {{ Request::is('admin/rekap-belum-absen*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Rekap Kelalaian Absen</p>
               </a>
             </li>
+            @endif
+
+            @if($user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum']))
             <li class="nav-item">
               <a href="/admin/laporan-bulanan-wa" class="nav-link {{ Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Rekap Bulanan & WA</p>
               </a>
             </li>
+            @endif
           </ul>
         </li>
+        @endif
 
         <!-- Absensi Guru -->
+        @if($user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum']))
         <li class="nav-item has-treeview {{ Request::is('admin/absensi_guru*') || Request::is('admin/rekapAbsenGuru*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/absensi_guru*') || Request::is('admin/rekapAbsenGuru*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-chalkboard-teacher"></i>
@@ -130,8 +150,10 @@
             </li>
           </ul>
         </li>
+        @endif
 
         <!-- Guru Piket -->
+        @if($user->hasAnyRole(['admin', 'guru', 'wali_kelas', 'kurikulum', 'kesiswaan', 'tata_usaha']))
         <li class="nav-item has-treeview {{ Request::is('admin/guruPiket*') || Request::is('admin/piketPembiasaanPagi*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/guruPiket*') || Request::is('admin/piketPembiasaanPagi*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-clock"></i>
@@ -161,15 +183,19 @@
             </li>
           </ul>
         </li>
+        @endif
+        @endif
 
         <!-- ============================================== -->
         <!-- 3. AKADEMIK & PEMBELAJARAN                     -->
         <!-- ============================================== -->
+        @if($user->hasAnyRole(['admin', 'kurikulum', 'wali_kelas', 'guru', 'tata_usaha']))
         <li class="nav-header">
           Akademik & Belajar
         </li>
 
         <!-- Pembelajaran -->
+        @if($user->hasAnyRole(['admin', 'kurikulum', 'wali_kelas', 'guru']))
         <li class="nav-item has-treeview {{ Request::is('admin/jadwal*') || Request::is('admin/jurnal*') || Request::is('admin/rekap-kehadiran-guru*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/jadwal*') || Request::is('admin/jurnal*') || Request::is('admin/rekap-kehadiran-guru*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-book-open"></i>
@@ -179,28 +205,38 @@
             </p>
           </a>
           <ul class="nav nav-treeview">
+            @if($user->hasAnyRole(['admin', 'kurikulum']))
             <li class="nav-item">
               <a href="/admin/jadwal" class="nav-link {{ Request::is('admin/jadwal*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Jadwal Mata Pelajaran</p>
               </a>
             </li>
+            @endif
+
+            @if($user->hasAnyRole(['admin', 'kurikulum', 'wali_kelas', 'guru']))
             <li class="nav-item">
               <a href="/admin/jurnal" class="nav-link {{ Request::is('admin/jurnal*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Jurnal Mengajar</p>
               </a>
             </li>
+            @endif
+
+            @if($user->hasAnyRole(['admin', 'kurikulum', 'tata_usaha']))
             <li class="nav-item">
               <a href="/admin/rekap-kehadiran-guru" class="nav-link {{ Request::is('admin/rekap-kehadiran-guru*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Monitoring Kehadiran</p>
               </a>
             </li>
+            @endif
           </ul>
         </li>
+        @endif
 
-        <!-- Dokumen & Akademik -->
+        <!-- Dokumen, Rapot & Modul -->
+        @if($user->hasAnyRole(['admin', 'kurikulum', 'wali_kelas', 'guru', 'tata_usaha']))
         <li class="nav-item has-treeview {{ Request::is('admin/rapot*') || Request::is('admin/modul*') || Request::is('admin/dokumen*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/rapot*') || Request::is('admin/modul*') || Request::is('admin/dokumen*') ? 'active' : '' }}">
             <i class="nav-icon far fa-file-alt"></i>
@@ -210,35 +246,47 @@
             </p>
           </a>
           <ul class="nav nav-treeview">
+            @if($user->hasAnyRole(['admin', 'tata_usaha']))
             <li class="nav-item">
               <a href="/admin/dokumen" class="nav-link {{ Request::is('admin/dokumen*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Dokumen Siswa</p>
               </a>
             </li>
+            @endif
+
+            @if($user->hasAnyRole(['admin', 'kurikulum', 'wali_kelas']))
             <li class="nav-item">
               <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Rapot Siswa</p>
               </a>
             </li>
+            @endif
+
+            @if($user->hasAnyRole(['admin', 'kurikulum', 'wali_kelas', 'guru']))
             <li class="nav-item">
               <a href="/admin/modul" class="nav-link {{ Request::is('admin/modul*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Modul Siswa</p>
               </a>
             </li>
+            @endif
           </ul>
         </li>
+        @endif
+        @endif
 
         <!-- ============================================== -->
         <!-- 4. KESISWAAN & KEDISIPLINAN                    -->
         <!-- ============================================== -->
+        @if($user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'tata_usaha']))
         <li class="nav-header">
           Kesiswaan & Industri
         </li>
 
         <!-- Point & Pelanggaran Siswa -->
+        @if($user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru']))
         <li class="nav-item has-treeview {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-exclamation-triangle"></i>
@@ -248,18 +296,25 @@
             </p>
           </a>
           <ul class="nav nav-treeview">
+            @if($user->hasAnyRole(['admin', 'kesiswaan']))
             <li class="nav-item">
               <a href="/admin/point" class="nav-link {{ Request::is('admin/point') || Request::is('admin/point/*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Data Poin</p>
               </a>
             </li>
+            @endif
+
+            @if($user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru']))
             <li class="nav-item">
               <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Pencatatan Poin Siswa</p>
               </a>
             </li>
+            @endif
+
+            @if($user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum']))
             <li class="nav-item">
               <a href="/admin/laporan-pelanggaran" class="nav-link {{ Request::is('admin/laporan-pelanggaran*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
@@ -272,10 +327,13 @@
                 <p>Surat Peringatan (SP)</p>
               </a>
             </li>
+            @endif
           </ul>
         </li>
+        @endif
 
         <!-- Hubungan Industri (BKK & PKL) -->
+        @if($user->hasAnyRole(['admin', 'kesiswaan', 'tata_usaha']))
         <li class="nav-item has-treeview {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-briefcase"></i>
@@ -299,23 +357,29 @@
             </li>
           </ul>
         </li>
+        @endif
+        @endif
 
         <!-- ============================================== -->
         <!-- 5. KEUANGAN & INFORMASI                        -->
         <!-- ============================================== -->
+        @if($user->hasAnyRole(['admin', 'keuangan', 'wali_kelas', 'tata_usaha', 'kurikulum']))
         <li class="nav-header">
           Keuangan & Informasi
         </li>
 
         <!-- Tagihan Keuangan -->
+        @if($user->hasAnyRole(['admin', 'keuangan', 'wali_kelas']))
         <li class="nav-item">
           <a href="/admin/tagihan" class="nav-link {{ Request::is('admin/tagihan*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-file-invoice-dollar"></i>
             <p>Tagihan Siswa</p>
           </a>
         </li>
+        @endif
 
         <!-- Pusat Informasi -->
+        @if($user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum', 'keuangan']))
         <li class="nav-item has-treeview {{ Request::is('admin/informasi*') || Request::is('admin/kalender*') || Request::is('admin/berita*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/informasi*') || Request::is('admin/kalender*') || Request::is('admin/berita*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-bullhorn"></i>
@@ -345,8 +409,10 @@
             </li>
           </ul>
         </li>
+        @endif
 
         <!-- Agenda Surat -->
+        @if($user->hasAnyRole(['admin', 'tata_usaha']))
         <li class="nav-item has-treeview {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') || Request::is('admin/klasifikasi-surat*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') || Request::is('admin/klasifikasi-surat*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-mail-bulk"></i>
@@ -376,10 +442,13 @@
             </li>
           </ul>
         </li>
+        @endif
+        @endif
 
         <!-- ============================================== -->
         <!-- 6. SISTEM & PENGATURAN                         -->
         <!-- ============================================== -->
+        @if($user->hasAnyRole(['admin', 'tata_usaha', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'keuangan']))
         <li class="nav-header">
           Sistem & Pengaturan
         </li>
@@ -394,12 +463,16 @@
             </p>
           </a>
           <ul class="nav nav-treeview">
+            @if($user->hasRole('admin'))
             <li class="nav-item">
               <a href="/admin/importDataMaster" class="nav-link {{ Request::is('admin/importDataMaster') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Import Data Master</p>
               </a>
             </li>
+            @endif
+
+            @if($user->hasAnyRole(['admin', 'tata_usaha']))
             <li class="nav-item">
               <a href="/admin/jurusan" class="nav-link {{ Request::is('admin/jurusan*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
@@ -424,6 +497,10 @@
                 <p>Data Mata Pelajaran</p>
               </a>
             </li>
+            @endif
+
+            <!-- Data Siswa & Alumni -->
+            @if($user->hasAnyRole(['admin', 'tata_usaha', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'keuangan']))
             <li class="nav-item">
               <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa') || Request::is('admin/siswa/*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
@@ -436,15 +513,20 @@
                 <p>Data Alumni</p>
               </a>
             </li>
+            @endif
+
+            @if($user->hasAnyRole(['admin', 'tata_usaha']))
             <li class="nav-item">
               <a href="/admin/guru" class="nav-link {{ Request::is('admin/guru') || Request::is('admin/guru/*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Data Guru</p>
               </a>
             </li>
+            @endif
           </ul>
         </li>
 
+        @if($user->hasRole('admin'))
         <!-- Pengaturan Aplikasi -->
         <li class="nav-item">
           <a href="/admin/setting" class="nav-link {{ Request::is('admin/setting*') ? 'active' : '' }}">
@@ -460,705 +542,7 @@
             <p>Backup & Restore</p>
           </a>
         </li>
-
-        @elseif($user->role == 'kurikulum')
-        <!-- ============================================== -->
-        <!-- KURIKULUM ROLE MENUS                           -->
-        <!-- ============================================== -->
-        <li class="nav-item">
-          <a href="/admin/dashboard" class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-th-large"></i>
-            <p>Dashboard</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Presensi Harian
-        </li>
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/siswa-tidak-hadir*') || Request::is('admin/rekapAbsen*') || Request::is('admin/dataAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/siswa-tidak-hadir*') || Request::is('admin/rekapAbsen*') || Request::is('admin/dataAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/laporan-bulanan-wa*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-check"></i>
-            <p>Absensi Siswa <i class="right fas fa-angle-left"></i></p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Absensi Harian</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/siswa-tidak-hadir?today=1" class="nav-link {{ Request::is('admin/siswa-tidak-hadir*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Siswa Tidak Hadir</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/dataAbsen*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Data Absensi Kelas</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/rekapAbsenSiswa" class="nav-link {{ Request::is('admin/rekapAbsenSiswa*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Rekap Absensi Siswa</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/laporan-bulanan-wa" class="nav-link {{ Request::is('admin/laporan-bulanan-wa*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Rekap Bulanan & WA</p>
-              </a>
-            </li>
-          </ul>
-        </li>
-
-        <li class="nav-item has-treeview {{ Request::is('admin/guruPiket*') || Request::is('admin/piketPembiasaanPagi*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/guruPiket*') || Request::is('admin/piketPembiasaanPagi*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-clock"></i>
-            <p>Guru Piket <i class="right fas fa-angle-left"></i></p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="/admin/guruPiket/panel" class="nav-link {{ Request::is('admin/guruPiket/panel*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Panel Piket</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/guruPiket" class="nav-link {{ Request::is('admin/guruPiket') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Jadwal Piket</p>
-              </a>
-            </li>
-          </ul>
-        </li>
-
-        <li class="nav-header">
-          Pembelajaran & Rapot
-        </li>
-        <li class="nav-item has-treeview {{ Request::is('admin/jadwal*') || Request::is('admin/jurnal*') || Request::is('admin/rekap-kehadiran-guru*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/jadwal*') || Request::is('admin/jurnal*') || Request::is('admin/rekap-kehadiran-guru*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-book-open"></i>
-            <p>Pembelajaran <i class="right fas fa-angle-left"></i></p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="/admin/jadwal" class="nav-link {{ Request::is('admin/jadwal*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Jadwal Mapel</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/jurnal" class="nav-link {{ Request::is('admin/jurnal*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Jurnal Mengajar</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/rekap-kehadiran-guru" class="nav-link {{ Request::is('admin/rekap-kehadiran-guru*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Monitoring Kehadiran</p>
-              </a>
-            </li>
-          </ul>
-        </li>
-
-        <li class="nav-item">
-          <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot*') ? 'active' : '' }}">
-            <i class="nav-icon far fa-file-alt"></i>
-            <p>E - Rapot</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="/admin/modul" class="nav-link {{ Request::is('admin/modul*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-book-reader"></i>
-            <p>Modul Siswa</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Kesiswaan & Master
-        </li>
-        <li class="nav-item has-treeview {{ Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-exclamation-triangle"></i>
-            <p>Point Siswa <i class="right fas fa-angle-left"></i></p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Data Point Siswa</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/laporan-pelanggaran" class="nav-link {{ Request::is('admin/laporan-pelanggaran*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Laporan Pelanggaran</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Surat Peringatan</p>
-              </a>
-            </li>
-          </ul>
-        </li>
-
-        <li class="nav-item has-treeview {{ Request::is('admin/siswa*') || Request::is('admin/guru*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/siswa*') || Request::is('admin/guru*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-database"></i>
-            <p>Data Master <i class="right fas fa-angle-left"></i></p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Data Siswa</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/guru" class="nav-link {{ Request::is('admin/guru*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Data Guru</p>
-              </a>
-            </li>
-          </ul>
-        </li>
-
-        <li class="nav-item">
-          <a href="/admin/tagihan" class="nav-link {{ Request::is('admin/tagihan*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-file-invoice-dollar"></i>
-            <p>Tagihan</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Informasi & Agenda
-        </li>
-        <li class="nav-item">
-          <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-bullhorn"></i>
-            <p>Informasi Sekolah</p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/admin/kalender" class="nav-link {{ Request::is('admin/kalender*') ? 'active' : '' }}">
-            <i class="nav-icon far fa-calendar-alt"></i>
-            <p>Kalender Pendidikan</p>
-          </a>
-        </li>
-
-        @elseif($user->role == 'kesiswaan')
-        <!-- ============================================== -->
-        <!-- KESISWAAN ROLE MENUS                           -->
-        <!-- ============================================== -->
-        <li class="nav-item">
-          <a href="/admin/dashboard" class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-th-large"></i>
-            <p>Dashboard</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Presensi Harian
-        </li>
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/siswa-tidak-hadir*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-bulanan-wa*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/siswa-tidak-hadir*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-bulanan-wa*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-check"></i>
-            <p>Absensi Siswa <i class="right fas fa-angle-left"></i></p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Absensi Harian</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/siswa-tidak-hadir?today=1" class="nav-link {{ Request::is('admin/siswa-tidak-hadir*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Siswa Tidak Hadir</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Data Absensi Kelas</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/rekapAbsenSiswa" class="nav-link {{ Request::is('admin/rekapAbsenSiswa*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Rekap Absensi Siswa</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/rekap-belum-absen" class="nav-link {{ Request::is('admin/rekap-belum-absen*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Rekap Kelalaian Absen</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/laporan-bulanan-wa" class="nav-link {{ Request::is('admin/laporan-bulanan-wa*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Rekap Bulanan & WA</p>
-              </a>
-            </li>
-          </ul>
-        </li>
-
-        <li class="nav-item">
-          <a href="/admin/guruPiket/panel" class="nav-link {{ Request::is('admin/guruPiket/panel*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-clock"></i>
-            <p>Panel Guru Piket</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Kesiswaan & Kedisiplinan
-        </li>
-        <li class="nav-item has-treeview {{ Request::is('admin/point*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/point*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-exclamation-triangle"></i>
-            <p>Point Siswa <i class="right fas fa-angle-left"></i></p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="/admin/point" class="nav-link {{ Request::is('admin/point') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Data Point</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Data Point Siswa</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/laporan-pelanggaran" class="nav-link {{ Request::is('admin/laporan-pelanggaran*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Laporan Pelanggaran</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Surat Peringatan</p>
-              </a>
-            </li>
-          </ul>
-        </li>
-
-        <li class="nav-header">
-          Akademik & Informasi
-        </li>
-        <li class="nav-item">
-          <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-friends"></i>
-            <p>Data Siswa</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="/admin/jurnal" class="nav-link {{ Request::is('admin/jurnal*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-book"></i>
-            <p>Jurnal Mengajar</p>
-          </a>
-        </li>
-
-
-
-        @elseif($user->role == 'wali_kelas')
-        <!-- ============================================== -->
-        <!-- WALI KELAS ROLE MENUS                          -->
-        <!-- ============================================== -->
-        <li class="nav-item">
-          <a href="/admin/dashboard" class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-th-large"></i>
-            <p>Dashboard</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Presensi & Piket
-        </li>
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/siswa-tidak-hadir*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/siswa-tidak-hadir*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-check"></i>
-            <p>Absensi Siswa <i class="right fas fa-angle-left"></i></p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Absensi Harian</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/siswa-tidak-hadir?today=1" class="nav-link {{ Request::is('admin/siswa-tidak-hadir*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Siswa Tidak Hadir</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Data Absensi Kelas</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/rekapAbsenSiswa" class="nav-link {{ Request::is('admin/rekapAbsenSiswa*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Rekap Absensi Siswa</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/laporan-kedisiplinan-siswa" class="nav-link {{ Request::is('admin/laporan-kedisiplinan-siswa*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Kedisiplinan Absensi Mesin</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/laporan-bulanan-wa" class="nav-link {{ Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Rekap Bulanan & WA</p>
-              </a>
-            </li>
-          </ul>
-        </li>
-
-        <li class="nav-item">
-          <a href="/admin/guruPiket/panel" class="nav-link {{ Request::is('admin/guruPiket/panel*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-clock"></i>
-            <p>Panel Guru Piket</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Pembelajaran & Rapot
-        </li>
-        <li class="nav-item">
-          <a href="/admin/jurnal" class="nav-link {{ Request::is('admin/jurnal*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-book"></i>
-            <p>Jurnal Mengajar</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot*') ? 'active' : '' }}">
-            <i class="nav-icon far fa-file-alt"></i>
-            <p>E - Rapot</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="/admin/modul" class="nav-link {{ Request::is('admin/modul*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-book-reader"></i>
-            <p>Modul Siswa</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Kesiswaan & Kedisiplinan
-        </li>
-        <li class="nav-item">
-          <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-friends"></i>
-            <p>Data Siswa</p>
-          </a>
-        </li>
-
-        <li class="nav-item has-treeview {{ Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-exclamation-triangle"></i>
-            <p>Point Siswa <i class="right fas fa-angle-left"></i></p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Data Point Siswa</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/laporan-pelanggaran" class="nav-link {{ Request::is('admin/laporan-pelanggaran*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Laporan Pelanggaran</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/surat-peringatan" class="nav-link {{ Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Surat Peringatan</p>
-              </a>
-            </li>
-          </ul>
-        </li>
-
-        <li class="nav-header">
-          Keuangan & Administrasi
-        </li>
-        <li class="nav-item">
-          <a href="/admin/tagihan" class="nav-link {{ Request::is('admin/tagihan*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-file-invoice-dollar"></i>
-            <p>Tagihan Siswa</p>
-          </a>
-        </li>
-
-        @elseif($user->role == 'guru')
-        <!-- ============================================== -->
-        <!-- GURU ROLE MENUS                                -->
-        <!-- ============================================== -->
-        <li class="nav-item">
-          <a href="/admin/dashboard" class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-th-large"></i>
-            <p>Dashboard</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Presensi & Piket
-        </li>
-        <li class="nav-item">
-          <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-check"></i>
-            <p>Absensi Harian</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="/admin/guruPiket/panel" class="nav-link {{ Request::is('admin/guruPiket/panel*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-clock"></i>
-            <p>Panel Guru Piket</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Pembelajaran & Materi
-        </li>
-        <li class="nav-item">
-          <a href="/admin/jurnal" class="nav-link {{ Request::is('admin/jurnal*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-book"></i>
-            <p>Jurnal Mengajar</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="/admin/modul" class="nav-link {{ Request::is('admin/modul*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-book-reader"></i>
-            <p>Modul Siswa</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Kesiswaan & Poin
-        </li>
-        <li class="nav-item">
-          <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-friends"></i>
-            <p>Data Siswa</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-exclamation-triangle"></i>
-            <p>Input Point Siswa</p>
-          </a>
-        </li>
-
-        @elseif($user->role == 'tata_usaha')
-        <!-- ============================================== -->
-        <!-- TATA USAHA ROLE MENUS                          -->
-        <!-- ============================================== -->
-        <li class="nav-item">
-          <a href="/admin/dashboard" class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-th-large"></i>
-            <p>Dashboard</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Kesiswaan & Master
-        </li>
-        <li class="nav-item">
-          <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-friends"></i>
-            <p>Data Siswa</p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/admin/alumni" class="nav-link {{ Request::is('admin/alumni*') || Request::is('admin/dataAlumni*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-graduate"></i>
-            <p>Data Alumni</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Administrasi & Dokumen
-        </li>
-        <li class="nav-item">
-          <a href="/admin/dokumen" class="nav-link {{ Request::is('admin/dokumen*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-folder-open"></i>
-            <p>Dokumen Sekolah</p>
-          </a>
-        </li>
-        <!-- Agenda Surat -->
-        <li class="nav-item has-treeview {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') || Request::is('admin/klasifikasi-surat*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/surat-keluar*') || Request::is('admin/surat-masuk*') || Request::is('admin/klasifikasi-surat*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-mail-bulk"></i>
-            <p>
-              Agenda Surat
-              <i class="right fas fa-angle-left"></i>
-            </p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="/admin/surat-keluar" class="nav-link {{ Request::is('admin/surat-keluar*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Surat Keluar (Penomoran)</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/surat-masuk" class="nav-link {{ Request::is('admin/surat-masuk*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Surat Masuk (Agenda)</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/klasifikasi-surat" class="nav-link {{ Request::is('admin/klasifikasi-surat*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Klasifikasi Surat</p>
-              </a>
-            </li>
-          </ul>
-        </li>
-        <li class="nav-item">
-          <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-bullhorn"></i>
-            <p>Informasi Sekolah</p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/admin/berita" class="nav-link {{ Request::is('admin/berita*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-newspaper"></i>
-            <p>Berita Sekolah</p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/admin/kalender" class="nav-link {{ Request::is('admin/kalender*') ? 'active' : '' }}">
-            <i class="nav-icon far fa-calendar-alt"></i>
-            <p>Kalender Pendidikan</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Presensi & Arsip
-        </li>
-        <!-- Absensi Siswa -->
-        <li class="nav-item has-treeview {{ Request::is('admin/siswa-tidak-hadir*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/siswa-tidak-hadir*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-clipboard-list"></i>
-            <p>
-              Presensi Siswa
-              <i class="right fas fa-angle-left"></i>
-            </p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="/admin/siswa-tidak-hadir?today=1" class="nav-link {{ Request::is('admin/siswa-tidak-hadir*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Siswa Tidak Hadir</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/rekapAbsen" class="nav-link {{ Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Data Absensi Kelas</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/rekapAbsenSiswa" class="nav-link {{ Request::is('admin/rekapAbsenSiswa*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Rekap Absensi Siswa</p>
-              </a>
-            </li>
-          </ul>
-        </li>
-
-        <!-- Absensi Guru -->
-        <li class="nav-item has-treeview {{ Request::is('admin/absensi_guru*') || Request::is('admin/rekapAbsenGuru*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/absensi_guru*') || Request::is('admin/rekapAbsenGuru*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-chalkboard-teacher"></i>
-            <p>
-              Absensi Guru
-              <i class="right fas fa-angle-left"></i>
-            </p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="/admin/absensi_guru" class="nav-link {{ Request::is('admin/absensi_guru*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Absensi Harian Guru</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/rekapAbsenGuru" class="nav-link {{ Request::is('admin/rekapAbsenGuru*') ? 'active' : '' }}">
-                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Rekap Absensi Guru</p>
-              </a>
-            </li>
-          </ul>
-        </li>
-
-        @elseif($user->role == 'keuangan')
-        <!-- ============================================== -->
-        <!-- KEUANGAN ROLE MENUS                            -->
-        <!-- ============================================== -->
-        <li class="nav-item">
-          <a href="/admin/dashboard" class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-th-large"></i>
-            <p>Dashboard</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Keuangan & Tagihan
-        </li>
-        <li class="nav-item">
-          <a href="/admin/tagihan" class="nav-link {{ Request::is('admin/tagihan*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-file-invoice-dollar"></i>
-            <p>Tagihan Siswa</p>
-          </a>
-        </li>
-
-        <li class="nav-header">
-          Data & Informasi
-        </li>
-        <li class="nav-item">
-          <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-friends"></i>
-            <p>Data Siswa</p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/admin/informasi" class="nav-link {{ Request::is('admin/informasi*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-bullhorn"></i>
-            <p>Informasi Sekolah</p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/admin/kalender" class="nav-link {{ Request::is('admin/kalender*') ? 'active' : '' }}">
-            <i class="nav-icon far fa-calendar-alt"></i>
-            <p>Kalender Pendidikan</p>
-          </a>
-        </li>
+        @endif
         @endif
 
       </ul>
@@ -1176,24 +560,22 @@
     @endif
     <div class="sidebar-user-info">
       <div class="sidebar-user-name" title="{{ $user->nama_guru }}">{{ $user->nama_guru }}</div>
-      <div class="sidebar-user-role">
-        @if($user->role == 'admin')
-          Administrator
-        @elseif($user->role == 'wali_kelas')
-          Wali Kelas
-        @elseif($user->role == 'tata_usaha')
-          Tata Usaha
-        @elseif($user->role == 'keuangan')
-          Keuangan
-        @elseif($user->role == 'guru')
-          Guru
-        @elseif($user->role == 'kesiswaan')
-          Kesiswaan
-        @elseif($user->role == 'kurikulum')
-          Kurikulum
-        @else
-          Staff
-        @endif
+      <div class="sidebar-user-role" title="{{ implode(' • ', array_map(function($r) { return ucfirst(str_replace('_', ' ', $r)); }, $user->roles_list ?? [$user->role])) }}">
+        @php
+          $roleLabels = [
+            'admin' => 'Admin',
+            'wali_kelas' => 'Wali Kelas',
+            'kesiswaan' => 'Kesiswaan',
+            'kurikulum' => 'Kurikulum',
+            'tata_usaha' => 'Tata Usaha',
+            'keuangan' => 'Keuangan',
+            'guru' => 'Guru',
+          ];
+          $userDisplayRoles = array_map(function($r) use ($roleLabels) {
+            return $roleLabels[$r] ?? ucfirst(str_replace('_', ' ', $r));
+          }, $user->roles_list ?? [$user->role]);
+        @endphp
+        {{ implode(' • ', $userDisplayRoles) }}
       </div>
     </div>
   </div>
