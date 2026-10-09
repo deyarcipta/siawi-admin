@@ -168,4 +168,34 @@ class Guru extends Model implements Authenticatable
         $highest = $this->highest_role;
         return $labels[$highest] ?? ucfirst(str_replace('_', ' ', $highest));
     }
+
+    /**
+     * Check if teacher acts strictly as a Wali Kelas for student/attendance/academic modules
+     * (has role wali_kelas or assigned as kelasWali, and NOT having any of the bypass roles).
+     */
+    public function isWaliKelasStrict(array $bypassRoles = ['admin', 'kesiswaan', 'kurikulum']): bool
+    {
+        if ($this->hasAnyRole($bypassRoles)) {
+            return false;
+        }
+
+        return $this->hasRole('wali_kelas') || $this->kelasWali()->exists();
+    }
+
+    /**
+     * Check if teacher acts strictly as a Wali Kelas for Keuangan / Tagihan
+     * (has role wali_kelas or assigned as kelasWali, but NOT admin or keuangan).
+     */
+    public function isWaliKelasKeuanganStrict(): bool
+    {
+        return $this->isWaliKelasStrict(['admin', 'keuangan']);
+    }
+
+    /**
+     * Get list of kelas IDs that this teacher manages as Wali Kelas.
+     */
+    public function getKelasWaliIds(): array
+    {
+        return Kelas::where('id_guru', $this->id_guru)->pluck('id_kelas')->toArray();
+    }
 }

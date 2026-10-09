@@ -44,7 +44,7 @@ class SiswaTidakHadirExport implements FromCollection, WithHeadings, WithMapping
             ->whereIn('absensi.kehadiran', ['sakit', 'izin', 'alfa'])
             ->select('absensi.*');
 
-        if ($this->user && $this->user->role == 'wali_kelas') {
+        if ($this->user && $this->user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum', 'tata_usaha'])) {
             $kelasWali = Kelas::where('id_guru', $this->user->id_guru)->first();
             if ($kelasWali) {
                 $query->where('absensi.id_kelas', $kelasWali->id_kelas);

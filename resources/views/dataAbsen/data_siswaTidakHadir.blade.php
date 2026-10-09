@@ -97,18 +97,21 @@
     <!-- Filter Toolbar -->
     <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px;">
       <div class="card-body p-3">
+        @php
+          $isWaliKelasOnly = $user && $user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum', 'tata_usaha']);
+        @endphp
         <form method="GET" action="{{ url('/admin/siswa-tidak-hadir') }}" class="row align-items-end">
-          <div class="{{ $user->role == 'wali_kelas' ? 'col-md-4' : 'col-md-3' }} col-sm-6 mb-2 mb-md-0">
+          <div class="{{ $isWaliKelasOnly ? 'col-md-4' : 'col-md-3' }} col-sm-6 mb-2 mb-md-0">
             <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Tanggal Mulai</label>
             <input type="date" name="tanggal_mulai" id="tanggal_mulai" class="form-control form-control-sm" value="{{ $tanggalMulai }}">
           </div>
 
-          <div class="{{ $user->role == 'wali_kelas' ? 'col-md-4' : 'col-md-3' }} col-sm-6 mb-2 mb-md-0">
+          <div class="{{ $isWaliKelasOnly ? 'col-md-4' : 'col-md-3' }} col-sm-6 mb-2 mb-md-0">
             <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Tanggal Akhir</label>
             <input type="date" name="tanggal_akhir" id="tanggal_akhir" class="form-control form-control-sm" value="{{ $tanggalAkhir }}">
           </div>
 
-          @if($user->role != 'wali_kelas')
+          @if(!$isWaliKelasOnly)
             <div class="col-md-3 col-sm-6 mb-2 mb-md-0">
               <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Filter Kelas</label>
               <select name="id_kelas" class="form-control form-control-sm">
@@ -122,7 +125,7 @@
             </div>
           @endif
 
-          <div class="{{ $user->role == 'wali_kelas' ? 'col-md-4' : 'col-md-3' }} col-sm-6 mb-2 mb-md-0">
+          <div class="{{ $isWaliKelasOnly ? 'col-md-4' : 'col-md-3' }} col-sm-6 mb-2 mb-md-0">
             <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Status</label>
             <div class="d-flex align-items-center" style="gap: 8px;">
               <select name="status" class="form-control form-control-sm" style="flex: 1;">

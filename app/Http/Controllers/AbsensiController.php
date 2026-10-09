@@ -254,7 +254,8 @@ class AbsensiController extends Controller
         $user = Auth::user();
 
         // Jika user adalah wali_kelas, langsung arahkan ke detail rekap kelasnya sendiri
-        if ($user && $user->role == 'wali_kelas') {
+        $isWaliKelasOnly = $user && $user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum', 'tata_usaha']);
+        if ($isWaliKelasOnly) {
             $kelasWali = Kelas::where('id_guru', $user->id_guru)->first();
             if ($kelasWali) {
                 $tanggal_awal = $request->input('tanggal_awal', Carbon::now()->startOfWeek()->toDateString());
@@ -312,8 +313,9 @@ class AbsensiController extends Controller
         $setting = Setting::find('1');
         $user = Auth::user();
         $kelasId = $request->query('id_kelas');
+        $isWaliKelasOnly = $user && $user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum', 'tata_usaha']);
         
-        if (!$kelasId && $user && $user->role == 'wali_kelas') {
+        if (!$kelasId && $isWaliKelasOnly) {
             $kelasWali = Kelas::where('id_guru', $user->id_guru)->first();
             if ($kelasWali) {
                 $kelasId = $kelasWali->id_kelas;
@@ -327,11 +329,13 @@ class AbsensiController extends Controller
         $dataKelas = Kelas::findOrFail($kelasId);
         
         // Keamanan: Jika wali_kelas, pastikan hanya dapat melihat kelas miliknya
-        if ($user && $user->role == 'wali_kelas' && $dataKelas->id_guru != $user->id_guru) {
+        if ($isWaliKelasOnly && $dataKelas->id_guru != $user->id_guru) {
             $kelasWali = Kelas::where('id_guru', $user->id_guru)->first();
             if ($kelasWali) {
-                $kelasId = $kelasWali->id_kelas;
-                $dataKelas = $kelasWali;
+                $tanggal_awal = $request->query('tanggal_awal', Carbon::now()->startOfWeek()->toDateString());
+                $tanggal_akhir = $request->query('tanggal_akhir', Carbon::now()->toDateString());
+                return redirect('/admin/showRekapAbsen?tanggal_awal=' . $tanggal_awal . '&tanggal_akhir=' . $tanggal_akhir . '&id_kelas=' . $kelasWali->id_kelas)
+                    ->with('warning', 'Akses dibatasi hanya untuk kelas binaan Anda (' . $kelasWali->nama_kelas . ').');
             } else {
                 abort(403, 'Anda tidak memiliki akses ke kelas ini.');
             }
@@ -374,6 +378,14 @@ class AbsensiController extends Controller
 
         if (!$id_kelas) {
             return redirect()->back()->with('error', 'Kelas tidak dipilih.');
+        }
+
+        $user = Auth::user();
+        if ($user && method_exists($user, 'isWaliKelasStrict') && $user->isWaliKelasStrict()) {
+            $walasKelasIds = $user->getKelasWaliIds();
+            if (!in_array($id_kelas, $walasKelasIds)) {
+                abort(403, 'Akses ditolak: Anda hanya dapat mengunduh rekap absensi untuk kelas binaan Anda.');
+            }
         }
 
         $dataKelas = Kelas::where('id_kelas', $id_kelas)->first();
@@ -464,6 +476,14 @@ class AbsensiController extends Controller
             return redirect()->back()->with('error', 'Kelas tidak dipilih.');
         }
 
+        $user = Auth::user();
+        if ($user && method_exists($user, 'isWaliKelasStrict') && $user->isWaliKelasStrict()) {
+            $walasKelasIds = $user->getKelasWaliIds();
+            if (!in_array($id_kelas, $walasKelasIds)) {
+                abort(403, 'Akses ditolak: Anda hanya dapat mengunduh rekap absensi untuk kelas binaan Anda.');
+            }
+        }
+
         $dataKelas = Kelas::with('guru')->where('id_kelas', $id_kelas)->first();
         if (!$dataKelas) {
             return redirect()->back()->with('error', 'Data kelas tidak ditemukan.');
@@ -546,11 +566,15 @@ class AbsensiController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
+        $isWaliKelasOnly = $user && $user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum', 'tata_usaha']);
+        
         $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
-        if ($user && $user->role == 'wali_kelas') {
+        if ($isWaliKelasOnly) {
             $kelasWali = Kelas::where('id_guru', $user->id_guru)->orderBy('nama_kelas', 'asc')->get();
             if ($kelasWali->isNotEmpty()) {
                 $kelas = $kelasWali;
+            } else {
+                abort(403, 'Anda belum ditugaskan sebagai wali kelas.');
             }
         }
 
@@ -558,12 +582,18 @@ class AbsensiController extends Controller
         $tanggalAkhir = $request->input('tanggal_akhir', Carbon::now()->toDateString());
         
         $kelasId = $request->input('kelas');
-        if (!$kelasId && $user && $user->role == 'wali_kelas') {
-            $kelasId = $kelas->first()?->id_kelas;
+        if ($isWaliKelasOnly) {
+            // Paksa hanya kelas binaannya, jika user memasukkan kelas lain via query string
+            if (!$kelasId || !$kelas->contains('id_kelas', $kelasId)) {
+                $kelasId = $kelas->first()?->id_kelas;
+            }
         }
 
         if ($kelasId) {
             $dataKelas = Kelas::where('id_kelas', $kelasId)->first();
+            if ($isWaliKelasOnly && $dataKelas && $dataKelas->id_guru != $user->id_guru) {
+                abort(403, 'Anda tidak memiliki akses ke kelas ini.');
+            }
 
             $rekapKehadiran = Absensi::whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir])
                 ->whereHas('siswa', function ($query) use ($kelasId) {
@@ -584,10 +614,13 @@ class AbsensiController extends Controller
     {
         $user = Auth::user();
         $id_kelas     = $request->id_kelas;
-        if ($user && $user->role == 'wali_kelas') {
+        $isWaliKelasOnly = $user && $user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum', 'tata_usaha']);
+        if ($isWaliKelasOnly) {
             $kelasWali = Kelas::where('id_guru', $user->id_guru)->first();
             if ($kelasWali) {
                 $id_kelas = $kelasWali->id_kelas;
+            } else {
+                abort(403, 'Akses dibatasi hanya untuk kelas binaan Anda.');
             }
         }
         $tanggal_awal = $request->input('tanggal_awal', Carbon::now()->startOfMonth()->toDateString());
@@ -595,6 +628,9 @@ class AbsensiController extends Controller
 
         // Ambil data kelas untuk mendapatkan nama kelas
         $kelas = Kelas::find($id_kelas);
+        if ($isWaliKelasOnly && $kelas && $kelas->id_guru != $user->id_guru) {
+            abort(403, 'Anda tidak memiliki akses ke kelas ini.');
+        }
         // Format nama kelas agar tidak ada spasi, misalnya diganti dengan underscore
         $namaKelas = $kelas ? str_replace(' ', '_', strtoupper($kelas->nama_kelas)) : 'kelas';
 
@@ -783,11 +819,15 @@ class AbsensiController extends Controller
             ->select('absensi.*');
 
         // Filter role wali_kelas
-        if ($user && $user->role == 'wali_kelas') {
+        $isWaliKelasOnly = $user && $user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum', 'tata_usaha']);
+        if ($isWaliKelasOnly) {
             $kelasWali = Kelas::where('id_guru', $user->id_guru)->first();
             if ($kelasWali) {
                 $query->where('absensi.id_kelas', $kelasWali->id_kelas);
                 $selectedKelas = $kelasWali->id_kelas;
+                $kelasList = Kelas::where('id_guru', $user->id_guru)->get();
+            } else {
+                abort(403, 'Anda belum ditugaskan sebagai wali kelas.');
             }
         } elseif (!empty($selectedKelas)) {
             $query->where('absensi.id_kelas', $selectedKelas);

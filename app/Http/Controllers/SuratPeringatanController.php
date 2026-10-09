@@ -19,8 +19,8 @@ class SuratPeringatanController extends Controller
         $setting = Setting::find(1);
         $user = Auth::user();
 
-        $isWaliKelasOnly = $user && $user->hasRole('wali_kelas') && !$user->hasAnyRole(['admin', 'kesiswaan', 'kurikulum']);
-        $kelasWaliIds = $isWaliKelasOnly ? \App\Models\Kelas::where('id_guru', $user->id_guru)->pluck('id_kelas') : collect();
+        $isWaliKelasOnly = $user && method_exists($user, 'isWaliKelasStrict') && $user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum']);
+        $kelasWaliIds = $isWaliKelasOnly ? $user->getKelasWaliIds() : [];
 
         // 1. Get issued SPs
         $query = SuratPeringatan::with('siswa.kelas', 'kelas');
@@ -166,6 +166,14 @@ class SuratPeringatanController extends Controller
         ]);
 
         $sp = SuratPeringatan::findOrFail($id_sp);
+
+        $user = Auth::user();
+        if ($user && method_exists($user, 'isWaliKelasStrict') && $user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum'])) {
+            $walasKelasIds = $user->getKelasWaliIds();
+            if (!in_array($sp->id_kelas, $walasKelasIds)) {
+                abort(403, 'Akses ditolak: Anda hanya dapat mengunggah berkas untuk siswa kelas binaan Anda.');
+            }
+        }
 
         if ($request->hasFile('file_ttd')) {
             // Delete old file if exists

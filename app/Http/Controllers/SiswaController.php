@@ -34,7 +34,8 @@ class SiswaController extends Controller
         $setting = Setting::find('1');
         $user = Auth::user();
         $query = Siswa::query();
-        if ($user && $user->role == 'wali_kelas') {
+        $isWaliKelasOnly = $user && $user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum', 'tata_usaha']);
+        if ($isWaliKelasOnly) {
             $kelasWaliIds = Kelas::where('id_guru', $user->id_guru)->pluck('id_kelas');
             $query->whereIn('id_kelas', $kelasWaliIds);
         }

@@ -40,7 +40,7 @@
                             <div class="form-group col-md-3 mb-3 mb-md-0">
                                 <label for="kelas" class="font-weight-bold text-secondary" style="font-size: 0.78rem; text-transform: uppercase;">Pilih Kelas</label>
                                 <select class="form-control" id="kelas" name="kelas" required>
-                                    @if(Auth::user()->role != 'wali_kelas')
+                                    @if(!Auth::user()->isWaliKelasStrict())
                                     <option value="">-- Pilih Kelas --</option>
                                     @endif
                                     @foreach($kelas as $kls)

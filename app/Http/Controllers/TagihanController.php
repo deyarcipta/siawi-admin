@@ -24,19 +24,22 @@ class TagihanController extends Controller
         $tagihan = Tagihan::find('1');
         $kelasId = $request->input('kelas', '');
 
+        $isWaliKelasOnly = $user && $user->isWaliKelasKeuanganStrict();
         $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
-        if ($user && $user->role == 'wali_kelas') {
+        if ($isWaliKelasOnly) {
             $kelasWali = Kelas::where('id_guru', $user->id_guru)->orderBy('nama_kelas', 'asc')->get();
             if ($kelasWali->isNotEmpty()) {
                 $kelas = $kelasWali;
                 if (empty($kelasId) || !$kelas->contains('id_kelas', $kelasId)) {
                     $kelasId = $kelas->first()->id_kelas;
                 }
+            } else {
+                abort(403, 'Anda belum ditugaskan sebagai wali kelas.');
             }
         }
 
         $query = Siswa::with('kelas');
-        if ($user && $user->role == 'wali_kelas') {
+        if ($isWaliKelasOnly) {
             $kelasWaliIds = $kelas->pluck('id_kelas');
             if (!empty($kelasId) && $kelasId !== 'all') {
                 $query->where('id_kelas', $kelasId);

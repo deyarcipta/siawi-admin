@@ -23,14 +23,17 @@ class RapotController extends Controller
         $setting = Setting::find('1');
         $user = Auth::user();
         $kelasId = $request->get('kelas', '');
+        $isWaliKelasOnly = $user && $user->isWaliKelasStrict(['admin', 'kurikulum']);
         $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
-        if ($user && $user->role == 'wali_kelas') {
+        if ($isWaliKelasOnly) {
             $kelasWali = Kelas::where('id_guru', $user->id_guru)->orderBy('nama_kelas', 'asc')->get();
             if ($kelasWali->isNotEmpty()) {
                 $kelas = $kelasWali;
                 if (empty($kelasId) || !$kelas->contains('id_kelas', $kelasId)) {
                     $kelasId = $kelas->first()->id_kelas;
                 }
+            } else {
+                abort(403, 'Anda belum ditugaskan sebagai wali kelas.');
             }
         }
 
@@ -43,7 +46,7 @@ class RapotController extends Controller
             $dataKelas = null;
         }
 
-        if ($user && $user->role == 'wali_kelas') {
+        if ($isWaliKelasOnly) {
             $kelasWaliIds = $kelas->pluck('id_kelas');
             $query->whereIn('id_kelas', $kelasWaliIds);
             $allSiswa = Siswa::whereIn('id_kelas', $kelasWaliIds)->with('kelas')->orderBy('nama_siswa', 'asc')->get();

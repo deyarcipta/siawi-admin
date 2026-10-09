@@ -941,15 +941,7 @@
           <p class="text-muted mb-0" style="font-size: 0.82rem;">
             Pilih jenis laporan yang ingin diunduh untuk 
             <span class="badge badge-light text-primary font-weight-bold px-2 py-1" style="background: #eff6ff; font-size: 0.72rem; border-radius: 6px;">
-              @if($user->role == 'wali_kelas')
-                Wali Kelas
-              @elseif($user->role == 'tata_usaha')
-                Tata Usaha
-              @elseif($user->role == 'keuangan')
-                Keuangan
-              @else
-                {{ ucfirst($user->role) }}
-              @endif
+              {{ $user->highest_role_label ?? ucfirst($user->role) }}
             </span>
           </p>
         </div>
@@ -959,7 +951,10 @@
       </div>
       <div class="modal-body p-4 pt-2">
         <div class="list-group list-group-flush">
-          @if($user->role == 'admin')
+          @php
+            $modalRole = $user->highest_role ?? $user->role;
+          @endphp
+          @if($modalRole == 'admin')
             {{-- ADMIN: Akses Semua Laporan Utama --}}
             <a href="/admin/rekapAbsen" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3" style="border-radius: 10px; margin-bottom: 8px; border: 1px solid #f1f5f9;">
               <div class="d-flex align-items-center" style="gap: 12px;">
@@ -1026,7 +1021,7 @@
               <i class="fas fa-download text-muted"></i>
             </a>
 
-          @elseif($user->role == 'kesiswaan')
+          @elseif($modalRole == 'kesiswaan')
             {{-- KESISWAAN: Presensi Siswa & Poin Pelanggaran --}}
             <a href="/admin/rekapAbsen" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3" style="border-radius: 10px; margin-bottom: 8px; border: 1px solid #f1f5f9;">
               <div class="d-flex align-items-center" style="gap: 12px;">
@@ -1080,7 +1075,7 @@
               <i class="fas fa-download text-muted"></i>
             </a>
 
-          @elseif($user->role == 'wali_kelas')
+          @elseif($modalRole == 'wali_kelas')
             {{-- WALI KELAS: Presensi Kelas & Pelanggaran Binaan --}}
             <a href="/admin/rekapAbsen" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3" style="border-radius: 10px; margin-bottom: 8px; border: 1px solid #f1f5f9;">
               <div class="d-flex align-items-center" style="gap: 12px;">
@@ -1134,7 +1129,7 @@
               <i class="fas fa-download text-muted"></i>
             </a>
 
-          @elseif($user->role == 'kurikulum')
+          @elseif($modalRole == 'kurikulum')
             {{-- KURIKULUM: Presensi Guru, Jurnal & Pembelajaran --}}
             <a href="/admin/rekapAbsenGuru" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3" style="border-radius: 10px; margin-bottom: 8px; border: 1px solid #f1f5f9;">
               <div class="d-flex align-items-center" style="gap: 12px;">
@@ -1175,7 +1170,7 @@
               <i class="fas fa-download text-muted"></i>
             </a>
 
-          @elseif($user->role == 'guru')
+          @elseif($modalRole == 'guru')
             {{-- GURU: Format Absen & Jurnal Pribadi --}}
             <a href="/admin/downloadAbsensiHarianSiswa" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3" style="border-radius: 10px; margin-bottom: 8px; border: 1px solid #f1f5f9;">
               <div class="d-flex align-items-center" style="gap: 12px;">
@@ -1203,7 +1198,7 @@
               <i class="fas fa-download text-muted"></i>
             </a>
 
-          @elseif($user->role == 'tata_usaha')
+          @elseif($modalRole == 'tata_usaha')
             {{-- TATA USAHA: Master Siswa, Alumni, Dokumen & Rekap Absensi --}}
             <a href="/admin/rekapAbsen" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3" style="border-radius: 10px; margin-bottom: 8px; border: 1px solid #f1f5f9;">
               <div class="d-flex align-items-center" style="gap: 12px;">
@@ -1270,7 +1265,7 @@
               <i class="fas fa-download text-muted"></i>
             </a>
 
-          @elseif($user->role == 'keuangan')
+          @elseif($modalRole == 'keuangan')
             {{-- KEUANGAN: Tagihan & Rekap Siswa --}}
             <a href="/admin/tagihan" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3" style="border-radius: 10px; margin-bottom: 8px; border: 1px solid #f1f5f9;">
               <div class="d-flex align-items-center" style="gap: 12px;">

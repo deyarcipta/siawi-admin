@@ -14,7 +14,7 @@
             <div class="col-sm-5">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
-                    @if(Auth::user()->role == 'admin')
+                    @if(!Auth::user()->isWaliKelasStrict())
                     <li class="breadcrumb-item"><a href="/admin/rekapAbsen">Rekap Kelas</a></li>
                     @endif
                     <li class="breadcrumb-item active">Detail Absensi Kelas</li>

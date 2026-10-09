@@ -35,14 +35,17 @@ class LaporanAbsensiBulananController extends Controller
         $tanggalSelesai = $request->input('tanggal_selesai', $akhirBulanIni);
         $idKelas = $request->input('id_kelas');
 
+        $isWaliKelasOnly = $user && $user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum']);
         $daftarKelas = Kelas::with('waliKelas')->orderBy('nama_kelas', 'asc')->get();
-        if ($user && $user->role == 'wali_kelas') {
+        if ($isWaliKelasOnly) {
             $kelasWali = Kelas::where('id_guru', $user->id_guru)->with('waliKelas')->orderBy('nama_kelas', 'asc')->get();
             if ($kelasWali->isNotEmpty()) {
                 $daftarKelas = $kelasWali;
                 if (!$idKelas || !$daftarKelas->contains('id_kelas', $idKelas)) {
                     $idKelas = $daftarKelas->first()->id_kelas;
                 }
+            } else {
+                abort(403, 'Anda belum ditugaskan sebagai wali kelas.');
             }
         }
 
@@ -79,7 +82,15 @@ class LaporanAbsensiBulananController extends Controller
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
         ]);
 
+        $user = Auth::user();
         $idKelas = $request->input('id_kelas');
+        if ($user && $user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum'])) {
+            $kelas = Kelas::where('id_kelas', $idKelas)->where('id_guru', $user->id_guru)->first();
+            if (!$kelas) {
+                abort(403, 'Anda tidak memiliki hak akses mengirim notifikasi untuk kelas ini.');
+            }
+        }
+
         $tanggalMulai = $request->input('tanggal_mulai');
         $tanggalSelesai = $request->input('tanggal_selesai');
 
@@ -104,7 +115,15 @@ class LaporanAbsensiBulananController extends Controller
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
         ]);
 
+        $user = Auth::user();
         $idKelas = $request->input('id_kelas');
+        if ($user && $user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum'])) {
+            $kelas = Kelas::where('id_kelas', $idKelas)->where('id_guru', $user->id_guru)->first();
+            if (!$kelas) {
+                abort(403, 'Anda tidak memiliki hak akses mengirim notifikasi untuk kelas ini.');
+            }
+        }
+
         $tanggalMulai = $request->input('tanggal_mulai');
         $tanggalSelesai = $request->input('tanggal_selesai');
 
@@ -122,7 +141,14 @@ class LaporanAbsensiBulananController extends Controller
      */
     public function preview(Request $request)
     {
+        $user = Auth::user();
         $idKelas = $request->input('id_kelas');
+        if ($user && $user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum'])) {
+            $kelasCheck = Kelas::where('id_kelas', $idKelas)->where('id_guru', $user->id_guru)->first();
+            if (!$kelasCheck) {
+                return response()->json(['status' => 'error', 'message' => 'Unauthorized class access'], 403);
+            }
+        }
         $awalBulanIni = Carbon::now()->startOfMonth()->format('Y-m-d');
         $akhirBulanIni = Carbon::now()->endOfMonth()->format('Y-m-d');
 

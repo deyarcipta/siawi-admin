@@ -27,18 +27,26 @@ class LaporanPelanggaranController extends Controller
         $layout = 'layout.app';
         $user = Auth::user();
         $setting = Setting::first();
+        $isWaliKelasOnly = $user && $user->isWaliKelasStrict(['admin', 'kesiswaan']);
         $daftarKelas = Kelas::orderBy('nama_kelas', 'asc')->get();
-        if ($user && $user->role == 'wali_kelas') {
+        if ($isWaliKelasOnly) {
             $kelasWali = Kelas::where('id_guru', $user->id_guru)->get();
             if ($kelasWali->isNotEmpty()) {
                 $daftarKelas = $kelasWali;
+            } else {
+                abort(403, 'Anda belum ditugaskan sebagai wali kelas.');
             }
         }
 
         // Default rentang tanggal (Bulan berjalan)
         $tanggalMulai = $request->input('tanggal_mulai', Carbon::now('Asia/Jakarta')->startOfMonth()->format('Y-m-d'));
         $tanggalSelesai = $request->input('tanggal_selesai', Carbon::now('Asia/Jakarta')->endOfMonth()->format('Y-m-d'));
-        $selectedKelas = $request->input('id_kelas', ($user && $user->role == 'wali_kelas' && $daftarKelas->isNotEmpty()) ? $daftarKelas->first()->id_kelas : 'all');
+        $inputKelas = $request->input('id_kelas');
+        if ($isWaliKelasOnly) {
+            $selectedKelas = ($inputKelas && $daftarKelas->contains('id_kelas', $inputKelas)) ? $inputKelas : $daftarKelas->first()->id_kelas;
+        } else {
+            $selectedKelas = $inputKelas ?: 'all';
+        }
         $selectedStatusSp = $request->input('status_sp', 'all');
         $perPage = (int) $request->input('per_page', 10);
         if (!in_array($perPage, [10, 20, 50, 100])) {

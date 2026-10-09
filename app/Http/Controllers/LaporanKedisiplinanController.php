@@ -56,10 +56,20 @@ class LaporanKedisiplinanController extends Controller
             ];
         }
 
+        $isWaliKelasOnly = $user && $user->isWaliKelasStrict(['admin', 'kesiswaan']);
         $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
-        if ($user && $user->role == 'wali_kelas') {
+        if ($isWaliKelasOnly) {
             $kelasList = Kelas::where('id_guru', $user->id_guru)->orderBy('nama_kelas', 'asc')->get();
-            $selectedKelasId = $request->input('id_kelas', $kelasList->first()?->id_kelas);
+            if ($kelasList->isNotEmpty()) {
+                $requestedKelasId = $request->input('id_kelas');
+                if (!$requestedKelasId || !$kelasList->contains('id_kelas', $requestedKelasId)) {
+                    $selectedKelasId = $kelasList->first()->id_kelas;
+                } else {
+                    $selectedKelasId = $requestedKelasId;
+                }
+            } else {
+                abort(403, 'Anda belum ditugaskan sebagai wali kelas.');
+            }
         } else {
             $selectedKelasId = $request->input('id_kelas');
         }
@@ -69,7 +79,7 @@ class LaporanKedisiplinanController extends Controller
         $siswaQuery = Siswa::with('kelas')->orderBy('id_kelas', 'asc')->orderBy('nama_siswa', 'asc');
         if (!empty($selectedKelasId)) {
             $siswaQuery->where('id_kelas', $selectedKelasId);
-        } elseif ($user && $user->role == 'wali_kelas') {
+        } elseif ($isWaliKelasOnly) {
             $siswaQuery->whereIn('id_kelas', $kelasList->pluck('id_kelas'));
         }
         $siswaList = $siswaQuery->get();
@@ -283,11 +293,13 @@ class LaporanKedisiplinanController extends Controller
     {
         $user = Auth::user();
         $tanggalPilihan = $request->input('tanggal', Carbon::today()->toDateString());
-        $selectedKelasId = $request->input('id_kelas');
-        if ($user && $user->role == 'wali_kelas') {
+        $isWaliKelasOnly = $user && $user->isWaliKelasStrict(['admin', 'kesiswaan']);
+        if ($isWaliKelasOnly) {
             $kelasList = Kelas::where('id_guru', $user->id_guru)->first();
             if ($kelasList) {
                 $selectedKelasId = $kelasList->id_kelas;
+            } else {
+                abort(403, 'Akses dibatasi hanya untuk kelas binaan Anda.');
             }
         }
         $selectedKategori = $request->input('kategori');
