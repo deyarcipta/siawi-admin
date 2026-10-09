@@ -4,68 +4,64 @@
     <meta charset="UTF-8">
     <title>Surat Peringatan {{ $spType }}</title>
     <style>
-        @page {
-            size: a4 portrait;
-            margin: 15mm 18mm 15mm 18mm;
-        }
         body {
             font-family: Arial, sans-serif;
-            font-size: 11.5px;
+            font-size: 12px;
             color: #333;
-            line-height: 1.35;
+            line-height: 1.4;
         }
         .header-table {
             width: 100%;
             border-bottom: 3px double #000;
-            padding-bottom: 6px;
-            margin-bottom: 12px;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
         .header-logo {
-            width: 75px;
+            width: 80px;
             text-align: center;
         }
         .header-logo img {
-            max-width: 68px;
-            max-height: 68px;
+            max-width: 75px;
+            max-height: 75px;
         }
         .header-text {
             text-align: center;
         }
         .header-text h2 {
             margin: 0;
-            font-size: 15px;
+            font-size: 16px;
             text-transform: uppercase;
         }
         .header-text h3 {
             margin: 2px 0;
-            font-size: 13px;
+            font-size: 14px;
             text-transform: uppercase;
         }
         .header-text p {
             margin: 0;
-            font-size: 9.5px;
+            font-size: 10px;
             color: #555;
         }
         .title {
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 20px;
         }
         .title h4 {
             margin: 0;
-            font-size: 13px;
+            font-size: 14px;
             text-decoration: underline;
             text-transform: uppercase;
         }
         .title p {
             margin: 2px 0 0 0;
-            font-size: 10.5px;
+            font-size: 11px;
         }
         .student-info {
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
         .student-info td {
-            padding: 2px 0;
+            padding: 3px 0;
         }
         .student-info td.label {
             width: 150px;
@@ -75,52 +71,45 @@
             text-align: center;
         }
         .content {
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             text-align: justify;
-        }
-        .content p {
-            margin: 4px 0;
         }
         .table-violations {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 6px;
-            margin-bottom: 10px;
-            page-break-inside: auto;
-        }
-        .table-violations tr {
-            page-break-inside: avoid;
-            page-break-after: auto;
+            margin-top: 10px;
+            margin-bottom: 20px;
         }
         .table-violations th, .table-violations td {
             border: 1px solid #000;
-            padding: 4px 6px;
+            padding: 6px;
             text-align: left;
-            font-size: 11px;
         }
         .table-violations th {
             background-color: #f2f2f2;
         }
-        .signature-wrapper {
+        .signature-table {
             width: 100%;
-            margin-top: 15px;
+            margin-top: 30px;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
         }
-        .footer-date {
-            text-align: right;
-            margin-bottom: 8px;
-        }
-        .signature-table {
-            width: 100%;
+        .signature-table tr {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
         }
         .signature-table td {
-            width: 33%;
             text-align: center;
             vertical-align: top;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+        .footer-date-cell {
+            text-align: right !important;
+            padding-bottom: 15px;
         }
         .signature-space {
-            height: 52px;
+            height: 70px;
         }
     </style>
 </head>
@@ -149,7 +138,7 @@
     </div>
 
     <!-- Informasi Siswa -->
-    <p style="margin: 2px 0 4px 0;">Surat peringatan ini diberikan kepada siswa yang bersangkutan di bawah ini:</p>
+    <p>Surat peringatan ini diberikan kepada siswa yang bersangkutan di bawah ini:</p>
     <table class="student-info">
         <tr>
             <td class="label">Nama Lengkap</td>
@@ -211,33 +200,32 @@
         @endif
     </div>
 
-    <!-- Tanggal & Tanda Tangan (Satu Kesatuan Utuh) -->
-    <div class="signature-wrapper">
-        <div class="footer-date">
-            {{ $setting->kota ?? 'Jakarta Selatan' }}, {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y') }}
-        </div>
-
-        <table class="signature-table">
-            <tr>
-                <td>
-                    Orang Tua / Wali Siswa
-                    <div class="signature-space"></div>
-                    ( ......................................... )
-                </td>
-                <td>
-                    Wali Kelas / Kesiswaan
-                    <div class="signature-space"></div>
-                    ( ......................................... )
-                </td>
-                <td>
-                    Kepala Sekolah
-                    <div class="signature-space"></div>
-                    <strong>{{ $setting->nama_kepsek }}</strong><br>
-                    NIP: {{ $setting->nip_kepsek }}
-                </td>
-            </tr>
-        </table>
-    </div>
+    <!-- Blok Tanggal & Tanda Tangan: Menyatu dalam satu tabel agar tidak pernah terpisah halaman -->
+    <table class="signature-table">
+        <tr>
+            <td colspan="3" class="footer-date-cell">
+                {{ $setting->kota ?? 'Jakarta Selatan' }}, {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y') }}
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 33%;">
+                Orang Tua / Wali Siswa
+                <div class="signature-space"></div>
+                ( ......................................... )
+            </td>
+            <td style="width: 34%;">
+                Wali Kelas / Kesiswaan
+                <div class="signature-space"></div>
+                ( ......................................... )
+            </td>
+            <td style="width: 33%;">
+                Kepala Sekolah
+                <div class="signature-space"></div>
+                <strong>{{ $setting->nama_kepsek }}</strong><br>
+                NIP: {{ $setting->nip_kepsek }}
+            </td>
+        </tr>
+    </table>
 
 </body>
 </html>
