@@ -24,6 +24,7 @@ class SiswaPklController extends Controller
         $siswaList = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
         $perusahaan = Perusahaan::orderBy('nama_perusahaan', 'asc')->get();
 
+        $today = now()->format('Y-m-d');
         $query = SiswaPkl::with(['siswa.kelas', 'kelas', 'perusahaan']);
 
         if ($request->filled('id_perusahaan')) {
@@ -33,21 +34,33 @@ class SiswaPklController extends Controller
             $query->where('id_kelas', $request->id_kelas);
         }
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            if ($request->status === 'belum_mulai') {
+                $query->where('status', '!=', 'selesai')->where('tanggal_mulai', '>', $today);
+            } elseif ($request->status === 'aktif' || $request->status === 'PKL') {
+                $query->where('status', '!=', 'selesai')
+                      ->where('tanggal_mulai', '<=', $today)
+                      ->where('tanggal_selesai', '>=', $today);
+            } elseif ($request->status === 'selesai') {
+                $query->where(function ($q) use ($today) {
+                    $q->where('status', 'selesai')->orWhere('tanggal_selesai', '<', $today);
+                });
+            }
         }
 
-        $data_siswa_pkl = $query->orderByRaw("FIELD(status, 'PKL', 'selesai')")
-                                ->orderBy('tanggal_mulai', 'desc')
-                                ->get();
+        $data_siswa_pkl = $query->orderBy('tanggal_mulai', 'desc')->get();
 
-        $totalPklAktif = SiswaPkl::where('status', 'PKL')->count();
-        $totalPklSelesai = SiswaPkl::where('status', 'selesai')->count();
+        $totalPklDitempatkan = SiswaPkl::where('status', '!=', 'selesai')->where('tanggal_mulai', '>', $today)->count();
+        $totalPklAktif = SiswaPkl::where('status', '!=', 'selesai')
+                                 ->where('tanggal_mulai', '<=', $today)
+                                 ->where('tanggal_selesai', '>=', $today)
+                                 ->count();
+        $totalPklSelesai = SiswaPkl::where('status', 'selesai')->orWhere('tanggal_selesai', '<', $today)->count();
         $totalMitra = Perusahaan::count();
 
         return view('bkk.data_siswa_pkl', compact(
             'layout', 'data_siswa_pkl', 'setting', 'user', 
             'kelasList', 'siswaList', 'perusahaan',
-            'totalPklAktif', 'totalPklSelesai', 'totalMitra'
+            'totalPklDitempatkan', 'totalPklAktif', 'totalPklSelesai', 'totalMitra'
         ));
     }
 

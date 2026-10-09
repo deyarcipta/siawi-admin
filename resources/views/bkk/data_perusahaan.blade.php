@@ -28,27 +28,36 @@
 
     <!-- Stat Cards Overview -->
     <div class="row mb-3">
-      <div class="col-md-4 col-sm-6 mb-2">
+      <div class="col-lg-3 col-md-6 col-sm-6 mb-2">
         <div class="info-box shadow-sm border-0" style="border-radius: 12px;">
           <span class="info-box-icon bg-primary text-white" style="border-radius: 10px;"><i class="fas fa-building"></i></span>
           <div class="info-box-content">
-            <span class="info-box-text text-muted font-weight-bold" style="font-size: 0.8rem;">TOTAL MITRA DU/DI</span>
-            <span class="info-box-number text-dark font-weight-bold" style="font-size: 1.4rem;">{{ $totalMitra ?? $perusahaan->count() }} <small class="font-weight-normal text-muted" style="font-size: 0.8rem;">Perusahaan</small></span>
+            <span class="info-box-text text-muted font-weight-bold" style="font-size: 0.78rem;">TOTAL MITRA DU/DI</span>
+            <span class="info-box-number text-dark font-weight-bold" style="font-size: 1.35rem;">{{ $totalMitra ?? $perusahaan->count() }} <small class="font-weight-normal text-muted" style="font-size: 0.8rem;">Mitra</small></span>
           </div>
         </div>
       </div>
-      <div class="col-md-4 col-sm-6 mb-2">
+      <div class="col-lg-3 col-md-6 col-sm-6 mb-2">
         <div class="info-box shadow-sm border-0" style="border-radius: 12px;">
-          <span class="info-box-icon bg-success text-white" style="border-radius: 10px;"><i class="fas fa-user-clock"></i></span>
+          <span class="info-box-icon bg-success text-white" style="border-radius: 10px;"><i class="fas fa-running"></i></span>
           <div class="info-box-content">
-            <span class="info-box-text text-muted font-weight-bold" style="font-size: 0.8rem;">SISWA AKTIF PKL</span>
-            <span class="info-box-number text-dark font-weight-bold" style="font-size: 1.4rem;">{{ $totalSiswaPklAktif ?? 0 }} <small class="font-weight-normal text-muted" style="font-size: 0.8rem;">Siswa</small></span>
+            <span class="info-box-text text-muted font-weight-bold" style="font-size: 0.78rem;">SEDANG AKTIF PKL</span>
+            <span class="info-box-number text-dark font-weight-bold" style="font-size: 1.35rem;">{{ $totalSiswaPklAktif ?? 0 }} <small class="font-weight-normal text-muted" style="font-size: 0.8rem;">Siswa</small></span>
           </div>
         </div>
       </div>
-      <div class="col-md-4 col-sm-12 mb-2 d-flex align-items-center">
+      <div class="col-lg-3 col-md-6 col-sm-6 mb-2">
+        <div class="info-box shadow-sm border-0" style="border-radius: 12px;">
+          <span class="info-box-icon text-white" style="background-color: #0284c7; border-radius: 10px;"><i class="fas fa-calendar-check"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text text-muted font-weight-bold" style="font-size: 0.78rem;">SUDAH DITEMPATKAN</span>
+            <span class="info-box-number text-dark font-weight-bold" style="font-size: 1.35rem;">{{ $totalSiswaDitempatkan ?? 0 }} <small class="font-weight-normal text-muted" style="font-size: 0.8rem;">Siswa</small></span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-sm-12 mb-2 d-flex align-items-center">
         <a href="{{ route('admin.siswaPkl.index') }}" class="btn btn-outline-primary btn-block py-3 shadow-sm font-weight-bold" style="border-radius: 12px; border-width: 2px;">
-          <i class="fas fa-list-alt mr-2"></i> Buka Rekapitulasi Global Seluruh Siswa PKL &rarr;
+          <i class="fas fa-list-alt mr-1"></i> Rekapitulasi Global &rarr;
         </a>
       </div>
     </div>
@@ -100,19 +109,27 @@
                     </td>
                     <td class="text-center">
                       @if($data->siswa_aktif_count > 0)
-                        <span class="badge badge-success px-2 py-1 font-weight-bold" style="font-size: 0.82rem; cursor: pointer;" data-toggle="modal" data-target="#modalKelolaPkl_{{ $data->id_perusahaan }}" title="Klik untuk lihat daftar siswa">
-                          <i class="fas fa-user-check mr-1"></i> {{ $data->siswa_aktif_count }} Aktif
-                        </span>
-                      @else
-                        <span class="badge badge-light border text-muted px-2 py-1" style="font-size: 0.8rem;">
-                          0 Aktif
+                        <span class="badge badge-success px-2 py-1 font-weight-bold mb-1 d-inline-block shadow-sm" style="font-size: 0.8rem; cursor: pointer;" data-toggle="modal" data-target="#modalKelolaPkl_{{ $data->id_perusahaan }}" title="Klik untuk lihat daftar siswa">
+                          <i class="fas fa-running mr-1"></i> {{ $data->siswa_aktif_count }} Aktif
                         </span>
                       @endif
 
-                      @if($data->siswa_total_count > $data->siswa_aktif_count)
-                        <small class="d-block text-muted mt-1" style="font-size: 0.75rem;">
-                          ({{ $data->siswa_total_count }} riwayat)
-                        </small>
+                      @if($data->siswa_ditempatkan_count > 0)
+                        <span class="badge px-2 py-1 font-weight-bold text-white mb-1 d-inline-block shadow-sm" style="background-color: #0284c7; font-size: 0.8rem; cursor: pointer;" data-toggle="modal" data-target="#modalKelolaPkl_{{ $data->id_perusahaan }}" title="Klik untuk lihat daftar siswa">
+                          <i class="fas fa-calendar-check mr-1"></i> {{ $data->siswa_ditempatkan_count }} Ditempatkan
+                        </span>
+                      @endif
+
+                      @if($data->siswa_aktif_count == 0 && $data->siswa_ditempatkan_count == 0)
+                        @if($data->siswa_total_count > 0)
+                          <span class="badge badge-secondary px-2 py-1" style="font-size: 0.78rem; cursor: pointer;" data-toggle="modal" data-target="#modalKelolaPkl_{{ $data->id_perusahaan }}">
+                            {{ $data->siswa_total_count }} Selesai
+                          </span>
+                        @else
+                          <span class="badge badge-light border text-muted px-2 py-1" style="font-size: 0.78rem;">
+                            0 Siswa
+                          </span>
+                        @endif
                       @endif
                     </td>
                     <td class="text-center">
@@ -255,19 +272,23 @@
                         </div>
                       </td>
                       <td class="text-center">
-                        @if($pkl->status == 'PKL')
-                          <span class="badge badge-success px-2 py-1 font-weight-bold">
-                            <i class="fas fa-clock mr-1"></i> Sedang PKL
+                        @if($pkl->status_pkl === 'belum_mulai')
+                          <span class="badge px-2 py-1 font-weight-bold text-white shadow-sm" style="background-color: #0284c7; border-radius: 6px;">
+                            <i class="fas fa-calendar-check mr-1"></i> Sudah Ditempatkan
+                          </span>
+                        @elseif($pkl->status_pkl === 'aktif')
+                          <span class="badge badge-success px-2 py-1 font-weight-bold shadow-sm" style="border-radius: 6px;">
+                            <i class="fas fa-running mr-1"></i> Sedang PKL
                           </span>
                         @else
-                          <span class="badge badge-secondary px-2 py-1">
+                          <span class="badge badge-secondary px-2 py-1 font-weight-bold" style="border-radius: 6px;">
                             <i class="fas fa-check-circle mr-1"></i> Selesai
                           </span>
                         @endif
                       </td>
                       <td class="text-center">
                         <div class="btn-group" role="group">
-                          @if($pkl->status == 'PKL')
+                          @if($pkl->status_pkl !== 'selesai')
                             <!-- Form Quick Selesai -->
                             <form action="{{ route('admin.siswaPkl.update', $pkl->id_siswa_pkl) }}" method="POST" class="d-inline">
                               @csrf

@@ -21,14 +21,22 @@ class PerusahaanController extends Controller
         $setting = Setting::find('1');
         $user = Auth::user();
 
+        $today = now()->format('Y-m-d');
+
         $perusahaan = Perusahaan::withCount([
-            'siswaPkl as siswa_aktif_count' => function ($query) {
-                $query->where('status', 'PKL');
+            'siswaPkl as siswa_aktif_count' => function ($query) use ($today) {
+                $query->where('status', '!=', 'selesai')
+                      ->where('tanggal_mulai', '<=', $today)
+                      ->where('tanggal_selesai', '>=', $today);
+            },
+            'siswaPkl as siswa_ditempatkan_count' => function ($query) use ($today) {
+                $query->where('status', '!=', 'selesai')
+                      ->where('tanggal_mulai', '>', $today);
             },
             'siswaPkl as siswa_total_count'
         ])
         ->with(['siswaPkl' => function ($query) {
-            $query->with(['siswa.kelas', 'kelas'])->orderByRaw("FIELD(status, 'PKL', 'selesai')")->orderBy('tanggal_mulai', 'desc');
+            $query->with(['siswa.kelas', 'kelas'])->orderBy('tanggal_mulai', 'desc');
         }])
         ->orderBy('nama_perusahaan', 'asc')
         ->get();
@@ -36,11 +44,17 @@ class PerusahaanController extends Controller
         $siswaList = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
         $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
         $totalMitra = $perusahaan->count();
-        $totalSiswaPklAktif = SiswaPkl::where('status', 'PKL')->count();
+        $totalSiswaPklAktif = SiswaPkl::where('status', '!=', 'selesai')
+                                     ->where('tanggal_mulai', '<=', $today)
+                                     ->where('tanggal_selesai', '>=', $today)
+                                     ->count();
+        $totalSiswaDitempatkan = SiswaPkl::where('status', '!=', 'selesai')
+                                         ->where('tanggal_mulai', '>', $today)
+                                         ->count();
 
         return view('bkk.data_perusahaan', compact(
             'layout', 'perusahaan', 'setting', 'user', 
-            'siswaList', 'kelasList', 'totalMitra', 'totalSiswaPklAktif'
+            'siswaList', 'kelasList', 'totalMitra', 'totalSiswaPklAktif', 'totalSiswaDitempatkan'
         ));
     }
 

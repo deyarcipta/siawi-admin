@@ -28,30 +28,39 @@
 
     <!-- Stat Summary Cards -->
     <div class="row mb-3">
-      <div class="col-md-4 col-sm-6 mb-2">
+      <div class="col-lg-3 col-md-6 col-sm-6 mb-2">
         <div class="info-box shadow-sm border-0" style="border-radius: 12px;">
-          <span class="info-box-icon bg-success text-white" style="border-radius: 10px;"><i class="fas fa-user-clock"></i></span>
+          <span class="info-box-icon bg-success text-white" style="border-radius: 10px;"><i class="fas fa-running"></i></span>
           <div class="info-box-content">
-            <span class="info-box-text text-muted font-weight-bold" style="font-size: 0.8rem;">SEDANG AKTIF PKL</span>
-            <span class="info-box-number text-dark font-weight-bold" style="font-size: 1.4rem;">{{ $totalPklAktif ?? 0 }} <small class="font-weight-normal text-muted" style="font-size: 0.8rem;">Siswa</small></span>
+            <span class="info-box-text text-muted font-weight-bold" style="font-size: 0.78rem;">SEDANG AKTIF PKL</span>
+            <span class="info-box-number text-dark font-weight-bold" style="font-size: 1.35rem;">{{ $totalPklAktif ?? 0 }} <small class="font-weight-normal text-muted" style="font-size: 0.8rem;">Siswa</small></span>
           </div>
         </div>
       </div>
-      <div class="col-md-4 col-sm-6 mb-2">
+      <div class="col-lg-3 col-md-6 col-sm-6 mb-2">
+        <div class="info-box shadow-sm border-0" style="border-radius: 12px;">
+          <span class="info-box-icon text-white" style="background-color: #0284c7; border-radius: 10px;"><i class="fas fa-calendar-check"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text text-muted font-weight-bold" style="font-size: 0.78rem;">SUDAH DITEMPATKAN</span>
+            <span class="info-box-number text-dark font-weight-bold" style="font-size: 1.35rem;">{{ $totalPklDitempatkan ?? 0 }} <small class="font-weight-normal text-muted" style="font-size: 0.8rem;">Siswa</small></span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-sm-6 mb-2">
         <div class="info-box shadow-sm border-0" style="border-radius: 12px;">
           <span class="info-box-icon bg-secondary text-white" style="border-radius: 10px;"><i class="fas fa-user-check"></i></span>
           <div class="info-box-content">
-            <span class="info-box-text text-muted font-weight-bold" style="font-size: 0.8rem;">SELESAI PKL</span>
-            <span class="info-box-number text-dark font-weight-bold" style="font-size: 1.4rem;">{{ $totalPklSelesai ?? 0 }} <small class="font-weight-normal text-muted" style="font-size: 0.8rem;">Siswa</small></span>
+            <span class="info-box-text text-muted font-weight-bold" style="font-size: 0.78rem;">SELESAI PKL</span>
+            <span class="info-box-number text-dark font-weight-bold" style="font-size: 1.35rem;">{{ $totalPklSelesai ?? 0 }} <small class="font-weight-normal text-muted" style="font-size: 0.8rem;">Siswa</small></span>
           </div>
         </div>
       </div>
-      <div class="col-md-4 col-sm-12 mb-2">
+      <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
         <div class="info-box shadow-sm border-0" style="border-radius: 12px;">
-          <span class="info-box-icon bg-info text-white" style="border-radius: 10px;"><i class="fas fa-building"></i></span>
+          <span class="info-box-icon bg-primary text-white" style="border-radius: 10px;"><i class="fas fa-building"></i></span>
           <div class="info-box-content">
-            <span class="info-box-text text-muted font-weight-bold" style="font-size: 0.8rem;">TOTAL MITRA DU/DI</span>
-            <span class="info-box-number text-dark font-weight-bold" style="font-size: 1.4rem;">{{ $totalMitra ?? 0 }} <small class="font-weight-normal text-muted" style="font-size: 0.8rem;">Perusahaan</small></span>
+            <span class="info-box-text text-muted font-weight-bold" style="font-size: 0.78rem;">TOTAL MITRA DU/DI</span>
+            <span class="info-box-number text-dark font-weight-bold" style="font-size: 1.35rem;">{{ $totalMitra ?? 0 }} <small class="font-weight-normal text-muted" style="font-size: 0.8rem;">Perusahaan</small></span>
           </div>
         </div>
       </div>
@@ -87,7 +96,8 @@
             <label class="font-weight-bold text-dark small mb-1"><i class="fas fa-filter text-warning mr-1"></i> Filter Status</label>
             <select name="status" class="form-control form-control-sm" style="border-radius: 6px;">
               <option value="">-- Semua Status --</option>
-              <option value="PKL" {{ request('status') == 'PKL' ? 'selected' : '' }}>Sedang PKL</option>
+              <option value="belum_mulai" {{ request('status') == 'belum_mulai' ? 'selected' : '' }}>Sudah Ditempatkan (Belum Mulai)</option>
+              <option value="aktif" {{ request('status') == 'aktif' ? 'selected' : '' }}>Sedang PKL (Aktif Berjalan)</option>
               <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
             </select>
           </div>
@@ -166,19 +176,23 @@
                       </div>
                     </td>
                     <td class="text-center">
-                      @if($data->status == 'PKL')
-                        <span class="badge badge-success px-2 py-1 font-weight-bold">
+                      @if($data->status_pkl === 'belum_mulai')
+                        <span class="badge px-2 py-1 font-weight-bold text-white shadow-sm" style="background-color: #0284c7; border-radius: 6px;">
+                          <i class="fas fa-calendar-check mr-1"></i> Sudah Ditempatkan
+                        </span>
+                      @elseif($data->status_pkl === 'aktif')
+                        <span class="badge badge-success px-2 py-1 font-weight-bold shadow-sm" style="border-radius: 6px;">
                           <i class="fas fa-running mr-1"></i> Sedang PKL
                         </span>
                       @else
-                        <span class="badge badge-secondary px-2 py-1">
+                        <span class="badge badge-secondary px-2 py-1 font-weight-bold" style="border-radius: 6px;">
                           <i class="fas fa-check-circle mr-1"></i> Selesai
                         </span>
                       @endif
                     </td>
                     <td class="text-center">
                       <div class="btn-group" role="group">
-                        @if($data->status == 'PKL')
+                        @if($data->status_pkl !== 'selesai')
                           <!-- Form Quick Selesai -->
                           <form action="{{ route('admin.siswaPkl.update', $data->id_siswa_pkl) }}" method="POST" class="d-inline">
                             @csrf
