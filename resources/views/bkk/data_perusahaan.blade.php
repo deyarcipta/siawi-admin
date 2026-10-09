@@ -112,7 +112,7 @@
                     <th style="min-width: 150px;">Alamat Industri</th>
                     <th style="min-width: 200px;">Penanggung Jawab & PIC</th>
                     <th class="text-center" style="min-width: 140px;">Siswa PKL</th>
-                    <th class="text-center" style="min-width: 190px;">Aksi</th>
+                    <th class="text-center" style="min-width: 150px;">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -198,16 +198,27 @@
                     </td>
                     <td class="text-center">
                       <div class="btn-group" role="group">
-                        <!-- Tombol Kelola / Plotting Siswa PKL -->
+                        <!-- Tombol Detail Lengkap Perusahaan -->
                         <button 
                           type="button" 
-                          class="btn btn-sm btn-primary font-weight-bold px-2"
+                          class="btn btn-sm btn-info text-white px-2"
                           data-toggle="modal" 
-                          data-target="#modalKelolaPkl_{{ $data->id_perusahaan }}"
-                          title="Kelola & Plotting Siswa PKL di perusahaan ini"
+                          data-target="#modalDetailPerusahaan_{{ $data->id_perusahaan }}"
+                          title="Lihat Detail Lengkap Perusahaan"
                           style="border-radius: 6px 0 0 6px;"
                         >
-                          <i class="fas fa-users mr-1"></i> Plotting Siswa
+                          <i class="fas fa-eye"></i>
+                        </button>
+
+                        <!-- Tombol Kelola / Plotting Siswa PKL (Hanya Icon People) -->
+                        <button 
+                          type="button" 
+                          class="btn btn-sm btn-primary px-2"
+                          data-toggle="modal" 
+                          data-target="#modalKelolaPkl_{{ $data->id_perusahaan }}"
+                          title="Plotting Siswa PKL"
+                        >
+                          <i class="fas fa-users"></i>
                         </button>
 
                         <!-- Tombol Edit Perusahaan -->
@@ -265,6 +276,256 @@
 <!-- MODAL KELOLA & PLOTTING SISWA PKL (PER PERUSAHAAN)                        -->
 <!-- ========================================================================= -->
 @foreach ($perusahaan as $data)
+<!-- ========================================================================= -->
+<!-- MODAL DETAIL LENGKAP PERUSAHAAN MITRA                                      -->
+<!-- ========================================================================= -->
+<div class="modal fade" id="modalDetailPerusahaan_{{ $data->id_perusahaan }}" tabindex="-1" role="dialog" aria-labelledby="modalDetailLabel_{{ $data->id_perusahaan }}" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #1d72fe 0%, #0b1f3a 100%);">
+        <div>
+          <h5 class="modal-title font-weight-bold mb-0" id="modalDetailLabel_{{ $data->id_perusahaan }}">
+            <i class="fas fa-building mr-2"></i> Detail Lengkap Mitra Perusahaan
+          </h5>
+          <small class="text-white-50 d-block mt-1">
+            Informasi lengkap profil kemitraan, pembimbing sekolah, penanggung jawab industri, dan siswa PKL
+          </small>
+        </div>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body p-4" style="background-color: #f8fafc;">
+        
+        <!-- Header Info Card: Profil & Alamat -->
+        <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px;">
+          <div class="card-body p-3 p-md-4">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center pb-3 border-bottom mb-3" style="gap: 10px;">
+              <div>
+                <span class="badge badge-primary px-2 py-1 font-weight-bold mb-1" style="font-size: 0.75rem;">
+                  <i class="fas fa-handshake mr-1"></i> MITRA INDUSTRI / DU/DI
+                </span>
+                <h4 class="font-weight-bold text-dark mb-0" style="line-height: 1.2;">{{ $data->nama_perusahaan }}</h4>
+              </div>
+              <div class="d-flex align-items-center" style="gap: 6px;">
+                <button type="button" class="btn btn-sm btn-outline-warning font-weight-bold btn-edit-perusahaan btn-switch-modal" 
+                  data-target="#modalEditPerusahaan"
+                  data-id="{{ $data->id_perusahaan }}"
+                  data-nama="{{ $data->nama_perusahaan }}"
+                  data-alamat="{{ $data->alamat_perusahaan }}"
+                  data-pj="{{ $data->penanggung_jawab }}"
+                  data-id-guru="{{ $data->id_guru ?? '' }}"
+                  data-pic="{{ $data->pic ?? '' }}"
+                  data-kontak-pic="{{ $data->kontak_pic ?? '' }}"
+                  style="border-radius: 8px;">
+                  <i class="fas fa-edit mr-1"></i> Edit Data
+                </button>
+                <button type="button" class="btn btn-sm btn-primary font-weight-bold btn-switch-modal" 
+                  data-target="#modalKelolaPkl_{{ $data->id_perusahaan }}"
+                  style="border-radius: 8px;">
+                  <i class="fas fa-users mr-1"></i> Plotting Siswa
+                </button>
+              </div>
+            </div>
+
+            <!-- Alamat Lengkap -->
+            <div class="row align-items-center">
+              <div class="col-md-9 mb-2 mb-md-0">
+                <div class="text-muted font-weight-bold mb-1" style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.3px;">
+                  <i class="fas fa-map-marker-alt text-danger mr-1"></i> Alamat Lengkap Industri:
+                </div>
+                <div class="text-dark" style="font-size: 0.92rem; line-height: 1.5; white-space: pre-line;">{{ $data->alamat_perusahaan }}</div>
+              </div>
+              <div class="col-md-3 text-md-right">
+                <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($data->nama_perusahaan . ' ' . $data->alamat_perusahaan) }}" target="_blank" class="btn btn-outline-secondary btn-sm font-weight-bold" style="border-radius: 8px;" title="Cari lokasi di Google Maps">
+                  <i class="fas fa-external-link-alt mr-1"></i> Google Maps
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dua Kolom: Pihak Sekolah vs Pihak DU/DI -->
+        <div class="row mb-3">
+          <!-- Kolom 1: Pihak Sekolah (Internal) -->
+          <div class="col-md-6 mb-3 mb-md-0">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+              <div class="card-header bg-white py-2 px-3 border-0 d-flex align-items-center">
+                <span class="badge bg-primary text-white p-2 mr-2" style="border-radius: 8px;">
+                  <i class="fas fa-chalkboard-teacher"></i>
+                </span>
+                <span class="font-weight-bold text-dark" style="font-size: 0.88rem;">Pihak Sekolah (Internal)</span>
+              </div>
+              <div class="card-body p-3 pt-0">
+                <div class="mb-2">
+                  <small class="text-muted d-block font-weight-bold" style="font-size: 0.75rem;">GURU PEMBIMBING PKL</small>
+                  @if($data->guru)
+                    <div class="font-weight-bold text-dark" style="font-size: 0.95rem;">
+                      {{ $data->guru->nama_guru }}
+                    </div>
+                    @if(!empty($data->guru->no_hp))
+                      <div class="mt-1">
+                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $data->guru->no_hp) }}" target="_blank" class="badge badge-success px-2 py-1 font-weight-normal shadow-sm" style="border-radius: 6px;">
+                          <i class="fab fa-whatsapp mr-1"></i> {{ $data->guru->no_hp }}
+                        </a>
+                      </div>
+                    @endif
+                  @else
+                    <span class="badge badge-light border text-muted py-1 px-2 font-weight-normal mt-1" style="font-size: 0.8rem;">
+                      Belum Ditentukan
+                    </span>
+                  @endif
+                </div>
+                <div class="text-muted" style="font-size: 0.8rem;">
+                  Bertanggung jawab melakukan monitoring, bimbingan berkala, dan evaluasi capaian siswa magang di mitra ini.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kolom 2: Pihak Industri (Eksternal DU/DI) -->
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+              <div class="card-header bg-white py-2 px-3 border-0 d-flex align-items-center">
+                <span class="badge bg-info text-white p-2 mr-2" style="border-radius: 8px;">
+                  <i class="fas fa-building"></i>
+                </span>
+                <span class="font-weight-bold text-dark" style="font-size: 0.88rem;">Pihak Industri (Mitra DU/DI)</span>
+              </div>
+              <div class="card-body p-3 pt-0">
+                <div class="mb-2">
+                  <small class="text-muted d-block font-weight-bold" style="font-size: 0.75rem;">PENANGGUNG JAWAB / PIMPINAN DU/DI</small>
+                  <div class="font-weight-bold text-dark" style="font-size: 0.95rem;">
+                    {{ $data->penanggung_jawab }}
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <small class="text-muted d-block font-weight-bold" style="font-size: 0.75rem;">PIC LAPANGAN / PEMBIMBING DU/DI</small>
+                  <div class="font-weight-bold text-dark" style="font-size: 0.95rem;">
+                    {{ $data->pic ?: '-' }}
+                  </div>
+                </div>
+                <div>
+                  <small class="text-muted d-block font-weight-bold" style="font-size: 0.75rem;">KONTAK WHATSAPP PIC</small>
+                  @if(!empty($data->kontak_pic))
+                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $data->kontak_pic) }}" target="_blank" class="btn btn-success btn-sm font-weight-bold px-3 py-1 mt-1 shadow-sm" style="border-radius: 6px;">
+                      <i class="fab fa-whatsapp mr-1"></i> Hubungi WA ({{ $data->kontak_pic }})
+                    </a>
+                  @else
+                    <span class="text-muted font-italic" style="font-size: 0.85rem;">Belum ada kontak terdaftar</span>
+                  @endif
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Rekap Data Siswa PKL -->
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+          <div class="card-header bg-white py-3 px-3 border-0 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center" style="gap: 8px;">
+            <div class="d-flex align-items-center">
+              <span class="badge bg-success text-white p-2 mr-2" style="border-radius: 8px;">
+                <i class="fas fa-user-graduate"></i>
+              </span>
+              <div>
+                <h6 class="font-weight-bold text-dark mb-0">Daftar Siswa Magang PKL ({{ $data->siswaPkl->count() }})</h6>
+                <small class="text-muted">Data siswa yang pernah dan sedang ditempatkan di mitra ini</small>
+              </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center" style="gap: 4px;">
+              <span class="badge badge-success px-2 py-1 font-weight-bold shadow-sm" style="border-radius: 6px;">
+                <i class="fas fa-running mr-1"></i> {{ $data->siswa_aktif_count }} Aktif
+              </span>
+              <span class="badge text-white px-2 py-1 font-weight-bold shadow-sm" style="background-color: #0284c7; border-radius: 6px;">
+                <i class="fas fa-calendar-check mr-1"></i> {{ $data->siswa_ditempatkan_count }} Ditempatkan
+              </span>
+              <span class="badge badge-secondary px-2 py-1 font-weight-bold" style="border-radius: 6px;">
+                <i class="fas fa-check-circle mr-1"></i> {{ $data->siswaPkl->where('status', 'selesai')->count() }} Selesai
+              </span>
+            </div>
+          </div>
+
+          <div class="card-body p-0">
+            @if($data->siswaPkl->isNotEmpty())
+              <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0" style="font-size: 0.86rem;">
+                  <thead class="bg-light">
+                    <tr>
+                      <th class="text-center" style="width: 10px;">No</th>
+                      <th>Nama Siswa & NIS</th>
+                      <th>Kelas</th>
+                      <th>Periode Magang</th>
+                      <th class="text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @foreach($data->siswaPkl as $pkl)
+                    <tr>
+                      <td class="text-center font-weight-bold text-muted">{{ $loop->iteration }}</td>
+                      <td>
+                        <div class="font-weight-bold text-dark">{{ $pkl->siswa->nama_siswa ?? 'Siswa Tidak Ditemukan' }}</div>
+                        <small class="text-muted">NIS: {{ $pkl->siswa->nis ?? $pkl->siswa->nisn ?? '-' }}</small>
+                      </td>
+                      <td>
+                        <span class="badge badge-light border text-dark font-weight-normal px-2 py-1">
+                          {{ $pkl->kelas->nama_kelas ?? ($pkl->siswa->kelas->nama_kelas ?? '-') }}
+                        </span>
+                      </td>
+                      <td>
+                        <i class="fas fa-calendar-alt text-primary mr-1"></i>
+                        {{ \Carbon\Carbon::parse($pkl->tanggal_mulai)->translatedFormat('d M Y') }} s/d {{ \Carbon\Carbon::parse($pkl->tanggal_selesai)->translatedFormat('d M Y') }}
+                      </td>
+                      <td class="text-center">
+                        @if($pkl->status_pkl === 'belum_mulai')
+                          <span class="badge px-2 py-1 font-weight-bold text-white shadow-sm" style="background-color: #0284c7; border-radius: 6px;">
+                            <i class="fas fa-calendar-check mr-1"></i> Sudah Ditempatkan
+                          </span>
+                        @elseif($pkl->status_pkl === 'aktif')
+                          <span class="badge badge-success px-2 py-1 font-weight-bold shadow-sm" style="border-radius: 6px;">
+                            <i class="fas fa-running mr-1"></i> Sedang PKL
+                          </span>
+                        @else
+                          <span class="badge badge-secondary px-2 py-1 font-weight-bold" style="border-radius: 6px;">
+                            <i class="fas fa-check-circle mr-1"></i> Selesai
+                          </span>
+                        @endif
+                      </td>
+                    </tr>
+                    @endforeach
+                  </tbody>
+                </table>
+              </div>
+            @else
+              <div class="text-center py-4 px-3 text-muted">
+                <i class="fas fa-user-graduate fa-2x mb-2 text-secondary d-block"></i>
+                <div class="font-weight-bold">Belum Ada Siswa Ditempatkan</div>
+                <small class="d-block mt-1">Gunakan tombol <b>"Plotting Siswa"</b> untuk menempatkan siswa magang di mitra industri ini.</small>
+              </div>
+            @endif
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer bg-light py-2 px-4 d-flex justify-content-between">
+        <span class="text-muted" style="font-size: 0.8rem;">
+          <i class="fas fa-info-circle mr-1"></i> Terdaftar sejak: {{ $data->created_at ? $data->created_at->translatedFormat('d M Y') : '-' }}
+        </span>
+        <button type="button" class="btn btn-secondary px-3" data-dismiss="modal" style="border-radius: 8px;">Tutup</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL KELOLA & PLOTTING SISWA PKL (PER PERUSAHAAN)                        -->
+<!-- ========================================================================= -->
 <div class="modal fade modal-kelola-pkl" id="modalKelolaPkl_{{ $data->id_perusahaan }}" tabindex="-1" role="dialog" aria-labelledby="modalKelolaLabel_{{ $data->id_perusahaan }}" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
     <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
@@ -690,6 +951,17 @@ $(document).ready(function () {
   // Reset Select2 saat modal tambah dibuka
   $('#modalTambahPerusahaan').on('show.bs.modal', function () {
     $('#id_guru').val('').trigger('change');
+  });
+
+  // Smooth modal switch (misal dari Detail ke Edit atau Plotting)
+  $(document).on('click', '.btn-switch-modal', function (e) {
+    e.preventDefault();
+    let targetModalId = $(this).data('target');
+    let currentModal = $(this).closest('.modal');
+    currentModal.modal('hide');
+    currentModal.one('hidden.bs.modal', function () {
+      $(targetModalId).modal('show');
+    });
   });
 
   // Tombol Edit Perusahaan
