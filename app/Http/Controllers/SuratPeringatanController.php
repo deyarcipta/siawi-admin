@@ -57,10 +57,11 @@ class SuratPeringatanController extends Controller
                 return $items->pluck('sp_level')->toArray();
             });
 
-        $studentMaxSingle = \App\Models\PointSiswa::select('id_siswa', \Illuminate\Support\Facades\DB::raw('MAX(skor_point) as max_score'))
-            ->whereIn('id_siswa', $pointSiswaIds)
-            ->groupBy('id_siswa')
-            ->pluck('max_score', 'id_siswa');
+        $allStudentViolations = \App\Models\PointSiswa::whereIn('id_siswa', $pointSiswaIds)
+            ->orderBy('created_at', 'asc')
+            ->orderBy('id_point_siswa', 'asc')
+            ->get(['id_siswa', 'skor_point'])
+            ->groupBy('id_siswa');
 
         $siswaList = \App\Models\Siswa::with('kelas', 'jurusan')->whereIn('id_siswa', $pointSiswaIds)->get()->keyBy('id_siswa');
 
@@ -85,15 +86,25 @@ class SuratPeringatanController extends Controller
                 }
             }
 
-            // Cari apakah ada level SP sebelumnya yang belum pernah diterbitkan (pending lower levels)
-            // Hanya berlaku jika siswa TIDAK melompat karena pelanggaran tunggal besar (skor_point >= targetThreshold)
-            $pendingLowerLevels = [];
-            $maxSingle = (int) ($studentMaxSingle->get($pt->id_siswa, 0));
-            $isDirectMajorViolation = ($targetThreshold !== null && $maxSingle >= $targetThreshold);
+            // Hitung tier/level SP mana saja yang pernah aktif dilalui siswa secara kronologis
+            $studentViolations = $allStudentViolations->get($pt->id_siswa, collect());
+            $runningTotal = 0;
+            $tiersEverActive = [];
+            foreach ($studentViolations as $v) {
+                $runningTotal += (int) $v->skor_point;
+                foreach ($sortedRules as $lvl => $thresh) {
+                    if ($runningTotal >= (int) $thresh) {
+                        $tiersEverActive[(int) $lvl] = true;
+                        break;
+                    }
+                }
+            }
 
-            if ($targetSpLevel !== null && !$isDirectMajorViolation) {
+            // Cari level SP sebelumnya yang pernah aktif dilalui tetapi belum pernah diterbitkan
+            $pendingLowerLevels = [];
+            if ($targetSpLevel !== null) {
                 foreach ($spRules as $spLevel => $threshold) {
-                    if ((int)$spLevel < $targetSpLevel && $pt->total_point >= $threshold && !in_array($spLevel, $studentExistingSps)) {
+                    if ((int)$spLevel < $targetSpLevel && isset($tiersEverActive[$spLevel]) && !in_array($spLevel, $studentExistingSps)) {
                         $pendingLowerLevels[] = [
                             'sp_level' => (int)$spLevel,
                             'threshold' => (int)$threshold,

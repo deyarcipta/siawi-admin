@@ -190,15 +190,34 @@ class PointSiswaController extends Controller
         // $siswa = Siswa::where('id_siswa', $id_siswa)->first();
         // $point = Point::where('id_point', $id_point)->first();
         // $guru = Guru::where('id_guru', '1')->first();
-        $pointSiswa = PointSiswa::where('id_siswa', $id_siswa)->get();
-        // dd($pointSiswa);
+        $pointSiswa = PointSiswa::where('id_siswa', $id_siswa)
+            ->with('point', 'guru')
+            ->orderBy('created_at', 'asc')
+            ->orderBy('id_point_siswa', 'asc')
+            ->get();
         $total_point = $pointSiswa->sum('skor_point');
-        $maxSingleViolation = $pointSiswa->max('skor_point') ?? 0;
 
         // Ambil data SP yang sudah pernah diterbitkan untuk siswa ini
         $existingSps = \App\Models\SuratPeringatan::where('id_siswa', $id_siswa)->get()->keyBy('sp_level');
 
-        return view('pointSiswa.review_point_siswa', compact('siswa','layout', 'setting', 'pointSiswa','total_point','user', 'existingSps', 'maxSingleViolation'));
+        // Hitung tier/level SP mana saja yang pernah aktif dilalui siswa secara kronologis
+        $spSettings = $setting->sp_settings ?? [];
+        $spRules = $spSettings['sp_rules'] ?? ['1' => 25, '2' => 50, '3' => 75];
+        $sortedRulesDesc = collect($spRules)->sortKeysDesc();
+
+        $runningTotal = 0;
+        $tiersEverActive = [];
+        foreach ($pointSiswa as $v) {
+            $runningTotal += (int) $v->skor_point;
+            foreach ($sortedRulesDesc as $lvl => $thresh) {
+                if ($runningTotal >= (int) $thresh) {
+                    $tiersEverActive[(int) $lvl] = true;
+                    break;
+                }
+            }
+        }
+
+        return view('pointSiswa.review_point_siswa', compact('siswa','layout', 'setting', 'pointSiswa','total_point','user', 'existingSps', 'tiersEverActive'));
     }
 
     /**
