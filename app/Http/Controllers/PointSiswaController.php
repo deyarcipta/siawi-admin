@@ -172,7 +172,8 @@ class PointSiswaController extends Controller
 
         $nomor_surat = $spRecord->nomor_surat;
         
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pointSiswa.sp_pdf', compact('siswa', 'setting', 'pointSiswa', 'total_point', 'spType', 'threshold', 'maxSp', 'nomor_surat'));
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pointSiswa.sp_pdf', compact('siswa', 'setting', 'pointSiswa', 'total_point', 'spType', 'threshold', 'maxSp', 'nomor_surat'))
+            ->setPaper('a4', 'portrait');
         
         return $pdf->stream('Surat_Peringatan_' . $spType . '_' . str_replace(' ', '_', $siswa->nama_siswa) . '.pdf');
     }
