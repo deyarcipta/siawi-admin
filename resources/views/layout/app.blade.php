@@ -28,6 +28,9 @@
   <link rel="stylesheet" href="{{ asset('lte/plugins/daterangepicker/daterangepicker.css') }}">
   <!-- summernote -->
   <link rel="stylesheet" href="{{ asset('lte/plugins/summernote/summernote-bs4.min.css') }}">
+  <!-- Select2 -->
+  <link rel="stylesheet" href="{{ asset('lte/plugins/select2/css/select2.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('lte/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
   <!-- DataTables -->
   <link rel="stylesheet" href="{{ asset('lte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
   <link rel="stylesheet" href="{{ asset('lte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
@@ -1798,6 +1801,8 @@
 <script src="{{ asset('lte/plugins/jquery/jquery.min.js') }}"></script>
 <!-- Bootstrap 4 -->
 <script src="{{ asset('lte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<!-- Select2 -->
+<script src="{{ asset('lte/plugins/select2/js/select2.full.min.js') }}"></script>
 <!-- Summernote -->
 <script src="{{ asset('lte/plugins/summernote/summernote-bs4.min.js') }}"></script>
 <!-- ChartJS -->

@@ -15,16 +15,40 @@ class SiswaPklController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
         $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
-        $siswaList = Siswa::orderBy('nama_siswa', 'asc')->get();
+        $siswaList = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
         $perusahaan = Perusahaan::orderBy('nama_perusahaan', 'asc')->get();
-        $data_siswa_pkl = SiswaPkl::with(['siswa', 'kelas', 'perusahaan'])->orderBy('created_at', 'desc')->get();
-        return view('bkk.data_siswa_pkl', compact('layout','data_siswa_pkl','setting','user','kelasList','siswaList', 'perusahaan'));
+
+        $query = SiswaPkl::with(['siswa.kelas', 'kelas', 'perusahaan']);
+
+        if ($request->filled('id_perusahaan')) {
+            $query->where('id_perusahaan', $request->id_perusahaan);
+        }
+        if ($request->filled('id_kelas')) {
+            $query->where('id_kelas', $request->id_kelas);
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $data_siswa_pkl = $query->orderByRaw("FIELD(status, 'PKL', 'selesai')")
+                                ->orderBy('tanggal_mulai', 'desc')
+                                ->get();
+
+        $totalPklAktif = SiswaPkl::where('status', 'PKL')->count();
+        $totalPklSelesai = SiswaPkl::where('status', 'selesai')->count();
+        $totalMitra = Perusahaan::count();
+
+        return view('bkk.data_siswa_pkl', compact(
+            'layout', 'data_siswa_pkl', 'setting', 'user', 
+            'kelasList', 'siswaList', 'perusahaan',
+            'totalPklAktif', 'totalPklSelesai', 'totalMitra'
+        ));
     }
 
     /**
@@ -41,17 +65,35 @@ class SiswaPklController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_siswa' => 'required|exists:siswa,id_siswa',
-            'id_kelas' => 'required|exists:kelas,id_kelas',
+            'id_siswa' => 'required',
             'id_perusahaan' => 'required|exists:perusahaan,id_perusahaan',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'status' => 'required|in:PKL,selesai',
         ]);
-        SiswaPkl::create($request->all());
-        // dd($data); // Lihat apa benar tersimpan
 
-        return redirect()->route('admin.siswaPkl.index')->with('success', 'Data Siswa PKL berhasil ditambahkan');
+        $siswaIds = is_array($request->id_siswa) ? $request->id_siswa : [$request->id_siswa];
+        $count = 0;
+
+        foreach ($siswaIds as $siswaId) {
+            if (!$siswaId) continue;
+            $siswa = Siswa::find($siswaId);
+            if (!$siswa) continue;
+
+            $kelasId = $request->id_kelas ?: $siswa->id_kelas;
+
+            SiswaPkl::create([
+                'id_siswa' => $siswaId,
+                'id_kelas' => $kelasId,
+                'id_perusahaan' => $request->id_perusahaan,
+                'tanggal_mulai' => $request->tanggal_mulai,
+                'tanggal_selesai' => $request->tanggal_selesai,
+                'status' => $request->status,
+            ]);
+            $count++;
+        }
+
+        return redirect()->back()->with('success', "Berhasil menempatkan {$count} siswa PKL ke perusahaan.");
     }
 
     /**
@@ -75,24 +117,36 @@ class SiswaPklController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $data = SiswaPkl::findOrFail($id);
+
+        if ($request->has('quick_status')) {
+            $request->validate([
+                'status' => 'required|in:PKL,selesai',
+            ]);
+            $data->status = $request->status;
+            $data->save();
+            return redirect()->back()->with('success', 'Status PKL siswa berhasil diperbarui.');
+        }
+
         $request->validate([
-            'id_kelas' => 'required',
             'id_siswa' => 'required',
             'id_perusahaan' => 'required',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date',
         ]);
 
-        $data = SiswaPkl::findOrFail($id);
-        $data->id_kelas = $request->id_kelas;
+        $siswa = Siswa::find($request->id_siswa);
+        $data->id_kelas = $request->id_kelas ?: ($siswa?->id_kelas ?? $data->id_kelas);
         $data->id_siswa = $request->id_siswa;
         $data->id_perusahaan = $request->id_perusahaan;
         $data->tanggal_mulai = $request->tanggal_mulai;
         $data->tanggal_selesai = $request->tanggal_selesai;
-        $data->status = $request->status;
+        if ($request->filled('status')) {
+            $data->status = $request->status;
+        }
         $data->save();
 
-        return redirect()->back()->with('success', 'Data berhasil diupdate.');
+        return redirect()->back()->with('success', 'Data siswa PKL berhasil diperbarui.');
     }
 
     /**
@@ -100,10 +154,9 @@ class SiswaPklController extends Controller
      */
     public function destroy(string $id)
     {
-        $data = SiswaPkl::findOrFail($id); // cari data berdasarkan ID, atau gagal 404
-        $data->delete(); // hapus data
+        $data = SiswaPkl::findOrFail($id);
+        $data->delete();
 
-        return redirect()->route('admin.siswaPkl.index')
-                        ->with('success', 'Data Siswa PKL berhasil dihapus');
+        return redirect()->back()->with('success', 'Data Siswa PKL berhasil dihapus');
     }
 }

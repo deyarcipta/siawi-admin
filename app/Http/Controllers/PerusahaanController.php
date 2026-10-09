@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Perusahaan;
 use App\Models\SiswaPkl;
 use App\Models\Setting;
+use App\Models\Siswa;
+use App\Models\Kelas;
 
 class PerusahaanController extends Controller
 {
@@ -18,12 +20,28 @@ class PerusahaanController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
+
         $perusahaan = Perusahaan::withCount([
             'siswaPkl as siswa_aktif_count' => function ($query) {
                 $query->where('status', 'PKL');
-            }
-        ])->orderBy('created_at', 'desc')->get();
-        return view('bkk.data_perusahaan', compact('layout','perusahaan','setting','user'));
+            },
+            'siswaPkl as siswa_total_count'
+        ])
+        ->with(['siswaPkl' => function ($query) {
+            $query->with(['siswa.kelas', 'kelas'])->orderByRaw("FIELD(status, 'PKL', 'selesai')")->orderBy('tanggal_mulai', 'desc');
+        }])
+        ->orderBy('nama_perusahaan', 'asc')
+        ->get();
+
+        $siswaList = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
+        $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
+        $totalMitra = $perusahaan->count();
+        $totalSiswaPklAktif = SiswaPkl::where('status', 'PKL')->count();
+
+        return view('bkk.data_perusahaan', compact(
+            'layout', 'perusahaan', 'setting', 'user', 
+            'siswaList', 'kelasList', 'totalMitra', 'totalSiswaPklAktif'
+        ));
     }
 
     /**
