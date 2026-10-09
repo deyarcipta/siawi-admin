@@ -553,9 +553,25 @@
           Sistem & Pengaturan
         </li>
 
+        @php
+          $isDataGuruActive = (Request::is('admin/guru') || Request::is('admin/guru/*')) && !Request::is('admin/guru/profile*');
+          $isDataMasterActive = (
+            Request::is('admin/jurusan*') ||
+            Request::is('admin/importDataMaster*') ||
+            Request::is('admin/level*') ||
+            Request::is('admin/kelas*') ||
+            Request::is('admin/mapel*') ||
+            Request::is('admin/siswa') ||
+            Request::is('admin/siswa/*') ||
+            Request::is('admin/dataAlumni*') ||
+            Request::is('admin/alumni*') ||
+            $isDataGuruActive ||
+            Request::is('admin/dataMaster/*')
+          );
+        @endphp
         <!-- Data Master -->
-        <li class="nav-item has-treeview {{ Request::is('admin/jurusan*') || Request::is('admin/importDataMaster*') || Request::is('admin/level*') || Request::is('admin/kelas*') || Request::is('admin/mapel*') || Request::is('admin/siswa') || Request::is('admin/siswa/*') || Request::is('admin/dataAlumni*') || Request::is('admin/alumni*') || Request::is('admin/guru') || Request::is('admin/guru/*') || Request::is('admin/dataMaster/*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/jurusan*') || Request::is('admin/importDataMaster*') || Request::is('admin/level*') || Request::is('admin/kelas*') || Request::is('admin/mapel*') || Request::is('admin/siswa') || Request::is('admin/siswa/*') || Request::is('admin/dataAlumni*') || Request::is('admin/alumni*') || Request::is('admin/guru') || Request::is('admin/guru/*') || Request::is('admin/dataMaster/*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ $isDataMasterActive ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ $isDataMasterActive ? 'active' : '' }}">
             <i class="nav-icon fas fa-database"></i>
             <p>
               Data Master
@@ -617,7 +633,7 @@
 
             @if($user->hasAnyRole(['admin', 'tata_usaha']))
             <li class="nav-item">
-              <a href="/admin/guru" class="nav-link {{ Request::is('admin/guru') || Request::is('admin/guru/*') ? 'active' : '' }}">
+              <a href="/admin/guru" class="nav-link {{ $isDataGuruActive ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Data Guru</p>
               </a>
