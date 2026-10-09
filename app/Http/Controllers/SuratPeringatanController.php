@@ -19,9 +19,9 @@ class SuratPeringatanController extends Controller
         $setting = Setting::find(1);
         $user = Auth::user();
 
-        // Get issued SPs (scoped for wali_kelas)
+        // Get issued SPs (scoped for wali_kelas murni)
         $query = SuratPeringatan::with('siswa.kelas', 'kelas');
-        if ($user && $user->role == 'wali_kelas') {
+        if ($user && $user->hasRole('wali_kelas') && !$user->hasAnyRole(['admin', 'kesiswaan', 'kurikulum'])) {
             $kelasWaliIds = \App\Models\Kelas::where('id_guru', $user->id_guru)->pluck('id_kelas');
             $query->whereIn('id_kelas', $kelasWaliIds);
         }
