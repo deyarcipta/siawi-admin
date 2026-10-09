@@ -85,6 +85,11 @@ class PointSiswaController extends Controller
 
     public function downloadSpPdf(string $id_siswa, Request $request)
     {
+        $user = Auth::user();
+        if (!$user || !$user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum'])) {
+            abort(403, 'Akses Ditolak: Anda tidak memiliki wewenang untuk mencetak Surat Peringatan (SP).');
+        }
+
         $spType = $request->query('sp', 1); // 1, 2, atau 3
         $siswa = Siswa::with('kelas', 'jurusan')->findOrFail($id_siswa);
         $setting = Setting::find(1);

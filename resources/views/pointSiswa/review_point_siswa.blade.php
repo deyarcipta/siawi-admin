@@ -62,8 +62,11 @@
                         @endphp
                         <div class="alert {{ $alertClass }} mt-3">
                             <h5><i class="icon fas fa-exclamation-triangle"></i> Status Kritis Poin Pelanggaran!</h5>
-                            Siswa ini telah mengumpulkan <strong>{{ $total_point }}</strong> poin pelanggaran. Batas toleransi terlewati. Anda dapat mengunduh Surat Peringatan resmi di bawah ini:
+                            Siswa ini telah mengumpulkan <strong>{{ $total_point }}</strong> poin pelanggaran. Batas toleransi terlewati.
+                            
+                            @if($user && $user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum']))
                             <div class="mt-2">
+                                <span class="d-block mb-1" style="font-size: 0.9rem;">Unduh Surat Peringatan resmi:</span>
                                 @foreach ($spRules as $spLevel => $threshold)
                                     @if ($total_point >= $threshold)
                                         <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => $spLevel]) }}" class="btn btn-dark btn-sm mt-1 mr-2" target="_blank">
@@ -72,6 +75,11 @@
                                     @endif
                                 @endforeach
                             </div>
+                            @else
+                            <p class="mb-0 mt-2 text-dark font-weight-500" style="font-size: 0.85rem;">
+                                <i class="fas fa-info-circle mr-1 text-primary"></i> Penerbitan dan pencetakan Surat Peringatan (SP) resmi merupakan wewenang Tim Kesiswaan, Guru BK, dan Wali Kelas.
+                            </p>
+                            @endif
                         </div>
                         @endif
 
