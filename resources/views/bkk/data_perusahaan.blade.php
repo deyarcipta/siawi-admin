@@ -56,7 +56,7 @@
         </div>
       </div>
       <div class="col-lg-3 col-md-6 col-sm-12 mb-2 d-flex align-items-center">
-        <a href="{{ route('admin.siswaPkl.index') }}" class="btn btn-outline-primary btn-block py-3 shadow-sm font-weight-bold" style="border-radius: 12px; border-width: 2px;">
+        <a href="{{ route('admin.siswaPkl.index') }}" class="btn btn-outline-primary btn-block py-2 py-sm-3 shadow-sm font-weight-bold" style="border-radius: 12px; border-width: 2px;">
           <i class="fas fa-list-alt mr-1"></i> Rekapitulasi Global &rarr;
         </a>
       </div>
@@ -66,13 +66,21 @@
     <div class="row">
       <div class="col-lg-12">
         <div class="card shadow-sm border-0" style="border-radius: 14px; overflow: hidden;">
-          <div class="card-header bg-white py-3 d-flex align-items-center">
-            <h3 class="card-title text-dark font-weight-bold mb-0">
-              <i class="fas fa-handshake text-primary mr-2"></i> Daftar Mitra Perusahaan & Penempatan Siswa
-            </h3>
-            <button class="btn btn-primary btn-sm ml-auto px-3 shadow-sm font-weight-bold" style="border-radius: 8px;" data-toggle="modal" data-target="#modalTambahPerusahaan">
-              <i class="fas fa-plus mr-1"></i> Tambah Mitra Perusahaan
-            </button>
+          <div class="card-header bg-white py-2 py-sm-3 d-flex justify-content-between align-items-center" style="gap: 10px;">
+            <div class="d-flex align-items-center pr-1" style="min-width: 0;">
+              <i class="fas fa-handshake text-primary mr-2" style="font-size: 1.25rem;"></i>
+              <div style="min-width: 0;">
+                <h3 class="card-title text-dark font-weight-bold mb-0 text-truncate" style="font-size: 0.95rem; line-height: 1.2; float: none;">
+                  Mitra Perusahaan
+                </h3>
+                <div class="text-muted d-none d-sm-block" style="font-size: 0.74rem;">Penempatan & plotting siswa PKL</div>
+              </div>
+            </div>
+            <div class="flex-shrink-0">
+              <button class="btn btn-primary btn-sm px-2 px-sm-3 shadow-sm font-weight-bold" style="border-radius: 8px; font-size: 0.82rem; white-space: nowrap;" data-toggle="modal" data-target="#modalTambahPerusahaan">
+                <i class="fas fa-plus mr-1"></i> <span class="d-none d-sm-inline">Tambah Mitra Perusahaan</span><span class="d-inline d-sm-none">Tambah Mitra</span>
+              </button>
+            </div>
           </div>
 
           <div class="card-body p-3">

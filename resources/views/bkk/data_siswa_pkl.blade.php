@@ -117,16 +117,22 @@
     <div class="row">
       <div class="col-lg-12">
         <div class="card shadow-sm border-0" style="border-radius: 14px; overflow: hidden;">
-          <div class="card-header bg-white py-3 d-flex flex-wrap align-items-center">
-            <h3 class="card-title text-dark font-weight-bold mb-0">
-              <i class="fas fa-table text-primary mr-2"></i> Data Seluruh Siswa Magang PKL
-            </h3>
-            <div class="ml-auto mt-2 mt-sm-0">
-              <a href="{{ route('admin.perusahaan.index') }}" class="btn btn-outline-primary btn-sm px-3 mr-2 font-weight-bold" style="border-radius: 8px;">
-                <i class="fas fa-building mr-1"></i> Plotting via Mitra DU/DI
+          <div class="card-header bg-white py-2 py-sm-3 d-flex flex-wrap justify-content-between align-items-center" style="gap: 8px;">
+            <div class="d-flex align-items-center pr-1" style="min-width: 0;">
+              <i class="fas fa-table text-primary mr-2" style="font-size: 1.25rem;"></i>
+              <div style="min-width: 0;">
+                <h3 class="card-title text-dark font-weight-bold mb-0 text-truncate" style="font-size: 0.95rem; line-height: 1.2; float: none;">
+                  Siswa Magang PKL
+                </h3>
+                <div class="text-muted d-none d-sm-block" style="font-size: 0.74rem;">Data plotting & penempatan PKL</div>
+              </div>
+            </div>
+            <div class="d-flex align-items-center ml-auto ml-sm-0" style="gap: 6px;">
+              <a href="{{ route('admin.perusahaan.index') }}" class="btn btn-outline-primary btn-sm px-2 px-sm-3 font-weight-bold" style="border-radius: 8px; font-size: 0.82rem; white-space: nowrap;" title="Plotting via Mitra DU/DI">
+                <i class="fas fa-building mr-1"></i> <span class="d-none d-md-inline">Plotting via Mitra</span><span class="d-inline d-md-none">Mitra</span>
               </a>
-              <button class="btn btn-success btn-sm px-3 shadow-sm font-weight-bold" style="border-radius: 8px;" data-toggle="modal" data-target="#modalTambahSiswaPkl">
-                <i class="fas fa-plus mr-1"></i> Tambah Manual
+              <button class="btn btn-success btn-sm px-2 px-sm-3 shadow-sm font-weight-bold" style="border-radius: 8px; font-size: 0.82rem; white-space: nowrap;" data-toggle="modal" data-target="#modalTambahSiswaPkl">
+                <i class="fas fa-plus mr-1"></i> <span class="d-none d-sm-inline">Tambah Manual</span><span class="d-inline d-sm-none">Tambah</span>
               </button>
             </div>
           </div>
