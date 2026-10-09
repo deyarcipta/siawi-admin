@@ -19,15 +19,90 @@ class SuratPeringatanController extends Controller
         $setting = Setting::find(1);
         $user = Auth::user();
 
-        // Get issued SPs (scoped for wali_kelas murni)
+        $isWaliKelasOnly = $user && $user->hasRole('wali_kelas') && !$user->hasAnyRole(['admin', 'kesiswaan', 'kurikulum']);
+        $kelasWaliIds = $isWaliKelasOnly ? \App\Models\Kelas::where('id_guru', $user->id_guru)->pluck('id_kelas') : collect();
+
+        // 1. Get issued SPs
         $query = SuratPeringatan::with('siswa.kelas', 'kelas');
-        if ($user && $user->hasRole('wali_kelas') && !$user->hasAnyRole(['admin', 'kesiswaan', 'kurikulum'])) {
-            $kelasWaliIds = \App\Models\Kelas::where('id_guru', $user->id_guru)->pluck('id_kelas');
+        if ($isWaliKelasOnly) {
             $query->whereIn('id_kelas', $kelasWaliIds);
         }
         $suratPeringatan = $query->orderBy('created_at', 'desc')->get();
 
-        return view('suratPeringatan.index', compact('layout', 'setting', 'user', 'suratPeringatan'));
+        // 2. SP Configuration & Thresholds
+        $spSettings = $setting->sp_settings ?? [];
+        $spRules = $spSettings['sp_rules'] ?? ['1' => 25, '2' => 50, '3' => 75];
+        $minThreshold = !empty($spRules) ? min($spRules) : 25;
+
+        // 3. Query students reaching point thresholds
+        $siswaQuery = \App\Models\Siswa::query();
+        if ($isWaliKelasOnly) {
+            $siswaQuery->whereIn('id_kelas', $kelasWaliIds);
+        }
+        $eligibleSiswaIds = $siswaQuery->pluck('id_siswa');
+
+        $pointTotals = \App\Models\PointSiswa::select('id_siswa', \Illuminate\Support\Facades\DB::raw('SUM(skor_point) as total_point'))
+            ->whereIn('id_siswa', $eligibleSiswaIds)
+            ->groupBy('id_siswa')
+            ->having('total_point', '>=', $minThreshold)
+            ->get();
+
+        $pointSiswaIds = $pointTotals->pluck('id_siswa');
+
+        // Existing SPs for these students
+        $existingSps = SuratPeringatan::whereIn('id_siswa', $pointSiswaIds)
+            ->get(['id_siswa', 'sp_level'])
+            ->groupBy('id_siswa')
+            ->map(function ($items) {
+                return $items->pluck('sp_level')->toArray();
+            });
+
+        $siswaList = \App\Models\Siswa::with('kelas', 'jurusan')->whereIn('id_siswa', $pointSiswaIds)->get()->keyBy('id_siswa');
+
+        $antreanSp = collect();
+        foreach ($pointTotals as $pt) {
+            $siswa = $siswaList->get($pt->id_siswa);
+            if (!$siswa) continue;
+
+            $studentExistingSps = $existingSps->get($pt->id_siswa, []);
+
+            foreach ($spRules as $spLevel => $threshold) {
+                if ($pt->total_point >= $threshold && !in_array($spLevel, $studentExistingSps)) {
+                    $antreanSp->push((object)[
+                        'siswa' => $siswa,
+                        'id_siswa' => $siswa->id_siswa,
+                        'total_point' => (int) $pt->total_point,
+                        'sp_level' => (int) $spLevel,
+                        'threshold' => (int) $threshold,
+                    ]);
+                }
+            }
+        }
+
+        // Sort queue: sp_level ascending, then total_point descending
+        $antreanSp = $antreanSp->sortBy([
+            ['sp_level', 'asc'],
+            ['total_point', 'desc'],
+        ]);
+
+        // Stats calculation
+        $totalSpDiterbitkan = $suratPeringatan->count();
+        $totalAntrean = $antreanSp->count();
+        $totalSudahTtd = $suratPeringatan->filter(fn($sp) => !empty($sp->file_ttd))->count();
+        $totalBelumTtd = $totalSpDiterbitkan - $totalSudahTtd;
+
+        return view('suratPeringatan.index', compact(
+            'layout',
+            'setting',
+            'user',
+            'suratPeringatan',
+            'antreanSp',
+            'spRules',
+            'totalSpDiterbitkan',
+            'totalAntrean',
+            'totalSudahTtd',
+            'totalBelumTtd'
+        ));
     }
 
     /**
