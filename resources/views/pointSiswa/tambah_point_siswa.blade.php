@@ -87,7 +87,7 @@
                           'id_siswa' => $siswa->id_siswa,
                           'id_kelas' => $siswa->id_kelas ?? ($siswa->kelas->id_kelas ?? 0),
                           'id_jurusan' => $siswa->id_jurusan ?? ($siswa->jurusan?->id_jurusan ?? 1),
-                          'tanggal' => $carbonDate,
+                          'tanggal' => $tanggal ?? $carbonDate,
                       ]) }}" class="btn btn-sm btn-danger px-3 shadow-sm" style="border-radius: 6px;">
                         <i class="fas fa-plus mr-1"></i> Proses
                       </a>

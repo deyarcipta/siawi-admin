@@ -50,18 +50,25 @@ class PointSiswaController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $carbonDate = Carbon::parse($tanggal)->locale('id')->translatedFormat('d F Y H:i');
+        try {
+            $carbonDate = Carbon::parse($tanggal)->locale('id')->translatedFormat('d F Y H:i');
+        } catch (\Throwable $e) {
+            $carbonDate = $tanggal;
+        }
         $siswa = Siswa::where('id_siswa', $id_siswa)->first();
         $point = Point::orderBy('skor_point', 'asc')->orderByRaw("CASE WHEN jenis_point = 'KERAJINAN' THEN 0 ELSE 1 END")->get();
-        return view('pointSiswa.tambah_point_siswa', compact('siswa', 'layout', 'setting', 'point', 'carbonDate','user'));
+        return view('pointSiswa.tambah_point_siswa', compact('siswa', 'layout', 'setting', 'point', 'carbonDate', 'tanggal', 'user'));
     }
 
     public function inputPoint(Request $request, $id_point, $id_siswa, $id_kelas, $id_jurusan,  $tanggal)
     {  
-        // dd($id_siswa);
         $idSiswa = $request->input('id_siswa');
         $layout = 'layout.app';
-        $carbonDate = Carbon::parse($tanggal)->locale('id')->translatedFormat('d F Y H:i');
+        try {
+            $formattedTanggal = Carbon::parse($tanggal)->locale('id')->translatedFormat('d F Y H:i');
+        } catch (\Throwable $e) {
+            $formattedTanggal = $tanggal;
+        }
         $setting = Setting::find('1');
         $user = Auth::user();
         $siswa = Siswa::where('id_siswa', $id_siswa)->first();
@@ -77,7 +84,7 @@ class PointSiswaController extends Controller
             'id_guru' => $guru->id_guru,
             'role' => $guru->role,
             'skor_point' => $point->skor_point,
-            'tanggal' => $tanggal
+            'tanggal' => $formattedTanggal
         ]);
 
         return redirect()->route('admin.pointSiswa.review_point_siswa', ['id_siswa' => $id_siswa])->with('success','Data Point Berhasil Ditambah');
