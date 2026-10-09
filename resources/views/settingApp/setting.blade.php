@@ -766,32 +766,34 @@
 
                                 <!-- Modal Tambah Sesi -->
                                 <div class="modal fade" id="modalAddWaSession" tabindex="-1" role="dialog" aria-labelledby="modalAddWaSessionLabel" aria-hidden="true">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content text-left">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title font-weight-bold" id="modalAddWaSessionLabel">Tambah Sesi WhatsApp Baru</h5>
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <form id="form_add_wa_session">
-                                                @csrf
-                                                <div class="modal-body">
-                                                    <div class="form-group">
-                                                        <label for="new_session_label">Label Pengenal Nomor / Sesi</label>
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <form id="form_add_wa_session">
+                                            @csrf
+                                            <div class="modal-content border-0 shadow-lg text-left" style="border-radius: 16px; overflow: hidden;">
+                                                <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #1d72fe 0%, #0b1f3a 100%);">
+                                                    <h5 class="modal-title font-weight-bold" id="modalAddWaSessionLabel">
+                                                        <i class="fab fa-whatsapp mr-2"></i> Tambah Sesi WhatsApp Baru
+                                                    </h5>
+                                                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body p-4">
+                                                    <div class="form-group mb-0">
+                                                        <label for="new_session_label" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Label Pengenal Nomor / Sesi <span class="text-danger">*</span></label>
                                                         <input type="text" class="form-control" id="new_session_label" name="label" required 
-                                                               placeholder="Contoh: Nomor Utama Sekolah, Nomor Cadangan 1">
-                                                        <small class="form-text text-muted">Label ini membantu Anda mengidentifikasi nomor WhatsApp yang terhubung.</small>
+                                                               placeholder="Contoh: Nomor Utama Sekolah, Nomor Cadangan 1" style="border-radius: 8px; height: 42px;">
+                                                        <small class="form-text text-muted mt-1">Label ini membantu Anda mengidentifikasi nomor WhatsApp yang terhubung.</small>
                                                     </div>
                                                 </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                                    <button type="submit" class="btn btn-primary" id="btn_submit_add_session">
+                                                <div class="modal-footer bg-light py-3 px-4">
+                                                    <button type="button" class="btn btn-secondary px-3" data-dismiss="modal" style="border-radius: 8px;">Batal</button>
+                                                    <button type="submit" class="btn btn-primary px-4 font-weight-bold shadow-sm" id="btn_submit_add_session" style="border-radius: 8px;">
                                                         <i class="fas fa-save mr-1"></i> Simpan Sesi
                                                     </button>
                                                 </div>
-                                            </form>
-                                        </div>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

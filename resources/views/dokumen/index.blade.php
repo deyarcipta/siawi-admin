@@ -146,19 +146,19 @@
 <!-- Modal Tambah Dokumen -->
 <div class="modal fade" id="modalTambahDokumen" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content" style="border-radius: 14px; overflow: hidden; border: none; box-shadow: 0 15px 35px rgba(0,0,0,0.2);">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
       <form action="/admin/dokumen" method="POST" enctype="multipart/form-data">
         @csrf
-        <div class="modal-header bg-primary text-white py-3">
-          <h5 class="modal-title font-weight-bold" style="font-size: 1.05rem;">
+        <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #1d72fe 0%, #0b1f3a 100%);">
+          <h5 class="modal-title font-weight-bold" id="modalLabel">
             <i class="fas fa-file-upload mr-2"></i> Tambah Dokumen Siswa
           </h5>
-          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.9;">
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body p-4">
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label for="id_siswa" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Pilih Siswa <span class="text-danger">*</span></label>
             <select name="id_siswa" id="id_siswa" class="form-control" required style="border-radius: 8px; height: 42px;">
               <option value="">-- Pilih Siswa --</option>
@@ -169,7 +169,7 @@
               @endforeach
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label for="jenis_dokumen" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Jenis / Nama Dokumen <span class="text-danger">*</span></label>
             <input type="text" name="jenis_dokumen" id="jenis_dokumen" class="form-control" placeholder="Contoh: Ijazah SMP, Akta Kelahiran, Sertifikat PKL" required style="border-radius: 8px; height: 42px;">
           </div>
@@ -179,9 +179,11 @@
             <small class="text-muted mt-1 d-block"><i class="fas fa-info-circle mr-1"></i> File harus berformat PDF dengan ukuran maksimal 5MB.</small>
           </div>
         </div>
-        <div class="modal-footer bg-light py-3">
+        <div class="modal-footer bg-light py-3 px-4">
           <button type="button" class="btn btn-secondary px-3" data-dismiss="modal" style="border-radius: 8px;">Batal</button>
-          <button type="submit" class="btn btn-primary px-4" style="border-radius: 8px;"><i class="fas fa-save mr-1"></i> Simpan Dokumen</button>
+          <button type="submit" class="btn btn-primary px-4 font-weight-bold shadow-sm" style="border-radius: 8px;">
+            <i class="fas fa-save mr-1"></i> Simpan Dokumen
+          </button>
         </div>
       </form>
     </div>

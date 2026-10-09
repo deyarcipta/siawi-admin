@@ -307,39 +307,41 @@
 
                                             <!-- Modal Upload SP TTD -->
                                             <div class="modal fade text-left" id="uploadModal{{ $sp->id_sp }}" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel{{ $sp->id_sp }}" aria-hidden="true">
-                                                <div class="modal-dialog" role="document">
-                                                    <div class="modal-content">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
                                                         <form action="{{ route('admin.suratPeringatan.uploadTtd', $sp->id_sp) }}" method="POST" enctype="multipart/form-data">
                                                             @csrf
-                                                            <div class="modal-header bg-warning text-white">
+                                                            <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #1d72fe 0%, #0b1f3a 100%);">
                                                                 <h5 class="modal-title font-weight-bold" id="uploadModalLabel{{ $sp->id_sp }}">
-                                                                    <i class="fas fa-file-upload mr-1"></i> Unggah SP Bertanda Tangan
+                                                                    <i class="fas fa-file-upload mr-2"></i> Unggah SP Bertanda Tangan
                                                                 </h5>
-                                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
                                                                     <span aria-hidden="true">&times;</span>
                                                                 </button>
                                                             </div>
-                                                            <div class="modal-body">
-                                                                <div class="form-group">
-                                                                    <label class="font-weight-600 text-muted">Nomor Surat</label>
-                                                                    <input type="text" class="form-control font-weight-bold" value="{{ $sp->nomor_surat }}" readonly disabled>
+                                                            <div class="modal-body p-4">
+                                                                <div class="form-group mb-3">
+                                                                    <label class="font-weight-bold text-dark" style="font-size: 0.85rem;">Nomor Surat</label>
+                                                                    <input type="text" class="form-control font-weight-bold bg-light" value="{{ $sp->nomor_surat }}" readonly disabled style="border-radius: 8px; height: 42px;">
                                                                 </div>
-                                                                <div class="form-group">
-                                                                    <label class="font-weight-600 text-muted">Nama Siswa</label>
-                                                                    <input type="text" class="form-control" value="{{ $sp->siswa->nama_siswa ?? 'N/A' }}" readonly disabled>
+                                                                <div class="form-group mb-3">
+                                                                    <label class="font-weight-bold text-dark" style="font-size: 0.85rem;">Nama Siswa</label>
+                                                                    <input type="text" class="form-control font-weight-bold bg-light" value="{{ $sp->siswa->nama_siswa ?? 'N/A' }}" readonly disabled style="border-radius: 8px; height: 42px;">
                                                                 </div>
-                                                                <div class="form-group">
-                                                                    <label for="file_ttd" class="font-weight-600 text-dark">File SP Bertanda Tangan (PDF/Gambar)</label>
+                                                                <div class="form-group mb-0">
+                                                                    <label for="file_ttd_{{ $sp->id_sp }}" class="font-weight-bold text-dark" style="font-size: 0.85rem;">File SP Bertanda Tangan (PDF/Gambar) <span class="text-danger">*</span></label>
                                                                     <div class="custom-file">
                                                                         <input type="file" class="custom-file-input" name="file_ttd" id="file_ttd_{{ $sp->id_sp }}" accept=".pdf,image/*" required>
-                                                                        <label class="custom-file-label" for="file_ttd_{{ $sp->id_sp }}">Pilih Berkas...</label>
+                                                                        <label class="custom-file-label" for="file_ttd_{{ $sp->id_sp }}" style="border-radius: 8px;">Pilih Berkas...</label>
                                                                     </div>
-                                                                    <small class="form-text text-muted">Format file yang diperbolehkan: PDF, JPG, JPEG, PNG (Maksimal 4MB)</small>
+                                                                    <small class="form-text text-muted mt-1">Format: PDF, JPG, JPEG, PNG (Maksimal 4MB)</small>
                                                                 </div>
                                                             </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                                                <button type="submit" class="btn btn-warning text-white font-weight-bold">Unggah Berkas</button>
+                                                            <div class="modal-footer bg-light py-3 px-4">
+                                                                <button type="button" class="btn btn-secondary px-3" data-dismiss="modal" style="border-radius: 8px;">Batal</button>
+                                                                <button type="submit" class="btn btn-primary px-4 font-weight-bold shadow-sm" style="border-radius: 8px;">
+                                                                    <i class="fas fa-save mr-1"></i> Unggah Berkas
+                                                                </button>
                                                             </div>
                                                         </form>
                                                     </div>

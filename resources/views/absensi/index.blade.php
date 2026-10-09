@@ -172,21 +172,21 @@
                     </tr>
 
                     <!-- Modal Edit Kehadiran -->
-                    <div class="modal fade" id="editKehadiran{{ $data->id_absensi }}" tabindex="-1" aria-labelledby="editModalLabel{{ $data->id_absensi }}" aria-hidden="true">
-                      <div class="modal-dialog">
-                        <div class="modal-content shadow">
-                          <div class="modal-header bg-warning text-dark">
+                    <div class="modal fade" id="editKehadiran{{ $data->id_absensi }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel{{ $data->id_absensi }}" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+                          <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #1d72fe 0%, #0b1f3a 100%);">
                             <h5 class="modal-title font-weight-bold" id="editModalLabel{{ $data->id_absensi }}">
-                              <i class="fas fa-edit mr-1"></i> Edit Kehadiran Siswa
+                              <i class="fas fa-edit mr-2"></i> Edit Kehadiran Siswa
                             </h5>
-                            <button type="button" class="close text-dark" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
                               <span aria-hidden="true">&times;</span>
                             </button>
                           </div>
                           <form action="{{ url('/admin/edit-kehadiran/' . $data->id_absensi) }}" method="POST">
                             @csrf
                             @method('PUT')
-                            <div class="modal-body">
+                            <div class="modal-body p-4">
                               <div class="form-group">
                                 <label class="font-weight-bold">Nama Siswa</label>
                                 <input type="text" class="form-control" value="{{ $data->siswa->nama_siswa ?? '-' }}" readonly>
@@ -224,9 +224,9 @@
                                 <small class="text-muted">Kosongkan atau beri tanda - jika tidak ada catatan khusus.</small>
                               </div>
                             </div>
-                            <div class="modal-footer bg-light">
-                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                              <button type="submit" class="btn btn-primary font-weight-bold">
+                            <div class="modal-footer bg-light py-3 px-4">
+                              <button type="button" class="btn btn-secondary px-3" data-dismiss="modal" style="border-radius: 8px;">Batal</button>
+                              <button type="submit" class="btn btn-primary px-4 font-weight-bold shadow-sm" style="border-radius: 8px;">
                                 <i class="fas fa-save mr-1"></i> Simpan Perubahan
                               </button>
                             </div>
@@ -258,20 +258,20 @@
   </div>
 
   <!-- Modal Tambah Kehadiran -->
-  <div class="modal fade" id="tambahKehadiranModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content shadow">
-        <div class="modal-header bg-primary text-white">
+  <div class="modal fade" id="tambahKehadiranModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+        <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #1d72fe 0%, #0b1f3a 100%);">
           <h5 class="modal-title font-weight-bold" id="modalLabel">
-            <i class="fas fa-user-plus mr-1"></i> Tambah Kehadiran Siswa
+            <i class="fas fa-user-plus mr-2"></i> Tambah Kehadiran Siswa
           </h5>
-          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <form action="{{ route('admin.absensi.tambah-kehadiran') }}" method="POST" id="form-tambah-kehadiran-siswa">
           @csrf
-          <div class="modal-body">
+          <div class="modal-body p-4">
             <div class="form-group">
               <label for="id_kelas" class="font-weight-bold">Pilih Kelas <span class="text-danger">*</span></label>
               <select name="id_kelas" id="id_kelas" class="form-control" required>
@@ -320,9 +320,9 @@
               <input type="text" name="keterangan" class="form-control" placeholder="Contoh: Sakit tipus (ada surat dokter) / Izin">
             </div>
           </div>
-          <div class="modal-footer bg-light">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-            <button type="submit" class="btn btn-success font-weight-bold" id="btn-submit-kehadiran-siswa">
+          <div class="modal-footer bg-light py-3 px-4">
+            <button type="button" class="btn btn-secondary px-3" data-dismiss="modal" style="border-radius: 8px;">Batal</button>
+            <button type="submit" class="btn btn-primary px-4 font-weight-bold shadow-sm" id="btn-submit-kehadiran-siswa" style="border-radius: 8px;">
               <i class="fas fa-save mr-1"></i> Simpan Kehadiran
             </button>
           </div>

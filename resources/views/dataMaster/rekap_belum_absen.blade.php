@@ -148,23 +148,23 @@
 
                               <!-- Modal Detail Siswa Belum Absen -->
                               <div class="modal fade text-left" id="modalDetail{{ $item['kelas']->id_kelas }}" role="dialog" aria-labelledby="modalLabel{{ $item['kelas']->id_kelas }}" aria-hidden="true">
-                                <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                                   <form action="{{ route('admin.rekapBelumAbsen.store') }}" method="POST">
                                     @csrf
                                     <input type="hidden" name="tanggal" value="{{ $date }}">
                                     <input type="hidden" name="id_kelas" value="{{ $item['kelas']->id_kelas }}">
                                     
-                                    <div class="modal-content" style="border-radius: 12px; overflow: hidden;">
-                                      <div class="modal-header bg-info text-white">
+                                    <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+                                      <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #1d72fe 0%, #0b1f3a 100%);">
                                         <h5 class="modal-title font-weight-bold" id="modalLabel{{ $item['kelas']->id_kelas }}">
-                                          <i class="fa fa-users mr-1"></i> Data Belum Absen: {{ $item['kelas']->nama_kelas }}
+                                          <i class="fas fa-users mr-2"></i> Data Belum Absen: {{ $item['kelas']->nama_kelas }}
                                         </h5>
-                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
                                           <span aria-hidden="true">&times;</span>
                                         </button>
                                       </div>
-                                      <div class="modal-body">
-                                        <div class="alert alert-light border d-flex justify-content-between align-items-center mb-3 p-3">
+                                      <div class="modal-body p-4">
+                                        <div class="alert alert-light border d-flex justify-content-between align-items-center mb-3 p-3" style="border-radius: 10px;">
                                           <div>
                                             <div class="font-weight-bold text-dark mb-1">
                                               Wali Kelas: <span class="text-primary">{{ $item['waliKelas']?->nama_guru ?? 'Belum Diatur' }}</span>
@@ -174,7 +174,7 @@
                                             </div>
                                           </div>
                                           @if(!empty($item['waliNoHp']))
-                                            <button type="button" class="btn btn-sm btn-success font-weight-bold shadow-sm btn-kirim-wa-walas" data-id="{{ $item['kelas']->id_kelas }}" data-kelas="{{ $item['kelas']->nama_kelas }}" data-wali="{{ $item['waliKelas']?->nama_guru ?? '' }}">
+                                            <button type="button" class="btn btn-sm btn-success font-weight-bold shadow-sm btn-kirim-wa-walas" data-id="{{ $item['kelas']->id_kelas }}" data-kelas="{{ $item['kelas']->nama_kelas }}" data-wali="{{ $item['waliKelas']?->nama_guru ?? '' }}" style="border-radius: 8px;">
                                               <i class="fab fa-whatsapp mr-1"></i> Kirim ke Wali Kelas
                                             </button>
                                           @endif
@@ -182,7 +182,7 @@
                                         
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                           <p class="mb-0 text-secondary font-weight-bold" style="font-size: 0.88rem;">Daftar Siswa Belum Absen:</p>
-                                          <button type="button" class="btn btn-xs btn-primary btn-pilih-semua-hadir">
+                                          <button type="button" class="btn btn-xs btn-primary btn-pilih-semua-hadir" style="border-radius: 6px;">
                                             <i class="fa fa-check-double mr-1"></i> Set Semua Hadir
                                           </button>
                                         </div>
@@ -205,7 +205,7 @@
                                                   <td>{{ $siswa->nis ?? '-' }}</td>
                                                   <td><strong>{{ $siswa->nama_siswa }}</strong></td>
                                                   <td>
-                                                    <select name="siswa[{{ $siswa->id_siswa }}][kehadiran]" class="form-control form-control-sm select-kehadiran">
+                                                    <select name="siswa[{{ $siswa->id_siswa }}][kehadiran]" class="form-control form-control-sm select-kehadiran" style="border-radius: 6px;">
                                                       <option value="">-- Pilih Kehadiran --</option>
                                                       <option value="hadir">Hadir</option>
                                                       <option value="sakit">Sakit</option>
@@ -214,7 +214,7 @@
                                                     </select>
                                                   </td>
                                                   <td>
-                                                    <input type="text" name="siswa[{{ $siswa->id_siswa }}][keterangan]" class="form-control form-control-sm" placeholder="Keterangan (opsional)">
+                                                    <input type="text" name="siswa[{{ $siswa->id_siswa }}][keterangan]" class="form-control form-control-sm" placeholder="Keterangan (opsional)" style="border-radius: 6px;">
                                                   </td>
                                                 </tr>
                                               @endforeach
@@ -222,14 +222,16 @@
                                           </table>
                                         </div>
                                       </div>
-                                      <div class="modal-footer bg-light d-flex justify-content-between">
+                                      <div class="modal-footer bg-light py-3 px-4 d-flex justify-content-between">
                                         <div class="small">
                                           <strong>Total Siswa:</strong> {{ $item['totalSiswa'] }} | 
                                           <strong>Belum Absen:</strong> {{ $item['jumlahBelumAbsen'] }}
                                         </div>
-                                        <div style="gap: 6px;" class="d-flex">
-                                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                                          <button type="submit" class="btn btn-success"><i class="fa fa-save mr-1"></i> Simpan Kehadiran</button>
+                                        <div style="gap: 8px;" class="d-flex">
+                                          <button type="button" class="btn btn-secondary px-3" data-dismiss="modal" style="border-radius: 8px;">Tutup</button>
+                                          <button type="submit" class="btn btn-primary px-4 font-weight-bold shadow-sm" style="border-radius: 8px;">
+                                            <i class="fas fa-save mr-1"></i> Simpan Kehadiran
+                                          </button>
                                         </div>
                                       </div>
                                     </div>

@@ -69,41 +69,48 @@
     </div>
   </div>
 
-  <!-- Modal -->
-  <div class="modal fade" id="tambahKehadiranModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-          <div class="modal-content">
-              <div class="modal-header">
-                  <h5 class="modal-title" id="modalLabel">Tambah Kehadiran Guru</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                  </button>
-              </div>
-              <div class="modal-body">
-                  <form action="{{ url('/admin/tambah-kehadiran') }}" method="POST" id="form-tambah-kehadiran">
-                      @csrf
-                      <div class="form-group">
-                          <label for="id_guru">Nama Guru</label>
-                          <select name="id_guru" id="id_guru" class="form-control" required>
-                              <option value="">Pilih Guru</option>
-                              @foreach($guruList as $guru)
-                                  <option value="{{ $guru->id_guru }}">{{ $guru->nama_guru }}</option>
-                              @endforeach
-                          </select>
-                      </div>
-                      <div class="form-group">
-                          <label for="kehadiran">Status Kehadiran</label>
-                          <select name="kehadiran" id="kehadiran" class="form-control" required>
-                              <option value="Hadir">Hadir</option>
-                              <option value="Izin">Izin</option>
-                              <option value="Sakit">Sakit</option>
-                          </select>
-                      </div>
-                      <button type="submit" class="btn btn-success" id="btn-submit-kehadiran">Simpan</button>
-                  </form>
-              </div>
+  <!-- Modal Tambah Kehadiran Guru -->
+  <div class="modal fade" id="tambahKehadiranModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <form action="{{ url('/admin/tambah-kehadiran') }}" method="POST" id="form-tambah-kehadiran">
+        @csrf
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+          <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #1d72fe 0%, #0b1f3a 100%);">
+            <h5 class="modal-title font-weight-bold" id="modalLabel">
+              <i class="fas fa-user-plus mr-2"></i> Tambah Kehadiran Guru
+            </h5>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-      </div>
+          <div class="modal-body p-4">
+            <div class="form-group mb-3">
+              <label for="id_guru" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Nama Guru <span class="text-danger">*</span></label>
+              <select name="id_guru" id="id_guru" class="form-control" required style="border-radius: 8px; height: 42px;">
+                <option value="">-- Pilih Guru --</option>
+                @foreach($guruList as $guru)
+                  <option value="{{ $guru->id_guru }}">{{ $guru->nama_guru }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="form-group mb-0">
+              <label for="kehadiran" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Status Kehadiran <span class="text-danger">*</span></label>
+              <select name="kehadiran" id="kehadiran" class="form-control" required style="border-radius: 8px; height: 42px;">
+                <option value="Hadir">Hadir</option>
+                <option value="Izin">Izin</option>
+                <option value="Sakit">Sakit</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer bg-light py-3 px-4">
+            <button type="button" class="btn btn-secondary px-3" data-dismiss="modal" style="border-radius: 8px;">Batal</button>
+            <button type="submit" class="btn btn-primary px-4 font-weight-bold shadow-sm" id="btn-submit-kehadiran" style="border-radius: 8px;">
+              <i class="fas fa-save mr-1"></i> Simpan Kehadiran
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
   </div>
 @endsection
 
