@@ -1,5 +1,17 @@
 @extends($layout)
 @section('content')
+@php
+  $formatWa = function($phone) {
+    if (!$phone) return '';
+    $digits = preg_replace('/[^0-9]/', '', $phone);
+    if (str_starts_with($digits, '0')) {
+      return '62' . substr($digits, 1);
+    } elseif (str_starts_with($digits, '62')) {
+      return $digits;
+    }
+    return '62' . $digits;
+  };
+@endphp
 <style>
   @media (max-width: 768px) {
     .alamat-clamp {
@@ -164,7 +176,7 @@
                             </span>
                           @endif
                           @if(!empty($data->kontak_pic))
-                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $data->kontak_pic) }}" target="_blank" class="badge badge-success font-weight-normal py-1 px-2 shadow-sm text-white" title="Hubungi WA PIC: {{ $data->kontak_pic }}" style="border-radius: 6px;">
+                            <a href="https://wa.me/{{ $formatWa($data->kontak_pic) }}" target="_blank" class="badge badge-success font-weight-normal py-1 px-2 shadow-sm text-white" title="Hubungi WA PIC: {{ $data->kontak_pic }}" style="border-radius: 6px;">
                               <i class="fab fa-whatsapp mr-1"></i>{{ $data->kontak_pic }}
                             </a>
                           @endif
@@ -369,7 +381,7 @@
                     </div>
                     @if(!empty($data->guru->no_hp))
                       <div class="mt-1">
-                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $data->guru->no_hp) }}" target="_blank" class="badge badge-success px-2 py-1 font-weight-normal shadow-sm" style="border-radius: 6px;">
+                        <a href="https://wa.me/{{ $formatWa($data->guru->no_hp) }}" target="_blank" class="badge badge-success px-2 py-1 font-weight-normal shadow-sm" style="border-radius: 6px;">
                           <i class="fab fa-whatsapp mr-1"></i> {{ $data->guru->no_hp }}
                         </a>
                       </div>
@@ -412,7 +424,7 @@
                 <div>
                   <small class="text-muted d-block font-weight-bold" style="font-size: 0.75rem;">KONTAK WHATSAPP PIC</small>
                   @if(!empty($data->kontak_pic))
-                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $data->kontak_pic) }}" target="_blank" class="btn btn-success btn-sm font-weight-bold px-3 py-1 mt-1 shadow-sm" style="border-radius: 6px;">
+                    <a href="https://wa.me/{{ $formatWa($data->kontak_pic) }}" target="_blank" class="btn btn-success btn-sm font-weight-bold px-3 py-1 mt-1 shadow-sm" style="border-radius: 6px;">
                       <i class="fab fa-whatsapp mr-1"></i> Hubungi WA ({{ $data->kontak_pic }})
                     </a>
                   @else
