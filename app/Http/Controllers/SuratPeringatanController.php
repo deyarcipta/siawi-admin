@@ -80,6 +80,19 @@ class SuratPeringatanController extends Controller
                 }
             }
 
+            // Cari apakah ada level SP sebelumnya yang belum pernah diterbitkan (pending lower levels)
+            $pendingLowerLevels = [];
+            if ($targetSpLevel !== null) {
+                foreach ($spRules as $spLevel => $threshold) {
+                    if ((int)$spLevel < $targetSpLevel && $pt->total_point >= $threshold && !in_array($spLevel, $studentExistingSps)) {
+                        $pendingLowerLevels[] = [
+                            'sp_level' => (int)$spLevel,
+                            'threshold' => (int)$threshold,
+                        ];
+                    }
+                }
+            }
+
             // Jika siswa memenuhi syarat SP dan BELUM pernah menerima SP di level tersebut atau level di atasnya
             if ($targetSpLevel !== null) {
                 $alreadyIssued = !empty(array_filter($studentExistingSps, fn($lvl) => (int)$lvl >= $targetSpLevel));
@@ -91,6 +104,7 @@ class SuratPeringatanController extends Controller
                         'total_point' => (int) $pt->total_point,
                         'sp_level' => $targetSpLevel,
                         'threshold' => $targetThreshold,
+                        'pending_lower_levels' => $pendingLowerLevels,
                     ]);
                 }
             }

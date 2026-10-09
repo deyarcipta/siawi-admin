@@ -158,10 +158,17 @@
                                                 <span class="badge badge-warning text-dark px-2 py-1 font-weight-bold" style="font-size: 0.85rem;">
                                                     Perlu SP-{{ $item->sp_level }}
                                                 </span>
-                                                <small class="text-muted d-block mt-1">Ambang: Min. {{ $item->threshold }} Poin</small>
+                                                <small class="text-muted d-block mt-1">Rekomendasi Utama (Min. {{ $item->threshold }} Poin)</small>
+                                                @if (!empty($item->pending_lower_levels))
+                                                    @foreach ($item->pending_lower_levels as $p)
+                                                        <small class="text-secondary d-block mt-1 font-weight-500">
+                                                            <i class="fas fa-clock text-warning mr-1"></i> SP-{{ $p['sp_level'] }} belum terbit
+                                                        </small>
+                                                    @endforeach
+                                                @endif
                                             </td>
                                             <td class="text-center align-middle">
-                                                <div class="d-flex align-items-center justify-content-center" style="gap: 6px;">
+                                                <div class="d-flex align-items-center justify-content-center flex-wrap" style="gap: 6px;">
                                                     <!-- Lihat Riwayat Poin -->
                                                     <a href="{{ route('admin.pointSiswa.review_point_siswa', $item->id_siswa) }}" 
                                                        class="btn btn-outline-info btn-sm" 
@@ -170,13 +177,25 @@
                                                         <i class="fas fa-history mr-1"></i> Riwayat Poin
                                                     </a>
 
-                                                    <!-- Terbitkan & Cetak SP -->
+                                                    <!-- Terbitkan & Cetak Rekomendasi Utama -->
                                                     <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $item->id_siswa, 'sp' => $item->sp_level]) }}" 
-                                                       class="btn btn-primary btn-sm btn-terbitkan-sp" 
+                                                       class="btn btn-primary btn-sm btn-terbitkan-sp font-weight-bold" 
                                                        target="_blank" 
-                                                       title="Terbitkan nomor resmi dan cetak SP">
-                                                        <i class="fas fa-print mr-1"></i> Terbitkan & Cetak
+                                                       title="Terbitkan nomor resmi dan cetak SP-{{ $item->sp_level }} (Rekomendasi Utama)">
+                                                        <i class="fas fa-print mr-1"></i> Terbitkan SP-{{ $item->sp_level }}
                                                     </a>
+
+                                                    <!-- Opsi Terbitkan SP Tertunda jika ada -->
+                                                    @if (!empty($item->pending_lower_levels))
+                                                        @foreach ($item->pending_lower_levels as $p)
+                                                            <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $item->id_siswa, 'sp' => $p['sp_level']]) }}" 
+                                                               class="btn btn-outline-warning btn-sm btn-terbitkan-sp text-dark font-weight-500" 
+                                                               target="_blank" 
+                                                               title="Opsi terbitkan SP-{{ $p['sp_level'] }} yang tertunda jika ingin menjaga prosedur pembinaan bertahap">
+                                                                <i class="fas fa-clock mr-1"></i> Opsi: SP-{{ $p['sp_level'] }} (Tertunda)
+                                                            </a>
+                                                        @endforeach
+                                                    @endif
                                                 </div>
                                             </td>
                                         </tr>

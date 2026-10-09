@@ -88,8 +88,12 @@
                                             <i class="fas fa-check-circle text-success mr-1"></i> Cetak Ulang SP-{{ $spLevel }} (No: {{ $existingSps[$spLevel]->nomor_surat }})
                                         </a>
                                     @elseif ($spLevel == $targetSpLevel)
-                                        <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => $spLevel]) }}" class="btn btn-primary btn-sm mt-1 mr-2 font-weight-bold" target="_blank" title="Terbitkan nomor resmi dan cetak dokumen SP">
-                                            <i class="fas fa-print mr-1"></i> Terbitkan & Cetak SP-{{ $spLevel }} (Min. {{ $threshold }} Poin)
+                                        <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => $spLevel]) }}" class="btn btn-primary btn-sm mt-1 mr-2 font-weight-bold" target="_blank" title="Rekomendasi level SP sesuai akumulasi poin saat ini">
+                                            <i class="fas fa-print mr-1"></i> Terbitkan & Cetak SP-{{ $spLevel }} (Rekomendasi Utama: Min. {{ $threshold }} Poin)
+                                        </a>
+                                    @elseif ($spLevel < $targetSpLevel && $total_point >= $threshold)
+                                        <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => $spLevel]) }}" class="btn btn-outline-warning btn-sm mt-1 mr-2 text-dark font-weight-500" target="_blank" title="Opsi terbitkan SP level sebelumnya jika ingin menjaga prosedur pembinaan bertahap">
+                                            <i class="fas fa-history mr-1"></i> Terbitkan SP-{{ $spLevel }} (Opsi Tertunda: Min. {{ $threshold }} Poin)
                                         </a>
                                     @endif
                                 @endforeach
