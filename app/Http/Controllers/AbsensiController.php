@@ -188,7 +188,6 @@ class AbsensiController extends Controller
             'id_kelas' => 'required|exists:kelas,id_kelas',
             'id_siswa' => 'required|exists:siswa,id_siswa',
             'kehadiran' => 'required|in:Hadir,Izin,Sakit,Alfa,hadir,izin,sakit,alfa',
-            'tanggal' => 'nullable|date',
             'keterangan' => 'nullable|string|max:255',
             'jam_masuk' => 'nullable|string|max:10',
             'jam_pulang' => 'nullable|string|max:10',
@@ -199,7 +198,8 @@ class AbsensiController extends Controller
         $kehadiran = strtolower($request->input('kehadiran'));
         $keterangan = $request->input('keterangan') ?? '-';
 
-        $tanggal = $request->input('tanggal') ?: Carbon::today()->toDateString();
+        // Selalu gunakan tanggal hari ini (input tanggal lain hanya dapat dilakukan lewat Rekap Kelalaian)
+        $tanggal = Carbon::today()->toDateString();
         $hari = Carbon::parse($tanggal)->locale('id')->isoFormat('dddd');
         $jam = now()->format('H:i:s');
 

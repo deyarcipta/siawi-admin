@@ -273,11 +273,6 @@
           @csrf
           <div class="modal-body">
             <div class="form-group">
-              <label for="input_tanggal" class="font-weight-bold">Tanggal Absensi <span class="text-danger">*</span></label>
-              <input type="date" name="tanggal" id="input_tanggal" class="form-control" value="{{ $tanggal }}" required>
-              <small class="text-muted">Ubah tanggal jika ingin menginput data kehadiran yang terlewat pada tanggal sebelumnya.</small>
-            </div>
-            <div class="form-group">
               <label for="id_kelas" class="font-weight-bold">Pilih Kelas <span class="text-danger">*</span></label>
               <select name="id_kelas" id="id_kelas" class="form-control" required>
                 <option value="">-- Pilih Kelas --</option>
