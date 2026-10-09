@@ -1,5 +1,24 @@
 @extends($layout)
 @section('content')
+<style>
+  @media (max-width: 768px) {
+    .alamat-clamp {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      max-width: 140px;
+      font-size: 0.78rem !important;
+      line-height: 1.35 !important;
+    }
+  }
+  @media (min-width: 769px) {
+    .alamat-clamp {
+      display: block;
+      max-width: 260px;
+    }
+  }
+</style>
 <!-- Content Header -->
 <div class="content-header">
   <div class="container-fluid">
@@ -90,8 +109,8 @@
                   <tr>
                     <th style="width: 10px" class="text-center">No</th>
                     <th>Nama Mitra Perusahaan</th>
-                    <th>Alamat Industri</th>
-                    <th>Penanggung Jawab</th>
+                    <th style="min-width: 140px;">Alamat Industri</th>
+                    <th style="min-width: 160px;">Penanggung Jawab & PIC</th>
                     <th class="text-center" style="min-width: 140px;">Siswa PKL</th>
                     <th class="text-center" style="min-width: 190px;">Aksi</th>
                   </tr>
@@ -106,14 +125,29 @@
                       </div>
                     </td>
                     <td>
-                      <span class="text-muted" style="font-size: 0.88rem;">
-                        <i class="fas fa-map-marker-alt text-danger mr-1"></i> {{ $data->alamat_perusahaan }}
-                      </span>
+                      <div class="d-flex align-items-start" title="{{ $data->alamat_perusahaan }}" style="cursor: help;">
+                        <i class="fas fa-map-marker-alt text-danger mr-1 mt-1 flex-shrink-0" style="font-size: 0.8rem;"></i>
+                        <span class="alamat-clamp text-muted" style="font-size: 0.86rem; line-height: 1.35;">{{ $data->alamat_perusahaan }}</span>
+                      </div>
                     </td>
                     <td>
-                      <span class="font-weight-500 text-dark" style="font-size: 0.88rem;">
+                      <div class="font-weight-600 text-dark text-truncate" style="font-size: 0.88rem; max-width: 180px;" title="{{ $data->penanggung_jawab }}">
                         <i class="fas fa-user-tie text-secondary mr-1"></i> {{ $data->penanggung_jawab }}
-                      </span>
+                      </div>
+                      @if(!empty($data->pic) || !empty($data->kontak_pic))
+                        <div class="mt-1 d-flex flex-wrap align-items-center" style="gap: 4px; font-size: 0.76rem;">
+                          @if(!empty($data->pic))
+                            <span class="badge badge-light border text-dark font-weight-normal py-1 px-2 text-truncate" style="max-width: 150px;" title="PIC: {{ $data->pic }}">
+                              <i class="fas fa-id-badge text-primary mr-1"></i>{{ $data->pic }}
+                            </span>
+                          @endif
+                          @if(!empty($data->kontak_pic))
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $data->kontak_pic) }}" target="_blank" class="badge badge-success font-weight-normal py-1 px-2 shadow-sm text-white" title="Hubungi WA PIC: {{ $data->kontak_pic }}" style="border-radius: 6px;">
+                              <i class="fab fa-whatsapp mr-1"></i>{{ $data->kontak_pic }}
+                            </a>
+                          @endif
+                        </div>
+                      @endif
                     </td>
                     <td class="text-center">
                       @if($data->siswa_aktif_count > 0)
@@ -164,6 +198,8 @@
                           data-nama="{{ $data->nama_perusahaan }}"
                           data-alamat="{{ $data->alamat_perusahaan }}"
                           data-pj="{{ $data->penanggung_jawab }}"
+                          data-pic="{{ $data->pic ?? '' }}"
+                          data-kontak-pic="{{ $data->kontak_pic ?? '' }}"
                           title="Edit Info Perusahaan"
                         >
                           <i class="fa fa-edit"></i>
@@ -218,6 +254,9 @@
           </h5>
           <small class="text-white-50 d-block mt-1">
             <i class="fas fa-map-marker-alt mr-1"></i> {{ $data->alamat_perusahaan }} | <i class="fas fa-user-tie mr-1"></i> PJ: {{ $data->penanggung_jawab }}
+            @if(!empty($data->pic))
+              | <i class="fas fa-id-badge mr-1"></i> PIC: {{ $data->pic }} {{ !empty($data->kontak_pic) ? '('.$data->kontak_pic.')' : '' }}
+            @endif
           </small>
         </div>
         <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
@@ -437,9 +476,23 @@
             <label for="alamat_perusahaan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Alamat Lengkap Perusahaan <span class="text-danger">*</span></label>
             <textarea class="form-control" id="alamat_perusahaan" name="alamat_perusahaan" rows="3" placeholder="Alamat jalan, kota, atau lokasi cabang" required style="border-radius: 8px;"></textarea>
           </div>
-          <div class="form-group mb-0">
-            <label for="penanggung_jawab" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Penanggung Jawab / HRD / Kontak <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="penanggung_jawab" name="penanggung_jawab" placeholder="Nama PIC atau nomor kontak" required style="border-radius: 8px; height: 42px;">
+          <div class="form-group mb-3">
+            <label for="penanggung_jawab" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Penanggung Jawab / Pimpinan DU/DI <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="penanggung_jawab" name="penanggung_jawab" placeholder="Nama Pimpinan / HRD Manager" required style="border-radius: 8px; height: 42px;">
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-0">
+                <label for="pic" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Nama PIC / Pembimbing Industri</label>
+                <input type="text" class="form-control" id="pic" name="pic" placeholder="Contoh: Bpk. Kurniawan" style="border-radius: 8px; height: 42px;">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group mb-0">
+                <label for="kontak_pic" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Kontak / No. WA PIC</label>
+                <input type="text" class="form-control" id="kontak_pic" name="kontak_pic" placeholder="Contoh: 081234567890" style="border-radius: 8px; height: 42px;">
+              </div>
+            </div>
           </div>
         </div>
 
@@ -481,9 +534,23 @@
             <label for="edit_alamat_perusahaan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Alamat Perusahaan <span class="text-danger">*</span></label>
             <textarea class="form-control" id="edit_alamat_perusahaan" name="alamat_perusahaan" rows="3" required style="border-radius: 8px;"></textarea>
           </div>
-          <div class="form-group mb-0">
-            <label for="edit_penanggung_jawab" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Penanggung Jawab / HRD <span class="text-danger">*</span></label>
+          <div class="form-group mb-3">
+            <label for="edit_penanggung_jawab" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Penanggung Jawab / Pimpinan DU/DI <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="edit_penanggung_jawab" name="penanggung_jawab" required style="border-radius: 8px; height: 42px;">
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-0">
+                <label for="edit_pic" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Nama PIC / Pembimbing Industri</label>
+                <input type="text" class="form-control" id="edit_pic" name="pic" placeholder="Contoh: Bpk. Kurniawan" style="border-radius: 8px; height: 42px;">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group mb-0">
+                <label for="edit_kontak_pic" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Kontak / No. WA PIC</label>
+                <input type="text" class="form-control" id="edit_kontak_pic" name="kontak_pic" placeholder="Contoh: 081234567890" style="border-radius: 8px; height: 42px;">
+              </div>
+            </div>
           </div>
         </div>
 
@@ -517,10 +584,14 @@ $(document).ready(function () {
     let nama = $(this).data('nama');
     let alamat = $(this).data('alamat');
     let pj = $(this).data('pj');
+    let pic = $(this).data('pic') || '';
+    let kontakPic = $(this).data('kontak-pic') || '';
 
     $('#edit_nama_perusahaan').val(nama);
     $('#edit_alamat_perusahaan').val(alamat);
     $('#edit_penanggung_jawab').val(pj);
+    $('#edit_pic').val(pic);
+    $('#edit_kontak_pic').val(kontakPic);
 
     $('#formEditPerusahaan').attr('action', '/admin/perusahaan/' + id);
   });

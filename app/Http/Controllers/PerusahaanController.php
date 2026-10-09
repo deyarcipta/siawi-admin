@@ -75,6 +75,8 @@ class PerusahaanController extends Controller
             'nama_perusahaan' => 'required|string|max:255',
             'alamat_perusahaan' => 'required|string',
             'penanggung_jawab' => 'required|string|max:255',
+            'pic' => 'nullable|string|max:255',
+            'kontak_pic' => 'nullable|string|max:50',
         ]);
 
         Perusahaan::create($request->all());
@@ -107,12 +109,16 @@ class PerusahaanController extends Controller
             'nama_perusahaan' => 'required|string|max:255',
             'alamat_perusahaan' => 'required|string',
             'penanggung_jawab' => 'required|string|max:255',
+            'pic' => 'nullable|string|max:255',
+            'kontak_pic' => 'nullable|string|max:50',
         ]);
 
         $perusahaan = Perusahaan::findOrFail($id);
         $perusahaan->nama_perusahaan = $request->nama_perusahaan;
         $perusahaan->alamat_perusahaan = $request->alamat_perusahaan;
         $perusahaan->penanggung_jawab = $request->penanggung_jawab;
+        $perusahaan->pic = $request->pic;
+        $perusahaan->kontak_pic = $request->kontak_pic;
         $perusahaan->save();
 
         return redirect()->back()->with('success', 'Data perusahaan berhasil diperbarui.');
