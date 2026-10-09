@@ -63,13 +63,13 @@ class SiswaPkl extends Model
     {
         switch ($this->status_pkl) {
             case 'belum_mulai':
-                return 'Sudah Ditempatkan';
+                return 'Ditempatkan';
             case 'aktif':
                 return 'Sedang PKL';
             case 'selesai':
                 return 'Selesai';
             default:
-                return 'Sudah Ditempatkan';
+                return 'Ditempatkan';
         }
     }
 }

@@ -137,12 +137,12 @@
                 <thead class="bg-light text-dark">
                   <tr>
                     <th style="width: 10px" class="text-center">No</th>
-                    <th>Nama Siswa & NISN</th>
+                    <th>Nama Siswa & NIS</th>
                     <th>Kelas</th>
                     <th>Perusahaan Mitra DU/DI</th>
-                    <th>Periode PKL</th>
-                    <th class="text-center">Status</th>
-                    <th class="text-center" style="width: 130px;">Aksi</th>
+                    <th style="min-width: 140px;">Periode PKL</th>
+                    <th class="text-center" style="width: 110px; white-space: nowrap;">Status</th>
+                    <th class="text-center" style="width: 120px;">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -153,7 +153,7 @@
                       <div class="font-weight-bold text-dark" style="font-size: 0.95rem;">
                         {{ $data->siswa->nama_siswa ?? 'Siswa Tidak Ditemukan' }}
                       </div>
-                      <small class="text-muted">NISN: {{ $data->siswa->nisn ?? $data->siswa->nis ?? '-' }}</small>
+                      <small class="text-muted">NIS: {{ $data->siswa->nis ?? $data->siswa->nisn ?? '-' }}</small>
                     </td>
                     <td>
                       <span class="badge badge-light border text-dark font-weight-normal px-2 py-1">
@@ -175,17 +175,17 @@
                         {{ \Carbon\Carbon::parse($data->tanggal_mulai)->translatedFormat('d M Y') }} s/d {{ \Carbon\Carbon::parse($data->tanggal_selesai)->translatedFormat('d M Y') }}
                       </div>
                     </td>
-                    <td class="text-center">
+                    <td class="text-center" style="white-space: nowrap;">
                       @if($data->status_pkl === 'belum_mulai')
-                        <span class="badge px-2 py-1 font-weight-bold text-white shadow-sm" style="background-color: #0284c7; border-radius: 6px;">
-                          <i class="fas fa-calendar-check mr-1"></i> Sudah Ditempatkan
+                        <span class="badge px-2 py-1 font-weight-bold text-white shadow-sm" style="background-color: #0284c7; border-radius: 6px; font-size: 0.76rem;">
+                          <i class="fas fa-calendar-check mr-1"></i> Ditempatkan
                         </span>
                       @elseif($data->status_pkl === 'aktif')
-                        <span class="badge badge-success px-2 py-1 font-weight-bold shadow-sm" style="border-radius: 6px;">
+                        <span class="badge badge-success px-2 py-1 font-weight-bold shadow-sm" style="border-radius: 6px; font-size: 0.76rem;">
                           <i class="fas fa-running mr-1"></i> Sedang PKL
                         </span>
                       @else
-                        <span class="badge badge-secondary px-2 py-1 font-weight-bold" style="border-radius: 6px;">
+                        <span class="badge badge-secondary px-2 py-1 font-weight-bold" style="border-radius: 6px; font-size: 0.76rem;">
                           <i class="fas fa-check-circle mr-1"></i> Selesai
                         </span>
                       @endif
@@ -275,7 +275,7 @@
         <div class="modal-body p-4">
           <div class="form-group mb-3">
             <label class="font-weight-bold text-dark small">Pilih Perusahaan Mitra <span class="text-danger">*</span></label>
-            <select name="id_perusahaan" class="form-control select2" required style="width: 100%;">
+            <select name="id_perusahaan" class="form-control select2-modal-perusahaan" required style="width: 100%;">
               <option value="">-- Pilih Perusahaan --</option>
               @foreach($perusahaan as $item)
                 <option value="{{ $item->id_perusahaan }}">{{ $item->nama_perusahaan }}</option>
@@ -286,15 +286,18 @@
           <div class="form-group mb-3">
             <label class="font-weight-bold text-dark small">
               Pilih Siswa <span class="text-danger">*</span>
-              <small class="text-muted font-weight-normal">(Bisa pilih multiple siswa)</small>
+              <small class="text-muted font-weight-normal">(Bisa memilih lebih dari satu siswa sekaligus)</small>
             </label>
-            <select name="id_siswa[]" class="form-control select2" multiple required data-placeholder="Cari siswa atau kelas..." style="width: 100%;">
+            <select name="id_siswa[]" class="form-control select2-modal-siswa" multiple="multiple" required data-placeholder="Ketik nama atau kelas siswa..." style="width: 100%;">
               @foreach($siswaList as $siswa)
                 <option value="{{ $siswa->id_siswa }}">
-                  {{ $siswa->nama_siswa }} - {{ $siswa->kelas->nama_kelas ?? 'Tanpa Kelas' }}
+                  {{ $siswa->nama_siswa }} - {{ $siswa->kelas->nama_kelas ?? 'Tanpa Kelas' }} (NIS: {{ $siswa->nis ?? $siswa->nisn ?? '-' }})
                 </option>
               @endforeach
             </select>
+            <small class="text-muted mt-1 d-block">
+              <i class="fas fa-info-circle text-info mr-1"></i> Kelas siswa otomatis terdeteksi dari data induk siswa.
+            </small>
           </div>
 
           <div class="form-row">
@@ -357,7 +360,7 @@
               <option value="">-- Pilih Siswa --</option>
               @foreach($siswaList as $siswa)
                 <option value="{{ $siswa->id_siswa }}">
-                  {{ $siswa->nama_siswa }} - {{ $siswa->kelas->nama_kelas ?? 'Tanpa Kelas' }}
+                  {{ $siswa->nama_siswa }} - {{ $siswa->kelas->nama_kelas ?? 'Tanpa Kelas' }} (NIS: {{ $siswa->nis ?? $siswa->nisn ?? '-' }})
                 </option>
               @endforeach
             </select>
@@ -398,6 +401,20 @@
 @push('scripts')
 <script>
 $(document).ready(function () {
+  // Inisialisasi Select2 di modal tambah siswa PKL saat modal ditampilkan
+  $('#modalTambahSiswaPkl').on('shown.bs.modal', function () {
+    $(this).find('.select2-modal-perusahaan').select2({
+      theme: 'bootstrap4',
+      width: '100%',
+      dropdownParent: $('#modalTambahSiswaPkl')
+    });
+    $(this).find('.select2-modal-siswa').select2({
+      theme: 'bootstrap4',
+      width: '100%',
+      dropdownParent: $('#modalTambahSiswaPkl')
+    });
+  });
+
   // Tombol Edit Siswa PKL
   $('.btn-edit').on('click', function () {
     let id = $(this).data('id');

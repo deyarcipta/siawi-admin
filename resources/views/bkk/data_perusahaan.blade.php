@@ -258,7 +258,7 @@
                       <td class="text-center font-weight-bold text-muted">{{ $loop->iteration }}</td>
                       <td>
                         <div class="font-weight-bold text-dark">{{ $pkl->siswa->nama_siswa ?? 'Siswa Tidak Ditemukan' }}</div>
-                        <small class="text-muted">NISN: {{ $pkl->siswa->nisn ?? $pkl->siswa->nis ?? '-' }}</small>
+                        <small class="text-muted">NIS: {{ $pkl->siswa->nis ?? $pkl->siswa->nisn ?? '-' }}</small>
                       </td>
                       <td>
                         <span class="badge badge-light border text-dark font-weight-normal px-2 py-1">
@@ -352,7 +352,7 @@
                   <select name="id_siswa[]" class="form-control select2-modal" multiple="multiple" data-placeholder="Ketik nama atau kelas siswa..." required style="width: 100%;">
                     @foreach($siswaList as $s)
                       <option value="{{ $s->id_siswa }}">
-                        {{ $s->nama_siswa }} - {{ $s->kelas->nama_kelas ?? 'Tanpa Kelas' }} (NISN: {{ $s->nisn ?? $s->nis ?? '-' }})
+                        {{ $s->nama_siswa }} - {{ $s->kelas->nama_kelas ?? 'Tanpa Kelas' }} (NIS: {{ $s->nis ?? $s->nisn ?? '-' }})
                       </option>
                     @endforeach
                   </select>
