@@ -516,6 +516,14 @@ class DashboardController extends Controller
      */
     public function ingatkanSemuaWaliKelas(Request $request)
     {
+        $user = Auth::user();
+        if (!$user || !$user->hasAnyRole(['admin', 'kurikulum'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya Admin dan Kurikulum yang berhak mengirimkan pengingat massal.'
+            ], 403);
+        }
+
         $setting = Setting::first();
         $namaSekolah = $setting->nama_sekolah ?? 'SMK Wisata Indonesia';
         $today = Carbon::now()->toDateString();

@@ -575,9 +575,11 @@
             <div class="modern-card-title">Kelas yang belum absen</div>
             <div class="modern-card-subtitle">{{ $kelasBelumAbsenCount }} kelas perlu dicek hari ini</div>
           </div>
+          @if($user && $user->hasAnyRole(['admin', 'kurikulum']))
           <button type="button" class="btn-soft-primary" onclick="ingatkanSemuaKelas()">
             <i class="fas fa-bell mr-1"></i> Ingatkan semua
           </button>
+          @endif
         </div>
         <div class="table-responsive">
           <table class="table-dashboard">
