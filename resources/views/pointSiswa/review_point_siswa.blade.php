@@ -78,6 +78,8 @@
                                             break;
                                         }
                                     }
+                                    $maxSingle = isset($maxSingleViolation) ? $maxSingleViolation : ($pointSiswa->max('skor_point') ?? 0);
+                                    $isDirectMajorViolation = ($targetThreshold !== null && $maxSingle >= $targetThreshold);
                                 @endphp
                                 @foreach ($spRules as $spLevel => $threshold)
                                     @php
@@ -89,9 +91,9 @@
                                         </a>
                                     @elseif ($spLevel == $targetSpLevel)
                                         <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => $spLevel]) }}" class="btn btn-primary btn-sm mt-1 mr-2 font-weight-bold" target="_blank" title="Rekomendasi level SP sesuai akumulasi poin saat ini">
-                                            <i class="fas fa-print mr-1"></i> Terbitkan & Cetak SP-{{ $spLevel }} (Rekomendasi Utama: Min. {{ $threshold }} Poin)
+                                            <i class="fas fa-print mr-1"></i> Terbitkan & Cetak SP-{{ $spLevel }} (Min. {{ $threshold }} Poin)
                                         </a>
-                                    @elseif ($spLevel < $targetSpLevel && $total_point >= $threshold)
+                                    @elseif (!$isDirectMajorViolation && $spLevel < $targetSpLevel && $total_point >= $threshold)
                                         <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => $spLevel]) }}" class="btn btn-outline-warning btn-sm mt-1 mr-2 text-dark font-weight-500" target="_blank" title="Opsi terbitkan SP level sebelumnya jika ingin menjaga prosedur pembinaan bertahap">
                                             <i class="fas fa-history mr-1"></i> Terbitkan SP-{{ $spLevel }} (Opsi Tertunda: Min. {{ $threshold }} Poin)
                                         </a>

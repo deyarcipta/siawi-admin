@@ -106,11 +106,23 @@ class PointSiswaController extends Controller
         $threshold = $rules[$spType] ?? ($spType * 25);
         $maxSp = count($rules) > 0 ? max(array_keys($rules)) : 3;
 
-        $pointSiswa = PointSiswa::where('id_siswa', $id_siswa)->with('point', 'guru')->get();
+        $allViolations = PointSiswa::where('id_siswa', $id_siswa)
+            ->with('point', 'guru')
+            ->orderBy('created_at', 'asc')
+            ->orderBy('id_point_siswa', 'asc')
+            ->get();
+
+        // Pilihan A: Cantumkan pelanggaran hanya sampai batas ambang SP yang sedang dicetak
+        $filteredViolations = collect();
         $total_point = 0;
-        foreach ($pointSiswa as $data) {
-            $total_point += $data->skor_point;
+        foreach ($allViolations as $data) {
+            $filteredViolations->push($data);
+            $total_point += (int) $data->skor_point;
+            if ($total_point >= $threshold) {
+                break;
+            }
         }
+        $pointSiswa = $filteredViolations;
 
         // Cari atau buat SuratPeringatan di database
         $spRecord = \App\Models\SuratPeringatan::where('id_siswa', $siswa->id_siswa)
@@ -181,11 +193,12 @@ class PointSiswaController extends Controller
         $pointSiswa = PointSiswa::where('id_siswa', $id_siswa)->get();
         // dd($pointSiswa);
         $total_point = $pointSiswa->sum('skor_point');
+        $maxSingleViolation = $pointSiswa->max('skor_point') ?? 0;
 
         // Ambil data SP yang sudah pernah diterbitkan untuk siswa ini
         $existingSps = \App\Models\SuratPeringatan::where('id_siswa', $id_siswa)->get()->keyBy('sp_level');
 
-        return view('pointSiswa.review_point_siswa', compact('siswa','layout', 'setting', 'pointSiswa','total_point','user', 'existingSps'));
+        return view('pointSiswa.review_point_siswa', compact('siswa','layout', 'setting', 'pointSiswa','total_point','user', 'existingSps', 'maxSingleViolation'));
     }
 
     /**

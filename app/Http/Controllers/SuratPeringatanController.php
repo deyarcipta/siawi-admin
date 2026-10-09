@@ -57,6 +57,11 @@ class SuratPeringatanController extends Controller
                 return $items->pluck('sp_level')->toArray();
             });
 
+        $studentMaxSingle = \App\Models\PointSiswa::select('id_siswa', \Illuminate\Support\Facades\DB::raw('MAX(skor_point) as max_score'))
+            ->whereIn('id_siswa', $pointSiswaIds)
+            ->groupBy('id_siswa')
+            ->pluck('max_score', 'id_siswa');
+
         $siswaList = \App\Models\Siswa::with('kelas', 'jurusan')->whereIn('id_siswa', $pointSiswaIds)->get()->keyBy('id_siswa');
 
         // Urutkan aturan SP dari level tertinggi ke terendah (misal: 3 => 75, 2 => 50, 1 => 25)
@@ -81,8 +86,12 @@ class SuratPeringatanController extends Controller
             }
 
             // Cari apakah ada level SP sebelumnya yang belum pernah diterbitkan (pending lower levels)
+            // Hanya berlaku jika siswa TIDAK melompat karena pelanggaran tunggal besar (skor_point >= targetThreshold)
             $pendingLowerLevels = [];
-            if ($targetSpLevel !== null) {
+            $maxSingle = (int) ($studentMaxSingle->get($pt->id_siswa, 0));
+            $isDirectMajorViolation = ($targetThreshold !== null && $maxSingle >= $targetThreshold);
+
+            if ($targetSpLevel !== null && !$isDirectMajorViolation) {
                 foreach ($spRules as $spLevel => $threshold) {
                     if ((int)$spLevel < $targetSpLevel && $pt->total_point >= $threshold && !in_array($spLevel, $studentExistingSps)) {
                         $pendingLowerLevels[] = [
