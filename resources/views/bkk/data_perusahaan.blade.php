@@ -109,8 +109,8 @@
                   <tr>
                     <th style="width: 10px" class="text-center">No</th>
                     <th>Nama Mitra Perusahaan</th>
-                    <th style="min-width: 140px;">Alamat Industri</th>
-                    <th style="min-width: 160px;">Penanggung Jawab & PIC</th>
+                    <th style="min-width: 150px;">Alamat Industri</th>
+                    <th style="min-width: 200px;">Penanggung Jawab & PIC</th>
                     <th class="text-center" style="min-width: 140px;">Siswa PKL</th>
                     <th class="text-center" style="min-width: 190px;">Aksi</th>
                   </tr>
@@ -131,13 +131,35 @@
                       </div>
                     </td>
                     <td>
-                      <div class="font-weight-600 text-dark text-truncate" style="font-size: 0.88rem; max-width: 180px;" title="{{ $data->penanggung_jawab }}">
-                        <i class="fas fa-user-tie text-secondary mr-1"></i> {{ $data->penanggung_jawab }}
+                      <!-- Penanggung Jawab Sekolah (Guru Pembimbing) -->
+                      <div class="mb-1" title="Penanggung Jawab Sekolah (Guru Pembimbing)">
+                        <small class="text-muted d-block font-weight-bold" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.3px;">
+                          <i class="fas fa-chalkboard-teacher text-primary mr-1"></i> Pembimbing Sekolah:
+                        </small>
+                        @if($data->guru)
+                          <span class="font-weight-600 text-dark" style="font-size: 0.86rem;">
+                            {{ $data->guru->nama_guru }}
+                          </span>
+                        @else
+                          <span class="badge badge-light border text-muted font-weight-normal py-1 px-2" style="font-size: 0.75rem;">
+                            Belum ditentukan
+                          </span>
+                        @endif
                       </div>
+
+                      <!-- Penanggung Jawab Industri (DU/DI) -->
+                      <div class="mb-1" title="Penanggung Jawab Industri / DU/DI">
+                        <small class="text-muted d-block font-weight-bold" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.3px;">
+                          <i class="fas fa-building text-secondary mr-1"></i> PJ Industri / HRD:
+                        </small>
+                        <span class="font-weight-600 text-dark" style="font-size: 0.86rem;">{{ $data->penanggung_jawab }}</span>
+                      </div>
+
+                      <!-- PIC & Kontak Lapangan Industri -->
                       @if(!empty($data->pic) || !empty($data->kontak_pic))
                         <div class="mt-1 d-flex flex-wrap align-items-center" style="gap: 4px; font-size: 0.76rem;">
                           @if(!empty($data->pic))
-                            <span class="badge badge-light border text-dark font-weight-normal py-1 px-2 text-truncate" style="max-width: 150px;" title="PIC: {{ $data->pic }}">
+                            <span class="badge badge-light border text-dark font-weight-normal py-1 px-2 text-truncate" style="max-width: 150px;" title="PIC Lapangan: {{ $data->pic }}">
                               <i class="fas fa-id-badge text-primary mr-1"></i>{{ $data->pic }}
                             </span>
                           @endif
@@ -198,6 +220,7 @@
                           data-nama="{{ $data->nama_perusahaan }}"
                           data-alamat="{{ $data->alamat_perusahaan }}"
                           data-pj="{{ $data->penanggung_jawab }}"
+                          data-id-guru="{{ $data->id_guru ?? '' }}"
                           data-pic="{{ $data->pic ?? '' }}"
                           data-kontak-pic="{{ $data->kontak_pic ?? '' }}"
                           title="Edit Info Perusahaan"
@@ -253,7 +276,11 @@
             <i class="fas fa-building mr-2"></i> Plotting & Siswa PKL: {{ $data->nama_perusahaan }}
           </h5>
           <small class="text-white-50 d-block mt-1">
-            <i class="fas fa-map-marker-alt mr-1"></i> {{ $data->alamat_perusahaan }} | <i class="fas fa-user-tie mr-1"></i> PJ: {{ $data->penanggung_jawab }}
+            <i class="fas fa-map-marker-alt mr-1"></i> {{ $data->alamat_perusahaan }}
+            @if($data->guru)
+              | <i class="fas fa-chalkboard-teacher mr-1"></i> Pembimbing Sekolah: {{ $data->guru->nama_guru }}
+            @endif
+            | <i class="fas fa-user-tie mr-1"></i> PJ DU/DI: {{ $data->penanggung_jawab }}
             @if(!empty($data->pic))
               | <i class="fas fa-id-badge mr-1"></i> PIC: {{ $data->pic }} {{ !empty($data->kontak_pic) ? '('.$data->kontak_pic.')' : '' }}
             @endif
@@ -454,7 +481,7 @@
 <!-- MODAL TAMBAH PERUSAHAAN MITRA                                             -->
 <!-- ========================================================================= -->
 <div class="modal fade" id="modalTambahPerusahaan" tabindex="-1" role="dialog" aria-labelledby="modalTambahPerusahaanLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <form action="{{ route('admin.perusahaan.store') }}" method="POST">
       @csrf
       <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
@@ -468,29 +495,70 @@
         </div>
         
         <div class="modal-body p-4">
-          <div class="form-group mb-3">
-            <label for="nama_perusahaan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Nama Perusahaan / Hotel / Industri <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="nama_perusahaan" name="nama_perusahaan" placeholder="Contoh: Hotel Grand Mercure / PT Telkom" required style="border-radius: 8px; height: 42px;">
-          </div>
-          <div class="form-group mb-3">
-            <label for="alamat_perusahaan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Alamat Lengkap Perusahaan <span class="text-danger">*</span></label>
-            <textarea class="form-control" id="alamat_perusahaan" name="alamat_perusahaan" rows="3" placeholder="Alamat jalan, kota, atau lokasi cabang" required style="border-radius: 8px;"></textarea>
-          </div>
-          <div class="form-group mb-3">
-            <label for="penanggung_jawab" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Penanggung Jawab / Pimpinan DU/DI <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="penanggung_jawab" name="penanggung_jawab" placeholder="Nama Pimpinan / HRD Manager" required style="border-radius: 8px; height: 42px;">
-          </div>
           <div class="row">
-            <div class="col-md-6">
-              <div class="form-group mb-0">
-                <label for="pic" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Nama PIC / Pembimbing Industri</label>
-                <input type="text" class="form-control" id="pic" name="pic" placeholder="Contoh: Bpk. Kurniawan" style="border-radius: 8px; height: 42px;">
+            <!-- Kolom Kiri: Profil & Alamat Perusahaan -->
+            <div class="col-lg-6">
+              <div class="form-group mb-3">
+                <label for="nama_perusahaan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                  Nama Perusahaan / Hotel / Industri <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" id="nama_perusahaan" name="nama_perusahaan" placeholder="Contoh: Hotel Grand Mercure / PT Telkom" required style="border-radius: 8px; height: 42px;">
+              </div>
+              <div class="form-group mb-3">
+                <label for="alamat_perusahaan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                  Alamat Lengkap Perusahaan <span class="text-danger">*</span>
+                </label>
+                <textarea class="form-control" id="alamat_perusahaan" name="alamat_perusahaan" rows="5" placeholder="Masukkan alamat lengkap (jalan, nomor gedung, kelurahan, kecamatan, kota/kabupaten)..." required style="border-radius: 8px; min-height: 140px; resize: vertical; line-height: 1.5;"></textarea>
+                <small class="text-muted d-block mt-1">
+                  <i class="fas fa-arrows-alt-v mr-1"></i> Area input dapat ditarik ke bawah jika membutuhkan ruang lebih lebar.
+                </small>
               </div>
             </div>
-            <div class="col-md-6">
-              <div class="form-group mb-0">
-                <label for="kontak_pic" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Kontak / No. WA PIC</label>
-                <input type="text" class="form-control" id="kontak_pic" name="kontak_pic" placeholder="Contoh: 081234567890" style="border-radius: 8px; height: 42px;">
+
+            <!-- Kolom Kanan: Penanggung Jawab & Pembimbing -->
+            <div class="col-lg-6">
+              <!-- Penanggung Jawab dari Sekolah -->
+              <div class="form-group mb-3">
+                <label for="id_guru" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                  <i class="fas fa-chalkboard-teacher text-primary mr-1"></i> Penanggung Jawab Sekolah (Guru Pembimbing)
+                </label>
+                <select class="form-control select2-modal" id="id_guru" name="id_guru" style="width: 100%;">
+                  <option value="">-- Pilih dari Data Guru (Opsional) --</option>
+                  @foreach ($guruList as $guru)
+                    <option value="{{ $guru->id_guru }}">{{ $guru->nama_guru }}</option>
+                  @endforeach
+                </select>
+                <small class="text-muted d-block mt-1">
+                  Guru pembimbing PKL yang ditugaskan dari pihak sekolah untuk mitra ini.
+                </small>
+              </div>
+
+              <!-- Penanggung Jawab dari Industri -->
+              <div class="form-group mb-3">
+                <label for="penanggung_jawab" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                  <i class="fas fa-building text-secondary mr-1"></i> Penanggung Jawab Industri (Pimpinan DU/DI / HRD) <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" id="penanggung_jawab" name="penanggung_jawab" placeholder="Contoh: Bpk. Kurniawan / HRD Manager" required style="border-radius: 8px; height: 42px;">
+              </div>
+
+              <!-- PIC & Kontak Lapangan Industri -->
+              <div class="row">
+                <div class="col-sm-6">
+                  <div class="form-group mb-2">
+                    <label for="pic" class="font-weight-bold text-dark" style="font-size: 0.82rem;">
+                      Nama PIC Lapangan DU/DI
+                    </label>
+                    <input type="text" class="form-control" id="pic" name="pic" placeholder="Contoh: Ibu Rina" style="border-radius: 8px; height: 40px; font-size: 0.85rem;">
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="form-group mb-2">
+                    <label for="kontak_pic" class="font-weight-bold text-dark" style="font-size: 0.82rem;">
+                      No. WA PIC Lapangan
+                    </label>
+                    <input type="text" class="form-control" id="kontak_pic" name="kontak_pic" placeholder="Contoh: 081234567890" style="border-radius: 8px; height: 40px; font-size: 0.85rem;">
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -511,7 +579,7 @@
 <!-- MODAL EDIT PERUSAHAAN MITRA                                               -->
 <!-- ========================================================================= -->
 <div class="modal fade" id="modalEditPerusahaan" tabindex="-1" role="dialog" aria-labelledby="modalEditPerusahaanLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <form id="formEditPerusahaan" method="POST">
       @csrf
       @method('PUT')
@@ -526,29 +594,70 @@
         </div>
 
         <div class="modal-body p-4">
-          <div class="form-group mb-3">
-            <label for="edit_nama_perusahaan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Nama Perusahaan <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="edit_nama_perusahaan" name="nama_perusahaan" required style="border-radius: 8px; height: 42px;">
-          </div>
-          <div class="form-group mb-3">
-            <label for="edit_alamat_perusahaan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Alamat Perusahaan <span class="text-danger">*</span></label>
-            <textarea class="form-control" id="edit_alamat_perusahaan" name="alamat_perusahaan" rows="3" required style="border-radius: 8px;"></textarea>
-          </div>
-          <div class="form-group mb-3">
-            <label for="edit_penanggung_jawab" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Penanggung Jawab / Pimpinan DU/DI <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="edit_penanggung_jawab" name="penanggung_jawab" required style="border-radius: 8px; height: 42px;">
-          </div>
           <div class="row">
-            <div class="col-md-6">
-              <div class="form-group mb-0">
-                <label for="edit_pic" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Nama PIC / Pembimbing Industri</label>
-                <input type="text" class="form-control" id="edit_pic" name="pic" placeholder="Contoh: Bpk. Kurniawan" style="border-radius: 8px; height: 42px;">
+            <!-- Kolom Kiri: Profil & Alamat Perusahaan -->
+            <div class="col-lg-6">
+              <div class="form-group mb-3">
+                <label for="edit_nama_perusahaan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                  Nama Perusahaan / Hotel / Industri <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" id="edit_nama_perusahaan" name="nama_perusahaan" required style="border-radius: 8px; height: 42px;">
+              </div>
+              <div class="form-group mb-3">
+                <label for="edit_alamat_perusahaan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                  Alamat Lengkap Perusahaan <span class="text-danger">*</span>
+                </label>
+                <textarea class="form-control" id="edit_alamat_perusahaan" name="alamat_perusahaan" rows="5" required style="border-radius: 8px; min-height: 140px; resize: vertical; line-height: 1.5;"></textarea>
+                <small class="text-muted d-block mt-1">
+                  <i class="fas fa-arrows-alt-v mr-1"></i> Area input dapat ditarik ke bawah jika membutuhkan ruang lebih lebar.
+                </small>
               </div>
             </div>
-            <div class="col-md-6">
-              <div class="form-group mb-0">
-                <label for="edit_kontak_pic" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Kontak / No. WA PIC</label>
-                <input type="text" class="form-control" id="edit_kontak_pic" name="kontak_pic" placeholder="Contoh: 081234567890" style="border-radius: 8px; height: 42px;">
+
+            <!-- Kolom Kanan: Penanggung Jawab & Pembimbing -->
+            <div class="col-lg-6">
+              <!-- Penanggung Jawab dari Sekolah -->
+              <div class="form-group mb-3">
+                <label for="edit_id_guru" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                  <i class="fas fa-chalkboard-teacher text-primary mr-1"></i> Penanggung Jawab Sekolah (Guru Pembimbing)
+                </label>
+                <select class="form-control select2-modal" id="edit_id_guru" name="id_guru" style="width: 100%;">
+                  <option value="">-- Pilih dari Data Guru (Opsional) --</option>
+                  @foreach ($guruList as $guru)
+                    <option value="{{ $guru->id_guru }}">{{ $guru->nama_guru }}</option>
+                  @endforeach
+                </select>
+                <small class="text-muted d-block mt-1">
+                  Guru pembimbing PKL yang ditugaskan dari pihak sekolah untuk mitra ini.
+                </small>
+              </div>
+
+              <!-- Penanggung Jawab dari Industri -->
+              <div class="form-group mb-3">
+                <label for="edit_penanggung_jawab" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                  <i class="fas fa-building text-secondary mr-1"></i> Penanggung Jawab Industri (Pimpinan DU/DI / HRD) <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" id="edit_penanggung_jawab" name="penanggung_jawab" required style="border-radius: 8px; height: 42px;">
+              </div>
+
+              <!-- PIC & Kontak Lapangan Industri -->
+              <div class="row">
+                <div class="col-sm-6">
+                  <div class="form-group mb-2">
+                    <label for="edit_pic" class="font-weight-bold text-dark" style="font-size: 0.82rem;">
+                      Nama PIC Lapangan DU/DI
+                    </label>
+                    <input type="text" class="form-control" id="edit_pic" name="pic" placeholder="Contoh: Ibu Rina" style="border-radius: 8px; height: 40px; font-size: 0.85rem;">
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="form-group mb-2">
+                    <label for="edit_kontak_pic" class="font-weight-bold text-dark" style="font-size: 0.82rem;">
+                      No. WA PIC Lapangan
+                    </label>
+                    <input type="text" class="form-control" id="edit_kontak_pic" name="kontak_pic" placeholder="Contoh: 081234567890" style="border-radius: 8px; height: 40px; font-size: 0.85rem;">
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -570,12 +679,17 @@
 <script>
 $(document).ready(function () {
   // Inisialisasi Select2 di dalam modal saat modal ditampilkan
-  $('.modal-kelola-pkl').on('shown.bs.modal', function () {
+  $('#modalTambahPerusahaan, #modalEditPerusahaan, .modal-kelola-pkl').on('shown.bs.modal', function () {
     $(this).find('.select2-modal').select2({
       theme: 'bootstrap4',
       width: '100%',
       dropdownParent: $(this)
     });
+  });
+
+  // Reset Select2 saat modal tambah dibuka
+  $('#modalTambahPerusahaan').on('show.bs.modal', function () {
+    $('#id_guru').val('').trigger('change');
   });
 
   // Tombol Edit Perusahaan
@@ -584,12 +698,14 @@ $(document).ready(function () {
     let nama = $(this).data('nama');
     let alamat = $(this).data('alamat');
     let pj = $(this).data('pj');
+    let idGuru = $(this).data('id-guru') || '';
     let pic = $(this).data('pic') || '';
     let kontakPic = $(this).data('kontak-pic') || '';
 
     $('#edit_nama_perusahaan').val(nama);
     $('#edit_alamat_perusahaan').val(alamat);
     $('#edit_penanggung_jawab').val(pj);
+    $('#edit_id_guru').val(idGuru).trigger('change');
     $('#edit_pic').val(pic);
     $('#edit_kontak_pic').val(kontakPic);
 

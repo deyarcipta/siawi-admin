@@ -20,4 +20,9 @@ class Perusahaan extends Model
     {
         return $this->hasMany(SiswaPkl::class, 'id_perusahaan', 'id_perusahaan');
     }
+
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
+    }
 }
