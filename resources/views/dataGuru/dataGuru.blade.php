@@ -65,6 +65,8 @@
                         <span class="badge badge-info px-2 py-1">Kurikulum</span>
                       @elseif($r == 'kesiswaan')
                         <span class="badge badge-warning px-2 py-1">Kesiswaan</span>
+                      @elseif($r == 'hubin')
+                        <span class="badge px-2 py-1 text-white" style="background-color: #6f42c1;">Hubin</span>
                       @elseif($r == 'guru')
                         <span class="badge badge-secondary px-2 py-1">Guru</span>
                       @elseif($r == 'tata_usaha')

@@ -74,6 +74,7 @@
                         'wali_kelas' => ['label' => 'Wali Kelas', 'desc' => 'E-Rapot & rekap kelas'],
                         'kesiswaan' => ['label' => 'Kesiswaan', 'desc' => 'Poin pelanggaran, kelalaian'],
                         'kurikulum' => ['label' => 'Kurikulum', 'desc' => 'Jadwal, modul, & kalender'],
+                        'hubin' => ['label' => 'Hubin (BKK & PKL)', 'desc' => 'Mitra DU/DI, PKL, & Alumni'],
                         'tata_usaha' => ['label' => 'Tata Usaha', 'desc' => 'Persuratan & data master'],
                         'keuangan' => ['label' => 'Keuangan', 'desc' => 'Tagihan siswa'],
                         'admin' => ['label' => 'Admin', 'desc' => 'Akses penuh sistem'],

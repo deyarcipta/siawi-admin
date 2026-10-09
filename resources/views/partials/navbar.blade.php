@@ -107,6 +107,7 @@
                 'admin' => 'Admin',
                 'kurikulum' => 'Kurikulum',
                 'kesiswaan' => 'Kesiswaan',
+                'hubin' => 'Hubin',
                 'keuangan' => 'Keuangan',
                 'tata_usaha' => 'Tata Usaha',
                 'wali_kelas' => 'Wali Kelas',
@@ -170,6 +171,15 @@
       'icon' => 'fas fa-user-shield',
       'icon_bg' => 'bg-warning',
       'guru' => \App\Models\Guru::where('role', 'kesiswaan')->whereNotNull('no_hp')->where('no_hp', '!=', '')->first(),
+    ],
+    [
+      'role_name' => 'Hubungan Industri & BKK',
+      'category' => 'Kerjasama mitra DU/DI, penempatan PKL, lowongan kerja, dan penelusuran data alumni.',
+      'icon' => 'fas fa-briefcase',
+      'icon_bg' => 'bg-purple',
+      'guru' => \App\Models\Guru::where(function($q) {
+          $q->where('role', 'hubin')->orWhereJsonContains('roles', 'hubin');
+      })->whereNotNull('no_hp')->where('no_hp', '!=', '')->first(),
     ],
   ];
 @endphp

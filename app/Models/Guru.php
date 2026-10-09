@@ -126,11 +126,12 @@ class Guru extends Model implements Authenticatable
             'admin' => 1,
             'kurikulum' => 2,
             'kesiswaan' => 3,
-            'keuangan' => 4,
-            'tata_usaha' => 5,
-            'wali_kelas' => 6,
-            'guru' => 7,
-            'staff' => 8,
+            'hubin' => 4,
+            'keuangan' => 5,
+            'tata_usaha' => 6,
+            'wali_kelas' => 7,
+            'guru' => 8,
+            'staff' => 9,
         ];
 
         $roles = $this->roles_list;
@@ -156,6 +157,7 @@ class Guru extends Model implements Authenticatable
             'admin' => 'Admin',
             'kurikulum' => 'Kurikulum',
             'kesiswaan' => 'Kesiswaan',
+            'hubin' => 'Hubin',
             'keuangan' => 'Keuangan',
             'tata_usaha' => 'Tata Usaha',
             'wali_kelas' => 'Wali Kelas',

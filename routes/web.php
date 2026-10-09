@@ -96,9 +96,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     });
 
     // =========================================================================
-    // 4. DATA SISWA & ALUMNI (Admin, Tata Usaha, Kesiswaan, Wali Kelas, Kurikulum, Guru, Keuangan)
+    // 4. DATA SISWA & ALUMNI (Admin, Tata Usaha, Kesiswaan, Wali Kelas, Kurikulum, Guru, Keuangan, Hubin)
     // =========================================================================
-    Route::group(['middleware' => ['role:admin,tata_usaha,kesiswaan,wali_kelas,kurikulum,guru,keuangan']], function () {
+    Route::group(['middleware' => ['role:admin,tata_usaha,kesiswaan,wali_kelas,kurikulum,guru,keuangan,hubin']], function () {
         Route::resource('siswa', SiswaController::class);
         Route::get('siswa/{id_guru}/reset', [SiswaController::class, 'reset'])->name('siswa.reset');
         Route::get('/download-siswa', [SiswaController::class, 'download'])->name('siswa.download');
@@ -248,6 +248,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     });
 
     // =========================================================================
+    // 12.1. HUBUNGAN INDUSTRI, BKK & SISWA PKL (Admin, Hubin, Tata Usaha, Kesiswaan)
+    // =========================================================================
+    Route::group(['middleware' => ['role:admin,hubin,tata_usaha,kesiswaan']], function () {
+        Route::resource('perusahaan', PerusahaanController::class);
+        Route::resource('siswaPkl', SiswaPklController::class);
+    });
+
+    // =========================================================================
     // 13. MASTER DATA INTI & SISTEM (Strict Admin-Only)
     // =========================================================================
     Route::group(['middleware' => ['role:admin']], function () {
@@ -259,8 +267,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
         Route::resource('mapel', MapelController::class);
         Route::resource('guru', GuruController::class);
         Route::get('guru/{id_guru}/reset', [GuruController::class, 'reset'])->name('guru.reset');
-        Route::resource('perusahaan', PerusahaanController::class);
-        Route::resource('siswaPkl', SiswaPklController::class);
 
         // System Settings & WhatsApp Gateway Config
         Route::get('/setting-whatsapp-status', [SettingController::class, 'checkWhatsAppStatus'])->name('setting.whatsapp-status');

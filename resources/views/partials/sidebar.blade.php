@@ -367,7 +367,7 @@
         <!-- ============================================== -->
         <!-- 4. KESISWAAN & KEDISIPLINAN                    -->
         <!-- ============================================== -->
-        @if($user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'tata_usaha']))
+        @if($user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'tata_usaha', 'hubin']))
         <li class="nav-header">
           Kesiswaan & Industri
         </li>
@@ -433,7 +433,7 @@
         @endif
 
         <!-- Hubungan Industri (BKK & PKL) -->
-        @if($user->hasAnyRole(['admin', 'kesiswaan', 'tata_usaha']))
+        @if($user->hasAnyRole(['admin', 'hubin', 'kesiswaan', 'tata_usaha']))
         <li class="nav-item has-treeview {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-briefcase"></i>
@@ -548,7 +548,7 @@
         <!-- ============================================== -->
         <!-- 6. SISTEM & PENGATURAN                         -->
         <!-- ============================================== -->
-        @if($user->hasAnyRole(['admin', 'tata_usaha', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'keuangan']))
+        @if($user->hasAnyRole(['admin', 'tata_usaha', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'keuangan', 'hubin']))
         <li class="nav-header">
           Sistem & Pengaturan
         </li>
@@ -616,7 +616,7 @@
             @endif
 
             <!-- Data Siswa & Alumni -->
-            @if($user->hasAnyRole(['admin', 'tata_usaha', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'keuangan']))
+            @if($user->hasAnyRole(['admin', 'tata_usaha', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'keuangan', 'hubin']))
             <li class="nav-item">
               <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa') || Request::is('admin/siswa/*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
@@ -683,6 +683,7 @@
             'wali_kelas' => 'Wali Kelas',
             'kesiswaan' => 'Kesiswaan',
             'kurikulum' => 'Kurikulum',
+            'hubin' => 'Hubin',
             'tata_usaha' => 'Tata Usaha',
             'keuangan' => 'Keuangan',
             'guru' => 'Guru',
