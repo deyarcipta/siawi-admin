@@ -704,9 +704,11 @@
           <div>
             <div class="modern-card-title">Guru piket hari ini</div>
           </div>
+          @if($user && $user->hasAnyRole(['admin', 'kurikulum']))
           <a href="/admin/guruPiket" class="btn-link-action" style="font-size: 0.78rem;">
             Jadwal <i class="fas fa-chevron-right ml-1" style="font-size: 0.7rem;"></i>
           </a>
+          @endif
         </div>
         <div class="p-0">
           @forelse($guruPiketHariIni as $piket)
