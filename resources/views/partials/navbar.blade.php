@@ -55,7 +55,7 @@
 
         <!-- Dropdown Footer -->
         <div class="p-2 border-top bg-light text-center d-flex justify-content-around align-items-center" style="font-size: 0.78rem;">
-          @if(in_array($user->role, ['admin', 'tata_usaha', 'kurikulum', 'keuangan']))
+          @if($user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum', 'keuangan']))
             <a href="/admin/informasi" class="text-primary font-weight-bold text-decoration-none">
               <i class="fas fa-bullhorn mr-1"></i> Informasi
             </a>
@@ -88,23 +88,7 @@
           </span>
         @endif
         <span class="d-none d-sm-inline">
-          @if($user->role == 'admin')
-            Admin
-          @elseif($user->role == 'wali_kelas')
-            Wali Kelas
-          @elseif($user->role == 'tata_usaha')
-            Tata Usaha
-          @elseif($user->role == 'keuangan')
-            Keuangan
-          @elseif($user->role == 'guru')
-            Guru
-          @elseif($user->role == 'kesiswaan')
-            Kesiswaan
-          @elseif($user->role == 'kurikulum')
-            Kurikulum
-          @else
-            Staff
-          @endif
+          {{ $user->highest_role_label ?? 'Guru' }}
         </span>
       </a>
       <div class="dropdown-menu dropdown-menu-right shadow-lg border-0" style="border-radius: 12px; min-width: 230px; margin-top: 10px; overflow: hidden;">
@@ -117,16 +101,22 @@
             </div>
           @endif
           <div class="font-weight-bold" style="font-size: 0.95rem;">{{ $user->nama_guru }}</div>
-          <div style="font-size: 0.75rem; opacity: 0.85;">
-            @if($user->role == 'wali_kelas')
-              Wali Kelas
-            @elseif($user->role == 'tata_usaha')
-              Tata Usaha
-            @elseif($user->role == 'keuangan')
-              Keuangan
-            @else
-              {{ ucfirst($user->role) }}
-            @endif
+          <div style="font-size: 0.75rem; opacity: 0.88; margin-top: 2px;">
+            @php
+              $roleLabels = [
+                'admin' => 'Admin',
+                'kurikulum' => 'Kurikulum',
+                'kesiswaan' => 'Kesiswaan',
+                'keuangan' => 'Keuangan',
+                'tata_usaha' => 'Tata Usaha',
+                'wali_kelas' => 'Wali Kelas',
+                'guru' => 'Guru',
+              ];
+              $allRoles = array_map(function($r) use ($roleLabels) {
+                return $roleLabels[$r] ?? ucfirst(str_replace('_', ' ', $r));
+              }, $user->roles_list ?? [$user->role]);
+            @endphp
+            {{ implode(' • ', $allRoles) }}
           </div>
         </div>
         <div class="p-2">

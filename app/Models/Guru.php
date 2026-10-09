@@ -116,4 +116,54 @@ class Guru extends Model implements Authenticatable
 
         return count(array_intersect($roles, $this->roles_list)) > 0;
     }
+
+    /**
+     * Get the highest / primary displayed role based on school structural hierarchy.
+     */
+    public function getHighestRoleAttribute(): string
+    {
+        $rolePriority = [
+            'admin' => 1,
+            'kurikulum' => 2,
+            'kesiswaan' => 3,
+            'keuangan' => 4,
+            'tata_usaha' => 5,
+            'wali_kelas' => 6,
+            'guru' => 7,
+            'staff' => 8,
+        ];
+
+        $roles = $this->roles_list;
+        if (empty($roles)) {
+            return $this->role ?? 'guru';
+        }
+
+        usort($roles, function ($a, $b) use ($rolePriority) {
+            $pA = $rolePriority[$a] ?? 99;
+            $pB = $rolePriority[$b] ?? 99;
+            return $pA <=> $pB;
+        });
+
+        return $roles[0];
+    }
+
+    /**
+     * Get human-friendly label for the highest role.
+     */
+    public function getHighestRoleLabelAttribute(): string
+    {
+        $labels = [
+            'admin' => 'Admin',
+            'kurikulum' => 'Kurikulum',
+            'kesiswaan' => 'Kesiswaan',
+            'keuangan' => 'Keuangan',
+            'tata_usaha' => 'Tata Usaha',
+            'wali_kelas' => 'Wali Kelas',
+            'guru' => 'Guru',
+            'staff' => 'Staff',
+        ];
+
+        $highest = $this->highest_role;
+        return $labels[$highest] ?? ucfirst(str_replace('_', ' ', $highest));
+    }
 }
