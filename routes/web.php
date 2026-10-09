@@ -232,12 +232,17 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     });
 
     // =========================================================================
-    // 12. GURU PIKET & PEMBIASAAN PAGI (Admin, Guru, Wali Kelas, Kurikulum, Kesiswaan, Tata Usaha)
+    // 12. GURU PIKET & PEMBIASAAN PAGI
     // =========================================================================
+    // Panel Guru Piket (Petugas piket hari ini: Admin, Guru, Wali Kelas, Kurikulum, Kesiswaan, Tata Usaha)
     Route::group(['middleware' => ['role:admin,guru,wali_kelas,kurikulum,kesiswaan,tata_usaha']], function () {
         Route::get('guruPiket/panel', [GuruPiketController::class, 'panel'])->name('guruPiket.panel');
         Route::post('guruPiket/catat-terlambat', [GuruPiketController::class, 'catatTerlambat'])->name('guruPiket.catatTerlambat');
         Route::delete('guruPiket/hapus-terlambat/{id_absensi}', [GuruPiketController::class, 'hapusTerlambat'])->name('guruPiket.hapusTerlambat');
+    });
+
+    // Pengaturan Jadwal Piket & Pembiasaan Pagi (Strict: Admin & Kurikulum)
+    Route::group(['middleware' => ['role:admin,kurikulum']], function () {
         Route::resource('guruPiket', GuruPiketController::class);
         Route::resource('piketPembiasaanPagi', PiketPembiasaanPagiController::class);
     });

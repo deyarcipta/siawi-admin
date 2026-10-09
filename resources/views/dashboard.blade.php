@@ -464,7 +464,7 @@
       </div>
     </div>
     <div class="col-md-5 col-12 text-md-right">
-      @if($user && $user->role == 'admin')
+      @if($user && $user->hasRole('admin'))
         <a href="/admin/live-panel" target="_blank" class="btn-outline-custom mr-2 d-none d-sm-inline-flex" title="Live Panel TV Wallboard" style="padding: 9px 13px;">
           <i class="fas fa-tv text-primary"></i>
         </a>

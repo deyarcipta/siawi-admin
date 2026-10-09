@@ -35,7 +35,7 @@
           </a>
         </li>
 
-        @if($user->hasAnyRole(['admin', 'kurikulum', 'kesiswaan', 'wali_kelas', 'guru', 'tata_usaha']))
+        @if($user->hasRole('admin'))
         <li class="nav-item">
           <a href="/admin/live-panel" target="_blank" class="nav-link {{ Request::is('admin/live-panel*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-tv"></i>
@@ -168,6 +168,11 @@
 
         <!-- Guru Piket -->
         @if($user->hasAnyRole(['admin', 'guru', 'wali_kelas', 'kurikulum', 'kesiswaan', 'tata_usaha']))
+        @php
+          $canManagePiket = $user->hasAnyRole(['admin', 'kurikulum']);
+        @endphp
+
+        @if($canManagePiket)
         <li class="nav-item has-treeview {{ Request::is('admin/guruPiket*') || Request::is('admin/piketPembiasaanPagi*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/guruPiket*') || Request::is('admin/piketPembiasaanPagi*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-clock"></i>
@@ -197,6 +202,14 @@
             </li>
           </ul>
         </li>
+        @else
+        <li class="nav-item">
+          <a href="/admin/guruPiket/panel" class="nav-link {{ Request::is('admin/guruPiket/panel*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user-clock"></i>
+            <p>Panel Guru Piket</p>
+          </a>
+        </li>
+        @endif
         @endif
         @endif
 
