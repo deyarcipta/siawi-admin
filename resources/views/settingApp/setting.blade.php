@@ -148,6 +148,34 @@
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
+                                                        <label for="kop_surat">
+                                                            <i class="fas fa-file-invoice text-primary mr-1"></i> Gambar Kop Surat Resmi (Banner Surat Peringatan)
+                                                        </label>
+                                                        <div class="row align-items-center">
+                                                            <div class="col-sm-8 mb-2 mb-sm-0">
+                                                                <div class="custom-file">
+                                                                    <input type="file" class="custom-file-input" name="kop_surat" id="kop_surat" accept="image/png,image/jpeg,image/jpg,image/webp">
+                                                                    <label class="custom-file-label text-truncate" id="kop-label" for="kop_surat">Pilih gambar banner kop surat...</label>
+                                                                </div>
+                                                                <small class="text-muted d-block mt-1">Format: PNG, JPG, WebP (Maks. 5MB). Rekomendasi gambar horizontal proporsional (lengkap dengan logo & garis pemisah). Jika diunggah, dokumen cetak SP otomatis menggunakan kop ini menggantikan teks bawaan.</small>
+                                                            </div>
+                                                            <div class="col-sm-4 text-center">
+                                                                @if($setting->kop_surat && file_exists(public_path('storage/gambar/' . $setting->kop_surat)))
+                                                                    <a href="{{ asset('storage/gambar/' . $setting->kop_surat) }}" target="_blank" title="Klik untuk pratinjau ukuran penuh">
+                                                                        <img src="{{ asset('storage/gambar/' . $setting->kop_surat) }}" alt="Kop Surat" class="img-thumbnail" style="max-height: 55px; max-width: 100%;">
+                                                                    </a>
+                                                                    <div class="mt-1">
+                                                                        <button type="button" class="btn btn-xs btn-outline-danger" id="btnHapusKopSurat" data-id="{{ $setting->id }}">
+                                                                            <i class="fas fa-trash-alt mr-1"></i> Hapus Kop
+                                                                        </button>
+                                                                    </div>
+                                                                @else
+                                                                    <span class="badge badge-light border text-muted px-2 py-1"><i class="fas fa-info-circle mr-1"></i> Kop Teks Bawaan</span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
                                                         <label for="video_panel">Video Display Panel TV / Wallboard (MP4)</label>
                                                         <div class="row align-items-center">
                                                             <div class="col-sm-8 mb-2 mb-sm-0">
@@ -1271,6 +1299,15 @@
             var fileName = $(this).val().split('\\').pop();
             $('#logo-label').text(fileName || 'Pilih file logo...');
         });
+        $('#kop_surat').on('change', function() {
+            var file = this.files[0];
+            if (file) {
+                var sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                $('#kop-label').text(file.name + ' (' + sizeMB + ' MB)');
+            } else {
+                $('#kop-label').text('Pilih gambar banner kop surat...');
+            }
+        });
 
         // Form Submit Handler dengan Realtime Upload Progress Bar
         $('#formSettingIdentitas').on('submit', function(e) {
@@ -1278,13 +1315,15 @@
             var hasVideo = videoInput && videoInput.files && videoInput.files.length > 0;
             var logoInput = document.getElementById('logo');
             var hasLogo = logoInput && logoInput.files && logoInput.files.length > 0;
+            var kopInput = document.getElementById('kop_surat');
+            var hasKop = kopInput && kopInput.files && kopInput.files.length > 0;
 
-            // Jika mengunggah video atau logo, gunakan AJAX XHR dengan progress bar interaktif
-            if (hasVideo || hasLogo) {
+            // Jika mengunggah video, logo, atau kop surat, gunakan AJAX XHR dengan progress bar interaktif
+            if (hasVideo || hasLogo || hasKop) {
                 e.preventDefault();
                 var form = this;
                 var formData = new FormData(form);
-                var activeFile = hasVideo ? videoInput.files[0] : logoInput.files[0];
+                var activeFile = hasVideo ? videoInput.files[0] : (hasKop ? kopInput.files[0] : logoInput.files[0]);
                 var uploadFileName = activeFile.name;
                 var uploadFileSizeMB = (activeFile.size / (1024 * 1024)).toFixed(1);
 
@@ -1431,6 +1470,57 @@
                                 icon: 'error',
                                 title: 'Gagal',
                                 text: 'Gagal menghapus video dari server.',
+                                confirmButtonColor: '#d33'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        // Handler Hapus Kop Surat
+        $('#btnHapusKopSurat').on('click', function() {
+            var settingId = $(this).data('id');
+            Swal.fire({
+                title: 'Hapus Kop Surat Resmi?',
+                text: 'File gambar kop surat akan dihapus dan format surat (SP) akan kembali menggunakan kop teks & logo bawaan.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-trash-alt mr-1"></i> Ya, Hapus',
+                cancelButtonText: 'Batal'
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Menghapus Kop Surat...',
+                        allowOutsideClick: false,
+                        didOpen: function() {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        url: '/admin/setting/' + settingId + '/delete-kop-surat',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(res) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: res.message || 'Kop surat berhasil dihapus.',
+                                confirmButtonColor: '#007bff'
+                            }).then(function() {
+                                window.location.reload();
+                            });
+                        },
+                        error: function(xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: 'Gagal menghapus kop surat dari server.',
                                 confirmButtonColor: '#d33'
                             });
                         }

@@ -129,6 +129,11 @@ class SettingController extends Controller
                     $table->string('video_panel')->nullable()->after('logo');
                 });
             }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('setting', 'kop_surat')) {
+                \Illuminate\Support\Facades\Schema::table('setting', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('kop_surat')->nullable()->after('logo');
+                });
+            }
         } catch (\Exception $e) {}
 
         // Cek apakah request mengandung data yang perlu diproses dari settingDasar
@@ -196,6 +201,53 @@ class SettingController extends Controller
                     $nama_video = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $fileVideo->getClientOriginalName());
                     $fileVideo->storeAs('public/video/', $nama_video);
                     $setting->video_panel = $nama_video;
+                }
+
+                // Cek apakah ada file kop_surat yang diunggah
+                if ($request->hasFile('kop_surat')) {
+                    $request->validate([
+                        'kop_surat' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', // max 5MB
+                    ]);
+
+                    if (!Storage::exists('public/gambar')) {
+                        Storage::makeDirectory('public/gambar');
+                    }
+                    if (!file_exists(public_path('storage/gambar'))) {
+                        @mkdir(public_path('storage/gambar'), 0775, true);
+                    }
+
+                    if (!empty($setting->kop_surat)) {
+                        if (Storage::exists('public/gambar/' . $setting->kop_surat)) {
+                            Storage::delete('public/gambar/' . $setting->kop_surat);
+                        }
+                        if (Storage::disk('public')->exists('gambar/' . $setting->kop_surat)) {
+                            Storage::disk('public')->delete('gambar/' . $setting->kop_surat);
+                        }
+                        if (file_exists(public_path('storage/gambar/' . $setting->kop_surat))) {
+                            @unlink(public_path('storage/gambar/' . $setting->kop_surat));
+                        }
+                        if (file_exists(storage_path('app/public/gambar/' . $setting->kop_surat))) {
+                            @unlink(storage_path('app/public/gambar/' . $setting->kop_surat));
+                        }
+                    }
+
+                    $fileKop = $request->file('kop_surat');
+                    $nama_kop = 'kop_' . time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $fileKop->getClientOriginalName());
+                    $fileKop->storeAs('public/gambar/', $nama_kop);
+                    $setting->kop_surat = $nama_kop;
+                }
+
+                // Cek jika ada request hapus kop_surat
+                if ($request->has('hapus_kop_surat') && $request->hapus_kop_surat == '1') {
+                    if (!empty($setting->kop_surat)) {
+                        if (Storage::exists('public/gambar/' . $setting->kop_surat)) {
+                            Storage::delete('public/gambar/' . $setting->kop_surat);
+                        }
+                        if (file_exists(public_path('storage/gambar/' . $setting->kop_surat))) {
+                            @unlink(public_path('storage/gambar/' . $setting->kop_surat));
+                        }
+                    }
+                    $setting->kop_surat = null;
                 }
 
                 // Update settingDasar
@@ -967,6 +1019,35 @@ class SettingController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Video display panel berhasil dihapus dari storage.'
+        ]);
+    }
+
+    /**
+     * Menghapus file kop surat yang tersimpan di storage.
+     */
+    public function deleteKopSurat($id)
+    {
+        $setting = Setting::findOrFail($id);
+        if (!empty($setting->kop_surat)) {
+            if (Storage::exists('public/gambar/' . $setting->kop_surat)) {
+                Storage::delete('public/gambar/' . $setting->kop_surat);
+            }
+            if (Storage::disk('public')->exists('gambar/' . $setting->kop_surat)) {
+                Storage::disk('public')->delete('gambar/' . $setting->kop_surat);
+            }
+            if (file_exists(public_path('storage/gambar/' . $setting->kop_surat))) {
+                @unlink(public_path('storage/gambar/' . $setting->kop_surat));
+            }
+            if (file_exists(storage_path('app/public/gambar/' . $setting->kop_surat))) {
+                @unlink(storage_path('app/public/gambar/' . $setting->kop_surat));
+            }
+            $setting->kop_surat = null;
+            $setting->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kop surat resmi berhasil dihapus. Sistem akan kembali menggunakan kop teks & logo bawaan.'
         ]);
     }
 }

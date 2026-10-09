@@ -16,6 +16,16 @@
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
+        .header-kop-banner {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .header-kop-banner img {
+            width: 100%;
+            max-height: 140px;
+            display: block;
+        }
         .header-logo {
             width: 80px;
             text-align: center;
@@ -115,21 +125,27 @@
 </head>
 <body>
 
-    <!-- Kop Surat -->
-    <table class="header-table">
-        <tr>
-            <td class="header-logo">
-                @if($setting->logo)
-                    <img src="{{ public_path('storage/gambar/' . $setting->logo) }}" alt="Logo">
-                @endif
-            </td>
-            <td class="header-text">
-                <h2>YAYASAN SMK WISATA INDONESIA</h2>
-                <h3>{{ $setting->nama_sekolah }}</h3>
-                <p>Alamat: {{ $setting->alamat }}, Kel. {{ $setting->kel }}, Kec. {{ $setting->kec }}, {{ $setting->kota }}, Prov. {{ $setting->prov }}</p>
-            </td>
-        </tr>
-    </table>
+    <!-- Kop Surat: Gunakan gambar banner kop surat jika diunggah, atau kop teks & logo bawaan -->
+    @if($setting->kop_surat && file_exists(public_path('storage/gambar/' . $setting->kop_surat)))
+        <div class="header-kop-banner">
+            <img src="{{ public_path('storage/gambar/' . $setting->kop_surat) }}" alt="Kop Surat">
+        </div>
+    @else
+        <table class="header-table">
+            <tr>
+                <td class="header-logo">
+                    @if($setting->logo)
+                        <img src="{{ public_path('storage/gambar/' . $setting->logo) }}" alt="Logo">
+                    @endif
+                </td>
+                <td class="header-text">
+                    <h2>YAYASAN SMK WISATA INDONESIA</h2>
+                    <h3>{{ $setting->nama_sekolah }}</h3>
+                    <p>Alamat: {{ $setting->alamat }}, Kel. {{ $setting->kel }}, Kec. {{ $setting->kec }}, {{ $setting->kota }}, Prov. {{ $setting->prov }}</p>
+                </td>
+            </tr>
+        </table>
+    @endif
 
     <!-- Judul Surat -->
     <div class="title">
