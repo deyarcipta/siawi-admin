@@ -92,11 +92,16 @@
                   </div>
                   <div class="form-group col-4">
                     <label for="kode_kelas">Pilih Kelas</label>
+                    @if($user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum']))
                     <select class="form-control" name="kode_kelas" id="kode_kelas">
                       @foreach ($kelas as $kls)
                       <option value="{{ $kls->id_kelas }}" {{ $edit->id_kelas == $kls->id_kelas ? 'selected' : '' }}> {{ $kls->nama_kelas }}</option>
-                    @endforeach
+                      @endforeach
                     </select>
+                    @else
+                    <input type="text" class="form-control" value="{{ $edit->kelas->nama_kelas ?? '-' }}" readonly style="background-color: #f1f5f9;">
+                    <input type="hidden" name="kode_kelas" value="{{ $edit->id_kelas }}">
+                    @endif
                     @error('kode_kelas')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror

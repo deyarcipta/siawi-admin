@@ -68,7 +68,41 @@
                     Hak Akses Sistem (Multi-Role / Bisa Pilih Lebih Dari 1) <span class="text-danger">*</span>
                   </label>
                   <p class="text-muted small mb-2">Centang semua jabatan/peran yang dipegang oleh guru ini. Guru akan otomatis mendapatkan hak akses gabungan.</p>
-                  <div class="d-flex flex-wrap" style="gap: 10px;">
+                  <style>
+                    .role-card-grid {
+                      display: grid;
+                      grid-template-columns: repeat(4, 1fr);
+                      gap: 12px;
+                    }
+                    @media (max-width: 991.98px) {
+                      .role-card-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                      }
+                    }
+                    @media (max-width: 575.98px) {
+                      .role-card-grid {
+                        grid-template-columns: 1fr;
+                      }
+                    }
+                    .role-card-box {
+                      background: #f8fafc;
+                      border: 1px solid #e2e8f0;
+                      border-radius: 10px;
+                      padding: 10px 12px 10px 36px;
+                      height: 100%;
+                      min-height: 64px;
+                      display: flex;
+                      align-items: center;
+                      transition: all 0.2s ease;
+                      box-sizing: border-box;
+                      margin: 0 !important;
+                    }
+                    .role-card-box:hover {
+                      border-color: #cbd5e1;
+                      background: #f1f5f9;
+                    }
+                  </style>
+                  <div class="role-card-grid">
                     @php
                       $availableRoles = [
                         'guru' => ['label' => 'Guru Mapel', 'desc' => 'Jurnal mengajar & jadwal'],
@@ -83,11 +117,11 @@
                       $selectedRoles = old('roles', $edit->roles_list ?? ['guru']);
                     @endphp
                     @foreach($availableRoles as $rKey => $rMeta)
-                      <div class="custom-control custom-checkbox mr-3 mb-2" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 16px 8px 36px; min-width: 175px;">
+                      <div class="custom-control custom-checkbox role-card-box">
                         <input type="checkbox" class="custom-control-input" id="role_{{ $rKey }}" name="roles[]" value="{{ $rKey }}" {{ in_array($rKey, $selectedRoles) ? 'checked' : '' }}>
-                        <label class="custom-control-label font-weight-bold text-dark" for="role_{{ $rKey }}" style="cursor: pointer; font-size: 0.84rem;">
-                          {{ $rMeta['label'] }}
-                          <small class="d-block text-muted font-weight-normal" style="font-size: 0.72rem;">{{ $rMeta['desc'] }}</small>
+                        <label class="custom-control-label font-weight-bold text-dark w-100 mb-0" for="role_{{ $rKey }}" style="cursor: pointer; font-size: 0.84rem; line-height: 1.25;">
+                          <span class="d-block" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $rMeta['label'] }}</span>
+                          <small class="d-block text-muted font-weight-normal mt-1" style="font-size: 0.72rem; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $rMeta['desc'] }}</small>
                         </label>
                       </div>
                     @endforeach

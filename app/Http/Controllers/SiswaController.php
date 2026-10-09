@@ -28,19 +28,32 @@ class SiswaController extends Controller
      * Display a listing of the resource.
      */
     
+    private function canManageMasterSiswa(?\App\Models\Guru $user): bool
+    {
+        return $user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum']);
+    }
+
+    private function canEditSiswa(?\App\Models\Guru $user, Siswa $siswa): bool
+    {
+        if ($this->canManageMasterSiswa($user)) {
+            return true;
+        }
+
+        if ($user && $user->hasRole('wali_kelas')) {
+            $walasKelasIds = $user->getKelasWaliIds();
+            return in_array($siswa->id_kelas, $walasKelasIds);
+        }
+
+        return false;
+    }
+
     public function index()
     {
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $query = Siswa::query();
-        $isWaliKelasOnly = $user && $user->isWaliKelasStrict(['admin', 'kesiswaan', 'kurikulum', 'tata_usaha']);
-        if ($isWaliKelasOnly) {
-            $kelasWaliIds = Kelas::where('id_guru', $user->id_guru)->pluck('id_kelas');
-            $query->whereIn('id_kelas', $kelasWaliIds);
-        }
-        $siswa = $query->orderBy('nama_siswa', 'asc')->get();
-        return view('dataSiswa.data_siswa', compact('layout','siswa','setting','user'));
+        $siswa = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
+        return view('dataSiswa.data_siswa', compact('layout', 'siswa', 'setting', 'user'));
     }
 
     /**
@@ -48,12 +61,16 @@ class SiswaController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
+        if (!$this->canManageMasterSiswa($user)) {
+            abort(403, 'Akses ditolak: Hanya Admin, Tata Usaha, dan Kurikulum yang dapat menambah data siswa.');
+        }
+
         $layout = 'layout.app';
         $level = Level::orderBy('kode_level', 'asc')->get();
         $jurusan = Jurusan::orderBy('nama_jurusan', 'asc')->get();
         $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $setting = Setting::find('1');
-        $user = Auth::user();
         return view('dataSiswa.tambah_siswa', compact('layout','level','jurusan','kelas','setting','user'));
     }
 
@@ -62,6 +79,11 @@ class SiswaController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$this->canManageMasterSiswa($user)) {
+            abort(403, 'Akses ditolak: Hanya Admin, Tata Usaha, dan Kurikulum yang dapat menambah data siswa.');
+        }
+
         // dd($request->all());
         $request->validate([
             'nis' => 'required',
@@ -167,14 +189,19 @@ class SiswaController extends Controller
      */
     public function edit(string $id_siswa)
     {
+        $user = Auth::user();
+        $edit = Siswa::findOrFail($id_siswa);
+
+        if (!$this->canEditSiswa($user, $edit)) {
+            abort(403, 'Akses ditolak: Anda hanya berhak mengedit data siswa pada kelas binaan Anda.');
+        }
+
         $layout = 'layout.app';
-        $edit = Siswa::find($id_siswa);
         session(['old_foto' => $edit->foto]);
         $level = Level::orderBy('kode_level', 'asc')->get();
         $jurusan = Jurusan::orderBy('nama_jurusan', 'asc')->get();
         $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $setting = Setting::find('1');
-        $user = Auth::user();
         return view('dataSiswa.edit_siswa', compact('layout','edit','level','jurusan','kelas','setting','user'));
     }
 
@@ -183,6 +210,17 @@ class SiswaController extends Controller
      */
     public function update(Request $request, string $id_siswa)
     {
+        $user = Auth::user();
+        $siswa = Siswa::findOrFail($id_siswa);
+
+        if (!$this->canEditSiswa($user, $siswa)) {
+            abort(403, 'Akses ditolak: Anda hanya berhak mengedit data siswa pada kelas binaan Anda.');
+        }
+
+        if (!$this->canManageMasterSiswa($user)) {
+            $request->merge(['kode_kelas' => $siswa->id_kelas]);
+        }
+
         $request->validate([
             'nis' => 'required',
             'nisn' => 'required',
@@ -296,6 +334,11 @@ class SiswaController extends Controller
      */
     public function destroy(string $id_siswa)
     {
+        $user = Auth::user();
+        if (!$this->canManageMasterSiswa($user)) {
+            abort(403, 'Akses ditolak: Hanya Admin, Tata Usaha, dan Kurikulum yang dapat menghapus data siswa.');
+        }
+
         DB::transaction(function () use ($id_siswa) {
             Absensi::where('id_siswa', $id_siswa)->delete();
             PointSiswa::where('id_siswa', $id_siswa)->delete();
@@ -316,10 +359,15 @@ class SiswaController extends Controller
 
     public function reset(string $id_siswa)
     {
-        $layout = 'layout.app';
-        $setting = Setting::find('1');
         $user = Auth::user();
         $siswa = Siswa::findOrFail($id_siswa);
+
+        if (!$this->canEditSiswa($user, $siswa)) {
+            abort(403, 'Akses ditolak: Anda hanya berhak mereset password siswa pada kelas binaan Anda.');
+        }
+
+        $layout = 'layout.app';
+        $setting = Setting::find('1');
         $siswa->password = 'siswa123';
         $siswa->save();
         return redirect('/admin/siswa')->with('success', 'Password berhasil direset<br>password default adalah <b>siswa123</b>');

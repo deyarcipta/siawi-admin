@@ -36,8 +36,17 @@ class DataAlumniController extends Controller
         return view('dataAlumni.index', compact('layout', 'setting', 'user', 'alumni', 'jurusan', 'tahunLulusList'));
     }
 
+    private function authorizeAlumniManage(): void
+    {
+        $user = Auth::user();
+        if (!$user || !$user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum'])) {
+            abort(403, 'Akses ditolak: Hanya Admin, Tata Usaha, dan Kurikulum yang dapat mengelola data alumni.');
+        }
+    }
+
     public function create()
     {
+        $this->authorizeAlumniManage();
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
@@ -48,6 +57,7 @@ class DataAlumniController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorizeAlumniManage();
         $request->validate([
             'nama' => 'required|string|max:255',
             'nis' => 'nullable|string|max:50',
@@ -96,6 +106,7 @@ class DataAlumniController extends Controller
 
     public function edit($id)
     {
+        $this->authorizeAlumniManage();
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
@@ -107,6 +118,7 @@ class DataAlumniController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->authorizeAlumniManage();
         $request->validate([
             'nama' => 'required|string|max:255',
             'nis' => 'nullable|string|max:50',
@@ -150,6 +162,7 @@ class DataAlumniController extends Controller
 
     public function destroy($id)
     {
+        $this->authorizeAlumniManage();
         $alumni = Alumni::findOrFail($id);
         if ($alumni->foto && $alumni->foto != 'avatar.jpg') {
             Storage::disk('public')->delete('foto-siswa/' . $alumni->foto);

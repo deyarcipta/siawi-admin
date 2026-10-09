@@ -33,7 +33,9 @@
               </h3>
               <div class="ml-auto">
                 <a href="{{ route('admin.alumni.download') }}" class="btn btn-primary btn-sm"><i class="fas fa-download mr-1"></i> Download Alumni</a>
+                @if($user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum']))
                 <a href="/admin/alumni/create" class="btn btn-success btn-sm"><i class="fas fa-plus mr-1"></i> Tambah Alumni</a>
+                @endif
               </div>
             </div>
             <!-- /.card-header -->
@@ -51,6 +53,9 @@
                   </tr>
                 </thead>
                 <tbody>
+                  @php
+                    $canManageAlumni = $user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum']);
+                  @endphp
                   @foreach ($alumni as $data)
                   <tr>
                     <td>{{ $loop->iteration }}</td>
@@ -61,11 +66,13 @@
                     <td>{{ $data->status ?? '-' }}</td>
                     <td>
                       <form action="/admin/alumni/{{ $data->id_alumni }}" method="POST" class="form-delete">
-                        <a href="/admin/alumni/{{ $data->id_alumni }}" class="btn btn-success"><i class="fa fa-eye"></i></a>
-                        <a href="/admin/alumni/{{ $data->id_alumni }}/edit" class="btn btn-warning"><i class="fa fa-edit" style="color: white"></i></a>
+                        <a href="/admin/alumni/{{ $data->id_alumni }}" class="btn btn-success btn-sm" title="Detail"><i class="fa fa-eye"></i></a>
+                        @if($canManageAlumni)
+                        <a href="/admin/alumni/{{ $data->id_alumni }}/edit" class="btn btn-warning btn-sm" title="Edit"><i class="fa fa-edit" style="color: white"></i></a>
                         @csrf
                         @method('DELETE')
-                        <button type="button" class="btn btn-danger btn-delete"><i class="fa fa-trash"></i></button>
+                        <button type="button" class="btn btn-danger btn-sm btn-delete" title="Hapus"><i class="fa fa-trash"></i></button>
+                        @endif
                       </form>
                     </td>
                   </tr>

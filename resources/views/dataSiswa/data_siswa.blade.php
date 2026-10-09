@@ -32,7 +32,9 @@
             </h3>
             <div class="ml-auto">
               <a href="{{ route('admin.siswa.download') }}" class="btn btn-primary btn-sm"><i class="fas fa-download mr-1"></i> Download Siswa</a>
+              @if($user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum']))
               <a href="/admin/siswa/create" class="btn btn-success btn-sm"><i class="fas fa-plus mr-1"></i> Tambah Siswa</a>
+              @endif
             </div>
           </div>
           <!-- /.card-header -->
@@ -50,23 +52,34 @@
               </tr>
               </thead>
               <tbody>
+              @php
+                $canManageMaster = $user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum']);
+                $isWaliKelas = $user && $user->hasRole('wali_kelas');
+                $walasKelasIds = $user ? $user->getKelasWaliIds() : [];
+              @endphp
               @foreach ($siswa as $data)
+              @php
+                $canEditThisSiswa = $canManageMaster || ($isWaliKelas && in_array($data->id_kelas, $walasKelasIds));
+              @endphp
               <tr>
                 <td>{{$loop->iteration}}</td>
                 <td>{{$data->nis}}</td>
                 <td>{{$data->nama_siswa}}</td>
-                <td>{{$data->kelas->nama_kelas}}</td>
+                <td>{{$data->kelas->nama_kelas ?? '-'}}</td>
                 <td>{{$data->nis}}</td>
                 {{-- <td>{{$data->password}}</td> --}}
                 <td>
                 <form action="/admin/siswa/{{$data->id_siswa}}" method="POST" class="form-delete">
-                    <a href="/admin/siswa/{{$data->id_siswa}}" class="btn btn-success"><i class="fa fa-eye"></i></a>
-                    <a href="{{route('admin.siswa.reset', $data->id_siswa)}}" class="btn btn-primary"><i class="fa fa-key" style="color: white"></i></a>
-                    <a href="/admin/siswa/{{$data->id_siswa}}/edit" class="btn btn-warning"><i class="fa fa-edit" style="color: white"></i></a>
-
+                    <a href="/admin/siswa/{{$data->id_siswa}}" class="btn btn-success btn-sm" title="Detail Siswa"><i class="fa fa-eye"></i></a>
+                    @if($canEditThisSiswa)
+                    <a href="{{route('admin.siswa.reset', $data->id_siswa)}}" class="btn btn-primary btn-sm" title="Reset Password"><i class="fa fa-key" style="color: white"></i></a>
+                    <a href="/admin/siswa/{{$data->id_siswa}}/edit" class="btn btn-warning btn-sm" title="Edit Data Siswa"><i class="fa fa-edit" style="color: white"></i></a>
+                    @endif
+                    @if($canManageMaster)
                     @csrf
                     @method('DELETE')
-                    <button type="button" class="btn btn-danger btn-delete"><i class="fa fa-trash"></i></button>
+                    <button type="button" class="btn btn-danger btn-sm btn-delete" title="Hapus Siswa"><i class="fa fa-trash"></i></button>
+                    @endif
                 </form>
                 </td>
               </tr>
