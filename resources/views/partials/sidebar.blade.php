@@ -1,5 +1,6 @@
 @php
   $setting = $setting ?? \App\Models\Setting::find(1);
+  $user = $user ?? \Illuminate\Support\Facades\Auth::user();
 @endphp
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
@@ -56,6 +57,11 @@
 
         <!-- Absensi Siswa -->
         @if($user->hasAnyRole(['admin', 'kurikulum', 'kesiswaan', 'wali_kelas', 'guru', 'tata_usaha']))
+        @php
+          $hasMoreAbsensi = $user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'tata_usaha', 'kurikulum']);
+        @endphp
+
+        @if($hasMoreAbsensi)
         <li class="nav-item has-treeview {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/siswa-tidak-hadir*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') || Request::is('admin/siswa-tidak-hadir*') || Request::is('admin/rekapAbsen') || Request::is('admin/rekapAbsen/*') || Request::is('admin/showRekapAbsen*') || Request::is('admin/rekapAbsenSiswa*') || Request::is('admin/rekap-belum-absen*') || Request::is('admin/laporan-kedisiplinan-siswa*') || Request::is('admin/laporan-bulanan-wa*') || Request::is('admin/laporan-mingguan-wa*') || Request::is('admin/dataAbsen*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-check"></i>
@@ -123,6 +129,14 @@
             @endif
           </ul>
         </li>
+        @else
+        <li class="nav-item">
+          <a href="/admin/absensi" class="nav-link {{ Request::is('admin/absensi') || Request::is('admin/absensi/*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user-check"></i>
+            <p>Absensi Harian Siswa</p>
+          </a>
+        </li>
+        @endif
         @endif
 
         <!-- Absensi Guru -->
@@ -195,7 +209,14 @@
         </li>
 
         <!-- Pembelajaran -->
-        @if($user->hasAnyRole(['admin', 'kurikulum', 'wali_kelas', 'guru']))
+        @php
+          $canJadwal = $user->hasAnyRole(['admin', 'kurikulum']);
+          $canJurnal = $user->hasAnyRole(['admin', 'kurikulum', 'wali_kelas', 'guru']);
+          $canMonitoringGuru = $user->hasAnyRole(['admin', 'kurikulum', 'tata_usaha']);
+          $countPembelajaran = ($canJadwal ? 1 : 0) + ($canJurnal ? 1 : 0) + ($canMonitoringGuru ? 1 : 0);
+        @endphp
+
+        @if($countPembelajaran > 1)
         <li class="nav-item has-treeview {{ Request::is('admin/jadwal*') || Request::is('admin/jurnal*') || Request::is('admin/rekap-kehadiran-guru*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/jadwal*') || Request::is('admin/jurnal*') || Request::is('admin/rekap-kehadiran-guru*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-book-open"></i>
@@ -205,7 +226,7 @@
             </p>
           </a>
           <ul class="nav nav-treeview">
-            @if($user->hasAnyRole(['admin', 'kurikulum']))
+            @if($canJadwal)
             <li class="nav-item">
               <a href="/admin/jadwal" class="nav-link {{ Request::is('admin/jadwal*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
@@ -214,7 +235,7 @@
             </li>
             @endif
 
-            @if($user->hasAnyRole(['admin', 'kurikulum', 'wali_kelas', 'guru']))
+            @if($canJurnal)
             <li class="nav-item">
               <a href="/admin/jurnal" class="nav-link {{ Request::is('admin/jurnal*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
@@ -223,7 +244,7 @@
             </li>
             @endif
 
-            @if($user->hasAnyRole(['admin', 'kurikulum', 'tata_usaha']))
+            @if($canMonitoringGuru)
             <li class="nav-item">
               <a href="/admin/rekap-kehadiran-guru" class="nav-link {{ Request::is('admin/rekap-kehadiran-guru*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
@@ -233,10 +254,40 @@
             @endif
           </ul>
         </li>
+        @elseif($countPembelajaran === 1)
+          @if($canJurnal)
+          <li class="nav-item">
+            <a href="/admin/jurnal" class="nav-link {{ Request::is('admin/jurnal*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-book-open"></i>
+              <p>Jurnal Mengajar</p>
+            </a>
+          </li>
+          @elseif($canMonitoringGuru)
+          <li class="nav-item">
+            <a href="/admin/rekap-kehadiran-guru" class="nav-link {{ Request::is('admin/rekap-kehadiran-guru*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-chalkboard-teacher"></i>
+              <p>Monitoring Kehadiran</p>
+            </a>
+          </li>
+          @elseif($canJadwal)
+          <li class="nav-item">
+            <a href="/admin/jadwal" class="nav-link {{ Request::is('admin/jadwal*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-book-open"></i>
+              <p>Jadwal Mata Pelajaran</p>
+            </a>
+          </li>
+          @endif
         @endif
 
         <!-- Dokumen, Rapot & Modul -->
-        @if($user->hasAnyRole(['admin', 'kurikulum', 'wali_kelas', 'guru', 'tata_usaha']))
+        @php
+          $canDokumen = $user->hasAnyRole(['admin', 'tata_usaha']);
+          $canRapot = $user->hasAnyRole(['admin', 'kurikulum', 'wali_kelas']);
+          $canModul = $user->hasAnyRole(['admin', 'kurikulum', 'wali_kelas', 'guru']);
+          $countDokumenGroup = ($canDokumen ? 1 : 0) + ($canRapot ? 1 : 0) + ($canModul ? 1 : 0);
+        @endphp
+
+        @if($countDokumenGroup > 1)
         <li class="nav-item has-treeview {{ Request::is('admin/rapot*') || Request::is('admin/modul*') || Request::is('admin/dokumen*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/rapot*') || Request::is('admin/modul*') || Request::is('admin/dokumen*') ? 'active' : '' }}">
             <i class="nav-icon far fa-file-alt"></i>
@@ -246,7 +297,7 @@
             </p>
           </a>
           <ul class="nav nav-treeview">
-            @if($user->hasAnyRole(['admin', 'tata_usaha']))
+            @if($canDokumen)
             <li class="nav-item">
               <a href="/admin/dokumen" class="nav-link {{ Request::is('admin/dokumen*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
@@ -255,7 +306,7 @@
             </li>
             @endif
 
-            @if($user->hasAnyRole(['admin', 'kurikulum', 'wali_kelas']))
+            @if($canRapot)
             <li class="nav-item">
               <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
@@ -264,7 +315,7 @@
             </li>
             @endif
 
-            @if($user->hasAnyRole(['admin', 'kurikulum', 'wali_kelas', 'guru']))
+            @if($canModul)
             <li class="nav-item">
               <a href="/admin/modul" class="nav-link {{ Request::is('admin/modul*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
@@ -274,6 +325,29 @@
             @endif
           </ul>
         </li>
+        @elseif($countDokumenGroup === 1)
+          @if($canModul)
+          <li class="nav-item">
+            <a href="/admin/modul" class="nav-link {{ Request::is('admin/modul*') ? 'active' : '' }}">
+              <i class="nav-icon far fa-file-alt"></i>
+              <p>Modul Siswa</p>
+            </a>
+          </li>
+          @elseif($canDokumen)
+          <li class="nav-item">
+            <a href="/admin/dokumen" class="nav-link {{ Request::is('admin/dokumen*') ? 'active' : '' }}">
+              <i class="nav-icon far fa-file-alt"></i>
+              <p>Dokumen Siswa</p>
+            </a>
+          </li>
+          @elseif($canRapot)
+          <li class="nav-item">
+            <a href="/admin/rapot" class="nav-link {{ Request::is('admin/rapot*') ? 'active' : '' }}">
+              <i class="nav-icon far fa-file-alt"></i>
+              <p>Rapot Siswa</p>
+            </a>
+          </li>
+          @endif
         @endif
         @endif
 
@@ -287,6 +361,11 @@
 
         <!-- Point & Pelanggaran Siswa -->
         @if($user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru']))
+        @php
+          $hasMorePoin = $user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum']);
+        @endphp
+
+        @if($hasMorePoin)
         <li class="nav-item has-treeview {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ Request::is('admin/point') || Request::is('admin/point/*') || Request::is('admin/pointSiswa*') || Request::is('admin/laporan-pelanggaran*') || Request::is('admin/surat-peringatan*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-exclamation-triangle"></i>
@@ -330,6 +409,14 @@
             @endif
           </ul>
         </li>
+        @else
+        <li class="nav-item">
+          <a href="/admin/pointSiswa" class="nav-link {{ Request::is('admin/pointSiswa*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-exclamation-triangle"></i>
+            <p>Pencatatan Poin Siswa</p>
+          </a>
+        </li>
+        @endif
         @endif
 
         <!-- Hubungan Industri (BKK & PKL) -->
