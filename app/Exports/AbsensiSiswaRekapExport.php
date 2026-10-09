@@ -55,7 +55,7 @@ class AbsensiSiswaRekapExport implements FromCollection, WithHeadings, WithStyle
 
             foreach ($this->dates as $date) {
                 $isPkl = SiswaPkl::where('id_siswa', $item->id_siswa)
-                    ->where('status', 'PKL')
+                    ->where('status', '!=', 'selesai')
                     ->where('tanggal_mulai', '<=', $date)
                     ->where('tanggal_selesai', '>=', $date)
                     ->exists();

@@ -95,8 +95,12 @@ class DashboardController extends Controller
             ->limit(5) // Ambil hanya 5 guru
             ->get();
 
-        // Ambil daftar ID siswa yang sedang PKL (status = PKL)
-        $siswaSedangPKL = SiswaPkl::where('status', 'PKL')->pluck('id_siswa')->toArray();
+        // Ambil daftar ID siswa yang BENAR-BENAR sedang aktif PKL HARI INI
+        $siswaSedangPKL = SiswaPkl::where('status', '!=', 'selesai')
+            ->where('tanggal_mulai', '<=', $today)
+            ->where('tanggal_selesai', '>=', $today)
+            ->pluck('id_siswa')
+            ->toArray();
 
         // Mengambil semua kelas beserta jumlah siswa dan yang belum absen
         $kelasData = Kelas::with('siswa', 'jurusan')->get()->map(function ($kelas) use ($today, $siswaSedangPKL) {
@@ -475,7 +479,11 @@ class DashboardController extends Controller
             ], 422);
         }
 
-        $siswaSedangPKL = SiswaPkl::pluck('id_siswa')->toArray();
+        $siswaSedangPKL = SiswaPkl::where('status', '!=', 'selesai')
+            ->where('tanggal_mulai', '<=', $today)
+            ->where('tanggal_selesai', '>=', $today)
+            ->pluck('id_siswa')
+            ->toArray();
         $siswaSudahAbsen = Absensi::where('tanggal', $today)
             ->where('id_kelas', $kelas->id_kelas)
             ->pluck('id_siswa')
@@ -528,7 +536,11 @@ class DashboardController extends Controller
         $namaSekolah = $setting->nama_sekolah ?? 'SMK Wisata Indonesia';
         $today = Carbon::now()->toDateString();
         $todayLabel = Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y');
-        $siswaSedangPKL = SiswaPkl::pluck('id_siswa')->toArray();
+        $siswaSedangPKL = SiswaPkl::where('status', '!=', 'selesai')
+            ->where('tanggal_mulai', '<=', $today)
+            ->where('tanggal_selesai', '>=', $today)
+            ->pluck('id_siswa')
+            ->toArray();
 
         $kelasList = Kelas::with(['waliKelas', 'siswa'])->get();
         $terkirimCount = 0;

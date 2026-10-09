@@ -890,7 +890,7 @@
                       <div class="font-weight-bold text-dark text-truncate" style="font-size: 0.86rem;" title="{{ $siswa->nama_siswa }}">
                         {{ $siswa->nama_siswa }}
                       </div>
-                      <div class="text-muted" style="font-size: 0.72rem;">NISN: {{ $siswa->nisn ?? '-' }}</div>
+                      <div class="text-muted" style="font-size: 0.72rem;">NIS: {{ $siswa->nis ?? $siswa->nisn ?? '-' }}</div>
                     </div>
                   </div>
 
