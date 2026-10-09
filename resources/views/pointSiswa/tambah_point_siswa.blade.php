@@ -82,12 +82,11 @@
                     <td><span class="badge badge-light border">{{ $data->jenis_point }}</span></td>
                     <td class="text-center"><span class="badge badge-danger px-2 py-1 font-weight-bold">+{{ $data->skor_point }}</span></td>
                     <td class="text-center">
-                      <a href="{{ route('pointSiswa.proses', [
-                          'id_siswa' => $siswa->id_siswa,
+                      <a href="{{ route('admin.pointSiswa.inputPoint', [
                           'id_point' => $data->id_point,
-                          'id_kelas' => $siswa->kelas->id_kelas,
-                          'id_jurusan' => $siswa->jurusan,
-                          'skor_point' => $data->skor_point,
+                          'id_siswa' => $siswa->id_siswa,
+                          'id_kelas' => $siswa->id_kelas ?? ($siswa->kelas->id_kelas ?? 0),
+                          'id_jurusan' => $siswa->id_jurusan ?? ($siswa->jurusan?->id_jurusan ?? 1),
                           'tanggal' => $carbonDate,
                       ]) }}" class="btn btn-sm btn-danger px-3 shadow-sm" style="border-radius: 6px;">
                         <i class="fas fa-plus mr-1"></i> Proses
