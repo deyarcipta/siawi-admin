@@ -66,12 +66,21 @@
                             
                             @if($user && $user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum']))
                             <div class="mt-2">
-                                <span class="d-block mb-1" style="font-size: 0.9rem;">Unduh Surat Peringatan resmi:</span>
+                                <span class="d-block mb-1 font-weight-bold" style="font-size: 0.9rem;">Dokumen Surat Peringatan Resmi:</span>
                                 @foreach ($spRules as $spLevel => $threshold)
                                     @if ($total_point >= $threshold)
-                                        <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => $spLevel]) }}" class="btn btn-dark btn-sm mt-1 mr-2" target="_blank">
-                                            <i class="fas fa-file-pdf mr-1"></i> Cetak SP {{ $spLevel }} (Min. {{ $threshold }} Poin)
-                                        </a>
+                                        @php
+                                            $isIssued = isset($existingSps) && isset($existingSps[$spLevel]);
+                                        @endphp
+                                        @if ($isIssued)
+                                            <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => $spLevel]) }}" class="btn btn-outline-dark btn-sm mt-1 mr-2" target="_blank" title="Dokumen sudah terbit: {{ $existingSps[$spLevel]->nomor_surat }}">
+                                                <i class="fas fa-check-circle text-success mr-1"></i> Cetak Ulang SP-{{ $spLevel }} (No: {{ $existingSps[$spLevel]->nomor_surat }})
+                                            </a>
+                                        @else
+                                            <a href="{{ route('admin.pointSiswa.sp_pdf', ['id_siswa' => $siswa->id_siswa, 'sp' => $spLevel]) }}" class="btn btn-primary btn-sm mt-1 mr-2 font-weight-bold" target="_blank" title="Terbitkan nomor resmi dan cetak dokumen SP">
+                                                <i class="fas fa-print mr-1"></i> Terbitkan & Cetak SP-{{ $spLevel }} (Min. {{ $threshold }} Poin)
+                                            </a>
+                                        @endif
                                     @endif
                                 @endforeach
                             </div>

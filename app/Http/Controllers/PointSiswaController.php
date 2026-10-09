@@ -173,13 +173,12 @@ class PointSiswaController extends Controller
         // $guru = Guru::where('id_guru', '1')->first();
         $pointSiswa = PointSiswa::where('id_siswa', $id_siswa)->get();
         // dd($pointSiswa);
-        $total_point = 0; // Inisialisasi variabel total point
+        $total_point = $pointSiswa->sum('skor_point');
 
-        // Iterasi melalui setiap data PointSiswa dan tambahkan nilai skor_point
-        foreach ($pointSiswa as $data) {
-            $total_point += $data->skor_point;
-        }
-        return view('pointSiswa.review_point_siswa', compact('siswa','layout', 'setting', 'pointSiswa','total_point','user'));
+        // Ambil data SP yang sudah pernah diterbitkan untuk siswa ini
+        $existingSps = \App\Models\SuratPeringatan::where('id_siswa', $id_siswa)->get()->keyBy('sp_level');
+
+        return view('pointSiswa.review_point_siswa', compact('siswa','layout', 'setting', 'pointSiswa','total_point','user', 'existingSps'));
     }
 
     /**

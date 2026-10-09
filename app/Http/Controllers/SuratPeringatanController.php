@@ -59,6 +59,9 @@ class SuratPeringatanController extends Controller
 
         $siswaList = \App\Models\Siswa::with('kelas', 'jurusan')->whereIn('id_siswa', $pointSiswaIds)->get()->keyBy('id_siswa');
 
+        // Urutkan aturan SP dari level tertinggi ke terendah (misal: 3 => 75, 2 => 50, 1 => 25)
+        $sortedRules = collect($spRules)->sortKeysDesc();
+
         $antreanSp = collect();
         foreach ($pointTotals as $pt) {
             $siswa = $siswaList->get($pt->id_siswa);
@@ -66,14 +69,28 @@ class SuratPeringatanController extends Controller
 
             $studentExistingSps = $existingSps->get($pt->id_siswa, []);
 
-            foreach ($spRules as $spLevel => $threshold) {
-                if ($pt->total_point >= $threshold && !in_array($spLevel, $studentExistingSps)) {
+            // Cari target level SP tertinggi yang berhak didapatkan berdasarkan akumulasi poin saat ini
+            $targetSpLevel = null;
+            $targetThreshold = null;
+            foreach ($sortedRules as $spLevel => $threshold) {
+                if ($pt->total_point >= $threshold) {
+                    $targetSpLevel = (int) $spLevel;
+                    $targetThreshold = (int) $threshold;
+                    break;
+                }
+            }
+
+            // Jika siswa memenuhi syarat SP dan BELUM pernah menerima SP di level tersebut atau level di atasnya
+            if ($targetSpLevel !== null) {
+                $alreadyIssued = !empty(array_filter($studentExistingSps, fn($lvl) => (int)$lvl >= $targetSpLevel));
+
+                if (!$alreadyIssued) {
                     $antreanSp->push((object)[
                         'siswa' => $siswa,
                         'id_siswa' => $siswa->id_siswa,
                         'total_point' => (int) $pt->total_point,
-                        'sp_level' => (int) $spLevel,
-                        'threshold' => (int) $threshold,
+                        'sp_level' => $targetSpLevel,
+                        'threshold' => $targetThreshold,
                     ]);
                 }
             }
