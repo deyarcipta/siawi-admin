@@ -72,6 +72,16 @@ class GenerateAkunOrangTuaCommand extends Command
                 $ortu = OrangTua::where('username', $username)->first();
             }
 
+            // Sinkronkan juga nomor kontak ke no_hp_ibu dan no_hp_ayah jika masih kosong
+            if ($hasValidPhone) {
+                if (empty($siswa->no_hp_ibu)) {
+                    $siswa->no_hp_ibu = $cleanPhone;
+                }
+                if (empty($siswa->no_hp_ayah)) {
+                    $siswa->no_hp_ayah = $cleanPhone;
+                }
+            }
+
             if ($ortu) {
                 // Hubungkan anak kedua / saudara kandung ke akun orang tua yang sama
                 $siswa->id_orang_tua = $ortu->id_orang_tua;
