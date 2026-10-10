@@ -297,7 +297,7 @@
                       <span class="font-weight-bold text-dark d-block" style="font-size: 0.95rem;">
                         <i class="fas fa-mobile-alt text-success mr-1"></i> Akun Login SIAWI Mobile Orang Tua
                       </span>
-                      <small class="text-muted">Akun login mobile orang tua terhubung otomatis ke No. HP Ayah / Ibu / Wali yang diisi pada formulir di bawah</small>
+                      <small class="text-muted">Kontak WhatsApp &amp; notifikasi kehadiran otomatis menggunakan urutan prioritas: <strong>1. No. HP Ibu</strong> &rarr; <strong>2. No. HP Ayah</strong> &rarr; <strong>3. No. HP Wali</strong> &rarr; <strong>4. No. HP Siswa</strong></small>
                     </div>
                     @if($edit->orangTua)
                       <div class="mt-2 mt-md-0">

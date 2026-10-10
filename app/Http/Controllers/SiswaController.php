@@ -192,9 +192,13 @@ class SiswaController extends Controller
             'no_hp_wali' => $request->no_hp_wali,
         ]);
 
-        // Kontak utama orang tua: utamakan Ayah -> Ibu -> Wali
-        $primaryPhone = $request->no_hp_ayah ?: ($request->no_hp_ibu ?: $request->no_hp_wali);
-        $primaryName = $request->nama_ayah && $request->nama_ayah !== '-' ? $request->nama_ayah : ($request->nama_ibu && $request->nama_ibu !== '-' ? $request->nama_ibu : $request->nama_wali);
+        // Kontak utama orang tua sesuai urutan prioritas: 1. Ibu -> 2. Ayah -> 3. Wali -> 4. Siswa
+        $primaryPhone = $request->no_hp_ibu ?: ($request->no_hp_ayah ?: ($request->no_hp_wali ?: ($request->no_hp && $request->no_hp !== '-' ? $request->no_hp : null)));
+        $primaryName = ($request->nama_ibu && $request->nama_ibu !== '-') 
+            ? $request->nama_ibu 
+            : (($request->nama_ayah && $request->nama_ayah !== '-') 
+                ? $request->nama_ayah 
+                : ($request->nama_wali && $request->nama_wali !== '-' ? $request->nama_wali : 'Orang Tua dari ' . $siswa->nama_siswa));
 
         // Buat atau tautkan akun orang tua secara otomatis
         $this->createOrLinkAkunOrtu($siswa, $primaryPhone, $primaryName);
@@ -359,9 +363,13 @@ class SiswaController extends Controller
             'no_hp_wali' => $request->no_hp_wali,
         ]);
 
-        // Kontak utama orang tua: utamakan Ayah -> Ibu -> Wali
-        $primaryPhone = $request->no_hp_ayah ?: ($request->no_hp_ibu ?: $request->no_hp_wali);
-        $primaryName = $request->nama_ayah && $request->nama_ayah !== '-' ? $request->nama_ayah : ($request->nama_ibu && $request->nama_ibu !== '-' ? $request->nama_ibu : $request->nama_wali);
+        // Kontak utama orang tua sesuai urutan prioritas: 1. Ibu -> 2. Ayah -> 3. Wali -> 4. Siswa
+        $primaryPhone = $request->no_hp_ibu ?: ($request->no_hp_ayah ?: ($request->no_hp_wali ?: ($request->no_hp && $request->no_hp !== '-' ? $request->no_hp : null)));
+        $primaryName = ($request->nama_ibu && $request->nama_ibu !== '-') 
+            ? $request->nama_ibu 
+            : (($request->nama_ayah && $request->nama_ayah !== '-') 
+                ? $request->nama_ayah 
+                : ($request->nama_wali && $request->nama_wali !== '-' ? $request->nama_wali : 'Orang Tua dari ' . $siswa->nama_siswa));
 
         $cleanPhoneOrtu = preg_replace('/[^0-9]/', '', (string)$primaryPhone);
         $hasValidPhone = strlen($cleanPhoneOrtu) >= 9 && !in_array($cleanPhoneOrtu, ['000000000', '123456789']);
@@ -602,7 +610,7 @@ class SiswaController extends Controller
      */
     private function createOrLinkAkunOrtu(Siswa $siswa, ?string $customPhone = null, ?string $customName = null): OrangTua
     {
-        $rawPhone = trim($customPhone ?? $siswa->no_hp_ayah ?? $siswa->no_hp_ibu ?? $siswa->no_hp_wali ?? '');
+        $rawPhone = trim($customPhone ?? $siswa->no_hp_notifikasi ?? $siswa->no_hp ?? '');
         $cleanPhone = preg_replace('/[^0-9]/', '', $rawPhone);
         $hasValidPhone = strlen($cleanPhone) >= 9 && !in_array($cleanPhone, ['000000000', '123456789']);
         $username = 'ortu_' . trim($siswa->nis);
@@ -610,14 +618,14 @@ class SiswaController extends Controller
         $namaOrtu = null;
         if (!empty($customName)) {
             $namaOrtu = trim($customName);
-        } elseif (!empty($siswa->nama_ayah) && trim($siswa->nama_ayah) !== '-') {
-            $namaOrtu = trim($siswa->nama_ayah);
         } elseif (!empty($siswa->nama_ibu) && trim($siswa->nama_ibu) !== '-') {
             $namaOrtu = trim($siswa->nama_ibu);
+        } elseif (!empty($siswa->nama_ayah) && trim($siswa->nama_ayah) !== '-') {
+            $namaOrtu = trim($siswa->nama_ayah);
         } elseif (!empty($siswa->nama_wali) && trim($siswa->nama_wali) !== '-') {
             $namaOrtu = trim($siswa->nama_wali);
         } else {
-            $namaOrtu = 'Wali dari ' . $siswa->nama_siswa;
+            $namaOrtu = 'Orang Tua dari ' . $siswa->nama_siswa;
         }
 
         $ortu = null;

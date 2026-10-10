@@ -278,7 +278,7 @@
                           Akun Login SIAWI Mobile Orang Tua
                         </span>
                         <small class="text-muted">
-                          Akun akan dibuat otomatis dengan format username <code>ortu_{nis}</code>. Kontak WhatsApp &amp; notifikasi akun mobile otomatis terhubung dari <strong>No. HP Ayah</strong> (atau Ibu / Wali).
+                          Akun dibuat otomatis dengan username <code>ortu_{nis}</code>. Kontak WhatsApp &amp; notifikasi kehadiran otomatis menggunakan urutan prioritas: <strong>1. No. HP Ibu</strong> &rarr; <strong>2. No. HP Ayah</strong> &rarr; <strong>3. No. HP Wali</strong> &rarr; <strong>4. No. HP Siswa</strong>.
                         </small>
                       </div>
                     </div>

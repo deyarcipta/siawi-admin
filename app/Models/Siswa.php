@@ -64,5 +64,20 @@ class Siswa extends Model implements Authenticatable
     {
         return $this->belongsTo(OrangTua::class, 'id_orang_tua', 'id_orang_tua');
     }
+
+    /**
+     * Dapatkan nomor HP tujuan notifikasi kehadiran & pesan penting berdasarkan urutan prioritas:
+     * 1. No. HP Ibu
+     * 2. No. HP Ayah
+     * 3. No. HP Wali
+     * 4. No. HP Siswa
+     */
+    public function getNoHpNotifikasiAttribute(): ?string
+    {
+        return $this->no_hp_ibu 
+            ?: ($this->no_hp_ayah 
+            ?: ($this->no_hp_wali 
+            ?: ($this->no_hp && $this->no_hp !== '-' ? $this->no_hp : ($this->no_tlpn && $this->no_tlpn !== '-' ? $this->no_tlpn : null))));
+    }
 }
 

@@ -113,7 +113,7 @@ class LaporanAbsensiBulananService
                 'status_kedisiplinan' => $statusKedisiplinan,
                 'badge_class' => $badgeClass,
                 'total_hari_efektif' => $totalHariEfektif,
-                'no_hp' => $siswa->no_hp ?? $siswa->no_tlpn,
+                'no_hp' => $siswa->no_hp_notifikasi ?? ($siswa->no_hp ?? $siswa->no_tlpn),
             ];
 
             $rekapPerSiswa[] = $rekapItem;

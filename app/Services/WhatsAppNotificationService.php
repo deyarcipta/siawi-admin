@@ -34,7 +34,12 @@ class WhatsAppNotificationService
                 return;
             }
 
-            $phone = $siswa->no_hp ?? $siswa->no_tlpn;
+            // Prioritas tujuan notifikasi WhatsApp kehadiran:
+            // 1. no_hp_ibu
+            // 2. no_hp_ayah
+            // 3. no_hp_wali
+            // 4. no_hp siswa
+            $phone = $siswa->no_hp_notifikasi ?? ($siswa->no_hp ?? $siswa->no_tlpn);
             if (empty($phone) || strlen(trim($phone)) < 5) {
                 Log::warning("WA Notification: Nomor HP/Telepon tidak valid untuk Siswa {$siswa->nama_siswa} (ID {$siswa->id_siswa})");
                 return;
