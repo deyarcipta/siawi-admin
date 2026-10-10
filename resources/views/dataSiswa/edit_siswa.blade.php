@@ -288,8 +288,10 @@
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>
+                </div>
+
                 <!-- Akun SIAWI Mobile Orang Tua -->
-                <div class="card border mb-3 shadow-xs" style="border-radius: 8px; border-left: 4px solid #10b981 !important; background: #f8fafc;">
+                <div class="card border mt-4 mb-4 shadow-sm" style="border-radius: 8px; border-left: 4px solid #10b981 !important; background: #f8fafc;">
                   <div class="card-body p-3">
                     <div class="d-flex align-items-center justify-content-between flex-wrap">
                       <div>
@@ -298,23 +300,23 @@
                         </span>
                         @if($edit->orangTua)
                           <div class="text-muted mt-1" style="font-size: 0.85rem;">
-                            Username: <code class="text-dark font-weight-bold">{{ $edit->orangTua->username }}</code> | 
-                            Nama Akun: <strong>{{ $edit->orangTua->nama_lengkap ?? '-' }}</strong> | 
+                            Username: <code class="text-dark font-weight-bold" style="font-size: 0.9rem;">{{ $edit->orangTua->username }}</code> &nbsp;|&nbsp; 
+                            Nama Akun: <strong>{{ $edit->orangTua->nama_lengkap ?? '-' }}</strong> &nbsp;|&nbsp; 
                             Status: 
                             @if($edit->orangTua->status_aktif)
-                              <span class="badge badge-success">Aktif</span>
+                              <span class="badge badge-success px-2 py-1">Aktif</span>
                             @else
-                              <span class="badge badge-danger">Nonaktif</span>
+                              <span class="badge badge-danger px-2 py-1">Nonaktif</span>
                             @endif
                           </div>
                         @else
                           <div class="text-muted mt-1" style="font-size: 0.85rem;">
-                            <span class="badge badge-warning text-dark">Belum Tertaut</span> Akun akan otomatis dibuat &amp; ditautkan saat data disimpan.
+                            <span class="badge badge-warning text-dark px-2 py-1 font-weight-bold">Belum Tertaut</span> Akun akan otomatis dibuat &amp; ditautkan saat data disimpan.
                           </div>
                         @endif
                       </div>
                       <div class="mt-2 mt-md-0">
-                        <a href="/admin/siswa/{{ $edit->id_siswa }}" class="btn btn-sm btn-outline-info">
+                        <a href="/admin/siswa/{{ $edit->id_siswa }}" class="btn btn-sm btn-outline-info shadow-xs">
                           <i class="fas fa-eye mr-1"></i> Kontrol Akun di Detail Siswa
                         </a>
                       </div>
@@ -322,8 +324,15 @@
                   </div>
                 </div>
 
-                <span style="font-size: 16; font-weight:bold;">Data Orang Tua ( ayah )</span>
-                <div class="row mt-2">
+                <!-- Data Orang Tua (Ayah) -->
+                <div class="border-top pt-4 mt-4 mb-3">
+                  <h6 class="font-weight-bold text-dark mb-1 d-flex align-items-center" style="font-size: 1.05rem;">
+                    <i class="fas fa-user-tie text-primary mr-2"></i> Data Orang Tua (Ayah)
+                  </h6>
+                  <p class="text-muted mb-0" style="font-size: 0.85rem;">Informasi identitas pribadi dan pekerjaan ayah kandung</p>
+                </div>
+
+                <div class="row">
                   <div class="form-group col-6">
                     <label for="nik_ayah">NIK Ayah</label>
                     <input type="text" class="form-control" id="nik_ayah" placeholder="Enter NIK Ayah" name="nik_ayah" value="{{$edit->nik_ayah}}">
@@ -402,8 +411,16 @@
                     @enderror
                   </div>
                 </div>
-                <span style="font-size: 16; font-weight:bold;">Data Orang Tua ( ibu )</span>
-                <div class="row mt-2">
+
+                <!-- Data Orang Tua (Ibu) -->
+                <div class="border-top pt-4 mt-4 mb-3">
+                  <h6 class="font-weight-bold text-dark mb-1 d-flex align-items-center" style="font-size: 1.05rem;">
+                    <i class="fas fa-female text-primary mr-2"></i> Data Orang Tua (Ibu)
+                  </h6>
+                  <p class="text-muted mb-0" style="font-size: 0.85rem;">Informasi identitas pribadi dan pekerjaan ibu kandung</p>
+                </div>
+
+                <div class="row">
                   <div class="form-group col-6">
                     <label for="nik_ibu">NIK Ibu</label>
                     <input type="text" class="form-control" id="nik_ibu" placeholder="Enter NIK ibu" name="nik_ibu" value="{{$edit->nik_ibu}}">
@@ -483,7 +500,14 @@
                     @enderror
                   </div>
                 </div>
-                <span style="font-size: 16; font-weight:bold;">Data Orang Tua ( wali )</span>
+
+                <!-- Data Orang Tua (Wali) -->
+                <div class="border-top pt-4 mt-4 mb-3">
+                  <h6 class="font-weight-bold text-dark mb-1 d-flex align-items-center" style="font-size: 1.05rem;">
+                    <i class="fas fa-user-friends text-secondary mr-2"></i> Data Orang Tua (Wali)
+                  </h6>
+                  <p class="text-muted mb-0" style="font-size: 0.85rem;">Diisi jika siswa memiliki wali murid / tidak tinggal bersama orang tua kandung</p>
+                </div>
                 <div class="row mt-2">
                   <div class="form-group col-6">
                     <label for="nik_wali">NIK Wali</label>

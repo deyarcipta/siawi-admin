@@ -263,8 +263,14 @@
                     @enderror
                   </div>
                 </div>
-                <span style="font-size: 16; font-weight:bold;">Data Orang Tua ( ayah )</span>
-                <div class="row mt-2">
+                <!-- Data Orang Tua (Ayah) -->
+                <div class="border-top pt-4 mt-4 mb-3">
+                  <h6 class="font-weight-bold text-dark mb-1 d-flex align-items-center" style="font-size: 1.05rem;">
+                    <i class="fas fa-user-tie text-primary mr-2"></i> Data Orang Tua (Ayah)
+                  </h6>
+                  <p class="text-muted mb-0" style="font-size: 0.85rem;">Informasi identitas pribadi dan pekerjaan ayah kandung</p>
+                </div>
+                <div class="row">
                   <div class="form-group col-6">
                     <label for="nik_ayah">NIK Ayah</label>
                     <input type="text" class="form-control" id="nik_ayah" placeholder="Enter NIK Ayah" name="nik_ayah" value="{{old('nik_ayah')}}">
@@ -343,8 +349,15 @@
                     @enderror
                   </div>
                 </div>
-                <span style="font-size: 16; font-weight:bold;">Data Orang Tua ( ibu )</span>
-                <div class="row mt-2">
+
+                <!-- Data Orang Tua (Ibu) -->
+                <div class="border-top pt-4 mt-4 mb-3">
+                  <h6 class="font-weight-bold text-dark mb-1 d-flex align-items-center" style="font-size: 1.05rem;">
+                    <i class="fas fa-female text-primary mr-2"></i> Data Orang Tua (Ibu)
+                  </h6>
+                  <p class="text-muted mb-0" style="font-size: 0.85rem;">Informasi identitas pribadi dan pekerjaan ibu kandung</p>
+                </div>
+                <div class="row">
                   <div class="form-group col-6">
                     <label for="nik_ibu">NIK Ibu</label>
                     <input type="text" class="form-control" id="nik_ibu" placeholder="Enter NIK ibu" name="nik_ibu" value="{{old('nik_ibu')}}">
@@ -424,8 +437,15 @@
                     @enderror
                   </div>
                 </div>
-                <span style="font-size: 16; font-weight:bold;">Data Orang Tua ( wali )</span>
-                <div class="row mt-2">
+
+                <!-- Data Orang Tua (Wali) -->
+                <div class="border-top pt-4 mt-4 mb-3">
+                  <h6 class="font-weight-bold text-dark mb-1 d-flex align-items-center" style="font-size: 1.05rem;">
+                    <i class="fas fa-user-friends text-secondary mr-2"></i> Data Orang Tua (Wali)
+                  </h6>
+                  <p class="text-muted mb-0" style="font-size: 0.85rem;">Diisi jika siswa memiliki wali murid / tidak tinggal bersama orang tua kandung</p>
+                </div>
+                <div class="row">
                   <div class="form-group col-6">
                     <label for="nik_wali">NIK Wali</label>
                     <input type="text" class="form-control" id="nik_wali" placeholder="Enter NIK wali" name="nik_wali" value="{{old('nik_wali')}}">
