@@ -250,7 +250,7 @@
                       <div class="col-md-3 mb-2 mb-md-0">
                         <small class="text-muted d-block font-weight-500">Username Login Mobile</small>
                         <span class="badge badge-light border text-dark px-2 py-1 font-weight-bold" style="font-size: 0.95rem; font-family: monospace;">
-                          <i class="fab fa-whatsapp text-success mr-1"></i> {{ $detail->orangTua->username }}
+                          <i class="fas fa-user-shield text-primary mr-1"></i> {{ $detail->orangTua->username }}
                         </span>
                       </div>
                       <div class="col-md-3 mb-2 mb-md-0">

@@ -75,13 +75,20 @@
                 <td><code>{{$data->nis}}</code></td>
                 <td>
                   @if($data->orangTua)
-                    <span class="text-dark font-weight-500" style="font-size: 0.88rem;">
-                      <i class="fab fa-whatsapp text-success mr-1"></i>{{$data->orangTua->username}}
-                    </span>
-                    @if($data->orangTua->status_aktif)
-                      <span class="badge badge-success ml-1" style="font-size: 0.68rem;">Aktif</span>
-                    @else
-                      <span class="badge badge-danger ml-1" style="font-size: 0.68rem;">Nonaktif</span>
+                    <div class="d-flex align-items-center flex-wrap">
+                      <code class="font-weight-bold" style="font-size: 0.86rem; color: #0284c7;">
+                        <i class="fas fa-user-shield mr-1"></i>{{$data->orangTua->username}}
+                      </code>
+                      @if($data->orangTua->status_aktif)
+                        <span class="badge badge-success ml-1" style="font-size: 0.68rem;">Aktif</span>
+                      @else
+                        <span class="badge badge-danger ml-1" style="font-size: 0.68rem;">Nonaktif</span>
+                      @endif
+                    </div>
+                    @if(!empty($data->orangTua->no_hp))
+                      <small class="text-muted d-block mt-1" style="font-size: 0.76rem;">
+                        <i class="fab fa-whatsapp text-success mr-1"></i>{{$data->orangTua->no_hp}}
+                      </small>
                     @endif
                   @else
                     <span class="badge badge-light border text-muted" style="font-size: 0.68rem;">Belum Ada</span>

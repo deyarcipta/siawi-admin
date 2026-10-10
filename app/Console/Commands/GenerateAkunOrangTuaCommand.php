@@ -48,7 +48,7 @@ class GenerateAkunOrangTuaCommand extends Command
             // Validasi kelayakan nomor telepon (minimal 9 digit)
             $hasValidPhone = strlen($cleanPhone) >= 9 && !in_array($cleanPhone, ['000000000', '123456789']);
 
-            $username = $hasValidPhone ? $cleanPhone : 'ortu_' . trim($siswa->nis);
+            $username = 'ortu_' . trim($siswa->nis);
 
             // 2. Tentukan nama orang tua
             $namaOrtu = null;
@@ -62,8 +62,15 @@ class GenerateAkunOrangTuaCommand extends Command
                 $namaOrtu = 'Wali dari ' . $siswa->nama_siswa;
             }
 
-            // 3. Cek apakah akun Orang Tua dengan username ini sudah ada (Deteksi Multi-Anak)
-            $ortu = OrangTua::where('username', $username)->first();
+            // 3. Cek apakah akun Orang Tua sudah ada (Deteksi Multi-Anak via No. HP atau Username)
+            $ortu = null;
+            if ($hasValidPhone) {
+                $ortu = OrangTua::where('no_hp', $cleanPhone)->first();
+            }
+
+            if (!$ortu) {
+                $ortu = OrangTua::where('username', $username)->first();
+            }
 
             if ($ortu) {
                 // Hubungkan anak kedua / saudara kandung ke akun orang tua yang sama
@@ -72,10 +79,10 @@ class GenerateAkunOrangTuaCommand extends Command
                 $linkedCount++;
                 $multiChildCount++;
             } else {
-                // Buat akun orang tua baru
+                // Buat akun orang tua baru dengan username terstandarisasi ortu_{nis}
                 $ortu = OrangTua::create([
                     'username' => $username,
-                    'password' => $defaultPassword, // Disimpan plain/hash (sistem mendukung keduanya)
+                    'password' => $defaultPassword,
                     'nama_lengkap' => $namaOrtu,
                     'no_hp' => $hasValidPhone ? $cleanPhone : null,
                     'alamat' => $siswa->alamat ?? null,

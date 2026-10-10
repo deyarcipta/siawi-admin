@@ -133,6 +133,15 @@ class HomeController extends Controller
                 ->orWhereIn('no_hp', $candidates);
         })->first();
 
+        // Smart Alias untuk Akun Multi-Anak: Jika orang tua login dengan format ortu_{nis} anak kedua / ketiga
+        if (!$ortu && str_starts_with(strtolower($identifier), 'ortu_')) {
+            $targetNis = substr($identifier, 5);
+            $siblingSiswa = Siswa::where('nis', $targetNis)->first();
+            if ($siblingSiswa && $siblingSiswa->id_orang_tua) {
+                $ortu = OrangTua::find($siblingSiswa->id_orang_tua);
+            }
+        }
+
         if ($ortu) {
             $passwordValid = $this->verifyPassword($password, $ortu->password);
             if (!$passwordValid) {
