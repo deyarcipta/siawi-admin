@@ -221,6 +221,121 @@
                 </table>
               </div>
 
+              <!-- Bagian 3.1: Kredensial & Kontrol Akun SIAWI App Orang Tua -->
+              <div class="card border mb-3 shadow-sm" style="border-radius: 8px; border-left: 4px solid #10b981 !important;">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between flex-wrap py-2">
+                  <h6 class="font-weight-bold text-dark mb-0 d-flex align-items-center">
+                    <i class="fas fa-mobile-alt text-success mr-2" style="font-size: 1.1rem;"></i>
+                    Akun Login SIAWI Mobile Orang Tua / Wali
+                  </h6>
+                  @if($detail->orangTua)
+                    @if($detail->orangTua->status_aktif)
+                      <span class="badge badge-success px-2 py-1 font-weight-bold shadow-xs">
+                        <i class="fas fa-check-circle mr-1"></i> Akun Aktif
+                      </span>
+                    @else
+                      <span class="badge badge-danger px-2 py-1 font-weight-bold shadow-xs">
+                        <i class="fas fa-ban mr-1"></i> Akun Dinonaktifkan
+                      </span>
+                    @endif
+                  @else
+                    <span class="badge badge-warning px-2 py-1 font-weight-bold text-dark">
+                      <i class="fas fa-exclamation-triangle mr-1"></i> Belum Tertaut
+                    </span>
+                  @endif
+                </div>
+                <div class="card-body p-3">
+                  @if($detail->orangTua)
+                    <div class="row align-items-center">
+                      <div class="col-md-3 mb-2 mb-md-0">
+                        <small class="text-muted d-block font-weight-500">Username Login Mobile</small>
+                        <span class="badge badge-light border text-dark px-2 py-1 font-weight-bold" style="font-size: 0.95rem; font-family: monospace;">
+                          <i class="fab fa-whatsapp text-success mr-1"></i> {{ $detail->orangTua->username }}
+                        </span>
+                      </div>
+                      <div class="col-md-3 mb-2 mb-md-0">
+                        <small class="text-muted d-block font-weight-500">Nama Akun Orang Tua</small>
+                        <span class="font-weight-bold text-dark" style="font-size: 0.92rem;">
+                          {{ $detail->orangTua->nama_lengkap ?? '-' }}
+                        </span>
+                      </div>
+                      <div class="col-md-3 mb-2 mb-md-0">
+                        <small class="text-muted d-block font-weight-500">No. Kontak Terdaftar</small>
+                        @if(!empty($detail->orangTua->no_hp))
+                          @php
+                            $waNumber = preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $detail->orangTua->no_hp));
+                          @endphp
+                          <a href="https://wa.me/{{ $waNumber }}" target="_blank" class="text-success font-weight-600" title="Hubungi via WhatsApp">
+                            <i class="fab fa-whatsapp mr-1"></i> {{ $detail->orangTua->no_hp }}
+                          </a>
+                        @else
+                          <span class="text-muted">-</span>
+                        @endif
+                      </div>
+                      <div class="col-md-3 text-md-right mt-2 mt-md-0">
+                        @if($canEditThisSiswa)
+                          <div class="btn-group" role="group">
+                            <form action="{{ route('admin.siswa.reset-password-ortu', $detail->id_siswa) }}" method="POST" class="d-inline form-reset-ortu">
+                              @csrf
+                              <button type="button" class="btn btn-outline-primary btn-sm btn-action-reset-ortu" title="Reset password akun orang tua ke default 123456">
+                                <i class="fas fa-key mr-1"></i> Reset Password
+                              </button>
+                            </form>
+                            <form action="{{ route('admin.siswa.toggle-status-ortu', $detail->id_siswa) }}" method="POST" class="d-inline ml-1 form-toggle-ortu">
+                              @csrf
+                              @if($detail->orangTua->status_aktif)
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-action-toggle-ortu" title="Nonaktifkan akun orang tua">
+                                  <i class="fas fa-power-off"></i>
+                                </button>
+                              @else
+                                <button type="button" class="btn btn-outline-success btn-sm btn-action-toggle-ortu" title="Aktifkan kembali akun orang tua">
+                                  <i class="fas fa-check"></i>
+                                </button>
+                              @endif
+                            </form>
+                          </div>
+                        @endif
+                      </div>
+                    </div>
+
+                    <!-- Indikator Multi-Anak / Saudara Kandung -->
+                    @php
+                      $siblings = $detail->orangTua->siswa->where('id_siswa', '!=', $detail->id_siswa);
+                    @endphp
+                    @if($siblings->count() > 0)
+                      <hr class="my-2">
+                      <div class="p-2 rounded bg-light border d-flex align-items-center flex-wrap" style="font-size: 0.85rem;">
+                        <i class="fas fa-users text-primary mr-2"></i>
+                        <span class="font-weight-600 text-dark mr-2">Saudara Kandung di Sekolah:</span>
+                        @foreach($siblings as $sibling)
+                          <a href="/admin/siswa/{{ $sibling->id_siswa }}" class="badge badge-info p-1 mr-1 shadow-xs" title="Buka profil saudara kandung">
+                            <i class="fas fa-external-link-alt mr-1" style="font-size: 0.65rem;"></i> {{ $sibling->nama_siswa }} ({{ $sibling->kelas->nama_kelas ?? '-' }})
+                          </a>
+                        @endforeach
+                        <span class="text-muted ml-auto font-italic" style="font-size: 0.78rem;">
+                          *Akun orang tua ini otomatis terhubung dan dapat memantau seluruh anak di atas.
+                        </span>
+                      </div>
+                    @endif
+                  @else
+                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                      <div class="text-muted" style="font-size: 0.88rem;">
+                        <i class="fas fa-info-circle text-warning mr-1"></i>
+                        Siswa ini belum memiliki akun orang tua yang tertaut.
+                      </div>
+                      @if($canEditThisSiswa)
+                        <form action="{{ route('admin.siswa.sync-akun-ortu', $detail->id_siswa) }}" method="POST" class="d-inline mt-2 mt-md-0">
+                          @csrf
+                          <button type="submit" class="btn btn-success btn-sm font-weight-600 shadow-sm">
+                            <i class="fas fa-sync-alt mr-1"></i> Buat &amp; Tautkan Akun Orang Tua
+                          </button>
+                        </form>
+                      @endif
+                    </div>
+                  @endif
+                </div>
+              </div>
+
               <!-- Bagian 4: Status & Penempatan PKL -->
               <div class="table-responsive mt-3">
                 <table class="table table-bordered align-middle">
@@ -295,4 +410,66 @@
       </div>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Konfirmasi Reset Password Akun Orang Tua
+      const btnResetOrtu = document.querySelector('.btn-action-reset-ortu');
+      if (btnResetOrtu) {
+        btnResetOrtu.addEventListener('click', function(e) {
+          e.preventDefault();
+          const form = this.closest('form');
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              title: 'Reset Password Orang Tua?',
+              text: 'Password akun orang tua akan dikembalikan ke default: 123456',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#6c757d',
+              confirmButtonText: 'Ya, Reset Password!',
+              cancelButtonText: 'Batal'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                form.submit();
+              }
+            });
+          } else {
+            if (confirm('Reset password akun orang tua ini kembali ke default (123456)?')) {
+              form.submit();
+            }
+          }
+        });
+      }
+
+      // Konfirmasi Toggle Status Akun Orang Tua
+      const btnToggleOrtu = document.querySelector('.btn-action-toggle-ortu');
+      if (btnToggleOrtu) {
+        btnToggleOrtu.addEventListener('click', function(e) {
+          e.preventDefault();
+          const form = this.closest('form');
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              title: 'Ubah Status Akun Orang Tua?',
+              text: 'Status akses login akun orang tua ini akan diubah.',
+              icon: 'question',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#6c757d',
+              confirmButtonText: 'Ya, Ubah Status!',
+              cancelButtonText: 'Batal'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                form.submit();
+              }
+            });
+          } else {
+            if (confirm('Ubah status akses login akun orang tua ini?')) {
+              form.submit();
+            }
+          }
+        });
+      }
+    });
+  </script>
 @endsection

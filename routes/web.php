@@ -108,6 +108,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::group(['middleware' => ['role:admin,tata_usaha,kesiswaan,wali_kelas,kurikulum,guru,keuangan,hubin,bkk']], function () {
         Route::resource('siswa', SiswaController::class);
         Route::get('siswa/{id_guru}/reset', [SiswaController::class, 'reset'])->name('siswa.reset');
+        Route::post('siswa/{id_siswa}/reset-password-ortu', [SiswaController::class, 'resetPasswordOrtu'])->name('siswa.reset-password-ortu');
+        Route::post('siswa/{id_siswa}/toggle-status-ortu', [SiswaController::class, 'toggleStatusOrtu'])->name('siswa.toggle-status-ortu');
+        Route::post('siswa/{id_siswa}/sync-akun-ortu', [SiswaController::class, 'syncAkunOrtu'])->name('siswa.sync-akun-ortu');
         Route::get('/download-siswa', [SiswaController::class, 'download'])->name('siswa.download');
         Route::resource('dataAlumni', DataAlumniController::class);
         Route::resource('alumni', DataAlumniController::class);

@@ -20,6 +20,8 @@ use App\Models\Dokumen;
 use App\Models\SiswaPkl;
 use App\Models\Rapot;
 use App\Models\Setting;
+use App\Models\OrangTua;
+use Illuminate\Support\Facades\Hash;
 use DB;
 
 class SiswaController extends Controller
@@ -60,7 +62,7 @@ class SiswaController extends Controller
             $user->hasRole('wali_kelas')
         );
 
-        $query = Siswa::with('kelas');
+        $query = Siswa::with(['kelas', 'orangTua']);
 
         if ($isWaliKelasUser) {
             $idsList = implode(',', array_map('intval', $walasKelasIds));
@@ -196,7 +198,7 @@ class SiswaController extends Controller
     public function show(string $id_siswa)
     {
         $layout = 'layout.app';
-        $detail = Siswa::with(['kelas', 'jurusan', 'siswaPkl.perusahaan'])->findOrFail($id_siswa);
+        $detail = Siswa::with(['kelas', 'jurusan', 'siswaPkl.perusahaan', 'orangTua.siswa.kelas'])->findOrFail($id_siswa);
         $setting = Setting::find('1');
         $user = Auth::user();
         return view('dataSiswa.detail_siswa', compact('detail','layout','setting','user'));
@@ -208,7 +210,7 @@ class SiswaController extends Controller
     public function edit(string $id_siswa)
     {
         $user = Auth::user();
-        $edit = Siswa::findOrFail($id_siswa);
+        $edit = Siswa::with('orangTua')->findOrFail($id_siswa);
 
         if (!$this->canEditSiswa($user, $edit)) {
             abort(403, 'Akses ditolak: Anda hanya berhak mengedit data siswa pada kelas binaan Anda.');
@@ -344,11 +346,34 @@ class SiswaController extends Controller
             'penghasilan_wali' => $request->penghasilan_wali ?? '-',
         ]);
 
+        // Sinkronisasi akun orang tua jika ada
+        if ($siswa->orangTua) {
+            $ortuUpdates = [];
+            if ($request->filled('nama_ayah') && trim($request->nama_ayah) !== '-') {
+                $ortuUpdates['nama_lengkap'] = trim($request->nama_ayah);
+            } elseif ($request->filled('nama_ibu') && trim($request->nama_ibu) !== '-') {
+                $ortuUpdates['nama_lengkap'] = trim($request->nama_ibu);
+            }
+
+            $rawPhone = trim($request->no_hp ?? $request->no_tlpn ?? '');
+            $cleanPhone = preg_replace('/[^0-9]/', '', $rawPhone);
+            if (strlen($cleanPhone) >= 9 && !in_array($cleanPhone, ['000000000', '123456789'])) {
+                $ortuUpdates['no_hp'] = $cleanPhone;
+                if (ctype_digit($siswa->orangTua->username)) {
+                    $ortuUpdates['username'] = $cleanPhone;
+                }
+            }
+
+            if (!empty($ortuUpdates)) {
+                $siswa->orangTua->update($ortuUpdates);
+            }
+        }
+
         if ($request->filled('from') && $request->from === 'siswaPkl') {
             return redirect('/admin/siswa/' . $id_siswa . '?from=siswaPkl')->with('success', 'Data siswa berhasil diperbarui.');
         }
 
-        return redirect('/admin/siswa');
+        return redirect('/admin/siswa')->with('success', 'Data siswa berhasil diperbarui.');
     }
 
     /**
@@ -476,5 +501,110 @@ class SiswaController extends Controller
     {
         $siswa = Siswa::where('id_kelas', $id_kelas)->select('id_siswa', 'nama_siswa')->get();
         return response()->json($siswa);
+    }
+
+    /**
+     * Reset password akun orang tua kembali ke default 123456.
+     */
+    public function resetPasswordOrtu($id_siswa)
+    {
+        $user = Auth::user();
+        $siswa = Siswa::with('orangTua')->findOrFail($id_siswa);
+
+        if (!$this->canEditSiswa($user, $siswa)) {
+            abort(403, 'Akses ditolak: Anda tidak memiliki wewenang untuk mengatur akun orang tua siswa ini.');
+        }
+
+        $ortu = $siswa->orangTua;
+        if (!$ortu) {
+            $ortu = $this->createOrLinkAkunOrtu($siswa);
+            return redirect()->back()->with('success', 'Akun orang tua baru berhasil dibuat dan ditautkan (Username: <strong>' . e($ortu->username) . '</strong>) dengan kata sandi default: <strong>123456</strong>');
+        }
+
+        $ortu->update([
+            'password' => Hash::make('123456')
+        ]);
+
+        return redirect()->back()->with('success', 'Kata sandi akun orang tua (<strong>' . e($ortu->username) . '</strong>) berhasil direset ke default: <strong>123456</strong>');
+    }
+
+    /**
+     * Aktifkan atau nonaktifkan akses akun orang tua.
+     */
+    public function toggleStatusOrtu($id_siswa)
+    {
+        $user = Auth::user();
+        $siswa = Siswa::with('orangTua')->findOrFail($id_siswa);
+
+        if (!$this->canEditSiswa($user, $siswa)) {
+            abort(403, 'Akses ditolak: Anda tidak memiliki wewenang untuk mengatur akun orang tua siswa ini.');
+        }
+
+        $ortu = $siswa->orangTua;
+        if (!$ortu) {
+            $ortu = $this->createOrLinkAkunOrtu($siswa);
+        } else {
+            $ortu->update([
+                'status_aktif' => !$ortu->status_aktif
+            ]);
+        }
+
+        $statusText = $ortu->status_aktif ? 'Aktif' : 'Nonaktif';
+        return redirect()->back()->with('success', 'Status akun orang tua (<strong>' . e($ortu->username) . '</strong>) berhasil diubah menjadi: <strong>' . $statusText . '</strong>');
+    }
+
+    /**
+     * Buat atau tautkan akun orang tua jika belum ada.
+     */
+    public function syncAkunOrtu($id_siswa)
+    {
+        $user = Auth::user();
+        $siswa = Siswa::with('orangTua')->findOrFail($id_siswa);
+
+        if (!$this->canEditSiswa($user, $siswa)) {
+            abort(403, 'Akses ditolak: Anda tidak memiliki wewenang untuk mengatur akun orang tua siswa ini.');
+        }
+
+        $ortu = $this->createOrLinkAkunOrtu($siswa);
+        return redirect()->back()->with('success', 'Akun orang tua berhasil disinkronkan (Username: <strong>' . e($ortu->username) . '</strong>, Password: <strong>123456</strong>)');
+    }
+
+    /**
+     * Helper otomatis pembuatan dan penautan akun orang tua.
+     */
+    private function createOrLinkAkunOrtu(Siswa $siswa): OrangTua
+    {
+        $rawPhone = trim($siswa->no_hp ?? $siswa->no_tlpn ?? '');
+        $cleanPhone = preg_replace('/[^0-9]/', '', $rawPhone);
+        $hasValidPhone = strlen($cleanPhone) >= 9 && !in_array($cleanPhone, ['000000000', '123456789']);
+        $username = $hasValidPhone ? $cleanPhone : 'ortu_' . trim($siswa->nis);
+
+        $namaOrtu = null;
+        if (!empty($siswa->nama_ayah) && trim($siswa->nama_ayah) !== '-') {
+            $namaOrtu = trim($siswa->nama_ayah);
+        } elseif (!empty($siswa->nama_ibu) && trim($siswa->nama_ibu) !== '-') {
+            $namaOrtu = trim($siswa->nama_ibu);
+        } elseif (!empty($siswa->nama_wali) && trim($siswa->nama_wali) !== '-') {
+            $namaOrtu = trim($siswa->nama_wali);
+        } else {
+            $namaOrtu = 'Wali dari ' . $siswa->nama_siswa;
+        }
+
+        $ortu = OrangTua::where('username', $username)->first();
+        if (!$ortu) {
+            $ortu = OrangTua::create([
+                'username' => $username,
+                'password' => Hash::make('123456'),
+                'nama_lengkap' => $namaOrtu,
+                'no_hp' => $hasValidPhone ? $cleanPhone : null,
+                'alamat' => $siswa->alamat ?? null,
+                'status_aktif' => true,
+            ]);
+        }
+
+        $siswa->id_orang_tua = $ortu->id_orang_tua;
+        $siswa->save();
+
+        return $ortu;
     }
 }

@@ -288,7 +288,40 @@
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>
+                <!-- Akun SIAWI Mobile Orang Tua -->
+                <div class="card border mb-3 shadow-xs" style="border-radius: 8px; border-left: 4px solid #10b981 !important; background: #f8fafc;">
+                  <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                      <div>
+                        <span class="font-weight-bold text-dark d-block" style="font-size: 0.95rem;">
+                          <i class="fas fa-mobile-alt text-success mr-1"></i> Akun Login SIAWI Mobile Orang Tua
+                        </span>
+                        @if($edit->orangTua)
+                          <div class="text-muted mt-1" style="font-size: 0.85rem;">
+                            Username: <code class="text-dark font-weight-bold">{{ $edit->orangTua->username }}</code> | 
+                            Nama Akun: <strong>{{ $edit->orangTua->nama_lengkap ?? '-' }}</strong> | 
+                            Status: 
+                            @if($edit->orangTua->status_aktif)
+                              <span class="badge badge-success">Aktif</span>
+                            @else
+                              <span class="badge badge-danger">Nonaktif</span>
+                            @endif
+                          </div>
+                        @else
+                          <div class="text-muted mt-1" style="font-size: 0.85rem;">
+                            <span class="badge badge-warning text-dark">Belum Tertaut</span> Akun akan otomatis dibuat &amp; ditautkan saat data disimpan.
+                          </div>
+                        @endif
+                      </div>
+                      <div class="mt-2 mt-md-0">
+                        <a href="/admin/siswa/{{ $edit->id_siswa }}" class="btn btn-sm btn-outline-info">
+                          <i class="fas fa-eye mr-1"></i> Kontrol Akun di Detail Siswa
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
                 <span style="font-size: 16; font-weight:bold;">Data Orang Tua ( ayah )</span>
                 <div class="row mt-2">
                   <div class="form-group col-6">

@@ -43,11 +43,11 @@
               <thead>
               <tr>
                 <th style="width: 10px">No</th>
-                <th>Nis</th>
+                <th>NIS</th>
                 <th>Nama Siswa</th>
                 <th>Kelas</th>
-                <th>Username</th>
-                {{-- <th>Password</th> --}}
+                <th>Akun Siswa</th>
+                <th>Akun Orang Tua</th>
                 <th>Action</th>
               </tr>
               </thead>
@@ -72,8 +72,21 @@
                     <span class="badge badge-info ml-1" style="font-size: 0.72rem; vertical-align: middle;">Kelas Anda</span>
                   @endif
                 </td>
-                <td>{{$data->nis}}</td>
-                {{-- <td>{{$data->password}}</td> --}}
+                <td><code>{{$data->nis}}</code></td>
+                <td>
+                  @if($data->orangTua)
+                    <span class="text-dark font-weight-500" style="font-size: 0.88rem;">
+                      <i class="fab fa-whatsapp text-success mr-1"></i>{{$data->orangTua->username}}
+                    </span>
+                    @if($data->orangTua->status_aktif)
+                      <span class="badge badge-success ml-1" style="font-size: 0.68rem;">Aktif</span>
+                    @else
+                      <span class="badge badge-danger ml-1" style="font-size: 0.68rem;">Nonaktif</span>
+                    @endif
+                  @else
+                    <span class="badge badge-light border text-muted" style="font-size: 0.68rem;">Belum Ada</span>
+                  @endif
+                </td>
                 <td>
                 <form action="/admin/siswa/{{$data->id_siswa}}" method="POST" class="form-delete">
                     <a href="/admin/siswa/{{$data->id_siswa}}" class="btn btn-success btn-sm" title="Detail Siswa"><i class="fa fa-eye"></i></a>
