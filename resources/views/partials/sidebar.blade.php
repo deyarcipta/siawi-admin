@@ -367,7 +367,7 @@
         <!-- ============================================== -->
         <!-- 4. KESISWAAN & KEDISIPLINAN                    -->
         <!-- ============================================== -->
-        @if($user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'tata_usaha', 'hubin']))
+        @if($user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'tata_usaha', 'hubin', 'bkk']))
         <li class="nav-header">
           Kesiswaan & Industri
         </li>
@@ -434,8 +434,8 @@
 
         <!-- Hubungan Industri (BKK & PKL) -->
         @if($user->hasAnyRole(['admin', 'hubin', 'bkk', 'kesiswaan', 'tata_usaha']))
-        <li class="nav-item has-treeview {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') || Request::is('admin/pengajuan-pkl*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') || Request::is('admin/pengajuan-pkl*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') || Request::is('admin/pengajuan-pkl*') || request('from') === 'siswaPkl' ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') || Request::is('admin/pengajuan-pkl*') || request('from') === 'siswaPkl' ? 'active' : '' }}">
             <i class="nav-icon fas fa-briefcase"></i>
             <p>
               BKK &amp; PKL
@@ -456,12 +456,19 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/siswaPkl" class="nav-link {{ Request::is('admin/siswaPkl*') ? 'active' : '' }}">
+              <a href="/admin/siswaPkl" class="nav-link {{ Request::is('admin/siswaPkl*') || request('from') === 'siswaPkl' ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Data Siswa PKL</p>
               </a>
             </li>
           </ul>
+        </li>
+        @elseif($user->hasRole('wali_kelas') || (method_exists($user, 'isWaliKelasStrict') && $user->isWaliKelasStrict(['admin', 'hubin', 'bkk', 'kesiswaan', 'tata_usaha'])))
+        <li class="nav-item">
+          <a href="/admin/siswaPkl" class="nav-link {{ Request::is('admin/siswaPkl*') || request('from') === 'siswaPkl' ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user-graduate"></i>
+            <p>Siswa PKL</p>
+          </a>
         </li>
         @endif
         @endif
@@ -567,8 +574,7 @@
             Request::is('admin/level*') ||
             Request::is('admin/kelas*') ||
             Request::is('admin/mapel*') ||
-            Request::is('admin/siswa') ||
-            Request::is('admin/siswa/*') ||
+            ((Request::is('admin/siswa') || Request::is('admin/siswa/*')) && request('from') !== 'siswaPkl') ||
             Request::is('admin/dataAlumni*') ||
             Request::is('admin/alumni*') ||
             $isDataGuruActive ||
@@ -624,7 +630,7 @@
             <!-- Data Siswa & Alumni -->
             @if($user->hasAnyRole(['admin', 'tata_usaha', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'keuangan', 'hubin']))
             <li class="nav-item">
-              <a href="/admin/siswa" class="nav-link {{ Request::is('admin/siswa') || Request::is('admin/siswa/*') ? 'active' : '' }}">
+              <a href="/admin/siswa" class="nav-link {{ ((Request::is('admin/siswa') || Request::is('admin/siswa/*')) && request('from') !== 'siswaPkl') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Data Siswa</p>
               </a>

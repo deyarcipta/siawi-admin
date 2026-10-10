@@ -196,7 +196,7 @@ class SiswaController extends Controller
     public function show(string $id_siswa)
     {
         $layout = 'layout.app';
-        $detail = Siswa::find($id_siswa);
+        $detail = Siswa::with(['kelas', 'jurusan', 'siswaPkl.perusahaan'])->findOrFail($id_siswa);
         $setting = Setting::find('1');
         $user = Auth::user();
         return view('dataSiswa.detail_siswa', compact('detail','layout','setting','user'));
@@ -343,6 +343,10 @@ class SiswaController extends Controller
             'pekerjaan_wali' => $request->pekerjaan_wali ?? '-',
             'penghasilan_wali' => $request->penghasilan_wali ?? '-',
         ]);
+
+        if ($request->filled('from') && $request->from === 'siswaPkl') {
+            return redirect('/admin/siswa/' . $id_siswa . '?from=siswaPkl')->with('success', 'Data siswa berhasil diperbarui.');
+        }
 
         return redirect('/admin/siswa');
     }

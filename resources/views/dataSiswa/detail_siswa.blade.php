@@ -1,5 +1,17 @@
 @extends($layout)
 @section('content')
+  @php
+    $from = request('from');
+    $prevUrl = url()->previous();
+    
+    if ($from === 'siswaPkl' || (str_contains($prevUrl, 'admin/siswaPkl') && !str_contains($prevUrl, 'admin/siswa/' . $detail->id_siswa))) {
+        $backUrl = '/admin/siswaPkl';
+        $backLabel = 'Siswa PKL';
+    } else {
+        $backUrl = '/admin/siswa';
+        $backLabel = 'Data Siswa';
+    }
+  @endphp
   <!-- Content Header (Page header) -->
   <div class="content-header">
     <div class="container-fluid">
@@ -14,7 +26,7 @@
         <div class="col-sm-5">
           <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="/admin/siswa">Data Siswa</a></li>
+            <li class="breadcrumb-item"><a href="{{ $backUrl }}">{{ $backLabel }}</a></li>
             <li class="breadcrumb-item active">Detail Siswa</li>
           </ol>
         </div>
@@ -32,7 +44,7 @@
                 <i class="fas fa-user-graduate text-primary mr-2"></i> Biodata Siswa: {{ $detail->nama_siswa }}
               </h3>
               <div class="d-flex align-items-center ml-auto mt-2 mt-md-0">
-                <a href="/admin/siswa" class="btn btn-secondary btn-sm mr-2 shadow-sm">
+                <a href="{{ $backUrl }}" class="btn btn-secondary btn-sm mr-2 shadow-sm">
                   <i class="fas fa-arrow-left mr-1"></i> Kembali
                 </a>
                 @php
@@ -42,7 +54,7 @@
                   $canEditThisSiswa = $canManageMaster || ($isWaliKelas && in_array($detail->id_kelas, $walasKelasIds));
                 @endphp
                 @if($canEditThisSiswa)
-                <a href="/admin/siswa/{{ $detail->id_siswa }}/edit" class="btn btn-warning btn-sm text-white font-weight-600 shadow-sm">
+                <a href="/admin/siswa/{{ $detail->id_siswa }}/edit{{ $from ? '?from=' . $from : '' }}" class="btn btn-warning btn-sm text-white font-weight-600 shadow-sm">
                   <i class="fas fa-edit mr-1"></i> Edit Data Siswa
                 </a>
                 @endif
@@ -205,6 +217,75 @@
                       <td class="text-dark">{{ $detail->penghasilan_ibu ?? '-' }}</td>
                       <td class="text-dark">{{ $detail->penghasilan_wali ?? '-' }}</td>
                     </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Bagian 4: Status & Penempatan PKL -->
+              <div class="table-responsive mt-3">
+                <table class="table table-bordered align-middle">
+                  <thead>
+                    <tr class="bg-light">
+                      <th colspan="4">
+                        <i class="fas fa-briefcase text-primary mr-1"></i> STATUS &amp; PENEMPATAN PRAKTIK KERJA LAPANGAN (PKL)
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @php
+                      $activePkl = $detail->siswaPkl->sortByDesc('tanggal_mulai')->first();
+                    @endphp
+                    @if($activePkl)
+                      <tr>
+                        <td class="font-weight-600 text-secondary" style="width: 20%;">Perusahaan Mitra DU/DI</td>
+                        <td class="text-dark font-weight-bold" style="width: 30%;">
+                          <i class="fas fa-building text-primary mr-1"></i>
+                          {{ $activePkl->perusahaan->nama_perusahaan ?? '-' }}
+                        </td>
+                        <td class="font-weight-600 text-secondary" style="width: 20%;">Status Pelaksanaan</td>
+                        <td style="width: 30%;">
+                          @if($activePkl->status_pkl === 'belum_mulai')
+                            <span class="badge px-2 py-1 font-weight-bold text-white shadow-sm" style="background-color: #0284c7; border-radius: 6px;">
+                              <i class="fas fa-calendar-check mr-1"></i> Ditempatkan (Belum Mulai)
+                            </span>
+                          @elseif($activePkl->status_pkl === 'aktif')
+                            <span class="badge badge-success px-2 py-1 font-weight-bold shadow-sm" style="border-radius: 6px;">
+                              <i class="fas fa-running mr-1"></i> Sedang PKL (Aktif Berjalan)
+                            </span>
+                          @else
+                            <span class="badge badge-secondary px-2 py-1 font-weight-bold" style="border-radius: 6px;">
+                              <i class="fas fa-check-circle mr-1"></i> Selesai PKL
+                            </span>
+                          @endif
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="font-weight-600 text-secondary">Alamat Perusahaan</td>
+                        <td colspan="3" class="text-dark">
+                          {{ $activePkl->perusahaan->alamat_perusahaan ?? '-' }}
+                          @if(!empty($activePkl->perusahaan->kota))
+                            , {{ $activePkl->perusahaan->kota }}
+                          @endif
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="font-weight-600 text-secondary">Periode PKL</td>
+                        <td class="text-dark">
+                          <i class="fas fa-calendar-alt text-info mr-1"></i>
+                          {{ \Carbon\Carbon::parse($activePkl->tanggal_mulai)->translatedFormat('d F Y') }} s/d {{ \Carbon\Carbon::parse($activePkl->tanggal_selesai)->translatedFormat('d F Y') }}
+                        </td>
+                        <td class="font-weight-600 text-secondary">Kontak / Narahubung</td>
+                        <td class="text-dark">
+                          {{ $activePkl->perusahaan->no_telp ?? $activePkl->perusahaan->email ?? '-' }}
+                        </td>
+                      </tr>
+                    @else
+                      <tr>
+                        <td colspan="4" class="text-center py-3 text-muted">
+                          <i class="fas fa-info-circle text-secondary mr-1"></i> Siswa belum terdaftar atau belum ditempatkan pada program PKL industri.
+                        </td>
+                      </tr>
+                    @endif
                   </tbody>
                 </table>
               </div>

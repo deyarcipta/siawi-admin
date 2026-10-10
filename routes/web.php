@@ -255,11 +255,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     });
 
     // =========================================================================
-    // 12.1. HUBUNGAN INDUSTRI, BKK & SISWA PKL (Admin, Hubin, BKK, Tata Usaha, Kesiswaan)
+    // 12.1. HUBUNGAN INDUSTRI, BKK & SISWA PKL (Admin, Hubin, BKK, Tata Usaha, Kesiswaan, Wali Kelas)
     // =========================================================================
+    Route::group(['middleware' => ['role:admin,hubin,bkk,tata_usaha,kesiswaan,wali_kelas']], function () {
+        Route::resource('siswaPkl', SiswaPklController::class);
+    });
+
     Route::group(['middleware' => ['role:admin,hubin,bkk,tata_usaha,kesiswaan']], function () {
         Route::resource('perusahaan', PerusahaanController::class);
-        Route::resource('siswaPkl', SiswaPklController::class);
         Route::post('pengajuan-pkl/{id}/acc', [PengajuanPklController::class, 'acc'])->name('pengajuan-pkl.acc');
         Route::post('pengajuan-pkl/{id}/tolak', [PengajuanPklController::class, 'tolak'])->name('pengajuan-pkl.tolak');
         Route::get('pengajuan-pkl/{id}/cetak', [PengajuanPklController::class, 'cetakSurat'])->name('pengajuan-pkl.cetak');

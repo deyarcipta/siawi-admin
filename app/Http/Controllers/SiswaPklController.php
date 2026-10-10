@@ -13,6 +13,21 @@ use App\Models\Kelas;
 class SiswaPklController extends Controller
 {
     /**
+     * Helper to verify if the authenticated user is strictly a Wali Kelas for PKL.
+     */
+    private function isWalasStrict(?\App\Models\Guru $user): bool
+    {
+        if (!$user) return false;
+        
+        $bypassRoles = ['admin', 'hubin', 'bkk', 'tata_usaha', 'kesiswaan'];
+        if ($user->hasAnyRole($bypassRoles)) {
+            return false;
+        }
+
+        return $user->hasRole('wali_kelas') || (method_exists($user, 'isWaliKelasStrict') && $user->isWaliKelasStrict($bypassRoles));
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -20,12 +35,45 @@ class SiswaPklController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
-        $siswaList = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
-        $perusahaan = Perusahaan::orderBy('nama_perusahaan', 'asc')->get();
+        $isWalasStrict = $this->isWalasStrict($user);
+        $walasKelasIds = ($user && method_exists($user, 'getKelasWaliIds')) ? $user->getKelasWaliIds() : [];
 
         $today = now()->format('Y-m-d');
         $query = SiswaPkl::with(['siswa.kelas', 'kelas', 'perusahaan']);
+
+        if ($isWalasStrict) {
+            $query->whereIn('id_kelas', $walasKelasIds);
+            $kelasList = Kelas::whereIn('id_kelas', $walasKelasIds)->orderBy('nama_kelas', 'asc')->get();
+            $siswaList = Siswa::whereIn('id_kelas', $walasKelasIds)->with('kelas')->orderBy('nama_siswa', 'asc')->get();
+
+            $baseCountQuery = SiswaPkl::whereIn('id_kelas', $walasKelasIds);
+            $totalPklDitempatkan = (clone $baseCountQuery)->where('status', '!=', 'selesai')->where('tanggal_mulai', '>', $today)->count();
+            $totalPklAktif = (clone $baseCountQuery)->where('status', '!=', 'selesai')
+                                     ->where('tanggal_mulai', '<=', $today)
+                                     ->where('tanggal_selesai', '>=', $today)
+                                     ->count();
+            $totalPklSelesai = (clone $baseCountQuery)->where(function ($q) use ($today) {
+                $q->where('status', 'selesai')->orWhere('tanggal_selesai', '<', $today);
+            })->count();
+
+            $mitraIds = SiswaPkl::whereIn('id_kelas', $walasKelasIds)->pluck('id_perusahaan')->unique();
+            $totalMitra = Perusahaan::whereIn('id_perusahaan', $mitraIds)->count();
+        } else {
+            $kelasList = Kelas::orderBy('nama_kelas', 'asc')->get();
+            $siswaList = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
+
+            $totalPklDitempatkan = SiswaPkl::where('status', '!=', 'selesai')->where('tanggal_mulai', '>', $today)->count();
+            $totalPklAktif = SiswaPkl::where('status', '!=', 'selesai')
+                                     ->where('tanggal_mulai', '<=', $today)
+                                     ->where('tanggal_selesai', '>=', $today)
+                                     ->count();
+            $totalPklSelesai = SiswaPkl::where(function ($q) use ($today) {
+                $q->where('status', 'selesai')->orWhere('tanggal_selesai', '<', $today);
+            })->count();
+            $totalMitra = Perusahaan::count();
+        }
+
+        $perusahaan = Perusahaan::orderBy('nama_perusahaan', 'asc')->get();
 
         if ($request->filled('id_perusahaan')) {
             $query->where('id_perusahaan', $request->id_perusahaan);
@@ -49,18 +97,11 @@ class SiswaPklController extends Controller
 
         $data_siswa_pkl = $query->orderBy('tanggal_mulai', 'desc')->get();
 
-        $totalPklDitempatkan = SiswaPkl::where('status', '!=', 'selesai')->where('tanggal_mulai', '>', $today)->count();
-        $totalPklAktif = SiswaPkl::where('status', '!=', 'selesai')
-                                 ->where('tanggal_mulai', '<=', $today)
-                                 ->where('tanggal_selesai', '>=', $today)
-                                 ->count();
-        $totalPklSelesai = SiswaPkl::where('status', 'selesai')->orWhere('tanggal_selesai', '<', $today)->count();
-        $totalMitra = Perusahaan::count();
-
         return view('bkk.data_siswa_pkl', compact(
             'layout', 'data_siswa_pkl', 'setting', 'user', 
             'kelasList', 'siswaList', 'perusahaan',
-            'totalPklDitempatkan', 'totalPklAktif', 'totalPklSelesai', 'totalMitra'
+            'totalPklDitempatkan', 'totalPklAktif', 'totalPklSelesai', 'totalMitra',
+            'isWalasStrict'
         ));
     }
 
@@ -77,6 +118,11 @@ class SiswaPklController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if ($this->isWalasStrict($user)) {
+            abort(403, 'Akses ditolak: Wali kelas hanya memiliki hak akses monitoring data PKL.');
+        }
+
         $request->validate([
             'id_siswa' => 'required',
             'id_perusahaan' => 'required|exists:perusahaan,id_perusahaan',
@@ -130,6 +176,11 @@ class SiswaPklController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $user = Auth::user();
+        if ($this->isWalasStrict($user)) {
+            abort(403, 'Akses ditolak: Wali kelas hanya memiliki hak akses monitoring data PKL.');
+        }
+
         $data = SiswaPkl::findOrFail($id);
 
         if ($request->has('quick_status')) {
@@ -167,6 +218,11 @@ class SiswaPklController extends Controller
      */
     public function destroy(string $id)
     {
+        $user = Auth::user();
+        if ($this->isWalasStrict($user)) {
+            abort(403, 'Akses ditolak: Wali kelas hanya memiliki hak akses monitoring data PKL.');
+        }
+
         $data = SiswaPkl::findOrFail($id);
         $data->delete();
 

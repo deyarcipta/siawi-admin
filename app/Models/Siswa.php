@@ -54,9 +54,10 @@ class Siswa extends Model implements Authenticatable
     {
         return $this->hasMany(SiswaFcmToken::class, 'id_siswa', 'id_siswa');
     }
-    // public function jurusan()
-    // {
-    //     return $this->belongsTo('App\Models\Jurusan', 'kode_jurusan');
-    // }
+
+    public function siswaPkl()
+    {
+        return $this->hasMany(\App\Models\SiswaPkl::class, 'id_siswa', 'id_siswa');
+    }
 }
 

@@ -13,7 +13,7 @@
       </div>
       <div class="col-sm-5">
         <ol class="breadcrumb float-sm-right bg-transparent p-0 mb-0">
-          <li class="breadcrumb-item"><a href="/admin/siswa" class="text-primary font-weight-500">Data Siswa</a></li>
+          <li class="breadcrumb-item"><a href="{{ request('from') === 'siswaPkl' ? '/admin/siswaPkl' : '/admin/siswa' }}" class="text-primary font-weight-500">{{ request('from') === 'siswaPkl' ? 'Siswa PKL' : 'Data Siswa' }}</a></li>
           <li class="breadcrumb-item active">Edit Siswa</li>
         </ol>
       </div>
@@ -36,6 +36,9 @@
             <form action="/admin/siswa/{{$edit->id_siswa}}" method="POST" enctype="multipart/form-data">
               @method('PUT')
               @csrf
+              @if(request('from'))
+                <input type="hidden" name="from" value="{{ request('from') }}">
+              @endif
               <div class="card-body">
                 <span style="font-size: 16; font-weight:bold;">Data Diri Siswa</span>
                 <div class="row mt-2">
@@ -530,7 +533,7 @@
                 </div>
               </div>
               <div class="card-footer bg-light py-3 px-4 d-flex align-items-center">
-                <a href="/admin/siswa" class="btn btn-outline-secondary px-3" style="border-radius: 8px; font-weight: 500;">
+                <a href="{{ request('from') === 'siswaPkl' ? '/admin/siswa/' . $edit->id_siswa . '?from=siswaPkl' : '/admin/siswa' }}" class="btn btn-outline-secondary px-3" style="border-radius: 8px; font-weight: 500;">
                   <i class="fas fa-arrow-left mr-1"></i> Kembali
                 </a>
                 <button type="submit" class="btn btn-primary ml-auto px-4 shadow-sm" style="border-radius: 8px; font-weight: 600;">

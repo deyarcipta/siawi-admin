@@ -7,15 +7,29 @@
       <div class="col-sm-7 d-flex align-items-center">
         <i class="fas fa-clipboard-list text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
         <div class="d-flex flex-column justify-content-center">
-          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Rekapitulasi & Monitoring Siswa PKL</h1>
-          <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Pemantauan menyeluruh penempatan magang kerja industri seluruh siswa dan kelas</p>
+          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">
+            @if(!empty($isWalasStrict))
+              Monitoring Siswa PKL (Kelas Binaan)
+            @else
+              Rekapitulasi & Monitoring Siswa PKL
+            @endif
+          </h1>
+          <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">
+            @if(!empty($isWalasStrict))
+              Pemantauan penempatan dan status pelaksanaan PKL siswa pada kelas binaan Anda
+            @else
+              Pemantauan menyeluruh penempatan magang kerja industri seluruh siswa dan kelas
+            @endif
+          </p>
         </div>
       </div>
       <div class="col-sm-5">
         <ol class="breadcrumb float-sm-right">
           <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
-          <li class="breadcrumb-item"><a href="#">BKK & Hubin</a></li>
-          <li class="breadcrumb-item active">Rekap Siswa PKL</li>
+          @if(empty($isWalasStrict))
+            <li class="breadcrumb-item"><a href="#">BKK & Hubin</a></li>
+          @endif
+          <li class="breadcrumb-item active">Siswa PKL</li>
         </ol>
       </div>
     </div>
@@ -25,6 +39,19 @@
 <!-- Content -->
 <div class="content">
   <div class="container-fluid">
+
+    @if(!empty($isWalasStrict))
+    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center mb-3" style="border-radius: 12px; background-color: #f0f9ff; border-left: 4px solid #0284c7 !important; color: #0369a1;">
+      <i class="fas fa-info-circle fa-lg mr-3 text-info"></i>
+      <div style="font-size: 0.88rem;">
+        <strong>Mode Monitoring Wali Kelas:</strong> Menampilkan data siswa PKL khusus kelas binaan Anda 
+        @if($kelasList->isNotEmpty())
+          (<strong>{{ $kelasList->pluck('nama_kelas')->implode(', ') }}</strong>).
+        @endif
+        Akses ini bersifat pemantauan langsung progres magang industri siswa Anda.
+      </div>
+    </div>
+    @endif
 
     <!-- Stat Summary Cards -->
     <div class="row mb-3">
@@ -59,7 +86,7 @@
         <div class="info-box shadow-sm border-0" style="border-radius: 12px;">
           <span class="info-box-icon bg-primary text-white" style="border-radius: 10px;"><i class="fas fa-building"></i></span>
           <div class="info-box-content">
-            <span class="info-box-text text-muted font-weight-bold" style="font-size: 0.78rem;">TOTAL MITRA DU/DI</span>
+            <span class="info-box-text text-muted font-weight-bold" style="font-size: 0.78rem;">{{ !empty($isWalasStrict) ? 'MITRA TERHUBUNG' : 'TOTAL MITRA DU/DI' }}</span>
             <span class="info-box-number text-dark font-weight-bold" style="font-size: 1.35rem;">{{ $totalMitra ?? 0 }} <small class="font-weight-normal text-muted" style="font-size: 0.8rem;">Perusahaan</small></span>
           </div>
         </div>
@@ -84,7 +111,7 @@
           <div class="col-md-3 col-sm-6 mb-2">
             <label class="font-weight-bold text-dark small mb-1"><i class="fas fa-chalkboard text-info mr-1"></i> Filter Kelas</label>
             <select name="id_kelas" class="form-control form-control-sm" style="border-radius: 6px;">
-              <option value="">-- Semua Kelas --</option>
+              <option value="">-- Semua Kelas {{ !empty($isWalasStrict) ? 'Binaan' : '' }} --</option>
               @foreach($kelasList as $kelas)
                 <option value="{{ $kelas->id_kelas }}" {{ request('id_kelas') == $kelas->id_kelas ? 'selected' : '' }}>
                   {{ $kelas->nama_kelas }}
@@ -122,11 +149,21 @@
               <i class="fas fa-table text-primary mr-2" style="font-size: 1.25rem;"></i>
               <div style="min-width: 0;">
                 <h3 class="card-title text-dark font-weight-bold mb-0 text-truncate" style="font-size: 0.95rem; line-height: 1.2; float: none;">
-                  Siswa Magang PKL
+                  Daftar Siswa PKL
+                  @if(!empty($isWalasStrict))
+                    <span class="badge badge-info ml-1 font-weight-normal px-2 py-1" style="font-size: 0.72rem;"><i class="fas fa-user-check mr-1"></i>Kelas Binaan</span>
+                  @endif
                 </h3>
-                <div class="text-muted d-none d-sm-block" style="font-size: 0.74rem;">Data plotting & penempatan PKL</div>
+                <div class="text-muted d-none d-sm-block" style="font-size: 0.74rem;">
+                  @if(!empty($isWalasStrict))
+                    Data plotting dan status penempatan PKL (Mode Monitoring Wali Kelas)
+                  @else
+                    Data plotting &amp; penempatan PKL
+                  @endif
+                </div>
               </div>
             </div>
+            @if(empty($isWalasStrict))
             <div class="d-flex align-items-center ml-auto ml-sm-0" style="gap: 6px;">
               <a href="{{ route('admin.perusahaan.index') }}" class="btn btn-outline-primary btn-sm px-2 px-sm-3 font-weight-bold" style="border-radius: 8px; font-size: 0.82rem; white-space: nowrap;" title="Plotting via Mitra DU/DI">
                 <i class="fas fa-building mr-1"></i> <span class="d-none d-md-inline">Plotting via Mitra</span><span class="d-inline d-md-none">Mitra</span>
@@ -135,6 +172,7 @@
                 <i class="fas fa-plus mr-1"></i> <span class="d-none d-sm-inline">Tambah Manual</span><span class="d-inline d-sm-none">Tambah</span>
               </button>
             </div>
+            @endif
           </div>
 
           <div class="card-body p-3">
@@ -143,12 +181,12 @@
                 <thead class="bg-light text-dark">
                   <tr>
                     <th style="width: 10px" class="text-center">No</th>
-                    <th>Nama Siswa & NIS</th>
+                    <th>Nama Siswa &amp; NIS</th>
                     <th>Kelas</th>
                     <th>Perusahaan Mitra DU/DI</th>
                     <th style="min-width: 140px;">Periode PKL</th>
                     <th class="text-center" style="width: 110px; white-space: nowrap;">Status</th>
-                    <th class="text-center" style="width: 120px;">Aksi</th>
+                    <th class="text-center" style="width: {{ !empty($isWalasStrict) ? '90px' : '120px' }};">{{ !empty($isWalasStrict) ? 'Detail' : 'Aksi' }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -197,57 +235,68 @@
                       @endif
                     </td>
                     <td class="text-center">
-                      <div class="btn-group" role="group">
-                        @if($data->status_pkl !== 'selesai')
-                          <!-- Form Quick Selesai -->
-                          <form action="{{ route('admin.siswaPkl.update', $data->id_siswa_pkl) }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="quick_status" value="1">
-                            <input type="hidden" name="status" value="selesai">
-                            <button type="submit" class="btn btn-sm btn-outline-success px-2" title="Tandai PKL Selesai" onclick="return confirm('Tandai siswa ini telah selesai PKL?')">
-                              <i class="fas fa-check"></i>
-                            </button>
-                          </form>
-                        @endif
+                      @if(empty($isWalasStrict))
+                        <div class="btn-group" role="group">
+                          @if($data->status_pkl !== 'selesai')
+                            <!-- Form Quick Selesai -->
+                            <form action="{{ route('admin.siswaPkl.update', $data->id_siswa_pkl) }}" method="POST" class="d-inline">
+                              @csrf
+                              @method('PUT')
+                              <input type="hidden" name="quick_status" value="1">
+                              <input type="hidden" name="status" value="selesai">
+                              <button type="submit" class="btn btn-sm btn-outline-success px-2" title="Tandai PKL Selesai" onclick="return confirm('Tandai siswa ini telah selesai PKL?')">
+                                <i class="fas fa-check"></i>
+                              </button>
+                            </form>
+                          @endif
 
-                        <!-- Tombol Edit Modal -->
-                        <button 
-                          type="button" 
-                          class="btn btn-sm btn-warning text-white btn-edit px-2 ml-1" 
-                          data-toggle="modal" 
-                          data-target="#modalEditSiswaPkl"
-                          data-id="{{ $data->id_siswa_pkl }}"
-                          data-id_kelas="{{ $data->id_kelas ?? ($data->siswa->id_kelas ?? '') }}"
-                          data-id_siswa="{{ $data->id_siswa }}"
-                          data-id_perusahaan="{{ $data->id_perusahaan }}"
-                          data-tanggal_mulai="{{ $data->tanggal_mulai }}"
-                          data-tanggal_selesai="{{ $data->tanggal_selesai }}"
-                          data-status="{{ $data->status }}"
-                          title="Edit Data Penempatan"
-                        >
-                          <i class="fa fa-edit"></i>
-                        </button>
+                          <!-- Tombol Edit Modal -->
+                          <button 
+                            type="button" 
+                            class="btn btn-sm btn-warning text-white btn-edit px-2 ml-1" 
+                            data-toggle="modal" 
+                            data-target="#modalEditSiswaPkl"
+                            data-id="{{ $data->id_siswa_pkl }}"
+                            data-id_kelas="{{ $data->id_kelas ?? ($data->siswa->id_kelas ?? '') }}"
+                            data-id_siswa="{{ $data->id_siswa }}"
+                            data-id_perusahaan="{{ $data->id_perusahaan }}"
+                            data-tanggal_mulai="{{ $data->tanggal_mulai }}"
+                            data-tanggal_selesai="{{ $data->tanggal_selesai }}"
+                            data-status="{{ $data->status }}"
+                            title="Edit Data Penempatan"
+                          >
+                            <i class="fa fa-edit"></i>
+                          </button>
 
-                        <!-- Tombol Hapus -->
-                        <button 
-                          type="button" 
-                          class="btn btn-sm btn-danger btn-delete-swal px-2 ml-1" 
-                          data-id="{{ $data->id_siswa_pkl }}"
-                          data-nama="{{ $data->siswa->nama_siswa ?? 'Siswa' }}"
-                          data-action="{{ route('admin.siswaPkl.destroy', $data->id_siswa_pkl) }}"
-                          title="Hapus Penempatan"
-                        >
-                          <i class="fa fa-trash"></i>
-                        </button>
-                      </div>
+                          <!-- Tombol Hapus -->
+                          <button 
+                            type="button" 
+                            class="btn btn-sm btn-danger btn-delete-swal px-2 ml-1" 
+                            data-id="{{ $data->id_siswa_pkl }}"
+                            data-nama="{{ $data->siswa->nama_siswa ?? 'Siswa' }}"
+                            data-action="{{ route('admin.siswaPkl.destroy', $data->id_siswa_pkl) }}"
+                            title="Hapus Penempatan"
+                          >
+                            <i class="fa fa-trash"></i>
+                          </button>
+                        </div>
+                      @else
+                        <!-- Wali Kelas View: Link ke Biodata & Profil Siswa -->
+                        <a href="/admin/siswa/{{ $data->id_siswa }}?from=siswaPkl" class="btn btn-sm btn-outline-primary px-2" style="border-radius: 6px; font-size: 0.8rem;" title="Lihat Biodata & Kontak Siswa">
+                          <i class="fas fa-id-card mr-1"></i> Profil
+                        </a>
+                      @endif
                     </td>
                   </tr>
                   @empty
                   <tr>
                     <td colspan="7" class="text-center py-4 text-muted">
                       <i class="fas fa-user-tie fa-2x mb-2 text-secondary d-block"></i>
-                      Tidak ada data siswa PKL yang sesuai kriteria filter.
+                      @if(!empty($isWalasStrict))
+                        Belum ada siswa dari kelas binaan Anda yang terdaftar pada penempatan PKL.
+                      @else
+                        Tidak ada data siswa PKL yang sesuai kriteria filter.
+                      @endif
                     </td>
                   </tr>
                   @endforelse
@@ -261,6 +310,7 @@
   </div>
 </div>
 
+@if(empty($isWalasStrict))
 <!-- ========================================================================= -->
 <!-- MODAL TAMBAH SISWA PKL                                                    -->
 <!-- ========================================================================= -->
@@ -402,11 +452,13 @@
     </form>
   </div>
 </div>
+@endif
 @endsection
 
 @push('scripts')
 <script>
 $(document).ready(function () {
+  @if(empty($isWalasStrict))
   // Inisialisasi Select2 di modal tambah siswa PKL saat modal ditampilkan
   $('#modalTambahSiswaPkl').on('shown.bs.modal', function () {
     $(this).find('.select2-modal-perusahaan').select2({
@@ -464,6 +516,7 @@ $(document).ready(function () {
       }
     });
   });
+  @endif
 });
 </script>
 @endpush
