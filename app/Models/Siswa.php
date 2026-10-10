@@ -59,5 +59,10 @@ class Siswa extends Model implements Authenticatable
     {
         return $this->hasMany(\App\Models\SiswaPkl::class, 'id_siswa', 'id_siswa');
     }
+
+    public function orangTua()
+    {
+        return $this->belongsTo(OrangTua::class, 'id_orang_tua', 'id_orang_tua');
+    }
 }
 
