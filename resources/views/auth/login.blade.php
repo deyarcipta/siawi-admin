@@ -324,7 +324,7 @@
     </div>
     
     <div class="brand-footer">
-      &copy; {{ date('Y') }} SMK Wisata Indonesia. All rights reserved.
+      &copy; 2024 SMK Wisata Indonesia. All rights reserved.
     </div>
   </div>
   

@@ -54,18 +54,24 @@
               <tbody>
               @php
                 $canManageMaster = $user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum']);
-                $isWaliKelas = $user && $user->hasRole('wali_kelas');
                 $walasKelasIds = $user ? $user->getKelasWaliIds() : [];
+                $isWaliKelas = $user && (!empty($walasKelasIds) || $user->hasRole('wali_kelas'));
               @endphp
               @foreach ($siswa as $data)
               @php
-                $canEditThisSiswa = $canManageMaster || ($isWaliKelas && in_array($data->id_kelas, $walasKelasIds));
+                $isOwnClass = in_array($data->id_kelas, $walasKelasIds);
+                $canEditThisSiswa = $canManageMaster || ($isWaliKelas && $isOwnClass);
               @endphp
               <tr>
                 <td>{{$loop->iteration}}</td>
                 <td>{{$data->nis}}</td>
                 <td>{{$data->nama_siswa}}</td>
-                <td>{{$data->kelas->nama_kelas ?? '-'}}</td>
+                <td>
+                  {{$data->kelas->nama_kelas ?? '-'}}
+                  @if($isOwnClass)
+                    <span class="badge badge-info ml-1" style="font-size: 0.72rem; vertical-align: middle;">Kelas Anda</span>
+                  @endif
+                </td>
                 <td>{{$data->nis}}</td>
                 {{-- <td>{{$data->password}}</td> --}}
                 <td>

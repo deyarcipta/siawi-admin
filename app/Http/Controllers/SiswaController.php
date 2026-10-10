@@ -52,7 +52,25 @@ class SiswaController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $siswa = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
+
+        $walasKelasIds = ($user && method_exists($user, 'getKelasWaliIds')) ? $user->getKelasWaliIds() : [];
+        $isWaliKelasUser = $user && !empty($walasKelasIds) && (
+            $user->isWaliKelasStrict() || 
+            in_array('wali_kelas', $user->roles_list ?? []) || 
+            $user->hasRole('wali_kelas')
+        );
+
+        $query = Siswa::with('kelas');
+
+        if ($isWaliKelasUser) {
+            $idsList = implode(',', array_map('intval', $walasKelasIds));
+            $query->orderByRaw("CASE WHEN id_kelas IN ($idsList) THEN 0 ELSE 1 END")
+                  ->orderBy('nama_siswa', 'asc');
+        } else {
+            $query->orderBy('nama_siswa', 'asc');
+        }
+
+        $siswa = $query->get();
         return view('dataSiswa.data_siswa', compact('layout', 'siswa', 'setting', 'user'));
     }
 

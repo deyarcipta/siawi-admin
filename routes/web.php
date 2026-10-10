@@ -42,6 +42,13 @@ use App\Http\Controllers\SuratKeluarController;
 use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\KlasifikasiSuratController;
 use App\Http\Controllers\LivePanelController;
+use App\Http\Controllers\PengajuanPklController;
+
+// Pengajuan Surat PKL Siswa (Portal Mandiri Siswa)
+Route::get('/pengajuan-pkl', [PengajuanPklController::class, 'formSiswa'])->name('pengajuan-pkl.form');
+Route::post('/pengajuan-pkl', [PengajuanPklController::class, 'submitSiswa'])->name('pengajuan-pkl.submit');
+Route::get('/pengajuan-pkl/status', [PengajuanPklController::class, 'trackingSiswa'])->name('pengajuan-pkl.tracking');
+Route::get('/pengajuan-pkl/search-siswa', [PengajuanPklController::class, 'searchSiswa'])->name('pengajuan-pkl.search-siswa');
 
 // Auth Routes (Public)
 Route::get('/', [AuthController::class, 'index'])->name('login');
@@ -96,9 +103,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     });
 
     // =========================================================================
-    // 4. DATA SISWA & ALUMNI (Admin, Tata Usaha, Kesiswaan, Wali Kelas, Kurikulum, Guru, Keuangan, Hubin)
+    // 4. DATA SISWA & ALUMNI (Admin, Tata Usaha, Kesiswaan, Wali Kelas, Kurikulum, Guru, Keuangan, Hubin, BKK)
     // =========================================================================
-    Route::group(['middleware' => ['role:admin,tata_usaha,kesiswaan,wali_kelas,kurikulum,guru,keuangan,hubin']], function () {
+    Route::group(['middleware' => ['role:admin,tata_usaha,kesiswaan,wali_kelas,kurikulum,guru,keuangan,hubin,bkk']], function () {
         Route::resource('siswa', SiswaController::class);
         Route::get('siswa/{id_guru}/reset', [SiswaController::class, 'reset'])->name('siswa.reset');
         Route::get('/download-siswa', [SiswaController::class, 'download'])->name('siswa.download');
@@ -248,11 +255,16 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     });
 
     // =========================================================================
-    // 12.1. HUBUNGAN INDUSTRI, BKK & SISWA PKL (Admin, Hubin, Tata Usaha, Kesiswaan)
+    // 12.1. HUBUNGAN INDUSTRI, BKK & SISWA PKL (Admin, Hubin, BKK, Tata Usaha, Kesiswaan)
     // =========================================================================
-    Route::group(['middleware' => ['role:admin,hubin,tata_usaha,kesiswaan']], function () {
+    Route::group(['middleware' => ['role:admin,hubin,bkk,tata_usaha,kesiswaan']], function () {
         Route::resource('perusahaan', PerusahaanController::class);
         Route::resource('siswaPkl', SiswaPklController::class);
+        Route::post('pengajuan-pkl/{id}/acc', [PengajuanPklController::class, 'acc'])->name('pengajuan-pkl.acc');
+        Route::post('pengajuan-pkl/{id}/tolak', [PengajuanPklController::class, 'tolak'])->name('pengajuan-pkl.tolak');
+        Route::get('pengajuan-pkl/{id}/cetak', [PengajuanPklController::class, 'cetakSurat'])->name('pengajuan-pkl.cetak');
+        Route::get('pengajuan-pkl/{id}/pdf', [PengajuanPklController::class, 'downloadPdf'])->name('pengajuan-pkl.pdf');
+        Route::resource('pengajuan-pkl', PengajuanPklController::class);
     });
 
     // =========================================================================

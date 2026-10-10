@@ -35,9 +35,17 @@
                 <a href="/admin/siswa" class="btn btn-secondary btn-sm mr-2 shadow-sm">
                   <i class="fas fa-arrow-left mr-1"></i> Kembali
                 </a>
+                @php
+                  $canManageMaster = $user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum']);
+                  $walasKelasIds = $user ? $user->getKelasWaliIds() : [];
+                  $isWaliKelas = $user && (!empty($walasKelasIds) || $user->hasRole('wali_kelas'));
+                  $canEditThisSiswa = $canManageMaster || ($isWaliKelas && in_array($detail->id_kelas, $walasKelasIds));
+                @endphp
+                @if($canEditThisSiswa)
                 <a href="/admin/siswa/{{ $detail->id_siswa }}/edit" class="btn btn-warning btn-sm text-white font-weight-600 shadow-sm">
                   <i class="fas fa-edit mr-1"></i> Edit Data Siswa
                 </a>
+                @endif
               </div>
             </div>
             <div class="card-body">

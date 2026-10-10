@@ -56,8 +56,9 @@ Route::get('/latest-version', [AppVersionController::class, 'getLatestVersion'])
 
 Route::post('/face-presence', [AbsensiGuruController::class, 'store']);
 Route::post('/siswa-presence', [AbsensiController::class, 'store']);
-// Route::post('/face-presence', function () {
-//     $data = request()->all();
-//     $filePath = storage_path('data.txt');
-//     Log::info($data);
-// });
+
+// Pengajuan Surat Permohonan PKL (SIAWI Mobile App)
+Route::get('/pengajuan-pkl/{idSiswa}', [\App\Http\Controllers\SiswaController\PengajuanPklController::class, 'index']);
+Route::post('/pengajuan-pkl', [\App\Http\Controllers\SiswaController\PengajuanPklController::class, 'store']);
+Route::get('/pengajuan-pkl/detail/{id}', [\App\Http\Controllers\SiswaController\PengajuanPklController::class, 'show']);
+

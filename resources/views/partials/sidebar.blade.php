@@ -433,12 +433,12 @@
         @endif
 
         <!-- Hubungan Industri (BKK & PKL) -->
-        @if($user->hasAnyRole(['admin', 'hubin', 'kesiswaan', 'tata_usaha']))
-        <li class="nav-item has-treeview {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') ? 'active' : '' }}">
+        @if($user->hasAnyRole(['admin', 'hubin', 'bkk', 'kesiswaan', 'tata_usaha']))
+        <li class="nav-item has-treeview {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') || Request::is('admin/pengajuan-pkl*') ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') || Request::is('admin/pengajuan-pkl*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-briefcase"></i>
             <p>
-              BKK & PKL
+              BKK &amp; PKL
               <i class="right fas fa-angle-left"></i>
             </p>
           </a>
@@ -447,6 +447,12 @@
               <a href="/admin/perusahaan" class="nav-link {{ Request::is('admin/perusahaan*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Data Perusahaan Mitra</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/pengajuan-pkl" class="nav-link {{ Request::is('admin/pengajuan-pkl*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Pengajuan Surat PKL</p>
               </a>
             </li>
             <li class="nav-item">

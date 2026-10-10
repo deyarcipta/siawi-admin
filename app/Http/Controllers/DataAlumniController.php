@@ -36,11 +36,29 @@ class DataAlumniController extends Controller
         return view('dataAlumni.index', compact('layout', 'setting', 'user', 'alumni', 'jurusan', 'tahunLulusList'));
     }
 
+    private function canManageAlumniMaster(?\App\Models\Guru $user): bool
+    {
+        return $user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum']);
+    }
+
+    private function canEditAlumni(?\App\Models\Guru $user): bool
+    {
+        return $user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum', 'hubin', 'bkk']);
+    }
+
     private function authorizeAlumniManage(): void
     {
         $user = Auth::user();
-        if (!$user || !$user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum'])) {
+        if (!$this->canManageAlumniMaster($user)) {
             abort(403, 'Akses ditolak: Hanya Admin, Tata Usaha, dan Kurikulum yang dapat mengelola data alumni.');
+        }
+    }
+
+    private function authorizeAlumniEdit(): void
+    {
+        $user = Auth::user();
+        if (!$this->canEditAlumni($user)) {
+            abort(403, 'Akses ditolak: Hanya Admin, Tata Usaha, Kurikulum, dan Hubin/BKK yang dapat mengedit data alumni.');
         }
     }
 
@@ -106,7 +124,7 @@ class DataAlumniController extends Controller
 
     public function edit($id)
     {
-        $this->authorizeAlumniManage();
+        $this->authorizeAlumniEdit();
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
@@ -118,7 +136,7 @@ class DataAlumniController extends Controller
 
     public function update(Request $request, $id)
     {
-        $this->authorizeAlumniManage();
+        $this->authorizeAlumniEdit();
         $request->validate([
             'nama' => 'required|string|max:255',
             'nis' => 'nullable|string|max:50',

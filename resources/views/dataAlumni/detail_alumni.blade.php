@@ -35,9 +35,11 @@
               <a href="/admin/dataAlumni" class="btn btn-secondary btn-sm mr-2 shadow-sm">
                 <i class="fas fa-arrow-left mr-1"></i> Kembali
               </a>
+              @if($user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum', 'hubin', 'bkk']))
               <a href="/admin/alumni/{{ $detail->id_alumni }}/edit" class="btn btn-warning btn-sm text-white font-weight-600 shadow-sm">
                 <i class="fas fa-edit mr-1"></i> Edit Data Alumni
               </a>
+              @endif
             </div>
           </div>
           <div class="card-body">

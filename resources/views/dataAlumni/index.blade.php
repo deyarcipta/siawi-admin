@@ -55,6 +55,7 @@
                 <tbody>
                   @php
                     $canManageAlumni = $user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum']);
+                    $canEditAlumni = $user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum', 'hubin', 'bkk']);
                   @endphp
                   @foreach ($alumni as $data)
                   <tr>
@@ -67,8 +68,10 @@
                     <td>
                       <form action="/admin/alumni/{{ $data->id_alumni }}" method="POST" class="form-delete">
                         <a href="/admin/alumni/{{ $data->id_alumni }}" class="btn btn-success btn-sm" title="Detail"><i class="fa fa-eye"></i></a>
-                        @if($canManageAlumni)
+                        @if($canEditAlumni)
                         <a href="/admin/alumni/{{ $data->id_alumni }}/edit" class="btn btn-warning btn-sm" title="Edit"><i class="fa fa-edit" style="color: white"></i></a>
+                        @endif
+                        @if($canManageAlumni)
                         @csrf
                         @method('DELETE')
                         <button type="button" class="btn btn-danger btn-sm btn-delete" title="Hapus"><i class="fa fa-trash"></i></button>
