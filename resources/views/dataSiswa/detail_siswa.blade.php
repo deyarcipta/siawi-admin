@@ -217,6 +217,36 @@
                       <td class="text-dark">{{ $detail->penghasilan_ibu ?? '-' }}</td>
                       <td class="text-dark">{{ $detail->penghasilan_wali ?? '-' }}</td>
                     </tr>
+                    <tr>
+                      <td class="font-weight-600 text-secondary">No. HP / WhatsApp</td>
+                      <td class="text-dark">
+                        @if(!empty($detail->no_hp_ayah))
+                          <a href="https://wa.me/{{ preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $detail->no_hp_ayah)) }}" target="_blank" class="text-success font-weight-500">
+                            <i class="fab fa-whatsapp mr-1"></i>{{ $detail->no_hp_ayah }}
+                          </a>
+                        @else
+                          -
+                        @endif
+                      </td>
+                      <td class="text-dark">
+                        @if(!empty($detail->no_hp_ibu))
+                          <a href="https://wa.me/{{ preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $detail->no_hp_ibu)) }}" target="_blank" class="text-success font-weight-500">
+                            <i class="fab fa-whatsapp mr-1"></i>{{ $detail->no_hp_ibu }}
+                          </a>
+                        @else
+                          -
+                        @endif
+                      </td>
+                      <td class="text-dark">
+                        @if(!empty($detail->no_hp_wali))
+                          <a href="https://wa.me/{{ preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $detail->no_hp_wali)) }}" target="_blank" class="text-success font-weight-500">
+                            <i class="fab fa-whatsapp mr-1"></i>{{ $detail->no_hp_wali }}
+                          </a>
+                        @else
+                          -
+                        @endif
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>

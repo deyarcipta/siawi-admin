@@ -290,14 +290,14 @@
                   </div>
                 </div>
 
-                <!-- Akun & Kontak SIAWI Mobile Orang Tua -->
+                <!-- Akun SIAWI Mobile Orang Tua -->
                 <div class="card border mt-4 mb-4 shadow-sm" style="border-radius: 8px; border-left: 4px solid #10b981 !important; background: #f8fafc;">
                   <div class="card-header bg-transparent border-0 pb-0 pt-3 px-3 d-flex align-items-center justify-content-between flex-wrap">
                     <div>
                       <span class="font-weight-bold text-dark d-block" style="font-size: 0.95rem;">
-                        <i class="fas fa-mobile-alt text-success mr-1"></i> Akun &amp; Kontak SIAWI Mobile Orang Tua
+                        <i class="fas fa-mobile-alt text-success mr-1"></i> Akun Login SIAWI Mobile Orang Tua
                       </span>
-                      <small class="text-muted">Kelola nomor WhatsApp dan nama profil akun orang tua secara terpisah dari kontak siswa</small>
+                      <small class="text-muted">Akun login mobile orang tua terhubung otomatis ke No. HP Ayah / Ibu / Wali yang diisi pada formulir di bawah</small>
                     </div>
                     @if($edit->orangTua)
                       <div class="mt-2 mt-md-0">
@@ -309,17 +309,25 @@
                   </div>
                   <div class="card-body p-3">
                     @if($edit->orangTua)
-                      <div class="mb-3 p-2 rounded bg-white border d-flex align-items-center justify-content-between flex-wrap" style="font-size: 0.85rem;">
-                        <div>
+                      <div class="p-2 rounded bg-white border d-flex align-items-center justify-content-between flex-wrap" style="font-size: 0.85rem;">
+                        <div class="mr-3 mb-1">
                           <span class="text-muted">Username Login:</span>
                           <code class="text-dark font-weight-bold ml-1" style="font-size: 0.9rem;">{{ $edit->orangTua->username }}</code>
                         </div>
-                        <div>
-                          <span class="text-muted">Status Akun:</span>
+                        <div class="mr-3 mb-1">
+                          <span class="text-muted">Status:</span>
                           @if($edit->orangTua->status_aktif)
                             <span class="badge badge-success px-2 py-1 ml-1">Aktif</span>
                           @else
                             <span class="badge badge-danger px-2 py-1 ml-1">Nonaktif</span>
+                          @endif
+                        </div>
+                        <div class="mb-1">
+                          <span class="text-muted">WhatsApp Terhubung:</span>
+                          @if($edit->orangTua->no_hp)
+                            <span class="text-success font-weight-600 ml-1"><i class="fab fa-whatsapp mr-1"></i>{{ $edit->orangTua->no_hp }}</span>
+                          @else
+                            <span class="text-muted font-italic ml-1">(Otomatis mengambil No. HP Ayah/Ibu/Wali)</span>
                           @endif
                         </div>
                         @if($edit->orangTua->siswa->where('id_siswa', '!=', $edit->id_siswa)->count() > 0)
@@ -332,31 +340,10 @@
                         @endif
                       </div>
                     @else
-                      <div class="alert alert-warning py-2 px-3 mb-3" style="font-size: 0.85rem;">
-                        <i class="fas fa-info-circle mr-1"></i> <strong>Belum Tertaut:</strong> Akun orang tua akan otomatis dibuat dan ditautkan saat data disimpan.
+                      <div class="alert alert-warning py-2 px-3 mb-0" style="font-size: 0.85rem;">
+                        <i class="fas fa-info-circle mr-1"></i> <strong>Belum Tertaut:</strong> Akun orang tua akan otomatis dibuat dan disinkronkan saat data disimpan.
                       </div>
                     @endif
-
-                    <div class="row">
-                      <div class="form-group col-md-6 mb-2">
-                        <label for="nama_lengkap_ortu" class="font-weight-600 text-dark" style="font-size: 0.88rem;">
-                          <i class="fas fa-user mr-1 text-secondary"></i> Nama Profil Akun Orang Tua / Wali
-                        </label>
-                        <input type="text" class="form-control" id="nama_lengkap_ortu" name="nama_lengkap_ortu" 
-                               value="{{ old('nama_lengkap_ortu', $edit->orangTua->nama_lengkap ?? '') }}" 
-                               placeholder="Contoh: Bpk. Ahmad Yani / Ibu Siti">
-                        <small class="form-text text-muted">Nama yang akan tampil pada profil orang tua di aplikasi mobile.</small>
-                      </div>
-                      <div class="form-group col-md-6 mb-2">
-                        <label for="no_hp_ortu" class="font-weight-600 text-dark" style="font-size: 0.88rem;">
-                          <i class="fab fa-whatsapp mr-1 text-success"></i> No. HP / WhatsApp Orang Tua
-                        </label>
-                        <input type="text" class="form-control" id="no_hp_ortu" name="no_hp_ortu" 
-                               value="{{ old('no_hp_ortu', $edit->orangTua->no_hp ?? '') }}" 
-                               placeholder="Contoh: 081234567890">
-                        <small class="form-text text-muted">Untuk WhatsApp notifikasi &amp; sinkronisasi akun keluarga jika memiliki lebih dari 1 anak.</small>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
@@ -416,7 +403,7 @@
                   </div>
                 </div>
                 <div class="row mb-2">
-                  <div class="form-group col-6">
+                  <div class="form-group col-4">
                     <label for="pekerjaan_ayah">Pekerjaan Ayah</label>
                     <select class="form-control" name="pekerjaan_ayah" id="pekerjaan_ayah">
                       <option value="{{$edit->pekerjaan_ayah}}">{{$edit->pekerjaan_ayah}}</option>
@@ -431,7 +418,7 @@
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>
-                  <div class="form-group col-6">
+                  <div class="form-group col-4">
                     <label for="penghasilan_ayah">Penghasilan Ayah</label>
                     <select class="form-control" name="penghasilan_ayah" id="penghasilan_ayah">
                       <option value="{{$edit->penghasilan_ayah}}">{{$edit->penghasilan_ayah}}</option>
@@ -443,6 +430,13 @@
                       <option value=">Rp.5.000.000">>Rp.5.000.000</option>
                     </select>
                     @error('penghasilan_ayah')
+                      <div class="alert alert-danger">{{ $message }}</div>
+                    @enderror
+                  </div>
+                  <div class="form-group col-4">
+                    <label for="no_hp_ayah"><i class="fab fa-whatsapp text-success mr-1"></i> No. HP / WA Ayah</label>
+                    <input type="text" class="form-control" id="no_hp_ayah" placeholder="Contoh: 081234567890" name="no_hp_ayah" value="{{ old('no_hp_ayah', $edit->no_hp_ayah) }}">
+                    @error('no_hp_ayah')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>
@@ -504,7 +498,7 @@
                   </div>
                 </div>
                 <div class="row mb-2">
-                  <div class="form-group col-6">
+                  <div class="form-group col-4">
                     <label for="pekerjaan_ibu">Pekerjaan Ibu</label>
                     <select class="form-control" name="pekerjaan_ibu" id="pekerjaan_ibu">
                       <option value="{{$edit->pekerjaan_ibu}}">{{$edit->pekerjaan_ibu}}</option>
@@ -520,7 +514,7 @@
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>
-                  <div class="form-group col-6">
+                  <div class="form-group col-4">
                     <label for="penghasilan_ibu">Penghasilan Ibu</label>
                     <select class="form-control" name="penghasilan_ibu" id="penghasilan_ibu">
                       <option value="{{$edit->penghasilan_ibu}}">{{$edit->penghasilan_ibu}}</option>
@@ -532,6 +526,13 @@
                       <option value=">Rp.5.000.000">>Rp.5.000.000</option>
                     </select>
                     @error('penghasilan_ibu')
+                      <div class="alert alert-danger">{{ $message }}</div>
+                    @enderror
+                  </div>
+                  <div class="form-group col-4">
+                    <label for="no_hp_ibu"><i class="fab fa-whatsapp text-success mr-1"></i> No. HP / WA Ibu</label>
+                    <input type="text" class="form-control" id="no_hp_ibu" placeholder="Contoh: 081234567890" name="no_hp_ibu" value="{{ old('no_hp_ibu', $edit->no_hp_ibu) }}">
+                    @error('no_hp_ibu')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>
@@ -592,7 +593,7 @@
                   </div>
                 </div>
                 <div class="row mb-2">
-                  <div class="form-group col-6">
+                  <div class="form-group col-4">
                     <label for="pekerjaan_wali">Pekerjaan Wali</label>
                     <select class="form-control" name="pekerjaan_wali" id="pekerjaan_wali">
                       <option value="{{$edit->pekerjaan_wali}}">{{$edit->pekerjaan_wali}}</option>
@@ -608,7 +609,7 @@
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>
-                  <div class="form-group col-6">
+                  <div class="form-group col-4">
                     <label for="penghasilan_wali">Penghasilan Wali</label>
                     <select class="form-control" name="penghasilan_wali" id="penghasilan_wali">
                       <option value="{{$edit->penghasilan_wali}}">{{$edit->penghasilan_wali}}</option>
@@ -620,6 +621,13 @@
                       <option value=">Rp.5.000.000">>Rp.5.000.000</option>
                     </select>
                     @error('penghasilan_wali')
+                      <div class="alert alert-danger">{{ $message }}</div>
+                    @enderror
+                  </div>
+                  <div class="form-group col-4">
+                    <label for="no_hp_wali"><i class="fab fa-whatsapp text-success mr-1"></i> No. HP / WA Wali</label>
+                    <input type="text" class="form-control" id="no_hp_wali" placeholder="Contoh: 081234567890" name="no_hp_wali" value="{{ old('no_hp_wali', $edit->no_hp_wali) }}">
+                    @error('no_hp_wali')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                   </div>

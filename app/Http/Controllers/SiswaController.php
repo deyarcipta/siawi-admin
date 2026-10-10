@@ -173,6 +173,7 @@ class SiswaController extends Controller
             'pendidikan_ayah' => $request->pendidikan_ayah ?? '-',
             'pekerjaan_ayah' => $request->pekerjaan_ayah ?? '-',
             'penghasilan_ayah' => $request->penghasilan_ayah ?? '-',
+            'no_hp_ayah' => $request->no_hp_ayah,
             'nik_ibu' => $request->nik_ibu ?? '-',
             'nama_ibu' => $request->nama_ibu ?? '-',
             'tmpt_lahir_ibu' => $request->tmpt_lahir_ibu ?? '-',
@@ -180,16 +181,23 @@ class SiswaController extends Controller
             'pendidikan_ibu' => $request->pendidikan_ibu ?? '-',
             'pekerjaan_ibu' => $request->pekerjaan_ibu ?? '-',
             'penghasilan_ibu' => $request->penghasilan_ibu ?? '-',
+            'no_hp_ibu' => $request->no_hp_ibu,
             'nik_wali' => $request->nik_wali ?? '-',
             'nama_wali' => $request->nama_wali ?? '-',
             'tmpt_lahir_wali' => $request->tmpt_lahir_wali ?? '-',
             'tgl_lahir_wali' => $request->tgl_lahir_wali ?? '-',
             'pendidikan_wali' => $request->pendidikan_wali ?? '-',
             'pekerjaan_wali' => $request->pekerjaan_wali ?? '-',
+            'penghasilan_wali' => $request->penghasilan_wali ?? '-',
+            'no_hp_wali' => $request->no_hp_wali,
         ]);
 
+        // Kontak utama orang tua: utamakan Ayah -> Ibu -> Wali
+        $primaryPhone = $request->no_hp_ayah ?: ($request->no_hp_ibu ?: $request->no_hp_wali);
+        $primaryName = $request->nama_ayah && $request->nama_ayah !== '-' ? $request->nama_ayah : ($request->nama_ibu && $request->nama_ibu !== '-' ? $request->nama_ibu : $request->nama_wali);
+
         // Buat atau tautkan akun orang tua secara otomatis
-        $this->createOrLinkAkunOrtu($siswa, $request->input('no_hp_ortu'), $request->input('nama_lengkap_ortu'));
+        $this->createOrLinkAkunOrtu($siswa, $primaryPhone, $primaryName);
 
         return redirect('/admin/siswa')->with('success', 'Data siswa berhasil ditambahkan dan akun orang tua berhasil disinkronkan.');
     }
@@ -332,6 +340,7 @@ class SiswaController extends Controller
             'pendidikan_ayah' => $request->pendidikan_ayah ?? '-',
             'pekerjaan_ayah' => $request->pekerjaan_ayah ?? '-',
             'penghasilan_ayah' => $request->penghasilan_ayah ?? '-',
+            'no_hp_ayah' => $request->no_hp_ayah,
             'nik_ibu' => $request->nik_ibu ?? '-',
             'nama_ibu' => $request->nama_ibu ?? '-',
             'tmpt_lahir_ibu' => $request->tmpt_lahir_ibu ?? '-',
@@ -339,6 +348,7 @@ class SiswaController extends Controller
             'pendidikan_ibu' => $request->pendidikan_ibu ?? '-',
             'pekerjaan_ibu' => $request->pekerjaan_ibu ?? '-',
             'penghasilan_ibu' => $request->penghasilan_ibu ?? '-',
+            'no_hp_ibu' => $request->no_hp_ibu,
             'nik_wali' => $request->nik_wali ?? '-',
             'nama_wali' => $request->nama_wali ?? '-',
             'tmpt_lahir_wali' => $request->tmpt_lahir_wali ?? '-',
@@ -346,13 +356,14 @@ class SiswaController extends Controller
             'pendidikan_wali' => $request->pendidikan_wali ?? '-',
             'pekerjaan_wali' => $request->pekerjaan_wali ?? '-',
             'penghasilan_wali' => $request->penghasilan_wali ?? '-',
+            'no_hp_wali' => $request->no_hp_wali,
         ]);
 
-        // Sinkronisasi akun orang tua
-        $noHpOrtuRaw = $request->input('no_hp_ortu');
-        $namaOrtuRaw = $request->input('nama_lengkap_ortu');
+        // Kontak utama orang tua: utamakan Ayah -> Ibu -> Wali
+        $primaryPhone = $request->no_hp_ayah ?: ($request->no_hp_ibu ?: $request->no_hp_wali);
+        $primaryName = $request->nama_ayah && $request->nama_ayah !== '-' ? $request->nama_ayah : ($request->nama_ibu && $request->nama_ibu !== '-' ? $request->nama_ibu : $request->nama_wali);
 
-        $cleanPhoneOrtu = preg_replace('/[^0-9]/', '', (string)$noHpOrtuRaw);
+        $cleanPhoneOrtu = preg_replace('/[^0-9]/', '', (string)$primaryPhone);
         $hasValidPhone = strlen($cleanPhoneOrtu) >= 9 && !in_array($cleanPhoneOrtu, ['000000000', '123456789']);
 
         // Jika nomor HP valid, cek apakah ada akun orang tua lain yang memakai nomor ini (multi-anak linking)
@@ -374,23 +385,16 @@ class SiswaController extends Controller
 
         if ($siswa->orangTua) {
             $ortuUpdates = [];
-            if ($request->filled('nama_lengkap_ortu')) {
-                $ortuUpdates['nama_lengkap'] = trim($namaOrtuRaw);
-            } elseif ($request->filled('nama_ayah') && trim($request->nama_ayah) !== '-') {
-                $ortuUpdates['nama_lengkap'] = trim($request->nama_ayah);
-            } elseif ($request->filled('nama_ibu') && trim($request->nama_ibu) !== '-') {
-                $ortuUpdates['nama_lengkap'] = trim($request->nama_ibu);
+            if ($primaryName) {
+                $ortuUpdates['nama_lengkap'] = trim($primaryName);
             }
-
-            if ($request->has('no_hp_ortu')) {
-                $ortuUpdates['no_hp'] = $hasValidPhone ? $cleanPhoneOrtu : null;
-            }
+            $ortuUpdates['no_hp'] = $hasValidPhone ? $cleanPhoneOrtu : null;
 
             if (!empty($ortuUpdates)) {
                 $siswa->orangTua->update($ortuUpdates);
             }
         } else {
-            $this->createOrLinkAkunOrtu($siswa, $noHpOrtuRaw, $namaOrtuRaw);
+            $this->createOrLinkAkunOrtu($siswa, $primaryPhone, $primaryName);
         }
 
         if ($request->filled('from') && $request->from === 'siswaPkl') {
@@ -598,7 +602,7 @@ class SiswaController extends Controller
      */
     private function createOrLinkAkunOrtu(Siswa $siswa, ?string $customPhone = null, ?string $customName = null): OrangTua
     {
-        $rawPhone = trim($customPhone ?? '');
+        $rawPhone = trim($customPhone ?? $siswa->no_hp_ayah ?? $siswa->no_hp_ibu ?? $siswa->no_hp_wali ?? '');
         $cleanPhone = preg_replace('/[^0-9]/', '', $rawPhone);
         $hasValidPhone = strlen($cleanPhone) >= 9 && !in_array($cleanPhone, ['000000000', '123456789']);
         $username = 'ortu_' . trim($siswa->nis);
