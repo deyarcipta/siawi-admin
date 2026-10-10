@@ -151,8 +151,8 @@
                 </div>
                 <div class="row">
                   <div class="form-group col-3">
-                    <label for="no_hp">No HP</label>
-                    <input type="text" class="form-control" id="no_hp" placeholder="Enter No Hp" name="no_hp" value="{{old('no_hp')}}">
+                    <label for="no_hp">No. HP Siswa</label>
+                    <input type="text" class="form-control" id="no_hp" placeholder="Nomor HP pribadi siswa" name="no_hp" value="{{old('no_hp')}}">
                     @error('no_hp')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
@@ -263,6 +263,39 @@
                     @enderror
                   </div>
                 </div>
+
+                <!-- Akun & Kontak SIAWI Mobile Orang Tua -->
+                <div class="card border mt-4 mb-4 shadow-sm" style="border-radius: 8px; border-left: 4px solid #10b981 !important; background: #f8fafc;">
+                  <div class="card-header bg-transparent border-0 pb-0 pt-3 px-3">
+                    <span class="font-weight-bold text-dark d-block" style="font-size: 0.95rem;">
+                      <i class="fas fa-mobile-alt text-success mr-1"></i> Akun &amp; Kontak SIAWI Mobile Orang Tua
+                    </span>
+                    <small class="text-muted">Nomor WhatsApp ini akan digunakan untuk notifikasi dan dasar sinkronisasi akun keluarga multi-anak</small>
+                  </div>
+                  <div class="card-body p-3">
+                    <div class="row">
+                      <div class="form-group col-md-6 mb-2">
+                        <label for="nama_lengkap_ortu" class="font-weight-600 text-dark" style="font-size: 0.88rem;">
+                          <i class="fas fa-user mr-1 text-secondary"></i> Nama Profil Akun Orang Tua / Wali
+                        </label>
+                        <input type="text" class="form-control" id="nama_lengkap_ortu" name="nama_lengkap_ortu" 
+                               value="{{ old('nama_lengkap_ortu') }}" 
+                               placeholder="Kosongkan jika ingin mengikuti nama Ayah/Ibu">
+                        <small class="form-text text-muted">Bila dikosongkan, nama profil akan otomatis mengikuti nama Ayah atau Ibu.</small>
+                      </div>
+                      <div class="form-group col-md-6 mb-2">
+                        <label for="no_hp_ortu" class="font-weight-600 text-dark" style="font-size: 0.88rem;">
+                          <i class="fab fa-whatsapp mr-1 text-success"></i> No. HP / WhatsApp Orang Tua
+                        </label>
+                        <input type="text" class="form-control" id="no_hp_ortu" name="no_hp_ortu" 
+                               value="{{ old('no_hp_ortu') }}" 
+                               placeholder="Contoh: 081234567890">
+                        <small class="form-text text-muted">Jika nomor sama dengan orang tua siswa lain, siswa ini otomatis terhubung ke akun keluarga tersebut.</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- Data Orang Tua (Ayah) -->
                 <div class="border-top pt-4 mt-4 mb-3">
                   <h6 class="font-weight-bold text-dark mb-1 d-flex align-items-center" style="font-size: 1.05rem;">

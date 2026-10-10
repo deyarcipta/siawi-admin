@@ -173,8 +173,8 @@
                 </div>
                 <div class="row">
                   <div class="form-group col-3">
-                    <label for="no_hp">No HP</label>
-                    <input type="text" class="form-control" id="no_hp" placeholder="Enter No Hp" name="no_hp" value="{{$edit->no_hp}}">
+                    <label for="no_hp">No. HP Siswa</label>
+                    <input type="text" class="form-control" id="no_hp" placeholder="Nomor HP pribadi siswa" name="no_hp" value="{{$edit->no_hp}}">
                     @error('no_hp')
                       <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
@@ -290,35 +290,71 @@
                   </div>
                 </div>
 
-                <!-- Akun SIAWI Mobile Orang Tua -->
+                <!-- Akun & Kontak SIAWI Mobile Orang Tua -->
                 <div class="card border mt-4 mb-4 shadow-sm" style="border-radius: 8px; border-left: 4px solid #10b981 !important; background: #f8fafc;">
-                  <div class="card-body p-3">
-                    <div class="d-flex align-items-center justify-content-between flex-wrap">
-                      <div>
-                        <span class="font-weight-bold text-dark d-block" style="font-size: 0.95rem;">
-                          <i class="fas fa-mobile-alt text-success mr-1"></i> Akun Login SIAWI Mobile Orang Tua
-                        </span>
-                        @if($edit->orangTua)
-                          <div class="text-muted mt-1" style="font-size: 0.85rem;">
-                            Username: <code class="text-dark font-weight-bold" style="font-size: 0.9rem;">{{ $edit->orangTua->username }}</code> &nbsp;|&nbsp; 
-                            Nama Akun: <strong>{{ $edit->orangTua->nama_lengkap ?? '-' }}</strong> &nbsp;|&nbsp; 
-                            Status: 
-                            @if($edit->orangTua->status_aktif)
-                              <span class="badge badge-success px-2 py-1">Aktif</span>
-                            @else
-                              <span class="badge badge-danger px-2 py-1">Nonaktif</span>
-                            @endif
-                          </div>
-                        @else
-                          <div class="text-muted mt-1" style="font-size: 0.85rem;">
-                            <span class="badge badge-warning text-dark px-2 py-1 font-weight-bold">Belum Tertaut</span> Akun akan otomatis dibuat &amp; ditautkan saat data disimpan.
-                          </div>
-                        @endif
-                      </div>
+                  <div class="card-header bg-transparent border-0 pb-0 pt-3 px-3 d-flex align-items-center justify-content-between flex-wrap">
+                    <div>
+                      <span class="font-weight-bold text-dark d-block" style="font-size: 0.95rem;">
+                        <i class="fas fa-mobile-alt text-success mr-1"></i> Akun &amp; Kontak SIAWI Mobile Orang Tua
+                      </span>
+                      <small class="text-muted">Kelola nomor WhatsApp dan nama profil akun orang tua secara terpisah dari kontak siswa</small>
+                    </div>
+                    @if($edit->orangTua)
                       <div class="mt-2 mt-md-0">
                         <a href="/admin/siswa/{{ $edit->id_siswa }}" class="btn btn-sm btn-outline-info shadow-xs">
                           <i class="fas fa-eye mr-1"></i> Kontrol Akun di Detail Siswa
                         </a>
+                      </div>
+                    @endif
+                  </div>
+                  <div class="card-body p-3">
+                    @if($edit->orangTua)
+                      <div class="mb-3 p-2 rounded bg-white border d-flex align-items-center justify-content-between flex-wrap" style="font-size: 0.85rem;">
+                        <div>
+                          <span class="text-muted">Username Login:</span>
+                          <code class="text-dark font-weight-bold ml-1" style="font-size: 0.9rem;">{{ $edit->orangTua->username }}</code>
+                        </div>
+                        <div>
+                          <span class="text-muted">Status Akun:</span>
+                          @if($edit->orangTua->status_aktif)
+                            <span class="badge badge-success px-2 py-1 ml-1">Aktif</span>
+                          @else
+                            <span class="badge badge-danger px-2 py-1 ml-1">Nonaktif</span>
+                          @endif
+                        </div>
+                        @if($edit->orangTua->siswa->where('id_siswa', '!=', $edit->id_siswa)->count() > 0)
+                          <div class="w-100 mt-2 pt-2 border-top">
+                            <span class="text-primary font-weight-600"><i class="fas fa-users mr-1"></i> Terhubung dengan {{ $edit->orangTua->siswa->where('id_siswa', '!=', $edit->id_siswa)->count() }} anak lain di sekolah:</span>
+                            @foreach($edit->orangTua->siswa->where('id_siswa', '!=', $edit->id_siswa) as $sib)
+                              <span class="badge badge-light border text-dark ml-1">{{ $sib->nama_siswa }} ({{ $sib->nis }})</span>
+                            @endforeach
+                          </div>
+                        @endif
+                      </div>
+                    @else
+                      <div class="alert alert-warning py-2 px-3 mb-3" style="font-size: 0.85rem;">
+                        <i class="fas fa-info-circle mr-1"></i> <strong>Belum Tertaut:</strong> Akun orang tua akan otomatis dibuat dan ditautkan saat data disimpan.
+                      </div>
+                    @endif
+
+                    <div class="row">
+                      <div class="form-group col-md-6 mb-2">
+                        <label for="nama_lengkap_ortu" class="font-weight-600 text-dark" style="font-size: 0.88rem;">
+                          <i class="fas fa-user mr-1 text-secondary"></i> Nama Profil Akun Orang Tua / Wali
+                        </label>
+                        <input type="text" class="form-control" id="nama_lengkap_ortu" name="nama_lengkap_ortu" 
+                               value="{{ old('nama_lengkap_ortu', $edit->orangTua->nama_lengkap ?? '') }}" 
+                               placeholder="Contoh: Bpk. Ahmad Yani / Ibu Siti">
+                        <small class="form-text text-muted">Nama yang akan tampil pada profil orang tua di aplikasi mobile.</small>
+                      </div>
+                      <div class="form-group col-md-6 mb-2">
+                        <label for="no_hp_ortu" class="font-weight-600 text-dark" style="font-size: 0.88rem;">
+                          <i class="fab fa-whatsapp mr-1 text-success"></i> No. HP / WhatsApp Orang Tua
+                        </label>
+                        <input type="text" class="form-control" id="no_hp_ortu" name="no_hp_ortu" 
+                               value="{{ old('no_hp_ortu', $edit->orangTua->no_hp ?? '') }}" 
+                               placeholder="Contoh: 081234567890">
+                        <small class="form-text text-muted">Untuk WhatsApp notifikasi &amp; sinkronisasi akun keluarga jika memiliki lebih dari 1 anak.</small>
                       </div>
                     </div>
                   </div>

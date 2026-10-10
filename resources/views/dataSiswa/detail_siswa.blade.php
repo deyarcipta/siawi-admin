@@ -138,7 +138,7 @@
                       <td class="text-dark">{{ $detail->no_tlpn ?? '-' }}</td>
                     </tr>
                     <tr>
-                      <td class="font-weight-600 text-secondary">Nomor HP</td>
+                      <td class="font-weight-600 text-secondary">Nomor HP Siswa</td>
                       <td class="text-dark">{{ $detail->no_hp ?? '-' }}</td>
                       <td class="font-weight-600 text-secondary">Email</td>
                       <td class="text-dark">{{ $detail->email ?? '-' }}</td>

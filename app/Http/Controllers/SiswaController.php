@@ -186,10 +186,12 @@ class SiswaController extends Controller
             'tgl_lahir_wali' => $request->tgl_lahir_wali ?? '-',
             'pendidikan_wali' => $request->pendidikan_wali ?? '-',
             'pekerjaan_wali' => $request->pekerjaan_wali ?? '-',
-            'penghasilan_wali' => $request->penghasilan_wali ?? '-',
         ]);
 
-        return redirect('/admin/siswa');
+        // Buat atau tautkan akun orang tua secara otomatis
+        $this->createOrLinkAkunOrtu($siswa, $request->input('no_hp_ortu'), $request->input('nama_lengkap_ortu'));
+
+        return redirect('/admin/siswa')->with('success', 'Data siswa berhasil ditambahkan dan akun orang tua berhasil disinkronkan.');
     }
 
     /**
@@ -346,27 +348,49 @@ class SiswaController extends Controller
             'penghasilan_wali' => $request->penghasilan_wali ?? '-',
         ]);
 
-        // Sinkronisasi akun orang tua jika ada
+        // Sinkronisasi akun orang tua
+        $noHpOrtuRaw = $request->input('no_hp_ortu');
+        $namaOrtuRaw = $request->input('nama_lengkap_ortu');
+
+        $cleanPhoneOrtu = preg_replace('/[^0-9]/', '', (string)$noHpOrtuRaw);
+        $hasValidPhone = strlen($cleanPhoneOrtu) >= 9 && !in_array($cleanPhoneOrtu, ['000000000', '123456789']);
+
+        // Jika nomor HP valid, cek apakah ada akun orang tua lain yang memakai nomor ini (multi-anak linking)
+        if ($hasValidPhone) {
+            $matchedOrtu = OrangTua::where('no_hp', $cleanPhoneOrtu)->first();
+            if ($matchedOrtu && (!$siswa->id_orang_tua || $siswa->id_orang_tua != $matchedOrtu->id_orang_tua)) {
+                $oldOrtuId = $siswa->id_orang_tua;
+                $siswa->id_orang_tua = $matchedOrtu->id_orang_tua;
+                $siswa->save();
+
+                // Hapus akun lama jika akun lama mandiri dan sudah tidak memiliki siswa lain yang tertaut
+                if ($oldOrtuId && Siswa::where('id_orang_tua', $oldOrtuId)->count() === 0) {
+                    OrangTua::where('id_orang_tua', $oldOrtuId)->delete();
+                }
+            }
+        }
+
+        $siswa->refresh();
+
         if ($siswa->orangTua) {
             $ortuUpdates = [];
-            if ($request->filled('nama_ayah') && trim($request->nama_ayah) !== '-') {
+            if ($request->filled('nama_lengkap_ortu')) {
+                $ortuUpdates['nama_lengkap'] = trim($namaOrtuRaw);
+            } elseif ($request->filled('nama_ayah') && trim($request->nama_ayah) !== '-') {
                 $ortuUpdates['nama_lengkap'] = trim($request->nama_ayah);
             } elseif ($request->filled('nama_ibu') && trim($request->nama_ibu) !== '-') {
                 $ortuUpdates['nama_lengkap'] = trim($request->nama_ibu);
             }
 
-            $rawPhone = trim($request->no_hp ?? $request->no_tlpn ?? '');
-            $cleanPhone = preg_replace('/[^0-9]/', '', $rawPhone);
-            if (strlen($cleanPhone) >= 9 && !in_array($cleanPhone, ['000000000', '123456789'])) {
-                $ortuUpdates['no_hp'] = $cleanPhone;
-                if (ctype_digit($siswa->orangTua->username)) {
-                    $ortuUpdates['username'] = $cleanPhone;
-                }
+            if ($request->has('no_hp_ortu')) {
+                $ortuUpdates['no_hp'] = $hasValidPhone ? $cleanPhoneOrtu : null;
             }
 
             if (!empty($ortuUpdates)) {
                 $siswa->orangTua->update($ortuUpdates);
             }
+        } else {
+            $this->createOrLinkAkunOrtu($siswa, $noHpOrtuRaw, $namaOrtuRaw);
         }
 
         if ($request->filled('from') && $request->from === 'siswaPkl') {
@@ -572,15 +596,17 @@ class SiswaController extends Controller
     /**
      * Helper otomatis pembuatan dan penautan akun orang tua.
      */
-    private function createOrLinkAkunOrtu(Siswa $siswa): OrangTua
+    private function createOrLinkAkunOrtu(Siswa $siswa, ?string $customPhone = null, ?string $customName = null): OrangTua
     {
-        $rawPhone = trim($siswa->no_hp ?? $siswa->no_tlpn ?? '');
+        $rawPhone = trim($customPhone ?? '');
         $cleanPhone = preg_replace('/[^0-9]/', '', $rawPhone);
         $hasValidPhone = strlen($cleanPhone) >= 9 && !in_array($cleanPhone, ['000000000', '123456789']);
-        $username = $hasValidPhone ? $cleanPhone : 'ortu_' . trim($siswa->nis);
+        $username = 'ortu_' . trim($siswa->nis);
 
         $namaOrtu = null;
-        if (!empty($siswa->nama_ayah) && trim($siswa->nama_ayah) !== '-') {
+        if (!empty($customName)) {
+            $namaOrtu = trim($customName);
+        } elseif (!empty($siswa->nama_ayah) && trim($siswa->nama_ayah) !== '-') {
             $namaOrtu = trim($siswa->nama_ayah);
         } elseif (!empty($siswa->nama_ibu) && trim($siswa->nama_ibu) !== '-') {
             $namaOrtu = trim($siswa->nama_ibu);
@@ -590,7 +616,15 @@ class SiswaController extends Controller
             $namaOrtu = 'Wali dari ' . $siswa->nama_siswa;
         }
 
-        $ortu = OrangTua::where('username', $username)->first();
+        $ortu = null;
+        if ($hasValidPhone) {
+            $ortu = OrangTua::where('no_hp', $cleanPhone)->first();
+        }
+
+        if (!$ortu) {
+            $ortu = OrangTua::where('username', $username)->first();
+        }
+
         if (!$ortu) {
             $ortu = OrangTua::create([
                 'username' => $username,
@@ -600,6 +634,17 @@ class SiswaController extends Controller
                 'alamat' => $siswa->alamat ?? null,
                 'status_aktif' => true,
             ]);
+        } else {
+            $updates = [];
+            if (!empty($customName)) {
+                $updates['nama_lengkap'] = trim($customName);
+            }
+            if ($hasValidPhone) {
+                $updates['no_hp'] = $cleanPhone;
+            }
+            if (!empty($updates)) {
+                $ortu->update($updates);
+            }
         }
 
         $siswa->id_orang_tua = $ortu->id_orang_tua;
