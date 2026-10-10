@@ -279,6 +279,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     Route::group(['middleware' => ['role:admin']], function () {
         Route::resource('importDataMaster', ImportDataMasterController::class);
         Route::post('/import', [ImportDataMasterController::class, 'importData']);
+        Route::post('/import-foto-zip', [ImportDataMasterController::class, 'importFotoZip'])->name('import-foto-zip');
         Route::resource('jurusan', JurusanController::class);
         Route::resource('level', LevelController::class);
         Route::resource('kelas', KelasController::class);
