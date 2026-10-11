@@ -523,8 +523,8 @@
         </div>
         <div>
           <div class="stat-value">{{ $totalTerlambat }}</div>
-          <p class="stat-subtext" title="{{ $totalTerlambat > 0 ? $totalTerlambat . ' siswa terlambat' : '6 siswa terlambat' }}">
-            {{ $totalTerlambat > 0 ? $totalTerlambat . ' siswa terlambat' : '6 siswa terlambat' }}
+          <p class="stat-subtext" title="{{ $totalTerlambat > 0 ? $totalTerlambat . ' siswa terlambat' : 'Tidak ada siswa terlambat' }}">
+            {{ $totalTerlambat > 0 ? $totalTerlambat . ' siswa terlambat' : 'Tidak ada siswa terlambat' }}
           </p>
         </div>
       </div>
