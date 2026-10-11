@@ -68,12 +68,28 @@ class RapotController extends Controller
         $setting = Setting::find('1');
         $user = Auth::user();
         $rapot = Rapot::orderBy('created_at', 'desc')->get();
-        if ($kelasId) {
-            $siswa = Siswa::where('id_kelas', $kelasId)->orderBy('nama_siswa', 'asc')->get();
+        $isWaliKelasOnly = $user && $user->isWaliKelasStrict(['admin', 'kurikulum']);
+
+        if ($isWaliKelasOnly) {
+            $kelasWali = Kelas::where('id_guru', $user->id_guru)->orderBy('nama_kelas', 'asc')->get();
+            if ($kelasWali->isNotEmpty()) {
+                $kelasWaliIds = $kelasWali->pluck('id_kelas');
+                if ($kelasId && !$kelasWaliIds->contains($kelasId)) {
+                    abort(403, 'Anda tidak memiliki akses ke kelas ini.');
+                }
+                $siswa = Siswa::whereIn('id_kelas', $kelasWaliIds)->with('kelas')->orderBy('nama_siswa', 'asc')->get();
+            } else {
+                abort(403, 'Anda belum ditugaskan sebagai wali kelas.');
+            }
         } else {
-            $siswa = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
+            if ($kelasId) {
+                $siswa = Siswa::where('id_kelas', $kelasId)->with('kelas')->orderBy('nama_siswa', 'asc')->get();
+            } else {
+                $siswa = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
+            }
         }
-        return view('rapot.tambah_rapot', compact('layout','setting','rapot','siswa','kelasId','user'));
+
+        return view('rapot.tambah_rapot', compact('layout', 'setting', 'rapot', 'siswa', 'kelasId', 'user'));
     }
 
     /**
@@ -116,12 +132,15 @@ class RapotController extends Controller
      */
     public function show(string $id_siswa)
     {
-        // dd($id_siswa);
+        if ($id_siswa === 'create') {
+            return redirect()->route('admin.rapot.create');
+        }
+
         $layout = 'layout.app';
         $rapot = Rapot::where('id_siswa', $id_siswa)->get();
         $setting = Setting::find('1');
         $user = Auth::user();
-        return view('rapot.review_rapot', compact('rapot','layout','setting','user'));
+        return view('rapot.review_rapot', compact('rapot', 'layout', 'setting', 'user'));
     }
 
     /**

@@ -153,8 +153,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     // 7.1. E-RAPOT (Admin, Kurikulum, Wali Kelas)
     // =========================================================================
     Route::group(['middleware' => ['role:admin,kurikulum,wali_kelas']], function () {
-        Route::resource('rapot', RapotController::class)->except(['create']);
         Route::get('rapot/create/{kelasId?}', [RapotController::class, 'create'])->name('rapot.create');
+        Route::resource('rapot', RapotController::class)->except(['create']);
     });
 
     // =========================================================================
