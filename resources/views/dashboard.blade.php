@@ -491,7 +491,9 @@
         </div>
         <div>
           <div class="stat-value">{{ $totalSiswa }}</div>
-          <p class="stat-subtext" title="Aktif T.A. 2026/27">Aktif T.A. 2026/27</p>
+          <p class="stat-subtext" title="Aktif T.A. {{ $setting->tahun_ajaran ?? '2026/2027' }} ({{ $setting->semester_aktif ?? 'Ganjil' }})">
+            Aktif T.A. {{ $setting->tahun_ajaran ?? '2026/2027' }} ({{ $setting->semester_aktif ?? 'Ganjil' }})
+          </p>
         </div>
       </div>
     </div>

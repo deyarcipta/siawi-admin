@@ -90,6 +90,27 @@
                                                     </div>
                                                     <div class="row">
                                                         <div class="form-group col-md-6">
+                                                            <label for="tahun_ajaran" class="font-weight-bold">Tahun Ajaran Aktif <span class="text-danger">*</span></label>
+                                                            <input type="text" class="form-control" id="tahun_ajaran" placeholder="Contoh: 2026/2027" name="tahun_ajaran" value="{{ $setting->tahun_ajaran ?? '2026/2027' }}" required>
+                                                            <small class="text-muted"><i class="fas fa-calendar-check mr-1"></i> Ditampilkan pada Dashboard & dokumen resmi.</small>
+                                                            @error('tahun_ajaran')
+                                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                        <div class="form-group col-md-6">
+                                                            <label for="semester_aktif" class="font-weight-bold">Semester Aktif <span class="text-danger">*</span></label>
+                                                            <select class="form-control" id="semester_aktif" name="semester_aktif" required>
+                                                                <option value="Ganjil" {{ ($setting->semester_aktif ?? 'Ganjil') == 'Ganjil' ? 'selected' : '' }}>Semester Ganjil</option>
+                                                                <option value="Genap" {{ ($setting->semester_aktif ?? '') == 'Genap' ? 'selected' : '' }}>Semester Genap</option>
+                                                            </select>
+                                                            <small class="text-muted"><i class="fas fa-clock mr-1"></i> Periode semester akademik berjalan.</small>
+                                                            @error('semester_aktif')
+                                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="form-group col-md-6">
                                                             <label for="nama_kepsek">Nama Kepala Sekolah</label>
                                                             <input type="text" class="form-control" id="nama_kepsek" placeholder="Enter Nama Kepsek" name="nama_kepsek" value="{{$setting->nama_kepsek}}" required>
                                                             @error('nama_kepsek')

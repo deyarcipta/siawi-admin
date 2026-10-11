@@ -134,6 +134,16 @@ class SettingController extends Controller
                     $table->string('kop_surat')->nullable()->after('logo');
                 });
             }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('setting', 'tahun_ajaran')) {
+                \Illuminate\Support\Facades\Schema::table('setting', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('tahun_ajaran', 50)->default('2026/2027')->nullable()->after('nama_sekolah');
+                });
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('setting', 'semester_aktif')) {
+                \Illuminate\Support\Facades\Schema::table('setting', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('semester_aktif', 20)->default('Ganjil')->nullable()->after('tahun_ajaran');
+                });
+            }
         } catch (\Exception $e) {}
 
         // Cek apakah request mengandung data yang perlu diproses dari settingDasar
@@ -141,6 +151,8 @@ class SettingController extends Controller
             $request->validate([
                 'nama_app' => 'required',
                 'nama_sekolah' => 'required',
+                'tahun_ajaran' => 'nullable|string|max:50',
+                'semester_aktif' => 'nullable|string|max:20',
                 'nama_kepsek' => 'required',
                 'nip_kepsek' => 'required',
                 'alamat' => 'required',
@@ -254,6 +266,8 @@ class SettingController extends Controller
                 $setting->update([
                     'nama_app' => $request->nama_app,
                     'nama_sekolah' => $request->nama_sekolah,
+                    'tahun_ajaran' => $request->input('tahun_ajaran', $setting->tahun_ajaran ?? '2026/2027'),
+                    'semester_aktif' => $request->input('semester_aktif', $setting->semester_aktif ?? 'Ganjil'),
                     'nama_kepsek' => $request->nama_kepsek,
                     'nip_kepsek' => $request->nip_kepsek,
                     'alamat' => $request->alamat,
