@@ -44,11 +44,11 @@
               <div class="row">
                 <div class="form-group col-md-6 mb-3">
                   <label for="id_siswa" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Pilih Siswa <span class="text-danger">*</span></label>
-                  <select class="form-control" name="id_siswa" id="id_siswa" required style="border-radius: 8px; height: 42px;">
-                    <option value="">-- Pilih Siswa --</option>
+                  <select class="form-control select2" name="id_siswa" id="id_siswa" required style="width: 100%;">
+                    <option value="">-- Cari atau Pilih Siswa --</option>
                     @foreach ($siswa as $data)
-                      <option value="{{$data->id_siswa}}" {{ old('id_siswa') == $data->id_siswa ? 'selected' : '' }}>
-                        {{ $data->nama_siswa }} ({{ $data->kelas->nama_kelas ?? '-' }})
+                      <option value="{{$data->id_siswa}}" {{ old('id_siswa', request('id_siswa')) == $data->id_siswa ? 'selected' : '' }}>
+                        {{ $data->nama_siswa }} - {{ $data->kelas->nama_kelas ?? 'Tanpa Kelas' }} (NIS: {{ $data->nis ?? $data->nisn ?? '-' }})
                       </option>
                     @endforeach
                   </select>
@@ -104,3 +104,45 @@
   </div>
 </div>
 @endsection
+
+@push('scripts')
+<style>
+  .select2-container--bootstrap4 .select2-selection--single {
+    height: 42px !important;
+    border-radius: 8px !important;
+    border: 1px solid #ced4da !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+    line-height: 40px !important;
+    padding-left: 12px !important;
+    font-size: 0.95rem !important;
+    color: #495057 !important;
+  }
+  .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    right: 12px !important;
+  }
+  .select2-container--bootstrap4 .select2-dropdown {
+    border-radius: 8px !important;
+    border: 1px solid #ced4da !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08) !important;
+  }
+  .select2-container--bootstrap4 .select2-search--dropdown .select2-search__field {
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+  }
+</style>
+<script>
+  $(document).ready(function() {
+    $('#id_siswa').select2({
+      theme: 'bootstrap4',
+      width: '100%',
+      placeholder: '-- Cari atau Pilih Siswa --',
+      allowClear: true
+    });
+  });
+</script>
+@endpush

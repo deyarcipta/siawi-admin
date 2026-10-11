@@ -1935,6 +1935,18 @@
         ]
       });
     }
+
+    // Inisialisasi otomatis Select2 untuk elemen dengan class .select2
+    if ($.fn.select2) {
+      $('.select2:not(#id_siswa)').each(function() {
+        if (!$(this).hasClass('select2-hidden-accessible')) {
+          $(this).select2({
+            theme: 'bootstrap4',
+            width: '100%'
+          });
+        }
+      });
+    }
   });
 </script>
 
