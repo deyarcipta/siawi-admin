@@ -39,9 +39,23 @@ class ImportDataMasterController extends Controller
 
         try {
             Excel::import(new MasterImport, $request->file('file'));
-            return redirect()->back()->with('success', 'Data Master siswa dan akun orang tua berhasil diimpor & disinkronkan!');
+            $msg = 'Data Master siswa dan akun orang tua berhasil diimpor & disinkronkan!';
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $msg
+                ]);
+            }
+            return redirect()->back()->with('success', $msg);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengimpor data: ' . $e->getMessage());
+            $errMsg = 'Terjadi kesalahan saat mengimpor data: ' . $e->getMessage();
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errMsg
+                ], 500);
+            }
+            return redirect()->back()->with('error', $errMsg);
         }
     }
 
@@ -150,7 +164,14 @@ class ImportDataMasterController extends Controller
             $zip->close();
 
             if ($successCount === 0 && $skippedCount === 0) {
-                return redirect()->back()->with('error', 'Tidak ditemukan berkas gambar (.jpg, .jpeg, .png, .webp) di dalam berkas ZIP.');
+                $errMsg = 'Tidak ditemukan berkas gambar (.jpg, .jpeg, .png, .webp) di dalam berkas ZIP.';
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errMsg
+                    ], 422);
+                }
+                return redirect()->back()->with('error', $errMsg);
             }
 
             $message = "Berhasil mengimpor dan memperbarui foto untuk {$successCount} siswa.";
@@ -160,9 +181,25 @@ class ImportDataMasterController extends Controller
                 $message .= " Terdapat {$skippedCount} foto dilewati karena NIS tidak ditemukan di database ({$nisList}{$more}).";
             }
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'success_count' => $successCount,
+                    'skipped_count' => $skippedCount
+                ]);
+            }
+
             return redirect()->back()->with('success', $message);
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat memproses arsip foto ZIP: ' . $e->getMessage());
+            $errMsg = 'Terjadi kesalahan saat memproses arsip foto ZIP: ' . $e->getMessage();
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errMsg
+                ], 500);
+            }
+            return redirect()->back()->with('error', $errMsg);
         }
     }
 
