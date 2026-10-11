@@ -874,8 +874,13 @@
 
           <!-- Student List with Dropdown -->
           <div style="max-height: 380px; overflow-y: auto; padding-right: 4px;">
+            @php
+              $sortedSiswaBelumAbsen = collect($data['siswaBelumAbsen'])->sortBy(function ($s) {
+                  return strtolower(trim($s->nama_siswa ?? ''));
+              })->values();
+            @endphp
             <ul class="list-group list-group-flush">
-              @foreach ($data['siswaBelumAbsen'] as $idx => $siswa)
+              @foreach ($sortedSiswaBelumAbsen as $idx => $siswa)
                 @php
                   $initialS = strtoupper(substr($siswa->nama_siswa ?? 'S', 0, 1));
                   $avatarColorList = ['avatar-blue', 'avatar-purple', 'avatar-green', 'avatar-amber'];

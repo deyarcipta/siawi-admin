@@ -64,7 +64,7 @@ class RekapBelumAbsenController extends Controller
                     
                     $siswaBelumAbsen = $kelas->siswa->filter(function ($siswa) use ($siswaSudahAbsenIds) {
                         return !in_array($siswa->id_siswa, $siswaSudahAbsenIds);
-                    });
+                    })->sortBy(fn($s) => strtolower(trim($s->nama_siswa ?? '')))->values();
 
                     if ($siswaBelumAbsen->count() > 0) {
                         $pesanWa = self::generateWaMessage($kelas, $siswaBelumAbsen, $date, $setting->nama_sekolah ?? null);
@@ -174,7 +174,8 @@ class RekapBelumAbsenController extends Controller
 
         $daftarSiswaText = "";
         $no = 1;
-        foreach ($siswaBelumAbsen as $s) {
+        $siswaBelumAbsenSorted = collect($siswaBelumAbsen)->sortBy(fn($s) => strtolower(trim($s->nama_siswa ?? '')))->values();
+        foreach ($siswaBelumAbsenSorted as $s) {
             $nis = $s->nis ?? '-';
             $daftarSiswaText .= "{$no}. *{$s->nama_siswa}* (NIS: {$nis})\n";
             $no++;
@@ -223,7 +224,7 @@ class RekapBelumAbsenController extends Controller
 
         $siswaBelumAbsen = $kelas->siswa->filter(function ($siswa) use ($siswaSudahAbsenIds) {
             return !in_array($siswa->id_siswa, $siswaSudahAbsenIds);
-        });
+        })->sortBy(fn($s) => strtolower(trim($s->nama_siswa ?? '')))->values();
 
         if ($siswaBelumAbsen->count() == 0) {
             return response()->json([
@@ -281,7 +282,7 @@ class RekapBelumAbsenController extends Controller
 
             $siswaBelumAbsen = $kelas->siswa->filter(function ($siswa) use ($siswaSudahAbsenIds) {
                 return !in_array($siswa->id_siswa, $siswaSudahAbsenIds);
-            });
+            })->sortBy(fn($s) => strtolower(trim($s->nama_siswa ?? '')))->values();
 
             if ($siswaBelumAbsen->count() > 0) {
                 $wali = $kelas->waliKelas;

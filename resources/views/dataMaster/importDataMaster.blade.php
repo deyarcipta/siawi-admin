@@ -192,15 +192,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Tombol Kembali -->
-        <div class="row">
-            <div class="col-12 mb-4">
-                <a href="/admin/dashboard" class="btn btn-outline-secondary px-3 py-2 font-weight-500" style="border-radius: 8px; min-height: 44px; display: inline-flex; align-items: center;">
-                    <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard
-                </a>
-            </div>
-        </div>
     </div>
 </div>
 

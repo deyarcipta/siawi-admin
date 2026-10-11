@@ -112,10 +112,12 @@ class DashboardController extends Controller
                 ->pluck('id_siswa')
                 ->toArray();
 
-            // Ambil daftar siswa yang belum absen dan tidak sedang PKL
+            // Ambil daftar siswa yang belum absen dan tidak sedang PKL (diurutkan abjad nama siswa A-Z)
             $siswaBelumAbsen = $kelas->siswa->filter(function ($siswa) use ($siswaSudahAbsen, $siswaSedangPKL) {
                 return !in_array($siswa->id_siswa, $siswaSudahAbsen) && !in_array($siswa->id_siswa, $siswaSedangPKL);
-            });
+            })->sortBy(function ($s) {
+                return strtolower(trim($s->nama_siswa ?? ''));
+            })->values();
 
             return [
                 'kelas' => $kelas,
