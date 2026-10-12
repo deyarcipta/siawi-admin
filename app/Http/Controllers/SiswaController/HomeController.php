@@ -21,8 +21,7 @@ class HomeController extends Controller
     public function index(String $id_siswa)
     {
         $siswa = Siswa::where('id_siswa', $id_siswa)
-        ->with('kelas')
-        ->with('jurusan')
+        ->with(['kelas.waliKelas', 'jurusan'])
         ->first();
         $today = Carbon::now()->toDateString();
         $totalKehadiran = Absensi::where('id_siswa', $id_siswa)->count();
