@@ -12,6 +12,7 @@ use App\Models\Absensi;
 use App\Models\Rapot;
 use App\Models\Guru;
 use App\Models\Kelas;
+use App\Models\Setting;
 use Carbon\Carbon;
 use DB;
 
