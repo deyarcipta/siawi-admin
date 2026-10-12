@@ -15,6 +15,21 @@ use Illuminate\Support\Facades\Validator;
 class PengajuanPklController extends Controller
 {
     /**
+     * Mengambil daftar perusahaan mitra untuk dropdown
+     */
+    public function getPerusahaan()
+    {
+        $perusahaan = Perusahaan::orderBy('nama_perusahaan', 'asc')
+            ->get(['id_perusahaan', 'nama_perusahaan', 'alamat_perusahaan', 'penanggung_jawab']);
+
+        return response()->json([
+            'success' => true,
+            'data' => $perusahaan,
+            'message' => 'Berhasil mengambil daftar mitra perusahaan'
+        ]);
+    }
+
+    /**
      * Mengambil riwayat pengajuan surat PKL untuk siswa tertentu (via SIAWI App)
      */
     public function index(string $id_siswa)
@@ -29,45 +44,46 @@ class PengajuanPklController extends Controller
 
         // Cari pengajuan di mana siswa adalah pemohon atau terdaftar sebagai anggota kelompok
         $pengajuanIds = PengajuanSuratPklSiswa::where('id_siswa', $id_siswa)
-            ->orWhere('nisn', $siswa->nisn)
-            ->pluck('pengajuan_id')
+            ->orWhere('nis', $siswa->nis)
+            ->pluck('id_pengajuan')
             ->toArray();
 
         $pengajuanList = PengajuanSuratPkl::where('id_siswa_pemohon', $id_siswa)
-            ->orWhereIn('id', $pengajuanIds)
+            ->orWhereIn('id_pengajuan', $pengajuanIds)
             ->with(['siswaList', 'perusahaan'])
-            ->latest()
+            ->latest('id_pengajuan')
             ->get();
 
         $data = $pengajuanList->map(function ($item) {
             return [
-                'id' => $item->id,
+                'id_pengajuan' => $item->id_pengajuan,
+                'id' => $item->id_pengajuan,
                 'kode_pengajuan' => $item->kode_pengajuan,
                 'nomor_surat' => $item->nomor_surat,
                 'tanggal_surat' => $item->tanggal_surat ? Carbon::parse($item->tanggal_surat)->translatedFormat('d F Y') : null,
                 'nama_perusahaan' => $item->nama_perusahaan,
                 'alamat_perusahaan' => $item->alamat_perusahaan,
-                'tujuan_nama' => $item->tujuan_nama,
-                'tujuan_jabatan' => $item->tujuan_jabatan,
-                'periode_mulai' => $item->periode_mulai ? Carbon::parse($item->periode_mulai)->format('Y-m-d') : null,
-                'periode_selesai' => $item->periode_selesai ? Carbon::parse($item->periode_selesai)->format('Y-m-d') : null,
+                'ditujukan_kepada' => $item->ditujukan_kepada ?? $item->tujuan_nama,
+                'jabatan_tujuan' => $item->jabatan_tujuan ?? $item->tujuan_jabatan,
+                'tanggal_mulai' => $item->tanggal_mulai ? Carbon::parse($item->tanggal_mulai)->format('Y-m-d') : null,
+                'tanggal_selesai' => $item->tanggal_selesai ? Carbon::parse($item->tanggal_selesai)->format('Y-m-d') : null,
                 'periode_teks' => $item->periode_teks,
-                'durasi_bulan' => $item->durasi_bulan,
-                'catatan_pemohon' => $item->catatan_pemohon,
-                'status' => $item->status,
-                'catatan_admin' => $item->catatan_admin,
+                'catatan_siswa' => $item->catatan_siswa ?? $item->catatan_pemohon,
+                'status' => $item->status ?? 'menunggu',
+                'catatan_bkk' => $item->catatan_bkk,
                 'disetujui_pada' => $item->disetujui_pada ? Carbon::parse($item->disetujui_pada)->translatedFormat('d F Y H:i') : null,
                 'tanggal_pengajuan' => $item->created_at ? $item->created_at->translatedFormat('d F Y') : null,
-                'jumlah_siswa' => $item->siswaList->count(),
-                'siswa' => $item->siswaList->map(function ($s, $idx) {
+                'jumlah_siswa' => $item->siswaList ? $item->siswaList->count() : 1,
+                'siswa' => $item->siswaList ? $item->siswaList->map(function ($s, $idx) {
                     return [
                         'no' => $idx + 1,
                         'id_siswa' => $s->id_siswa,
-                        'nisn' => $s->nisn,
+                        'nis' => $s->nis,
                         'nama_siswa' => $s->nama_siswa,
                         'program_keahlian' => $s->program_keahlian,
+                        'kelas' => $s->kelas,
                     ];
-                }),
+                }) : [],
             ];
         });
 
@@ -86,15 +102,16 @@ class PengajuanPklController extends Controller
         $validator = Validator::make($request->all(), [
             'id_siswa' => 'required',
             'nama_perusahaan' => 'required|string|max:255',
-            'tujuan_nama' => 'nullable|string|max:150',
-            'tujuan_jabatan' => 'nullable|string|max:150',
+            'ditujukan_kepada' => 'nullable|string|max:150',
+            'jabatan_tujuan' => 'nullable|string|max:150',
             'alamat_perusahaan' => 'nullable|string',
             'id_perusahaan' => 'nullable|integer',
-            'periode_mulai' => 'required|date',
-            'periode_selesai' => 'required|date|after_or_equal:periode_mulai',
-            'durasi_bulan' => 'nullable|integer|min:1|max:24',
-            'catatan_pemohon' => 'nullable|string|max:500',
-            'anggota_siswa' => 'nullable|array', // Opsional array siswa tambahan jika berkelompok
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+            'periode_teks' => 'nullable|string|max:255',
+            'kontak_pemohon' => 'nullable|string|max:50',
+            'catatan_siswa' => 'nullable|string|max:500',
+            'anggota_siswa' => 'nullable|array',
         ]);
 
         if ($validator->fails()) {
@@ -113,10 +130,12 @@ class PengajuanPklController extends Controller
             ], 404);
         }
 
-        // Hitung durasi bulan jika tidak disertakan
-        $mulai = Carbon::parse($request->periode_mulai);
-        $selesai = Carbon::parse($request->periode_selesai);
-        $durasiBulan = $request->durasi_bulan ?: max(1, (int) round($mulai->diffInDays($selesai) / 30));
+        $mulai = Carbon::parse($request->tanggal_mulai);
+        $selesai = Carbon::parse($request->tanggal_selesai);
+        $periodeTeks = $request->periode_teks;
+        if (empty($periodeTeks)) {
+            $periodeTeks = $mulai->translatedFormat('d F Y') . ' s/d ' . $selesai->translatedFormat('d F Y');
+        }
 
         // Generate kode unik pengajuan
         $prefix = 'PKL-' . date('Ym') . '-';
@@ -127,62 +146,68 @@ class PengajuanPklController extends Controller
         try {
             $pengajuan = PengajuanSuratPkl::create([
                 'kode_pengajuan' => $kodePengajuan,
+                'nomor_surat' => null,
+                'tanggal_surat' => now()->toDateString(),
+                'hal' => 'Permohonan PKL',
                 'id_siswa_pemohon' => $pemohon->id_siswa,
-                'nama_pemohon' => $pemohon->nama ?? 'Siswa SIAWI',
-                'nisn_pemohon' => $pemohon->nisn ?? null,
-                'id_perusahaan' => $request->id_perusahaan,
+                'nama_pemohon' => $pemohon->nama_siswa ?? $pemohon->nama ?? 'Siswa SIAWI',
+                'kontak_pemohon' => $request->kontak_pemohon ?? ($pemohon->no_hp ?? '-'),
+                'id_perusahaan' => $request->id_perusahaan ?: null,
                 'nama_perusahaan' => trim($request->nama_perusahaan),
-                'tujuan_nama' => $request->tujuan_nama ? trim($request->tujuan_nama) : 'Pimpinan / HRD',
-                'tujuan_jabatan' => $request->tujuan_jabatan ? trim($request->tujuan_jabatan) : 'H.R & Learning Manager',
+                'ditujukan_kepada' => $request->ditujukan_kepada ? trim($request->ditujukan_kepada) : ($request->tujuan_nama ?? 'Pimpinan / HRD'),
+                'jabatan_tujuan' => $request->jabatan_tujuan ? trim($request->jabatan_tujuan) : ($request->tujuan_jabatan ?? 'H.R & Learning Manager'),
                 'alamat_perusahaan' => $request->alamat_perusahaan,
-                'periode_mulai' => $request->periode_mulai,
-                'periode_selesai' => $request->periode_selesai,
-                'durasi_bulan' => $durasiBulan,
-                'catatan_pemohon' => $request->catatan_pemohon,
+                'periode_teks' => $periodeTeks,
+                'tanggal_mulai' => $request->tanggal_mulai,
+                'tanggal_selesai' => $request->tanggal_selesai,
+                'catatan_siswa' => $request->catatan_siswa ?? $request->catatan_pemohon,
                 'status' => 'menunggu',
             ]);
 
             // Selalu tambahkan pemohon sebagai siswa nomor 1
             $jurusanPemohon = $pemohon->jurusan->nama_jurusan ?? ($pemohon->kelas->jurusan->nama_jurusan ?? 'Pariwisata');
+            $kelasPemohon = $pemohon->kelas->nama_kelas ?? '-';
+
             PengajuanSuratPklSiswa::create([
-                'pengajuan_id' => $pengajuan->id,
+                'id_pengajuan' => $pengajuan->id_pengajuan,
                 'id_siswa' => $pemohon->id_siswa,
-                'nisn' => $pemohon->nisn,
-                'nama_siswa' => $pemohon->nama,
+                'nama_siswa' => $pemohon->nama_siswa ?? $pemohon->nama,
+                'nis' => $pemohon->nis ?? $pemohon->nisn,
                 'program_keahlian' => $jurusanPemohon,
-                'urutan' => 1,
+                'kelas' => $kelasPemohon,
             ]);
 
             // Jika ada teman sekelompok yang didaftarkan
             if ($request->has('anggota_siswa') && is_array($request->anggota_siswa)) {
-                $urutan = 2;
                 foreach ($request->anggota_siswa as $anggota) {
                     $idAnggota = $anggota['id_siswa'] ?? null;
                     if ($idAnggota && $idAnggota == $pemohon->id_siswa) {
-                        continue; // Lewati jika duplikat pemohon
+                        continue;
                     }
 
-                    $namaSiswa = trim($anggota['nama_siswa'] ?? '');
+                    $namaSiswa = trim($anggota['nama_siswa'] ?? ($anggota['nama'] ?? ''));
+                    $nis = $anggota['nis'] ?? null;
+                    $keahlian = $anggota['program_keahlian'] ?? $jurusanPemohon;
+                    $kelas = $anggota['kelas'] ?? $kelasPemohon;
+
                     if (empty($namaSiswa) && $idAnggota) {
-                        $sObj = Siswa::with('jurusan')->find($idAnggota);
+                        $sObj = Siswa::with(['jurusan', 'kelas'])->find($idAnggota);
                         if ($sObj) {
-                            $namaSiswa = $sObj->nama;
-                            $nisn = $sObj->nisn;
-                            $keahlian = $sObj->jurusan->nama_jurusan ?? 'Pariwisata';
+                            $namaSiswa = $sObj->nama_siswa ?? $sObj->nama;
+                            $nis = $sObj->nis;
+                            $keahlian = $sObj->jurusan->nama_jurusan ?? $jurusanPemohon;
+                            $kelas = $sObj->kelas->nama_kelas ?? $kelasPemohon;
                         }
-                    } else {
-                        $nisn = $anggota['nisn'] ?? null;
-                        $keahlian = $anggota['program_keahlian'] ?? 'Pariwisata';
                     }
 
                     if (!empty($namaSiswa)) {
                         PengajuanSuratPklSiswa::create([
-                            'pengajuan_id' => $pengajuan->id,
+                            'id_pengajuan' => $pengajuan->id_pengajuan,
                             'id_siswa' => $idAnggota,
-                            'nisn' => $nisn,
                             'nama_siswa' => $namaSiswa,
+                            'nis' => $nis,
                             'program_keahlian' => $keahlian,
-                            'urutan' => $urutan++,
+                            'kelas' => $kelas,
                         ]);
                     }
                 }
@@ -193,13 +218,13 @@ class PengajuanPklController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'id' => $pengajuan->id,
+                    'id_pengajuan' => $pengajuan->id_pengajuan,
                     'kode_pengajuan' => $pengajuan->kode_pengajuan,
                     'nama_perusahaan' => $pengajuan->nama_perusahaan,
                     'status' => $pengajuan->status,
                     'tanggal_pengajuan' => Carbon::now()->translatedFormat('d F Y'),
                 ],
-                'message' => 'Pengajuan surat permohonan PKL berhasil dikirim. Menunggu verifikasi BKK/Hubin.'
+                'message' => 'Pengajuan surat permohonan PKL berhasil dikirim! Menunggu persetujuan BKK & Hubin.'
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -215,7 +240,10 @@ class PengajuanPklController extends Controller
      */
     public function show(string $id)
     {
-        $pengajuan = PengajuanSuratPkl::with(['siswaList', 'perusahaan', 'penyetuju'])->find($id);
+        $pengajuan = PengajuanSuratPkl::with(['siswaList', 'perusahaan', 'penyetuju'])
+            ->where('id_pengajuan', $id)
+            ->first();
+
         if (!$pengajuan) {
             return response()->json([
                 'success' => false,
@@ -226,32 +254,32 @@ class PengajuanPklController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'id' => $pengajuan->id,
+                'id_pengajuan' => $pengajuan->id_pengajuan,
                 'kode_pengajuan' => $pengajuan->kode_pengajuan,
                 'nomor_surat' => $pengajuan->nomor_surat,
                 'tanggal_surat' => $pengajuan->tanggal_surat ? Carbon::parse($pengajuan->tanggal_surat)->translatedFormat('d F Y') : null,
                 'nama_perusahaan' => $pengajuan->nama_perusahaan,
-                'tujuan_nama' => $pengajuan->tujuan_nama,
-                'tujuan_jabatan' => $pengajuan->tujuan_jabatan,
+                'ditujukan_kepada' => $pengajuan->ditujukan_kepada,
+                'jabatan_tujuan' => $pengajuan->jabatan_tujuan,
                 'alamat_perusahaan' => $pengajuan->alamat_perusahaan,
-                'periode_mulai' => $pengajuan->periode_mulai,
-                'periode_selesai' => $pengajuan->periode_selesai,
-                'durasi_bulan' => $pengajuan->durasi_bulan,
+                'tanggal_mulai' => $pengajuan->tanggal_mulai,
+                'tanggal_selesai' => $pengajuan->tanggal_selesai,
                 'periode_teks' => $pengajuan->periode_teks,
                 'status' => $pengajuan->status,
-                'catatan_pemohon' => $pengajuan->catatan_pemohon,
-                'catatan_admin' => $pengajuan->catatan_admin,
+                'catatan_siswa' => $pengajuan->catatan_siswa,
+                'catatan_bkk' => $pengajuan->catatan_bkk,
                 'disetujui_pada' => $pengajuan->disetujui_pada ? Carbon::parse($pengajuan->disetujui_pada)->translatedFormat('d F Y H:i') : null,
-                'nama_penyetuju' => $pengajuan->penyetuju->nama ?? 'BKK / Hubin',
-                'siswa' => $pengajuan->siswaList->map(function ($s, $idx) {
+                'nama_penyetuju' => $pengajuan->penyetuju->nama_guru ?? 'BKK / Hubin',
+                'siswa' => $pengajuan->siswaList ? $pengajuan->siswaList->map(function ($s, $idx) {
                     return [
                         'no' => $idx + 1,
                         'id_siswa' => $s->id_siswa,
-                        'nisn' => $s->nisn,
+                        'nis' => $s->nis,
                         'nama_siswa' => $s->nama_siswa,
                         'program_keahlian' => $s->program_keahlian,
+                        'kelas' => $s->kelas,
                     ];
-                }),
+                }) : [],
             ],
             'message' => 'Berhasil mengambil detail pengajuan'
         ]);
