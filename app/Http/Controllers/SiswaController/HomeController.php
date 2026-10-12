@@ -45,6 +45,44 @@ class HomeController extends Controller
                             ->where('tanggal', $today)
                             ->first();
 
+        // Ambil data penempatan PKL resmi dari SiswaPkl
+        $siswaPkl = \App\Models\SiswaPkl::where('id_siswa', $id_siswa)
+            ->with(['perusahaan.guru', 'perusahaan'])
+            ->latest()
+            ->first();
+
+        if ($siswaPkl instanceof \Illuminate\Database\Eloquent\Model) {
+            $siswaPkl->append(['status_pkl', 'status_label']);
+        }
+
+        // Jika belum ada di siswa_pkl, cek juga apakah ada di pengajuan PKL
+        if (!$siswaPkl && $siswa) {
+            $pengajuan = \App\Models\PengajuanSuratPkl::where(function($q) use ($id_siswa, $siswa) {
+                $q->where('id_siswa_pemohon', $id_siswa)
+                  ->orWhereHas('siswaList', function($sq) use ($id_siswa, $siswa) {
+                      $sq->where('id_siswa', $id_siswa)
+                         ->orWhere('nis', $siswa->nis);
+                  });
+            })->latest()->first();
+
+            if ($pengajuan) {
+                $siswaPkl = [
+                    'status' => $pengajuan->status,
+                    'status_label' => ucfirst($pengajuan->status),
+                    'perusahaan' => [
+                        'nama_perusahaan' => $pengajuan->nama_perusahaan,
+                        'alamat_perusahaan' => $pengajuan->alamat_perusahaan,
+                        'penanggung_jawab' => $pengajuan->ditujukan_kepada,
+                        'guru' => [
+                            'nama_guru' => $pengajuan->nama_penandatangan ?? '-'
+                        ]
+                    ],
+                    'tanggal_mulai' => $pengajuan->tanggal_mulai,
+                    'tanggal_selesai' => $pengajuan->tanggal_selesai
+                ];
+            }
+        }
+
         $rapotTerakhir = Rapot::where('id_siswa', $id_siswa)
                             ->latest()
                             ->first();
@@ -70,6 +108,7 @@ class HomeController extends Controller
             'data' => $siswa,
             'rapotTerakhir' => $rapotTerakhir,
             'dataRapot' => $dataRapot,
+            'siswaPkl' => $siswaPkl,
             'pesan' => $pesan,
             'presentaseKehadiran' => $presentaseKehadiran,
             'kehadiranToday' => $kehadiranToday,
