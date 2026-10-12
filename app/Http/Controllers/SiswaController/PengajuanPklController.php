@@ -17,6 +17,46 @@ class PengajuanPklController extends Controller
     /**
      * Mengambil daftar perusahaan mitra untuk dropdown
      */
+    
+    /**
+     * Mengambil daftar teman siswa satu level / tingkat untuk pilihan anggota kelompok PKL
+     */
+    public function getTemanSelevel(string $id_siswa)
+    {
+        $siswa = Siswa::find($id_siswa);
+        if (!$siswa) {
+            return response()->json([
+                'success' => false,
+                'data' => [],
+                'message' => 'Data siswa tidak ditemukan'
+            ], 404);
+        }
+
+        $query = Siswa::where('id_siswa', '!=', $id_siswa)
+            ->with(['kelas', 'jurusan']);
+
+        if ($siswa->id_level) {
+            $query->where('id_level', $siswa->id_level);
+        }
+
+        $teman = $query->orderBy('nama_siswa', 'asc')
+            ->get(['id_siswa', 'nama_siswa', 'nis', 'id_kelas', 'id_jurusan'])
+            ->map(function ($s) {
+                return [
+                    'id_siswa' => $s->id_siswa,
+                    'nama_siswa' => $s->nama_siswa,
+                    'nis' => $s->nis,
+                    'kelas' => $s->kelas->nama_kelas ?? '-',
+                    'program_keahlian' => $s->jurusan->nama_jurusan ?? '-',
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $teman,
+            'message' => 'Berhasil mengambil daftar teman selevel'
+        ]);
+    }
     public function getPerusahaan()
     {
         $perusahaan = Perusahaan::orderBy('nama_perusahaan', 'asc')

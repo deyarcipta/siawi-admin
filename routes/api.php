@@ -61,6 +61,7 @@ Route::post('/siswa-presence', [AbsensiController::class, 'store']);
 
 // Pengajuan Surat Permohonan PKL (SIAWI Mobile App)
 Route::get('/perusahaan', [\App\Http\Controllers\SiswaController\PengajuanPklController::class, 'getPerusahaan']);
+Route::get('/pengajuan-pkl/teman/{idSiswa}', [\App\Http\Controllers\SiswaController\PengajuanPklController::class, 'getTemanSelevel']);
 Route::get('/pengajuan-pkl/{idSiswa}', [\App\Http\Controllers\SiswaController\PengajuanPklController::class, 'index']);
 Route::post('/pengajuan-pkl', [\App\Http\Controllers\SiswaController\PengajuanPklController::class, 'store']);
 Route::get('/pengajuan-pkl/detail/{id}', [\App\Http\Controllers\SiswaController\PengajuanPklController::class, 'show']);
