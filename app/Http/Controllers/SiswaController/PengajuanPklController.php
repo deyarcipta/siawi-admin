@@ -8,6 +8,7 @@ use App\Models\PengajuanSuratPkl;
 use App\Models\PengajuanSuratPklSiswa;
 use App\Models\Siswa;
 use App\Models\Perusahaan;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -168,6 +169,21 @@ class PengajuanPklController extends Controller
                 'success' => false,
                 'message' => 'Data siswa pemohon tidak ditemukan'
             ], 404);
+        }
+
+        $setting = Setting::first();
+        $siswaKodeLevel = $pemohon->kelas ? ($pemohon->kelas->kode_level ?? null) : null;
+        if (!$siswaKodeLevel && $pemohon->kelas && $pemohon->kelas->nama_kelas) {
+            $parts = explode('-', $pemohon->kelas->nama_kelas);
+            $siswaKodeLevel = trim($parts[0] ?? '');
+        }
+        $isPklLevel = $setting ? $setting->isLevelPkl($siswaKodeLevel) : in_array($siswaKodeLevel, ['XI', 'XII']);
+
+        if (!$isPklLevel) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Layanan pengajuan surat PKL hanya dapat diakses oleh siswa pada tingkat aktif PKL.'
+            ], 403);
         }
 
         $mulai = Carbon::parse($request->tanggal_mulai);
