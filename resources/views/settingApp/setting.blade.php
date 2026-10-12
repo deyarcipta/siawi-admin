@@ -437,45 +437,168 @@
                                 </div>
 
                                 <!-- Pengaturan Tingkat / Level Kelas PKL -->
-                                <div class="card card-outline card-info shadow-sm mt-4 mb-0">
-                                    <div class="card-header py-2">
-                                        <h3 class="card-title font-weight-bold">
+                                <div class="card card-outline card-info shadow-sm mt-4 mb-0 level-pkl-section">
+                                    <div class="card-header py-2 d-flex align-items-center justify-content-between">
+                                        <h3 class="card-title font-weight-bold mb-0">
                                             <i class="fas fa-briefcase text-info mr-2"></i> Pengaturan Tingkat / Level Kelas PKL
                                         </h3>
+                                        <span class="badge badge-light border text-muted px-2 py-1 small">
+                                            <i class="fas fa-sliders-h mr-1 text-info"></i> Filter Partisipasi PKL
+                                        </span>
                                     </div>
                                     <div class="card-body">
                                         <form action="/admin/setting/{{$setting->id}}" method="POST">
                                             @method('PUT')
                                             @csrf
                                             <input type="hidden" name="pkl_settings" value="1">
-                                            <p class="text-muted small mb-3">
-                                                Tentukan tingkat kelas siswa yang mengikuti program Praktik Kerja Lapangan (PKL). Bagian status &amp; penempatan PKL hanya akan ditampilkan pada detail siswa dan dashboard jika siswa berada pada tingkat kelas yang dicentang di bawah ini.
-                                            </p>
+                                            
+                                            <!-- Informational Callout -->
+                                            <div class="alert alert-light border mb-4 p-3" style="border-radius: 10px; border-left: 4px solid #17a2b8 !important; background-color: #f8fcfe;">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="mr-3 text-info" style="font-size: 1.25rem; line-height: 1;">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </div>
+                                                    <div class="small text-secondary mb-0">
+                                                        <strong class="text-dark d-block mb-1">Pengaturan Visibilitas Modul PKL:</strong>
+                                                        Pilih tingkat kelas yang mengikuti program Praktik Kerja Lapangan (PKL). Bagi siswa yang berada pada tingkat kelas yang <em>tidak dicentang</em>, kartu status penempatan PKL akan <strong>otomatis disembunyikan</strong> di halaman detail siswa admin maupun pada dashboard aplikasi wali murid.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <style>
+                                                .level-pkl-card {
+                                                    display: flex;
+                                                    align-items: center;
+                                                    justify-content: space-between;
+                                                    padding: 14px 16px;
+                                                    border: 2px solid #e2e8f0;
+                                                    border-radius: 12px;
+                                                    background: #ffffff;
+                                                    cursor: pointer;
+                                                    transition: all 0.22s ease-in-out;
+                                                    margin-bottom: 0;
+                                                    user-select: none;
+                                                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+                                                }
+                                                .level-pkl-card:hover {
+                                                    border-color: #93c5fd;
+                                                    background-color: #f8faff;
+                                                    transform: translateY(-2px);
+                                                    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+                                                }
+                                                .level-pkl-card.is-selected {
+                                                    border-color: #0284c7;
+                                                    background-color: #f0f9ff;
+                                                    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.14);
+                                                }
+                                                .level-pkl-icon {
+                                                    width: 42px;
+                                                    height: 42px;
+                                                    border-radius: 10px;
+                                                    background: #f1f5f9;
+                                                    color: #64748b;
+                                                    display: flex;
+                                                    align-items: center;
+                                                    justify-content: center;
+                                                    font-size: 1.15rem;
+                                                    transition: all 0.2s ease;
+                                                    flex-shrink: 0;
+                                                }
+                                                .level-pkl-card.is-selected .level-pkl-icon {
+                                                    background: #0284c7;
+                                                    color: #ffffff;
+                                                }
+                                                .level-pkl-checkbox {
+                                                    width: 20px;
+                                                    height: 20px;
+                                                    cursor: pointer;
+                                                    accent-color: #0284c7;
+                                                    margin: 0;
+                                                    flex-shrink: 0;
+                                                }
+                                            </style>
+
+                                            <!-- Level Cards Grid -->
                                             <div class="row">
                                                 @php
                                                     $selectedLevels = $setting->level_pkl ?? ['XI', 'XII'];
-                                                    $levelsList = isset($allLevels) ? $allLevels : \App\Models\Level::orderBy('id_level', 'asc')->get();
+                                                    $rawLevels = isset($allLevels) ? $allLevels : \App\Models\Level::all();
+                                                    $orderMap = ['X' => 1, 'XI' => 2, 'XII' => 3, 'XIII' => 4];
+                                                    $levelsList = $rawLevels->sortBy(function($lvl) use ($orderMap) {
+                                                        $k = strtoupper(trim($lvl->kode_level ?? ''));
+                                                        return $orderMap[$k] ?? 99;
+                                                    });
                                                 @endphp
+
                                                 @foreach($levelsList as $lvl)
-                                                    <div class="col-md-4 mb-2">
-                                                        <div class="custom-control custom-checkbox p-2 border rounded bg-light">
-                                                            <input type="checkbox" class="custom-control-input" id="level_pkl_{{ $lvl->id_level }}" name="level_pkl[]" value="{{ $lvl->kode_level }}" {{ in_array($lvl->kode_level, $selectedLevels) ? 'checked' : '' }}>
-                                                            <label class="custom-control-label font-weight-bold text-dark" for="level_pkl_{{ $lvl->id_level }}">
-                                                                Tingkat {{ $lvl->nama_level }}
-                                                                <span class="badge badge-secondary ml-1 font-weight-normal">Kelas {{ $lvl->kode_level }}</span>
-                                                            </label>
-                                                        </div>
+                                                    @php
+                                                        $isChecked = in_array($lvl->kode_level, $selectedLevels);
+                                                    @endphp
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="level_pkl_{{ $lvl->id_level }}" class="level-pkl-card w-100 {{ $isChecked ? 'is-selected' : '' }}">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="level-pkl-icon mr-3">
+                                                                    <i class="fas fa-graduation-cap"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <div class="font-weight-bold text-dark" style="font-size: 0.95rem; line-height: 1.2;">
+                                                                        Tingkat {{ $lvl->nama_level }}
+                                                                    </div>
+                                                                    <div class="small text-muted mt-1">
+                                                                        Jenjang Kelas <span class="font-weight-bold text-dark">{{ $lvl->kode_level }}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="d-flex flex-column align-items-end pl-2">
+                                                                <input type="checkbox" 
+                                                                       class="level-pkl-checkbox" 
+                                                                       id="level_pkl_{{ $lvl->id_level }}" 
+                                                                       name="level_pkl[]" 
+                                                                       value="{{ $lvl->kode_level }}" 
+                                                                       {{ $isChecked ? 'checked' : '' }}
+                                                                       onchange="toggleLevelPklCard(this)">
+                                                                <span class="badge {{ $isChecked ? 'badge-info' : 'badge-secondary' }} status-pkl-badge font-weight-normal px-2 py-1 mt-2" style="font-size: 0.72rem;">
+                                                                    @if($isChecked)
+                                                                        <i class="fas fa-check mr-1"></i> Aktif PKL
+                                                                    @else
+                                                                        <i class="fas fa-times mr-1"></i> Tidak PKL
+                                                                    @endif
+                                                                </span>
+                                                            </div>
+                                                        </label>
                                                     </div>
                                                 @endforeach
                                             </div>
-                                            <div class="text-right mt-3">
-                                                <button type="submit" class="btn btn-info px-4 font-weight-bold">
+
+                                            <div class="d-flex justify-content-end align-items-center mt-3 pt-2 border-top">
+                                                <button type="submit" class="btn btn-info px-4 py-2 font-weight-bold shadow-sm" style="border-radius: 8px;">
                                                     <i class="fas fa-save mr-1"></i> Simpan Pengaturan Level PKL
                                                 </button>
                                             </div>
                                         </form>
                                     </div>
                                 </div>
+
+                                <script>
+                                    function toggleLevelPklCard(cb) {
+                                        const card = cb.closest('.level-pkl-card');
+                                        if (!card) return;
+                                        const badge = card.querySelector('.status-pkl-badge');
+                                        if (cb.checked) {
+                                            card.classList.add('is-selected');
+                                            if (badge) {
+                                                badge.className = 'badge badge-info status-pkl-badge font-weight-normal px-2 py-1 mt-2';
+                                                badge.innerHTML = '<i class="fas fa-check mr-1"></i> Aktif PKL';
+                                            }
+                                        } else {
+                                            card.classList.remove('is-selected');
+                                            if (badge) {
+                                                badge.className = 'badge badge-secondary status-pkl-badge font-weight-normal px-2 py-1 mt-2';
+                                                badge.innerHTML = '<i class="fas fa-times mr-1"></i> Tidak PKL';
+                                            }
+                                        }
+                                    }
+                                </script>
                             </div>
 
                             <!-- ========================================== -->
