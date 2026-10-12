@@ -10,6 +10,8 @@ use App\Models\Siswa;
 use App\Models\OrangTua;
 use App\Models\Absensi;
 use App\Models\Rapot;
+use App\Models\Guru;
+use App\Models\Kelas;
 use Carbon\Carbon;
 use DB;
 
@@ -21,8 +23,21 @@ class HomeController extends Controller
     public function index(String $id_siswa)
     {
         $siswa = Siswa::where('id_siswa', $id_siswa)
-        ->with(['kelas.waliKelas', 'jurusan'])
-        ->first();
+            ->with(['kelas.waliKelas', 'jurusan'])
+            ->first();
+
+        // Pastikan relasi waliKelas selalu terambil dari tabel guru jika id_guru tersedia
+        $waliKelas = null;
+        if ($siswa && $siswa->kelas) {
+            $waliKelas = $siswa->kelas->waliKelas;
+            if (!$waliKelas && $siswa->kelas->id_guru) {
+                $waliKelas = Guru::find($siswa->kelas->id_guru);
+            }
+            if ($waliKelas) {
+                $siswa->kelas->setRelation('waliKelas', $waliKelas);
+            }
+        }
+
         $today = Carbon::now()->toDateString();
         $totalKehadiran = Absensi::where('id_siswa', $id_siswa)->count();
 
@@ -105,6 +120,7 @@ class HomeController extends Controller
         return response()->json([
             'success' => true,
             'data' => $siswa,
+            'waliKelas' => $waliKelas,
             'rapotTerakhir' => $rapotTerakhir,
             'dataRapot' => $dataRapot,
             'siswaPkl' => $siswaPkl,
@@ -197,8 +213,15 @@ class HomeController extends Controller
             }
 
             $children = Siswa::where('id_orang_tua', $ortu->id_orang_tua)
-                ->with(['kelas', 'jurusan'])
+                ->with(['kelas.waliKelas', 'jurusan'])
                 ->get();
+
+            foreach ($children as $child) {
+                if ($child->kelas && !$child->kelas->waliKelas && $child->kelas->id_guru) {
+                    $w = Guru::find($child->kelas->id_guru);
+                    if ($w) $child->kelas->setRelation('waliKelas', $w);
+                }
+            }
             $defaultChild = $children->first();
 
             // Format backward-compatible untuk aplikasi mobile lama & baru
@@ -295,8 +318,15 @@ class HomeController extends Controller
     public function getChildrenOrangTua($idOrangTua)
     {
         $children = Siswa::where('id_orang_tua', $idOrangTua)
-            ->with(['kelas', 'jurusan'])
+            ->with(['kelas.waliKelas', 'jurusan'])
             ->get();
+
+        foreach ($children as $child) {
+            if ($child->kelas && !$child->kelas->waliKelas && $child->kelas->id_guru) {
+                $w = Guru::find($child->kelas->id_guru);
+                if ($w) $child->kelas->setRelation('waliKelas', $w);
+            }
+        }
 
         return response()->json([
             'success' => true,
