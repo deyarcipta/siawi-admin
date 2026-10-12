@@ -60,6 +60,25 @@ class HomeController extends Controller
                             ->where('tanggal', $today)
                             ->first();
 
+        // Hitung Streak Disiplin Biometrik (Opsi B: Konsisten Hadir & Tap Mesin Tepat Waktu)
+        $riwayatStreak = Absensi::where('id_siswa', $id_siswa)
+                            ->orderBy('tanggal', 'desc')
+                            ->take(60)
+                            ->get();
+
+        $streakBiometrik = 0;
+        foreach ($riwayatStreak as $rAbsen) {
+            $stat = strtolower($rAbsen->kehadiran ?? '');
+            $tipe = strtolower($rAbsen->tipe_masuk ?? '');
+
+            // Syarat Opsi B: Hadir tepat waktu dan verifikasi lewat mesin gerbang
+            if ($stat === 'hadir' && $tipe === 'mesin') {
+                $streakBiometrik++;
+            } else {
+                break; // Terputus jika terlambat, alpa, izin, sakit, atau input manual piket
+            }
+        }
+
         // Ambil data penempatan PKL resmi dari SiswaPkl
         $siswaPkl = \App\Models\SiswaPkl::where('id_siswa', $id_siswa)
             ->with(['perusahaan.guru', 'perusahaan'])
@@ -137,6 +156,7 @@ class HomeController extends Controller
             'pesan' => $pesan,
             'presentaseKehadiran' => $presentaseKehadiran,
             'kehadiranToday' => $kehadiranToday,
+            'streak_biometrik' => $streakBiometrik,
             'setting' => $setting,
             'nama_sekolah' => $setting ? $setting->nama_sekolah : 'SMK Wisata Indonesia',
             'tahun_ajaran' => $setting ? $setting->tahun_ajaran : '2026/2027',
