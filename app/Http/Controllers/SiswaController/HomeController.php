@@ -137,6 +137,10 @@ class HomeController extends Controller
             'pesan' => $pesan,
             'presentaseKehadiran' => $presentaseKehadiran,
             'kehadiranToday' => $kehadiranToday,
+            'setting' => $setting,
+            'nama_sekolah' => $setting ? $setting->nama_sekolah : 'SMK Wisata Indonesia',
+            'tahun_ajaran' => $setting ? $setting->tahun_ajaran : '2026/2027',
+            'semester_aktif' => $setting ? ($setting->semester_aktif ?? 'Ganjil') : 'Ganjil',
             'message' => 'Berhasil login'
         ]);
     }
