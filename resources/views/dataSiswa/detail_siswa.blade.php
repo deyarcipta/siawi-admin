@@ -367,6 +367,18 @@
               </div>
 
               <!-- Bagian 4: Status & Penempatan PKL -->
+              @php
+                $activePkl = $detail->siswaPkl->sortByDesc('tanggal_mulai')->first();
+                $siswaKodeLevel = $detail->kelas->kode_level ?? null;
+                if (!$siswaKodeLevel && $detail->kelas && $detail->kelas->nama_kelas) {
+                    $parts = explode('-', $detail->kelas->nama_kelas);
+                    $siswaKodeLevel = trim($parts[0] ?? '');
+                }
+                $isEligiblePkl = $setting ? $setting->isLevelPkl($siswaKodeLevel) : in_array($siswaKodeLevel, ['XI', 'XII']);
+                $showPklSection = $activePkl || $isEligiblePkl;
+              @endphp
+
+              @if($showPklSection)
               <div class="table-responsive mt-3">
                 <table class="table table-bordered align-middle">
                   <thead>
@@ -377,9 +389,6 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @php
-                      $activePkl = $detail->siswaPkl->sortByDesc('tanggal_mulai')->first();
-                    @endphp
                     @if($activePkl)
                       <tr>
                         <td class="font-weight-600 text-secondary" style="width: 20%;">Perusahaan Mitra DU/DI</td>
@@ -434,6 +443,7 @@
                   </tbody>
                 </table>
               </div>
+              @endif
             </div>
           </div>
         </div>

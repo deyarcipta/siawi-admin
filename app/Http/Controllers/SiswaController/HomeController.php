@@ -117,6 +117,14 @@ class HomeController extends Controller
             $pesan = 'Rapot terakhir tidak ditemukan.';
         }
 
+        $setting = Setting::first();
+        $siswaKodeLevel = $siswa && $siswa->kelas ? ($siswa->kelas->kode_level ?? null) : null;
+        if (!$siswaKodeLevel && $siswa && $siswa->kelas && $siswa->kelas->nama_kelas) {
+            $parts = explode('-', $siswa->kelas->nama_kelas);
+            $siswaKodeLevel = trim($parts[0] ?? '');
+        }
+        $isPklLevel = $setting ? $setting->isLevelPkl($siswaKodeLevel) : in_array($siswaKodeLevel, ['XI', 'XII']);
+
         return response()->json([
             'success' => true,
             'data' => $siswa,
@@ -124,6 +132,7 @@ class HomeController extends Controller
             'rapotTerakhir' => $rapotTerakhir,
             'dataRapot' => $dataRapot,
             'siswaPkl' => $siswaPkl,
+            'is_pkl_level' => $isPklLevel,
             'pesan' => $pesan,
             'presentaseKehadiran' => $presentaseKehadiran,
             'kehadiranToday' => $kehadiranToday,

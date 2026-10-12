@@ -96,4 +96,22 @@ class Setting extends Model
 
         return array_replace_recursive($default, $decoded);
     }
+
+    public function getLevelPklAttribute($value)
+    {
+        if (!$value) {
+            return ['XI', 'XII'];
+        }
+        $decoded = json_decode($value, true);
+        return is_array($decoded) ? $decoded : ['XI', 'XII'];
+    }
+
+    public function isLevelPkl($kodeLevel): bool
+    {
+        if (empty($kodeLevel)) {
+            return false;
+        }
+        $allowed = $this->level_pkl;
+        return in_array(strtoupper(trim($kodeLevel)), array_map('strtoupper', $allowed));
+    }
 }

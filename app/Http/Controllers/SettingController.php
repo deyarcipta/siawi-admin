@@ -25,8 +25,9 @@ class SettingController extends Controller
         session(['old_logo' => $setting->logo]);
         
         $waSessions = WhatsAppSession::all();
+        $allLevels = \App\Models\Level::orderBy('id_level', 'asc')->get();
         
-        return view('settingApp.setting', compact('layout','setting','appVersi','user', 'waSessions'));
+        return view('settingApp.setting', compact('layout','setting','appVersi','user', 'waSessions', 'allLevels'));
     }
 
     /**
@@ -369,6 +370,16 @@ class SettingController extends Controller
             ]);
 
             return redirect('/admin/setting')->with('success', 'Pengaturan Surat Peringatan (SP) berhasil diperbarui.');
+        }
+
+        // Cek apakah request mengandung 'pkl_settings'
+        if ($request->has('pkl_settings')) {
+            $levels = $request->input('level_pkl', []);
+            $setting->update([
+                'level_pkl' => json_encode($levels),
+            ]);
+
+            return redirect('/admin/setting')->with('success', 'Pengaturan tingkat kelas PKL berhasil diperbarui.');
         }
 
         // Cek apakah request mengandung 'wa_settings'

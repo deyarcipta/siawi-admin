@@ -435,6 +435,47 @@
                                         </form>
                                     </div>
                                 </div>
+
+                                <!-- Pengaturan Tingkat / Level Kelas PKL -->
+                                <div class="card card-outline card-info shadow-sm mt-4 mb-0">
+                                    <div class="card-header py-2">
+                                        <h3 class="card-title font-weight-bold">
+                                            <i class="fas fa-briefcase text-info mr-2"></i> Pengaturan Tingkat / Level Kelas PKL
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <form action="/admin/setting/{{$setting->id}}" method="POST">
+                                            @method('PUT')
+                                            @csrf
+                                            <input type="hidden" name="pkl_settings" value="1">
+                                            <p class="text-muted small mb-3">
+                                                Tentukan tingkat kelas siswa yang mengikuti program Praktik Kerja Lapangan (PKL). Bagian status &amp; penempatan PKL hanya akan ditampilkan pada detail siswa dan dashboard jika siswa berada pada tingkat kelas yang dicentang di bawah ini.
+                                            </p>
+                                            <div class="row">
+                                                @php
+                                                    $selectedLevels = $setting->level_pkl ?? ['XI', 'XII'];
+                                                    $levelsList = isset($allLevels) ? $allLevels : \App\Models\Level::orderBy('id_level', 'asc')->get();
+                                                @endphp
+                                                @foreach($levelsList as $lvl)
+                                                    <div class="col-md-4 mb-2">
+                                                        <div class="custom-control custom-checkbox p-2 border rounded bg-light">
+                                                            <input type="checkbox" class="custom-control-input" id="level_pkl_{{ $lvl->id_level }}" name="level_pkl[]" value="{{ $lvl->kode_level }}" {{ in_array($lvl->kode_level, $selectedLevels) ? 'checked' : '' }}>
+                                                            <label class="custom-control-label font-weight-bold text-dark" for="level_pkl_{{ $lvl->id_level }}">
+                                                                Tingkat {{ $lvl->nama_level }}
+                                                                <span class="badge badge-secondary ml-1 font-weight-normal">Kelas {{ $lvl->kode_level }}</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                            <div class="text-right mt-3">
+                                                <button type="submit" class="btn btn-info px-4 font-weight-bold">
+                                                    <i class="fas fa-save mr-1"></i> Simpan Pengaturan Level PKL
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- ========================================== -->
