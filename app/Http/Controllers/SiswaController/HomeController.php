@@ -71,11 +71,16 @@ class HomeController extends Controller
             $stat = strtolower($rAbsen->kehadiran ?? '');
             $tipe = strtolower($rAbsen->tipe_masuk ?? '');
 
-            // Syarat Opsi B: Hadir tepat waktu dan verifikasi lewat mesin gerbang
-            if ($stat === 'hadir' && $tipe === 'mesin') {
+            // Syarat Opsi B: Hadir tepat waktu (maksimal jam 07:00) dan verifikasi lewat mesin gerbang
+            $jamMasuk = $rAbsen->jam_masuk ?? '';
+            $ket = strtolower($rAbsen->keterangan ?? '');
+            $isTepatWaktu = !empty($jamMasuk) && $jamMasuk <= '07:00:59';
+            $isBukanTerlambat = !str_contains($ket, 'terlambat');
+
+            if ($stat === 'hadir' && $tipe === 'mesin' && $isTepatWaktu && $isBukanTerlambat) {
                 $streakBiometrik++;
             } else {
-                break; // Terputus jika terlambat, alpa, izin, sakit, atau input manual piket
+                break; // Terputus jika lewat 07:00, terlambat, alpa, izin, sakit, atau input manual piket
             }
         }
 
