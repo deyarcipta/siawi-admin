@@ -48,7 +48,7 @@ class FcmService
     }
 
     /**
-     * Broadcast Push Notification to all active student & parent devices.
+     * Broadcast Push Notification to all active student devices.
      *
      * @param string $title
      * @param string $body
@@ -60,6 +60,86 @@ class FcmService
         $tokens = \App\Models\SiswaFcmToken::pluck('fcm_token')->toArray();
         $legacyTokens = \App\Models\Siswa::whereNotNull('fcm_token')->where('fcm_token', '!=', '')->pluck('fcm_token')->toArray();
         $allTokens = array_unique(array_filter(array_merge($tokens, $legacyTokens)));
+
+        $sentCount = 0;
+        foreach ($allTokens as $token) {
+            if (self::sendNotification($token, $title, $body, $data)) {
+                $sentCount++;
+            }
+        }
+
+        return $sentCount;
+    }
+
+    /**
+     * Send Push Notification directly to Parent devices (Multi-Device).
+     *
+     * @param \App\Models\OrangTua|int $orangTua
+     * @param string $title
+     * @param string $body
+     * @param array $data
+     * @return int
+     */
+    public static function sendToOrangTua($orangTua, $title, $body, $data = [])
+    {
+        if (is_numeric($orangTua)) {
+            $orangTua = \App\Models\OrangTua::with('fcmTokens')->find($orangTua);
+        }
+
+        if (!$orangTua) {
+            return 0;
+        }
+
+        $tokens = [];
+        if ($orangTua->relationLoaded('fcmTokens') || method_exists($orangTua, 'fcmTokens')) {
+            $tokens = $orangTua->fcmTokens->pluck('fcm_token')->filter()->toArray();
+        }
+
+        $sentCount = 0;
+        foreach (array_unique($tokens) as $token) {
+            if (self::sendNotification($token, $title, $body, $data)) {
+                $sentCount++;
+            }
+        }
+
+        return $sentCount;
+    }
+
+    /**
+     * Send Push Notification to the registered Parents of a given Student.
+     * Useful for attendance notifications, disciplinary points, tuition bills, etc.
+     *
+     * @param \App\Models\Siswa|int $siswa
+     * @param string $title
+     * @param string $body
+     * @param array $data
+     * @return int
+     */
+    public static function sendToParentsOfStudent($siswa, $title, $body, $data = [])
+    {
+        if (is_numeric($siswa)) {
+            $siswa = \App\Models\Siswa::find($siswa);
+        }
+
+        if (!$siswa || empty($siswa->id_orang_tua)) {
+            return 0;
+        }
+
+        return self::sendToOrangTua($siswa->id_orang_tua, $title, $body, $data);
+    }
+
+    /**
+     * Broadcast Push Notification to all active Parent devices.
+     *
+     * @param string $title
+     * @param string $body
+     * @param array $data
+     * @return int
+     */
+    public static function broadcastToAllParents($title, $body, $data = [])
+    {
+        $tokens = \App\Models\OrangTuaFcmToken::pluck('fcm_token')->filter()->toArray();
+        $allTokens = array_unique($tokens);
 
         $sentCount = 0;
         foreach ($allTokens as $token) {

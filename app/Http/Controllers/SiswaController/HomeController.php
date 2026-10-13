@@ -382,26 +382,38 @@ class HomeController extends Controller
 
         $idSiswa = $request->input('idSiswa');
         $idOrangTua = $request->input('id_orang_tua');
+        $role = $request->input('role');
 
-        if ($idOrangTua) {
-            $children = Siswa::where('id_orang_tua', $idOrangTua)->get();
-            foreach ($children as $c) {
-                $tokenHash = md5($c->id_siswa . '_' . $request->fcm_token);
-                \App\Models\SiswaFcmToken::updateOrCreate(
+        if ($idOrangTua || $role === 'orang_tua') {
+            $ortuId = $idOrangTua;
+            if (!$ortuId && $request->filled('username')) {
+                $ortu = \App\Models\OrangTua::where('username', $request->username)->first();
+                $ortuId = $ortu ? $ortu->id_orang_tua : null;
+            }
+
+            if ($ortuId) {
+                $tokenHash = md5($ortuId . '_' . $request->fcm_token);
+                \App\Models\OrangTuaFcmToken::updateOrCreate(
                     ['token_hash' => $tokenHash],
                     [
-                        'id_siswa' => $c->id_siswa,
+                        'id_orang_tua' => $ortuId,
                         'fcm_token' => $request->fcm_token,
                         'device_name' => $request->input('device_name', 'Parent Device'),
                         'updated_at' => now(),
                     ]
                 );
-            }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'FCM Token updated successfully for parent devices'
-            ]);
+                // Bersihkan token dari tabel siswa jika sebelumnya sempat tercampur
+                \App\Models\SiswaFcmToken::where('fcm_token', $request->fcm_token)
+                    ->where('device_name', 'Parent Device')
+                    ->delete();
+
+                return response()->json([
+                    'success' => true,
+                    'role' => 'orang_tua',
+                    'message' => 'FCM Token orang tua berhasil disimpan terpisah.'
+                ]);
+            }
         }
 
         if ($idSiswa) {
@@ -411,20 +423,21 @@ class HomeController extends Controller
                     'fcm_token' => $request->fcm_token
                 ]);
 
-                $tokenHash = md5($request->fcm_token);
+                $tokenHash = md5($siswa->id_siswa . '_' . $request->fcm_token);
                 \App\Models\SiswaFcmToken::updateOrCreate(
                     ['token_hash' => $tokenHash],
                     [
                         'id_siswa' => $siswa->id_siswa,
                         'fcm_token' => $request->fcm_token,
-                        'device_name' => $request->input('device_name', 'Mobile Device'),
+                        'device_name' => $request->input('device_name', 'Student Device'),
                         'updated_at' => now(),
                     ]
                 );
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'FCM Token updated successfully'
+                    'role' => 'siswa',
+                    'message' => 'FCM Token siswa berhasil disimpan terpisah.'
                 ]);
             }
         }

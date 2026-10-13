@@ -30,6 +30,14 @@ class OrangTua extends Authenticatable
     }
 
     /**
+     * Relasi ke seluruh perangkat aktif orang tua (Multi-Device FCM Tokens)
+     */
+    public function fcmTokens()
+    {
+        return $this->hasMany(OrangTuaFcmToken::class, 'id_orang_tua', 'id_orang_tua');
+    }
+
+    /**
      * Helper pembuatan atau penautan akun orang tua untuk siswa secara otomatis.
      * Menggunakan hierarki prioritas kontak: 1. Ibu -> 2. Ayah -> 3. Wali -> 4. Siswa
      */

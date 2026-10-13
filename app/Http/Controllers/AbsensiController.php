@@ -163,12 +163,18 @@ class AbsensiController extends Controller
 
             \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
 
-            // Send push notification if student exists (Multi-Device)
+            // Send push notification to student & parent devices separately
             if ($siswa) {
                 \App\Services\FcmService::sendToSiswa(
                     $siswa,
                     'Absensi Hari Ini',
                     "Status absensi kamu hari ini (" . date('d-m-Y') . ") telah diperbarui: " . ucfirst($kehadiran)
+                );
+
+                \App\Services\FcmService::sendToParentsOfStudent(
+                    $siswa,
+                    'Kehadiran Siswa',
+                    "Pemberitahuan: Ananda {$siswa->nama_siswa} telah tercatat " . ucfirst($kehadiran) . " pada " . date('d-m-Y') . "."
                 );
             }
         }
@@ -234,12 +240,18 @@ class AbsensiController extends Controller
 
         \App\Services\WhatsAppNotificationService::sendAttendanceNotification($absensi);
 
-        // Fetch student and notify (Multi-Device)
+        // Fetch student and notify student & parents separately
         if ($siswa) {
             \App\Services\FcmService::sendToSiswa(
                 $siswa,
                 'Absensi Siswa',
                 "Status absensi kamu pada tanggal " . $tanggal . " telah dicatat: " . ucfirst($kehadiran)
+            );
+
+            \App\Services\FcmService::sendToParentsOfStudent(
+                $siswa,
+                'Kehadiran Siswa',
+                "Pemberitahuan: Ananda {$siswa->nama_siswa} telah dicatat " . ucfirst($kehadiran) . " pada tanggal " . $tanggal . "."
             );
         }
 
