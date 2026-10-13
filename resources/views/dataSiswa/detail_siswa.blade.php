@@ -73,10 +73,15 @@
                   <tbody>
                     <tr>
                       <td rowspan="5" class="align-middle text-center p-3" style="background: #f8fafc;">
-                        @if($detail->foto && $detail->foto !== 'avatar.jpg' && (file_exists(public_path('storage/foto-siswa/' . $detail->foto)) || file_exists(storage_path('app/public/foto-siswa/' . $detail->foto))))
+                        @php
+                          $isPerempuan = in_array(strtoupper(trim($detail->jenis_kelamin ?? '')), ['P', 'PEREMPUAN']);
+                          $defaultAvatar = $isPerempuan ? 'avatar_female.png' : 'avatar_male.png';
+                          $isDefaultName = in_array($detail->foto ?? '', ['avatar.jpg', 'avatar.png', 'avatar_male.jpg', 'avatar_male.png', 'avatar_female.jpg', 'avatar_female.png']);
+                        @endphp
+                        @if($detail->foto && !$isDefaultName && (file_exists(public_path('storage/foto-siswa/' . $detail->foto)) || file_exists(storage_path('app/public/foto-siswa/' . $detail->foto))))
                           <img src="{{ asset('storage/foto-siswa/' . $detail->foto) }}" alt="Foto Siswa" class="img-thumbnail rounded shadow-sm" style="width: 140px; height: 190px; object-fit: cover;">
                         @else
-                          <img src="{{ asset('lte/dist/img/avatar.png') }}" alt="Avatar Default" class="img-thumbnail rounded shadow-sm" style="width: 140px; height: 190px; object-fit: cover;">
+                          <img src="{{ asset('lte/dist/img/' . $defaultAvatar) }}" alt="Avatar Default" class="img-thumbnail rounded shadow-sm" style="width: 140px; height: 190px; object-fit: cover;">
                         @endif
                       </td>
                       <td class="font-weight-600 text-secondary" style="width: 220px;">NIS</td>

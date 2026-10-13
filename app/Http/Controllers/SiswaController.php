@@ -130,7 +130,8 @@ class SiswaController extends Controller
             // 'kota' => 'required',
         ]);
 
-        $nama_file = 'avatar.jpg';
+        $isPerempuan = in_array(strtoupper(trim($request->jenis_kelamin ?? '')), ['P', 'PEREMPUAN']);
+        $nama_file = $isPerempuan ? 'avatar_female.jpg' : 'avatar_male.jpg';
         // Periksa apakah file diunggah
         if ($request->hasFile('foto')) {
             if (!Storage::disk('public')->exists('foto-siswa')) {
@@ -288,8 +289,9 @@ class SiswaController extends Controller
             if (!Storage::disk('public')->exists('foto-siswa')) {
                 Storage::disk('public')->makeDirectory('foto-siswa');
             }
-            if ($siswa->foto && $siswa->foto != 'avatar.jpg') {
-                // Hapus foto lama dari penyimpanan jika bukan "avatar.jpg"
+            $isOldDefault = in_array($siswa->foto, ['avatar.jpg', 'avatar.png', 'avatar_male.jpg', 'avatar_male.png', 'avatar_female.jpg', 'avatar_female.png']);
+            if ($siswa->foto && !$isOldDefault) {
+                // Hapus foto lama dari penyimpanan jika bukan avatar default
                 Storage::disk('public')->delete('foto-siswa/' . $siswa->foto);
                 if (file_exists(public_path('storage/foto-siswa/' . $siswa->foto))) {
                     @unlink(public_path('storage/foto-siswa/' . $siswa->foto));
@@ -302,7 +304,14 @@ class SiswaController extends Controller
             $siswa->foto = $nama_file;
         } else {
             // Pertahankan foto yang sudah ada jika tidak mengunggah file baru
-            $siswa->foto = $siswa->foto ?? session('old_foto') ?? 'avatar.jpg';
+            $currentFoto = $siswa->foto ?? session('old_foto');
+            $isCurrentDefault = in_array($currentFoto, [null, '', 'avatar.jpg', 'avatar.png', 'avatar_male.jpg', 'avatar_male.png', 'avatar_female.jpg', 'avatar_female.png']);
+            if ($isCurrentDefault) {
+                $isPerempuan = in_array(strtoupper(trim($request->jenis_kelamin ?? $siswa->jenis_kelamin ?? '')), ['P', 'PEREMPUAN']);
+                $siswa->foto = $isPerempuan ? 'avatar_female.jpg' : 'avatar_male.jpg';
+            } else {
+                $siswa->foto = $currentFoto;
+            }
         }
 
         // Hapus nama file dari session setelah digunakan

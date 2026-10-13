@@ -75,9 +75,6 @@ class MasterImport implements ToModel, WithHeadingRow
         // Cek data siswa yang sudah ada jika ada
         $existingSiswa = Siswa::where('nis', $nis)->first();
 
-        $foto = ($existingSiswa && !empty($existingSiswa->foto)) ? $existingSiswa->foto : 'avatar.jpg';
-        $password = ($existingSiswa && !empty($existingSiswa->password)) ? $existingSiswa->password : 'siswa123';
-
         // Format No. HP
         $noHpSiswa = $this->formatPhone($row['no_hp'] ?? $row['no_hp_siswa'] ?? null);
         $noHpIbu   = $this->formatPhone($row['no_hp_ibu'] ?? null);
@@ -95,6 +92,13 @@ class MasterImport implements ToModel, WithHeadingRow
         } elseif (str_starts_with($jkRaw, 'P') || $jkRaw === 'PEREMPUAN') {
             $jenisKelamin = 'P';
         }
+
+        $jkFinal = $jenisKelamin !== '-' ? $jenisKelamin : ($existingSiswa->jenis_kelamin ?? 'L');
+        $defaultFoto = in_array(strtoupper(trim($jkFinal)), ['P', 'PEREMPUAN']) ? 'avatar_female.jpg' : 'avatar_male.jpg';
+
+        $isDefaultOld = $existingSiswa && in_array($existingSiswa->foto, ['avatar.jpg', 'avatar.png', 'avatar_male.jpg', 'avatar_female.jpg']);
+        $foto = ($existingSiswa && !empty($existingSiswa->foto) && !$isDefaultOld) ? $existingSiswa->foto : $defaultFoto;
+        $password = ($existingSiswa && !empty($existingSiswa->password)) ? $existingSiswa->password : 'siswa123';
 
         $dataSiswa = [
             'nisn' => isset($row['nisn']) && !empty($row['nisn']) ? trim((string)$row['nisn']) : ($existingSiswa->nisn ?? '-'),

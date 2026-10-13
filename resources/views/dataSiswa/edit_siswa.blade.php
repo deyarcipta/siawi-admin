@@ -197,15 +197,20 @@
                     <label for="foto">Foto Siswa</label>
                     <div class="d-flex align-items-center">
                       <div class="mr-2">
-                        @if($edit->foto && $edit->foto != 'avatar.jpg' && (file_exists(public_path('storage/foto-siswa/' . $edit->foto)) || file_exists(storage_path('app/public/foto-siswa/' . $edit->foto))))
+                        @php
+                          $isPerempuan = in_array(strtoupper(trim($edit->jenis_kelamin ?? '')), ['P', 'PEREMPUAN']);
+                          $defaultAvatar = $isPerempuan ? 'avatar_female.png' : 'avatar_male.png';
+                          $isDefaultName = in_array($edit->foto ?? '', ['avatar.jpg', 'avatar.png', 'avatar_male.jpg', 'avatar_male.png', 'avatar_female.jpg', 'avatar_female.png']);
+                        @endphp
+                        @if($edit->foto && !$isDefaultName && (file_exists(public_path('storage/foto-siswa/' . $edit->foto)) || file_exists(storage_path('app/public/foto-siswa/' . $edit->foto))))
                           <img id="preview-foto-siswa" src="{{ asset('storage/foto-siswa/' . $edit->foto) }}" alt="Foto" class="img-thumbnail rounded" style="width: 42px; height: 42px; object-fit: cover;">
                         @else
-                          <img id="preview-foto-siswa" src="{{ asset('lte/dist/img/avatar.png') }}" alt="Avatar" class="img-thumbnail rounded" style="width: 42px; height: 42px; object-fit: cover;">
+                          <img id="preview-foto-siswa" src="{{ asset('lte/dist/img/' . $defaultAvatar) }}" alt="Avatar" class="img-thumbnail rounded" style="width: 42px; height: 42px; object-fit: cover;">
                         @endif
                       </div>
                       <div class="custom-file flex-grow-1">
                         <input type="file" class="custom-file-input" name="foto" id="foto" accept="image/png,image/jpeg,image/jpg,image/webp">
-                        <label class="custom-file-label text-truncate" id="foto-label" for="foto">{{ $edit->foto && $edit->foto != 'avatar.jpg' ? $edit->foto : 'Choose file' }}</label>
+                        <label class="custom-file-label text-truncate" id="foto-label" for="foto">{{ $edit->foto && !$isDefaultName ? $edit->foto : 'Choose file' }}</label>
                       </div>
                     </div>
                     @error('foto')
