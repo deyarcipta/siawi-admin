@@ -8,106 +8,104 @@ use App\Models\Siswa;
 
 class UpdateSiswaController extends Controller
 {
-    public function updateSiswa(Request $request,$idSiswa)
+    public function updateSiswa(Request $request, $idSiswa)
     {
-        // dd($request->all());
         $request->validate([
-            'nis'=> 'required',
-            'nisn'=> 'required',
-            'nama_siswa'=> 'required',
-            'tmpt_lahir'=> 'required',
-            'tgl_lahir'=> 'required',
-            'agama'=> 'required',
-            'jenis_kelamin'=> 'required',
-            'no_hp'=> 'required',
-            'no_tlpn'=> 'required',
-            'email'=> 'required',
-            'alamat'=> 'required',
-            'rt'=> 'required',
-            'rw'=> 'required',
-            'no_rumah'=> 'required',
-            'kel'=> 'required',
-            'kec'=> 'required',
-            'kota'=> 'required',
-            'prov'=> 'required',
-            'nik_ayah'=> 'required',
-            'nama_ayah'=> 'required',
-            'tmpt_lahir_ayah'=> 'required',
-            'tgl_lahir_ayah'=> 'required',
-            'pendidikan_ayah'=> 'required',
-            'pekerjaan_ayah'=> 'required',
-            'penghasilan_ayah'=> 'required',
-            'nik_ibu'=> 'required',
-            'nama_ibu'=> 'required',
-            'tmpt_lahir_ibu'=> 'required',
-            'tgl_lahir_ibu'=> 'required',
-            'pendidikan_ibu'=> 'required',
-            'pekerjaan_ibu'=> 'required',
-            'penghasilan_ibu'=> 'required',
-            'nik_wali'=> 'required',
-            'nama_wali'=> 'required',
-            'tmpt_lahir_wali'=> 'required',
-            'tgl_lahir_wali'=> 'required',
-            'pendidikan_wali'=> 'required',
-            'pekerjaan_wali'=> 'required',
-            'penghasilan_wali'=> 'required',
+            'nama_siswa' => 'required',
         ]);
 
-        
-        if ($request->password1 != $request->password2) {
-            // Pengguna tidak ditemukan atau kata sandi tidak cocok
-            return response()->json([
-                'success' => false,
-                'message' => 'Password yang anda masukan tidak cocok'
-            ], 401);
+        if ($request->filled('password1')) {
+            if ($request->password1 != $request->password2) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Password yang anda masukkan tidak cocok'
+                ], 400);
+            }
         }
-            $user = Siswa::where('id_siswa', $idSiswa)->update([
-                'nis'=> $request->nis,
-                'nisn'=> $request->nisn,
-                'nama_siswa'=> $request->nama_siswa,
-                'tmpt_lahir'=> $request->tmpt_lahir,
-                'tgl_lahir'=> $request->tgl_lahir,
-                'agama'=> $request->agama,
-                'jenis_kelamin'=> $request->jenis_kelamin,
-                'no_hp'=> $request->no_hp,
-                'no_tlpn'=> $request->no_tlpn,
-                'email'=> $request->email,
-                'alamat'=> $request->alamat,
-                'rt'=> $request->rt,
-                'rw'=> $request->rw,
-                'no_rumah'=> $request->no_rumah,
-                'kel'=> $request->kel,
-                'kec'=> $request->kec,
-                'kota'=> $request->kota,
-                'prov'=> $request->prov,
-                'nik_ayah'=> $request->nik_ayah,
-                'nama_ayah'=> $request->nama_ayah,
-                'tmpt_lahir_ayah'=> $request->tmpt_lahir_ayah,
-                'tgl_lahir_ayah'=> $request->tgl_lahir_ayah,
-                'pendidikan_ayah'=> $request->pendidikan_ayah,
-                'pekerjaan_ayah'=> $request->pekerjaan_ayah,
-                'penghasilan_ayah'=> $request->penghasilan_ayah,
-                'nik_ibu'=> $request->nik_ibu,
-                'nama_ibu'=> $request->nama_ibu,
-                'tmpt_lahir_ibu'=> $request->tmpt_lahir_ibu,
-                'tgl_lahir_ibu'=> $request->tgl_lahir_ibu,
-                'pendidikan_ibu'=> $request->pendidikan_ibu,
-                'pekerjaan_ibu'=> $request->pekerjaan_ibu,
-                'penghasilan_ibu'=> $request->penghasilan_ibu,
-                'nik_wali'=> $request->nik_wali,
-                'nama_wali'=> $request->nama_wali,
-                'tmpt_lahir_wali'=> $request->tmpt_lahir_wali,
-                'tgl_lahir_wali'=> $request->tgl_lahir_wali,
-                'pendidikan_wali'=> $request->pendidikan_wali,
-                'pekerjaan_wali'=> $request->pekerjaan_wali,
-                'penghasilan_wali'=> $request->penghasilan_wali,
-            ]);
-            return response()->json([
-                'success' => true,
-                'data' => $user,
-                'message' => 'Data Siswa Berhasil Diubah'
-            ]);
-    
+
+        $updateData = [
+            'nama_siswa'        => $request->nama_siswa,
+            'tmpt_lahir'        => $request->tmpt_lahir,
+            'tgl_lahir'         => $request->tgl_lahir,
+            'agama'             => $request->agama,
+            'jenis_kelamin'     => $request->jenis_kelamin,
+            'no_hp'             => $request->no_hp,
+            'no_tlpn'           => $request->no_tlpn,
+            'email'             => $request->email,
+            'alamat'            => $request->alamat,
+            'rt'                => $request->rt,
+            'rw'                => $request->rw,
+            'no_rumah'          => $request->no_rumah,
+            'kel'               => $request->kel,
+            'kec'               => $request->kec,
+            'kota'              => $request->kota,
+            'prov'              => $request->prov,
+
+            // Data Ayah
+            'nik_ayah'          => $request->nik_ayah,
+            'nama_ayah'         => $request->nama_ayah,
+            'tmpt_lahir_ayah'   => $request->tmpt_lahir_ayah,
+            'tgl_lahir_ayah'    => $request->tgl_lahir_ayah,
+            'pendidikan_ayah'   => $request->pendidikan_ayah,
+            'pekerjaan_ayah'    => $request->pekerjaan_ayah,
+            'penghasilan_ayah'  => $request->penghasilan_ayah,
+            'no_hp_ayah'        => $request->no_hp_ayah,
+
+            // Data Ibu
+            'nik_ibu'           => $request->nik_ibu,
+            'nama_ibu'          => $request->nama_ibu,
+            'tmpt_lahir_ibu'    => $request->tmpt_lahir_ibu,
+            'tgl_lahir_ibu'     => $request->tgl_lahir_ibu,
+            'pendidikan_ibu'    => $request->pendidikan_ibu,
+            'pekerjaan_ibu'     => $request->pekerjaan_ibu,
+            'penghasilan_ibu'   => $request->penghasilan_ibu,
+            'no_hp_ibu'         => $request->no_hp_ibu,
+
+            // Data Wali
+            'nik_wali'          => $request->nik_wali,
+            'nama_wali'         => $request->nama_wali,
+            'tmpt_lahir_wali'   => $request->tmpt_lahir_wali,
+            'tgl_lahir_wali'    => $request->tgl_lahir_wali,
+            'pendidikan_wali'   => $request->pendidikan_wali,
+            'pekerjaan_wali'    => $request->pekerjaan_wali,
+            'penghasilan_wali'  => $request->penghasilan_wali,
+            'no_hp_wali'        => $request->no_hp_wali,
+        ];
+
+        if ($request->filled('nis')) {
+            $updateData['nis'] = $request->nis;
+        }
+        if ($request->filled('nisn')) {
+            $updateData['nisn'] = $request->nisn;
+        }
+        if ($request->filled('password1')) {
+            $updateData['password'] = bcrypt($request->password1);
+        }
+
+        $siswa = Siswa::where('id_siswa', $idSiswa)->first();
+        if ($siswa) {
+            // Jika jenis kelamin diperbarui dan foto saat ini masih avatar bawaan, sesuaikan avatar defaultnya
+            if ($request->filled('jenis_kelamin') && in_array($siswa->foto, [null, '', 'avatar.jpg', 'avatar.png', 'avatar_male.jpg', 'avatar_male.png', 'avatar_female.jpg', 'avatar_female.png'])) {
+                $isPerempuan = in_array(strtoupper(trim($request->jenis_kelamin)), ['P', 'PEREMPUAN']);
+                $updateData['foto'] = $isPerempuan ? 'avatar_female.jpg' : 'avatar_male.jpg';
+            }
+
+            $siswa->update($updateData);
+
+            if ($siswa->id_orang_tua) {
+                $ortuPhone = $request->no_hp_ayah ?? $request->no_hp_ibu;
+                if (!empty($ortuPhone)) {
+                    \App\Models\OrangTua::where('id_orang_tua', $siswa->id_orang_tua)
+                        ->update(['no_hp' => $ortuPhone]);
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'data'    => $siswa,
+            'message' => 'Data Siswa Berhasil Diubah'
+        ]);
     }
     /**
      * Display a listing of the resource.
