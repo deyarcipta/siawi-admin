@@ -306,6 +306,30 @@ class PengajuanPklController extends Controller
             }
         });
 
+        // Kirim Notifikasi FCM ke Siswa yang mengajukan PKL
+        try {
+            $pengajuan->loadMissing(['siswaList', 'perusahaan']);
+            $namaPerusahaan = $pengajuan->perusahaan ? $pengajuan->perusahaan->nama : 'Perusahaan Mitra';
+            if ($pengajuan->siswaList) {
+                foreach ($pengajuan->siswaList as $item) {
+                    if ($item->id_siswa) {
+                        \App\Services\FcmService::sendToSiswa(
+                            $item->id_siswa,
+                            'Pengajuan PKL Disetujui! 🎉',
+                            "Kabar baik! Pengajuan surat PKL kamu di {$namaPerusahaan} telah disetujui BKK/Hubin. Silakan cek di aplikasi.",
+                            [
+                                'type' => 'pengajuan_pkl',
+                                'id_pengajuan' => (string) $pengajuan->id,
+                                'status' => 'disetujui'
+                            ]
+                        );
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('FCM Pengajuan PKL ACC Error: ' . $e->getMessage());
+        }
+
         return redirect()->route('admin.pengajuan-pkl.show', $id)
                          ->with('success', 'Pengajuan surat permohonan PKL telah berhasil di-ACC (Disetujui). Surat kini siap dicetak.');
     }
@@ -329,6 +353,31 @@ class PengajuanPklController extends Controller
             'disetujui_oleh' => Auth::id(),
             'disetujui_pada' => now(),
         ]);
+
+        // Kirim Notifikasi FCM ke Siswa terkait penolakan PKL
+        try {
+            $pengajuan->loadMissing(['siswaList', 'perusahaan']);
+            $namaPerusahaan = $pengajuan->perusahaan ? $pengajuan->perusahaan->nama : 'Perusahaan Mitra';
+            $alasan = $request->alasan_penolakan ?: 'Silakan konsultasikan dengan pihak BKK.';
+            if ($pengajuan->siswaList) {
+                foreach ($pengajuan->siswaList as $item) {
+                    if ($item->id_siswa) {
+                        \App\Services\FcmService::sendToSiswa(
+                            $item->id_siswa,
+                            'Status Pengajuan PKL ⚠️',
+                            "Pengajuan PKL di {$namaPerusahaan} memerlukan perbaikan. Catatan: {$alasan}",
+                            [
+                                'type' => 'pengajuan_pkl',
+                                'id_pengajuan' => (string) $pengajuan->id,
+                                'status' => 'ditolak'
+                            ]
+                        );
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('FCM Pengajuan PKL Tolak Error: ' . $e->getMessage());
+        }
 
         return redirect()->route('admin.pengajuan-pkl.show', $id)
                          ->with('info', 'Pengajuan surat PKL telah ditandai ditolak dengan catatan.');

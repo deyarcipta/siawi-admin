@@ -44,6 +44,7 @@ class BroadcastFcmNotification implements ShouldQueue
     {
         try {
             FcmService::broadcastToAllStudents($this->title, $this->body, $this->data);
+            FcmService::broadcastToAllParents($this->title, $this->body, $this->data);
         } catch (\Throwable $e) {
             Log::error('Job BroadcastFcmNotification error: ' . $e->getMessage());
         }

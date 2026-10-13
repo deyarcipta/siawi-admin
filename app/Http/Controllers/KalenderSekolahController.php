@@ -50,7 +50,23 @@ class KalenderSekolahController extends Controller
             'tgl_akhir' => $request->tgl_akhir,
         ]);
 
-        return redirect('/admin/kalender');
+        // Broadcast Notifikasi Agenda & Kalender ke Seluruh Siswa & Orang Tua
+        try {
+            $judul = "📅 Agenda Sekolah: " . $request->kegiatan;
+            $periode = $request->tgl_mulai == $request->tgl_akhir 
+                ? "Tanggal " . date('d-m-Y', strtotime($request->tgl_mulai))
+                : "Periode " . date('d-m-Y', strtotime($request->tgl_mulai)) . " s/d " . date('d-m-Y', strtotime($request->tgl_akhir));
+            $pesan = "Kegiatan '{$request->kegiatan}' telah ditambahkan ke Kalender Akademik ({$periode}).";
+
+            \App\Jobs\BroadcastFcmNotification::dispatch($judul, $pesan, [
+                'type' => 'kalender',
+                'id_kalender' => (string) ($kalender->id ?? ''),
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('FCM Broadcast Kalender Error: ' . $e->getMessage());
+        }
+
+        return redirect('/admin/kalender')->with('success', 'Agenda kalender berhasil ditambahkan dan disiarkan.');
     }
 
     /**

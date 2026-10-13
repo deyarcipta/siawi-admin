@@ -87,6 +87,43 @@ class PointSiswaController extends Controller
             'tanggal' => $formattedTanggal
         ]);
 
+        // Kirim Notifikasi FCM ke Siswa & Orang Tua terkait Poin Pelanggaran / Kedisiplinan
+        try {
+            $namaPelanggaran = $point ? $point->nama_point : 'Pelanggaran Tata Tertib';
+            $skor = $point ? (int)$point->skor_point : 0;
+            $totalPelanggaran = (int) PointSiswa::where('id_siswa', $id_siswa)->sum('skor_point');
+            $sisaPoin = max(0, 100 - $totalPelanggaran);
+
+            // 1. Notifikasi ke Siswa
+            \App\Services\FcmService::sendToSiswa(
+                $id_siswa,
+                'Catatan Kedisiplinan Siswa ⚠️',
+                "Kamu tercatat melakukan: {$namaPelanggaran} (+{$skor} poin pelanggaran). Sisa poin ketertiban: {$sisaPoin}/100.",
+                [
+                    'type' => 'point_pelanggaran',
+                    'id_siswa' => (string) $id_siswa,
+                    'skor_point' => (string) $skor,
+                    'sisa_poin' => (string) $sisaPoin,
+                ]
+            );
+
+            // 2. Notifikasi ke Orang Tua Siswa
+            $namaSiswa = $siswa ? $siswa->nama_siswa : 'Putra/Putri Anda';
+            \App\Services\FcmService::sendToParentsOfStudent(
+                $id_siswa,
+                'Laporan Kedisiplinan Siswa ⚠️',
+                "Pemberitahuan: {$namaSiswa} tercatat melakukan: {$namaPelanggaran} (+{$skor} poin pelanggaran). Sisa poin ketertiban saat ini: {$sisaPoin}/100.",
+                [
+                    'type' => 'point_pelanggaran',
+                    'id_siswa' => (string) $id_siswa,
+                    'skor_point' => (string) $skor,
+                    'sisa_poin' => (string) $sisaPoin,
+                ]
+            );
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('FCM Point Siswa Error: ' . $e->getMessage());
+        }
+
         return redirect()->route('admin.pointSiswa.review_point_siswa', ['id_siswa' => $id_siswa])->with('success','Data Point Berhasil Ditambah');
     }
 

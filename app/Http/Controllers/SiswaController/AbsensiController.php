@@ -249,10 +249,31 @@ class AbsensiController extends Controller
                             $isCheckOut ? 'Absensi Pulang Berhasil' : 'Absensi Masuk Berhasil',
                             $isCheckOut
                                 ? "Kamu telah melakukan absensi pulang (Check Out) pada jam $jam."
-                                : "Kamu telah melakukan absensi masuk (Check In) pada jam $jam."
+                                : "Kamu telah melakukan absensi masuk (Check In) pada jam $jam.",
+                            [
+                                'type' => 'absensi_gate',
+                                'status' => $attendanceStatus,
+                                'jam' => (string) $jam,
+                            ]
+                        );
+
+                        // Kirim notifikasi kehadiran ke orang tua siswa
+                        $namaSiswa = $siswa->nama_siswa ?? 'Putra/Putri Anda';
+                        \App\Services\FcmService::sendToParentsOfStudent(
+                            $siswa,
+                            $isCheckOut ? 'Presensi Kepulangan Siswa 🏫' : 'Presensi Kehadiran Siswa 🏫',
+                            $isCheckOut
+                                ? "Pemberitahuan: {$namaSiswa} telah melakukan absensi pulang pada jam {$jam}."
+                                : "Pemberitahuan: {$namaSiswa} telah tiba di sekolah dan melakukan absensi masuk pada jam {$jam}.",
+                            [
+                                'type' => 'absensi_gate',
+                                'status' => $attendanceStatus,
+                                'jam' => (string) $jam,
+                                'id_siswa' => (string) $siswa->id_siswa,
+                            ]
                         );
                     } catch (\Throwable $e) {
-                        Log::error('Gagal mengirim notifikasi FCM siswa: ' . $e->getMessage());
+                        Log::error('Gagal mengirim notifikasi FCM absensi siswa/orang tua: ' . $e->getMessage());
                     }
                 }
             }
