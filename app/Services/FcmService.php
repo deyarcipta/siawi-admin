@@ -26,15 +26,10 @@ class FcmService
             return 0;
         }
 
-        // Ambil semua token dari tabel multi-device
+        // Ambil semua token siswa dari tabel multi-device
         $tokens = [];
         if ($siswa->relationLoaded('fcmTokens') || method_exists($siswa, 'fcmTokens')) {
             $tokens = $siswa->fcmTokens->pluck('fcm_token')->filter()->toArray();
-        }
-
-        // Fallback jika belum ada di tabel multi-device, gunakan fcm_token di tabel siswa
-        if (empty($tokens) && !empty($siswa->fcm_token)) {
-            $tokens[] = $siswa->fcm_token;
         }
 
         $sentCount = 0;
@@ -57,12 +52,10 @@ class FcmService
      */
     public static function broadcastToAllStudents($title, $body, $data = [])
     {
-        $tokens = \App\Models\SiswaFcmToken::pluck('fcm_token')->toArray();
-        $legacyTokens = \App\Models\Siswa::whereNotNull('fcm_token')->where('fcm_token', '!=', '')->pluck('fcm_token')->toArray();
-        $allTokens = array_unique(array_filter(array_merge($tokens, $legacyTokens)));
+        $tokens = \App\Models\SiswaFcmToken::pluck('fcm_token')->filter()->unique()->toArray();
 
         $sentCount = 0;
-        foreach ($allTokens as $token) {
+        foreach ($tokens as $token) {
             if (self::sendNotification($token, $title, $body, $data)) {
                 $sentCount++;
             }
@@ -226,7 +219,7 @@ class FcmService
             // Jika token sudah kedaluwarsa, aplikasi di-uninstall, atau tidak terdaftar lagi
             if ($response->status() === 404 || $errorCode === 'UNREGISTERED' || $errorCode === 'NotRegistered') {
                 \App\Models\SiswaFcmToken::where('fcm_token', $deviceToken)->orWhere('token_hash', md5($deviceToken))->delete();
-                \App\Models\Siswa::where('fcm_token', $deviceToken)->update(['fcm_token' => null]);
+                \App\Models\OrangTuaFcmToken::where('fcm_token', $deviceToken)->orWhere('token_hash', md5($deviceToken))->delete();
                 Log::warning("FCM Self-Healing: Token perangkat sudah tidak terdaftar/UNREGISTERED ({$deviceToken}). Token otomatis dibersihkan dari database.");
                 return false;
             }

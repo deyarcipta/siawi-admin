@@ -419,10 +419,6 @@ class HomeController extends Controller
         if ($idSiswa) {
             $siswa = Siswa::where('id_siswa', $idSiswa)->first();
             if ($siswa) {
-                $siswa->update([
-                    'fcm_token' => $request->fcm_token
-                ]);
-
                 $tokenHash = md5($siswa->id_siswa . '_' . $request->fcm_token);
                 \App\Models\SiswaFcmToken::updateOrCreate(
                     ['token_hash' => $tokenHash],
