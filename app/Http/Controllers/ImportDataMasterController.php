@@ -144,7 +144,8 @@ class ImportDataMasterController extends Controller
                 $newFilename = time() . '_' . uniqid() . '.' . $ext;
 
                 // Hapus foto lama jika ada dan bukan avatar bawaan
-                if ($siswa->foto && $siswa->foto !== 'avatar.jpg') {
+                $isDefaultAvatar = in_array($siswa->foto ?? '', ['avatar.jpg', 'avatar.png', 'avatar_male.jpg', 'avatar_male.png', 'avatar_female.jpg', 'avatar_female.png']);
+                if ($siswa->foto && !$isDefaultAvatar) {
                     Storage::disk('public')->delete('foto-siswa/' . $siswa->foto);
                     if (file_exists(public_path('storage/foto-siswa/' . $siswa->foto))) {
                         @unlink(public_path('storage/foto-siswa/' . $siswa->foto));
