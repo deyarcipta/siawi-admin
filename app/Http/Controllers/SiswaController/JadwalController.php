@@ -23,7 +23,8 @@ class JadwalController extends Controller
             return response()->json(['data' => []]);
         }
         
-        $jadwals = JadwalMapel::where('id_kelas', $siswa->id_kelas)
+        $jadwals = JadwalMapel::with(['guru', 'mapel'])
+            ->where('id_kelas', $siswa->id_kelas)
             ->where('hari', $hari)
             ->orderBy('jam_awal', 'asc')
             ->get();
@@ -33,6 +34,7 @@ class JadwalController extends Controller
                 return [
                     'nama_mapel' => $jadwal->mapel?->nama_mapel ?? 'Mata Pelajaran Tidak Diketahui',
                     'nama_guru' => $jadwal->guru?->nama_guru ?? 'Guru Tidak Diketahui',
+                    'foto_guru' => $jadwal->guru?->foto,
                     'jam_awal' => $jadwal->jam_awal,
                     'jam_akhir' => $jadwal->jam_akhir,
                     'waktu_awal' => $jadwal->waktu_awal,
@@ -80,7 +82,8 @@ class JadwalController extends Controller
                 $namaHari =  $indonesianDays[$index];
             }
 
-            $jadwalToday = JadwalMapel::where('id_kelas', $id_kelas)
+            $jadwalToday = JadwalMapel::with(['guru', 'mapel'])
+                ->where('id_kelas', $id_kelas)
                 ->where('hari', $namaHari)
                 ->get();
                 
@@ -104,6 +107,7 @@ class JadwalController extends Controller
                 $jadwalTodayArray[] = [
                     'nama_mapel' => $item->mapel?->nama_mapel ?? 'Mata Pelajaran Tidak Diketahui',
                     'nama_guru' => $item->guru?->nama_guru ?? 'Guru Tidak Diketahui',
+                    'foto_guru' => $item->guru?->foto,
                     'jam_awal' => $item->jam_awal,
                     'jam_akhir' => $item->jam_akhir,
                     'waktu_awal' => $item->waktu_awal,
