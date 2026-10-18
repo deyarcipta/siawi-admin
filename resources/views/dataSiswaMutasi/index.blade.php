@@ -154,7 +154,7 @@
             <i class="fas fa-table text-primary mr-2"></i> Daftar Arsip Siswa Mutasi
           </h3>
           <div class="d-flex align-items-center ml-auto mt-2 mt-md-0" style="gap: 8px;">
-            <a href="{{ route('admin.siswaMutasi.download', request()->query()) }}" class="btn btn-primary btn-sm shadow-sm">
+            <a href="{{ url('/admin/download-siswa-mutasi') }}?{{ http_build_query(request()->query()) }}" class="btn btn-primary btn-sm shadow-sm">
               <i class="fas fa-download mr-1"></i> Download Excel
             </a>
             <a href="/admin/siswa" class="btn btn-outline-secondary btn-sm shadow-sm">
@@ -238,7 +238,7 @@
                       </a>
 
                       <!-- Restore -->
-                      <form action="{{ route('admin.siswaMutasi.restore', $data->id_mutasi) }}" method="POST" class="d-inline form-restore mr-1">
+                      <form action="{{ url('/admin/siswaMutasi/' . $data->id_mutasi . '/restore') }}" method="POST" class="d-inline form-restore mr-1">
                         @csrf
                         <button type="button" class="btn btn-info btn-sm btn-action-restore" title="Kembalikan ke Siswa Aktif" data-nama="{{ $data->nama_siswa }}">
                           <i class="fas fa-undo"></i>

@@ -39,7 +39,7 @@
               <a href="/admin/siswaMutasi/{{ $detail->id_mutasi }}/edit" class="btn btn-warning btn-sm text-white font-weight-600 shadow-sm mr-2">
                 <i class="fas fa-edit mr-1"></i> Edit Mutasi
               </a>
-              <form action="{{ route('admin.siswaMutasi.restore', $detail->id_mutasi) }}" method="POST" class="d-inline form-restore mr-2">
+              <form action="{{ url('/admin/siswaMutasi/' . $detail->id_mutasi . '/restore') }}" method="POST" class="d-inline form-restore mr-2">
                 @csrf
                 <button type="button" class="btn btn-info btn-sm btn-action-restore font-weight-600 shadow-sm" data-nama="{{ $detail->nama_siswa }}">
                   <i class="fas fa-undo mr-1"></i> Kembalikan ke Siswa Aktif

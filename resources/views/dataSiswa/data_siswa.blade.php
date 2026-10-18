@@ -31,7 +31,7 @@
               <i class="fas fa-table text-primary mr-2"></i> Data Siswa
             </h3>
             <div class="ml-auto">
-              <a href="{{ route('admin.siswaMutasi.index') }}" class="btn btn-outline-secondary btn-sm mr-1"><i class="fas fa-exchange-alt mr-1"></i> Data Mutasi</a>
+              <a href="{{ url('/admin/siswaMutasi') }}" class="btn btn-outline-secondary btn-sm mr-1"><i class="fas fa-exchange-alt mr-1"></i> Data Mutasi</a>
               <a href="{{ route('admin.siswa.download') }}" class="btn btn-primary btn-sm"><i class="fas fa-download mr-1"></i> Download Siswa</a>
               @if($user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum']))
               <a href="/admin/siswa/create" class="btn btn-success btn-sm"><i class="fas fa-plus mr-1"></i> Tambah Siswa</a>
