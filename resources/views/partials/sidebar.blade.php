@@ -575,6 +575,7 @@
             Request::is('admin/kelas*') ||
             Request::is('admin/mapel*') ||
             ((Request::is('admin/siswa') || Request::is('admin/siswa/*')) && request('from') !== 'siswaPkl') ||
+            Request::is('admin/siswaMutasi*') ||
             Request::is('admin/dataAlumni*') ||
             Request::is('admin/alumni*') ||
             $isDataGuruActive ||
@@ -627,12 +628,18 @@
             </li>
             @endif
 
-            <!-- Data Siswa & Alumni -->
+            <!-- Data Siswa, Mutasi & Alumni -->
             @if($user->hasAnyRole(['admin', 'tata_usaha', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'keuangan', 'hubin']))
             <li class="nav-item">
               <a href="/admin/siswa" class="nav-link {{ ((Request::is('admin/siswa') || Request::is('admin/siswa/*')) && request('from') !== 'siswaPkl') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Data Siswa</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/siswaMutasi" class="nav-link {{ Request::is('admin/siswaMutasi*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Data Mutasi</p>
               </a>
             </li>
             <li class="nav-item">

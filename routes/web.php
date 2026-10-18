@@ -10,6 +10,7 @@ use App\Http\Controllers\KelasController;
 use App\Http\Controllers\MapelController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\DataAlumniController;
+use App\Http\Controllers\SiswaMutasiController;
 use App\Http\Controllers\InformasiSekolahController;
 use App\Http\Controllers\KalenderSekolahController;
 use App\Http\Controllers\AbsensiController;
@@ -115,6 +116,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
         Route::resource('dataAlumni', DataAlumniController::class);
         Route::resource('alumni', DataAlumniController::class);
         Route::get('/download-alumni', [DataAlumniController::class, 'download'])->name('alumni.download');
+
+        // Siswa Mutasi
+        Route::post('siswa/{id_siswa}/mutasi', [SiswaMutasiController::class, 'store'])->name('siswa.mutasi');
+        Route::post('siswaMutasi/{id_mutasi}/restore', [SiswaMutasiController::class, 'restore'])->name('siswaMutasi.restore');
+        Route::get('/download-siswa-mutasi', [SiswaMutasiController::class, 'download'])->name('siswaMutasi.download');
+        Route::resource('siswaMutasi', SiswaMutasiController::class);
     });
 
     // =========================================================================

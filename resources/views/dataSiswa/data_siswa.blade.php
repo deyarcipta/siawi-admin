@@ -31,6 +31,7 @@
               <i class="fas fa-table text-primary mr-2"></i> Data Siswa
             </h3>
             <div class="ml-auto">
+              <a href="{{ route('admin.siswaMutasi.index') }}" class="btn btn-outline-secondary btn-sm mr-1"><i class="fas fa-exchange-alt mr-1"></i> Data Mutasi</a>
               <a href="{{ route('admin.siswa.download') }}" class="btn btn-primary btn-sm"><i class="fas fa-download mr-1"></i> Download Siswa</a>
               @if($user && $user->hasAnyRole(['admin', 'tata_usaha', 'kurikulum']))
               <a href="/admin/siswa/create" class="btn btn-success btn-sm"><i class="fas fa-plus mr-1"></i> Tambah Siswa</a>
@@ -102,9 +103,10 @@
                     <a href="/admin/siswa/{{$data->id_siswa}}/edit" class="btn btn-warning btn-sm" title="Edit Data Siswa"><i class="fa fa-edit" style="color: white"></i></a>
                     @endif
                     @if($canManageMaster)
+                    <button type="button" class="btn btn-info btn-sm btn-mutasi" data-id="{{ $data->id_siswa }}" data-nama="{{ $data->nama_siswa }}" data-nis="{{ $data->nis }}" data-kelas="{{ $data->kelas->nama_kelas ?? '-' }}" title="Mutasi Siswa (Pindah / Keluar)"><i class="fas fa-exchange-alt"></i></button>
                     @csrf
                     @method('DELETE')
-                    <button type="button" class="btn btn-danger btn-sm btn-delete" title="Hapus Siswa"><i class="fa fa-trash"></i></button>
+                    <button type="button" class="btn btn-danger btn-sm btn-delete" title="Hapus Siswa (Hanya untuk Koreksi Salah Input)"><i class="fa fa-trash"></i></button>
                     @endif
                 </form>
                 </td>
@@ -120,19 +122,86 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal Mutasi Siswa -->
+  <div class="modal fade" id="modalMutasiSiswa" tabindex="-1" role="dialog" aria-labelledby="modalMutasiSiswaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content border-0 shadow">
+        <form id="formMutasiSiswa" action="" method="POST">
+          @csrf
+          <div class="modal-header bg-info text-white">
+            <h5 class="modal-title font-weight-bold" id="modalMutasiSiswaLabel">
+              <i class="fas fa-exchange-alt mr-2"></i> Mutasi Siswa Keluar
+            </h5>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-light border mb-3">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-user-graduate text-info mr-3 fa-2x"></i>
+                <div>
+                  <h6 class="font-weight-bold text-dark mb-1" id="mutasiNamaSiswa">-</h6>
+                  <p class="text-muted small mb-0">
+                    NIS: <span id="mutasiNisSiswa" class="font-weight-600">-</span> | Kelas: <span id="mutasiKelasSiswa" class="font-weight-600">-</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="tanggal_mutasi" class="font-weight-600 text-dark">Tanggal Mutasi <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" id="tanggal_mutasi" name="tanggal_mutasi" value="{{ date('Y-m-d') }}" required>
+            </div>
+
+            <div class="form-group">
+              <label for="jenis_mutasi" class="font-weight-600 text-dark">Jenis Mutasi <span class="text-danger">*</span></label>
+              <select class="form-control" id="jenis_mutasi" name="jenis_mutasi" required>
+                <option value="Pindah Sekolah">Pindah Sekolah</option>
+                <option value="Mengundurkan Diri">Mengundurkan Diri</option>
+                <option value="Dikeluarkan (DO)">Dikeluarkan (DO)</option>
+                <option value="Wafat">Wafat</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="wrapperSekolahTujuan">
+              <label for="sekolah_tujuan" class="font-weight-600 text-dark">Sekolah / Institusi Tujuan</label>
+              <input type="text" class="form-control" id="sekolah_tujuan" name="sekolah_tujuan" placeholder="Contoh: SMAN 1 Cibinong">
+            </div>
+
+            <div class="form-group">
+              <label for="alasan_mutasi" class="font-weight-600 text-dark">Alasan / Catatan Keterangan</label>
+              <textarea class="form-control" id="alasan_mutasi" name="alasan_mutasi" rows="3" placeholder="Tuliskan keterangan / alasan siswa mutasi..."></textarea>
+            </div>
+            
+            <div class="p-2 bg-light rounded border small text-muted">
+              <i class="fas fa-info-circle text-info mr-1"></i> Data siswa akan dipindahkan ke menu <b>Siswa Mutasi</b> dan tersimpan aman sebagai arsip sekolah. Data dapat dipulihkan kembali sewaktu-waktu jika diperlukan.
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Batal</button>
+            <button type="submit" class="btn btn-info btn-sm font-weight-600">
+              <i class="fas fa-check-circle mr-1"></i> Simpan Mutasi Siswa
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 @endsection
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+  // Delete handler
   const deleteButtons = document.querySelectorAll('.btn-delete');
-
   deleteButtons.forEach(function (button) {
     button.addEventListener('click', function (e) {
       const form = this.closest('form');
-
       Swal.fire({
         title: 'Yakin ingin menghapus?',
-        text: "Data yang dihapus tidak bisa dikembalikan!",
+        text: "Fitur ini hanya untuk salah input. Data yang dihapus tidak bisa dikembalikan!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -144,6 +213,29 @@ document.addEventListener('DOMContentLoaded', function () {
           form.submit();
         }
       });
+    });
+  });
+
+  // Mutasi modal handler
+  const mutasiButtons = document.querySelectorAll('.btn-mutasi');
+  const formMutasi = document.getElementById('formMutasiSiswa');
+  const mutasiNama = document.getElementById('mutasiNamaSiswa');
+  const mutasiNis = document.getElementById('mutasiNisSiswa');
+  const mutasiKelas = document.getElementById('mutasiKelasSiswa');
+
+  mutasiButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      const id = this.getAttribute('data-id');
+      const nama = this.getAttribute('data-nama');
+      const nis = this.getAttribute('data-nis');
+      const kelas = this.getAttribute('data-kelas');
+
+      formMutasi.action = '/admin/siswa/' + id + '/mutasi';
+      mutasiNama.textContent = nama;
+      mutasiNis.textContent = nis;
+      mutasiKelas.textContent = kelas;
+
+      $('#modalMutasiSiswa').modal('show');
     });
   });
 });
