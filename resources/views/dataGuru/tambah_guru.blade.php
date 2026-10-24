@@ -105,6 +105,8 @@
                     @php
                       $availableRoles = [
                         'guru' => ['label' => 'Guru Mapel', 'desc' => 'Jurnal mengajar & jadwal'],
+                        'kaprog' => ['label' => 'Kaprog', 'desc' => 'Kepala program keahlian'],
+                        'guru_jurusan' => ['label' => 'Guru Jurusan', 'desc' => 'Guru produktif kejuruan'],
                         'wali_kelas' => ['label' => 'Wali Kelas', 'desc' => 'E-Rapot & rekap kelas'],
                         'kesiswaan' => ['label' => 'Kesiswaan', 'desc' => 'Poin pelanggaran, kelalaian'],
                         'kurikulum' => ['label' => 'Kurikulum', 'desc' => 'Jadwal, modul, & kalender'],
@@ -117,7 +119,7 @@
                     @endphp
                     @foreach($availableRoles as $rKey => $rMeta)
                       <div class="custom-control custom-checkbox role-card-box">
-                        <input type="checkbox" class="custom-control-input" id="role_{{ $rKey }}" name="roles[]" value="{{ $rKey }}" {{ in_array($rKey, $selectedRoles) ? 'checked' : '' }}>
+                        <input type="checkbox" class="custom-control-input role-checkbox" id="role_{{ $rKey }}" name="roles[]" value="{{ $rKey }}" {{ in_array($rKey, $selectedRoles) ? 'checked' : '' }}>
                         <label class="custom-control-label font-weight-bold text-dark w-100 mb-0" for="role_{{ $rKey }}" style="cursor: pointer; font-size: 0.84rem; line-height: 1.25;">
                           <span class="d-block" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $rMeta['label'] }}</span>
                           <small class="d-block text-muted font-weight-normal mt-1" style="font-size: 0.72rem; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $rMeta['desc'] }}</small>
@@ -128,6 +130,49 @@
                   @error('roles')
                     <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
                   @enderror
+
+                  <!-- Container Pilihan Program Keahlian untuk Kaprog -->
+                  <div id="kaprog_jurusan_box" class="mt-3 p-3 bg-white rounded border shadow-sm" style="display: {{ in_array('kaprog', $selectedRoles) ? 'block' : 'none' }}; border-color: #cbd5e1 !important;">
+                    <label for="id_jurusan_kaprog" class="font-weight-bold text-dark d-block mb-1" style="font-size: 0.85rem;">
+                      Program Keahlian (Khusus Kaprog) <span class="text-danger">*</span>
+                    </label>
+                    <p class="text-muted small mb-2">Pilih jurusan/program keahlian yang dipimpin oleh guru ini.</p>
+                    <select name="id_jurusan_kaprog" id="id_jurusan_kaprog" class="form-control select2bs4 @error('id_jurusan_kaprog') is-invalid @enderror" style="border-radius: 8px; height: 42px;">
+                      <option value="">Pilih Program Keahlian</option>
+                      @if(isset($jurusans))
+                        @foreach($jurusans as $j)
+                          <option value="{{ $j->id_jurusan }}" {{ old('id_jurusan_kaprog') == $j->id_jurusan ? 'selected' : '' }}>
+                            {{ $j->nama_jurusan }} ({{ $j->kode_jurusan }})
+                          </option>
+                        @endforeach
+                      @endif
+                    </select>
+                    @error('id_jurusan_kaprog')
+                      <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                    @enderror
+                  </div>
+
+                  <!-- Container Pilihan Program Keahlian untuk Guru Jurusan -->
+                  <div id="guru_jurusan_box" class="mt-3 p-3 bg-white rounded border shadow-sm" style="display: {{ in_array('guru_jurusan', $selectedRoles) ? 'block' : 'none' }}; border-color: #cbd5e1 !important;">
+                    <label for="id_jurusan_guru" class="font-weight-bold text-dark d-block mb-1" style="font-size: 0.85rem;">
+                      Program Keahlian Utama (Guru Jurusan)
+                    </label>
+                    <p class="text-muted small mb-2">Pilih program keahlian tempat guru mengajar materi kejuruan.</p>
+                    <select name="id_jurusan_guru" id="id_jurusan_guru" class="form-control select2bs4 @error('id_jurusan_guru') is-invalid @enderror" style="border-radius: 8px; height: 42px;">
+                      <option value="">Pilih Program Keahlian (Opsional)</option>
+                      @if(isset($jurusans))
+                        @foreach($jurusans as $j)
+                          <option value="{{ $j->id_jurusan }}" {{ old('id_jurusan_guru') == $j->id_jurusan ? 'selected' : '' }}>
+                            {{ $j->nama_jurusan }} ({{ $j->kode_jurusan }})
+                          </option>
+                        @endforeach
+                      @endif
+                    </select>
+                    @error('id_jurusan_guru')
+                      <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                    @enderror
+                  </div>
+
                 </div>
               </div>
             </div>
@@ -146,4 +191,43 @@
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const roleKaprog = document.getElementById('role_kaprog');
+    const boxKaprog = document.getElementById('kaprog_jurusan_box');
+    const selectKaprog = document.getElementById('id_jurusan_kaprog');
+
+    const roleGuruJurusan = document.getElementById('role_guru_jurusan');
+    const boxGuruJurusan = document.getElementById('guru_jurusan_box');
+
+    function toggleKaprog() {
+      if (roleKaprog && roleKaprog.checked) {
+        boxKaprog.style.display = 'block';
+        if (selectKaprog) selectKaprog.setAttribute('required', 'required');
+      } else {
+        boxKaprog.style.display = 'none';
+        if (selectKaprog) selectKaprog.removeAttribute('required');
+      }
+    }
+
+    function toggleGuruJurusan() {
+      if (roleGuruJurusan && roleGuruJurusan.checked) {
+        boxGuruJurusan.style.display = 'block';
+      } else {
+        boxGuruJurusan.style.display = 'none';
+      }
+    }
+
+    if (roleKaprog) {
+      roleKaprog.addEventListener('change', toggleKaprog);
+      toggleKaprog();
+    }
+
+    if (roleGuruJurusan) {
+      roleGuruJurusan.addEventListener('change', toggleGuruJurusan);
+      toggleGuruJurusan();
+    }
+  });
+</script>
 @endsection

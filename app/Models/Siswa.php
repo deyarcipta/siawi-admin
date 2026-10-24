@@ -79,5 +79,32 @@ class Siswa extends Model implements Authenticatable
             ?: ($this->no_hp_wali 
             ?: ($this->no_hp && $this->no_hp !== '-' ? $this->no_hp : ($this->no_tlpn && $this->no_tlpn !== '-' ? $this->no_tlpn : null))));
     }
+
+    /**
+     * Scope query siswa sesuai hak akses jurusan user.
+     */
+    public function scopeForUserJurusan($query, $user = null)
+    {
+        $user = $user ?: \Illuminate\Support\Facades\Auth::user();
+        if (!$user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if ($user->hasRole('admin')) {
+            return $query;
+        }
+
+        $accessibleJurusanIds = Jurusan::getAccessibleJurusanIds($user);
+        if (empty($accessibleJurusanIds)) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where(function ($q) use ($accessibleJurusanIds) {
+            $q->whereIn('id_jurusan', $accessibleJurusanIds)
+                ->orWhereHas('kelas.jurusan', function ($sub) use ($accessibleJurusanIds) {
+                    $sub->whereIn('id_jurusan', $accessibleJurusanIds);
+                });
+        });
+    }
 }
 

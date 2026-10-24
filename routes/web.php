@@ -44,6 +44,20 @@ use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\KlasifikasiSuratController;
 use App\Http\Controllers\LivePanelController;
 use App\Http\Controllers\PengajuanPklController;
+use App\Http\Controllers\LabController;
+use App\Http\Controllers\KompetensiController;
+use App\Http\Controllers\KejuruanController;
+use App\Http\Controllers\Kejuruan\JadwalPraktikController;
+use App\Http\Controllers\Kejuruan\JurnalPraktikController;
+use App\Http\Controllers\Kejuruan\LaporanPraktikController;
+use App\Http\Controllers\Kejuruan\ModulPraktikController;
+use App\Http\Controllers\Kejuruan\PenilaianPraktikController;
+use App\Http\Controllers\Kejuruan\CapaianSiswaController;
+use App\Http\Controllers\Kejuruan\InventarisLabController;
+use App\Http\Controllers\Kejuruan\UkkController;
+use App\Http\Controllers\Kejuruan\TkkController;
+use App\Http\Controllers\Kejuruan\PortofolioController;
+use App\Http\Controllers\Kejuruan\PengaturanNomorController;
 
 // Pengajuan Surat PKL Siswa (Portal Mandiri Siswa)
 Route::get('/pengajuan-pkl', [PengajuanPklController::class, 'formSiswa'])->name('pengajuan-pkl.form');
@@ -281,13 +295,121 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     });
 
     // =========================================================================
+    // 12.2. KEJURUAN & PRAKTIK
+    // =========================================================================
+    Route::group(['middleware' => ['role:admin,kaprog,guru_jurusan,guru']], function () {
+        Route::redirect('kejuruan/praktik', '/admin/kejuruan/jadwal-praktik');
+
+        // Jadwal Praktik Kejuruan
+        Route::resource('kejuruan/jadwal-praktik', JadwalPraktikController::class, [
+            'names' => 'kejuruan.jadwal-praktik'
+        ]);
+
+        // Jurnal Praktik Guru
+        Route::resource('kejuruan/jurnal-praktik', JurnalPraktikController::class, [
+            'names' => 'kejuruan.jurnal-praktik'
+        ]);
+
+        // Laporan Rekapitulasi Praktik Kejuruan & Export
+        Route::get('kejuruan/laporan-praktik', [LaporanPraktikController::class, 'index'])->name('kejuruan.laporan-praktik.index');
+        Route::get('kejuruan/laporan-praktik/pdf', [LaporanPraktikController::class, 'exportPdf'])->name('kejuruan.laporan-praktik.pdf');
+        Route::get('kejuruan/laporan-praktik/excel', [LaporanPraktikController::class, 'exportExcel'])->name('kejuruan.laporan-praktik.excel');
+
+        // Bank Modul Praktik
+        Route::resource('kejuruan/modul-praktik', ModulPraktikController::class, [
+            'names' => 'kejuruan.modul-praktik'
+        ]);
+
+        // Penilaian Praktik Kelas
+        Route::get('kejuruan/penilaian-praktik/{id}/input', [PenilaianPraktikController::class, 'inputNilai'])->name('kejuruan.penilaian-praktik.input');
+        Route::post('kejuruan/penilaian-praktik/{id}/scores', [PenilaianPraktikController::class, 'saveScores'])->name('kejuruan.penilaian-praktik.saveScores');
+        Route::post('kejuruan/penilaian-praktik/{id}/finalkan', [PenilaianPraktikController::class, 'finalkan'])->name('kejuruan.penilaian-praktik.finalkan');
+        Route::post('kejuruan/penilaian-praktik/{id}/sync-siswa', [PenilaianPraktikController::class, 'syncSiswa'])->name('kejuruan.penilaian-praktik.sync-siswa');
+        Route::post('kejuruan/penilaian-praktik/{id}/add-siswa', [PenilaianPraktikController::class, 'addSiswaManual'])->name('kejuruan.penilaian-praktik.add-siswa');
+        Route::delete('kejuruan/penilaian-praktik/{id}/siswa/{id_siswa}', [PenilaianPraktikController::class, 'deleteSiswa'])->name('kejuruan.penilaian-praktik.delete-siswa');
+        Route::resource('kejuruan/penilaian-praktik', PenilaianPraktikController::class, [
+            'names' => 'kejuruan.penilaian-praktik'
+        ]);
+
+        // Buku Induk Capaian Siswa & Transkrip Portofolio
+        Route::get('kejuruan/capaian-siswa', [CapaianSiswaController::class, 'index'])->name('kejuruan.capaian-siswa.index');
+        Route::get('kejuruan/capaian-siswa/transkrip/{id_siswa}', [CapaianSiswaController::class, 'transkrip'])->name('kejuruan.capaian-siswa.transkrip');
+
+        // Uji Kompetensi Keahlian (UKK) - Penilaian oleh Penguji & Guru
+        Route::get('kejuruan/uji-kompetensi/{id}/input/{peserta_id}', [UkkController::class, 'inputNilai'])->name('kejuruan.uji-kompetensi.input-nilai');
+        Route::post('kejuruan/uji-kompetensi/{id}/simpan/{peserta_id}', [UkkController::class, 'simpanNilai'])->name('kejuruan.uji-kompetensi.simpan-nilai');
+        Route::get('kejuruan/uji-kompetensi/{id}/berita-acara', [UkkController::class, 'cetakBeritaAcara'])->name('kejuruan.uji-kompetensi.berita-acara');
+        Route::get('kejuruan/uji-kompetensi/{id}/rekap-pdf', [UkkController::class, 'cetakRekapPdf'])->name('kejuruan.uji-kompetensi.rekap-pdf');
+        Route::get('kejuruan/uji-kompetensi', [UkkController::class, 'index'])->name('kejuruan.uji-kompetensi.index');
+        Route::get('kejuruan/uji-kompetensi/{id}', [UkkController::class, 'show'])->name('kejuruan.uji-kompetensi.show')->whereNumber('id');
+
+        // Tanda Kecakapan Khusus (TKK)
+        Route::get('kejuruan/tkk/pemberian', [TkkController::class, 'pemberian'])->name('kejuruan.tkk.pemberian');
+        Route::post('kejuruan/tkk/sahkan', [TkkController::class, 'sahkanTkk'])->name('kejuruan.tkk.sahkan');
+        Route::post('kejuruan/tkk/sahkan-masal', [TkkController::class, 'sahkanMasal'])->name('kejuruan.tkk.sahkan-masal');
+        Route::get('kejuruan/tkk/piagam/{id_siswa_tkk}', [TkkController::class, 'cetakPiagam'])->name('kejuruan.tkk.cetak-piagam');
+        Route::post('kejuruan/tkk/batalkan/{id_siswa_tkk}', [TkkController::class, 'batalkanPengesahan'])->name('kejuruan.tkk.batalkan');
+        Route::get('kejuruan/tkk/rekap', [TkkController::class, 'rekap'])->name('kejuruan.tkk.rekap');
+        Route::get('kejuruan/tkk', [TkkController::class, 'index'])->name('kejuruan.tkk.index');
+
+        // Portofolio & Sertifikat Siswa
+        Route::post('kejuruan/portofolio/{id}/verifikasi', [PortofolioController::class, 'verifikasi'])->name('kejuruan.portofolio.verifikasi');
+        Route::resource('kejuruan/portofolio', PortofolioController::class, [
+            'names' => 'kejuruan.portofolio'
+        ]);
+    });
+
+    Route::group(['middleware' => ['role:admin,kaprog']], function () {
+        // Approval Laporan / Jurnal Praktik oleh Kaprog & Admin
+        Route::post('kejuruan/laporan-praktik/{id}/approve', [LaporanPraktikController::class, 'approve'])->name('kejuruan.laporan-praktik.approve');
+
+        // Manajemen Kegiatan UKK (Admin & Kaprog)
+        Route::get('kejuruan/uji-kompetensi/create', [UkkController::class, 'create'])->name('kejuruan.uji-kompetensi.create');
+        Route::post('kejuruan/uji-kompetensi', [UkkController::class, 'store'])->name('kejuruan.uji-kompetensi.store');
+        Route::delete('kejuruan/uji-kompetensi/{id}', [UkkController::class, 'destroy'])->name('kejuruan.uji-kompetensi.destroy');
+
+        // Master Jenis TKK (Admin & Kaprog)
+        Route::get('kejuruan/tkk/create', [TkkController::class, 'create'])->name('kejuruan.tkk.create');
+        Route::post('kejuruan/tkk', [TkkController::class, 'store'])->name('kejuruan.tkk.store');
+        Route::get('kejuruan/tkk/{id}/edit', [TkkController::class, 'edit'])->name('kejuruan.tkk.edit');
+        Route::put('kejuruan/tkk/{id}', [TkkController::class, 'update'])->name('kejuruan.tkk.update');
+        Route::delete('kejuruan/tkk/{id}', [TkkController::class, 'destroy'])->name('kejuruan.tkk.destroy');
+
+        // Pengaturan Format Nomor Piagam & Sertifikat Kejuruan (Admin & Kaprog)
+        Route::get('kejuruan/pengaturan-nomor', [PengaturanNomorController::class, 'index'])->name('kejuruan.pengaturan-nomor');
+        Route::post('kejuruan/pengaturan-nomor', [PengaturanNomorController::class, 'update'])->name('kejuruan.pengaturan-nomor.update');
+        Route::post('kejuruan/pengaturan-nomor/reset', [PengaturanNomorController::class, 'resetCounter'])->name('kejuruan.pengaturan-nomor.reset');
+
+        // Inventaris Laboratorium & Bahan Praktik (Admin & Kaprog)
+        Route::get('kejuruan/inventaris-lab', [InventarisLabController::class, 'index'])->name('kejuruan.inventaris-lab.index');
+        Route::get('kejuruan/inventaris-lab/cetak-qr', [InventarisLabController::class, 'cetakQr'])->name('kejuruan.inventaris-lab.cetak-qr');
+        Route::get('kejuruan/inventaris-lab/laporan', [InventarisLabController::class, 'laporan'])->name('kejuruan.inventaris-lab.laporan');
+        Route::get('kejuruan/inventaris-lab/laporan/pdf', [InventarisLabController::class, 'exportPdf'])->name('kejuruan.inventaris-lab.laporan.pdf');
+        Route::get('kejuruan/inventaris-lab/laporan/excel', [InventarisLabController::class, 'exportExcel'])->name('kejuruan.inventaris-lab.laporan.excel');
+        Route::get('kejuruan/inventaris-lab/aset/create', [InventarisLabController::class, 'createAset'])->name('kejuruan.inventaris-lab.aset.create');
+        Route::post('kejuruan/inventaris-lab/aset', [InventarisLabController::class, 'storeAset'])->name('kejuruan.inventaris-lab.aset.store');
+        Route::get('kejuruan/inventaris-lab/aset/{id}', [InventarisLabController::class, 'showAset'])->name('kejuruan.inventaris-lab.aset.show');
+        Route::get('kejuruan/inventaris-lab/aset/{id}/edit', [InventarisLabController::class, 'editAset'])->name('kejuruan.inventaris-lab.aset.edit');
+        Route::match(['put', 'patch', 'post'], 'kejuruan/inventaris-lab/aset/{id}', [InventarisLabController::class, 'updateAset'])->name('kejuruan.inventaris-lab.aset.update');
+        Route::delete('kejuruan/inventaris-lab/aset/{id}', [InventarisLabController::class, 'destroyAset'])->name('kejuruan.inventaris-lab.aset.destroy');
+        Route::post('kejuruan/inventaris-lab/peminjaman', [InventarisLabController::class, 'storePeminjaman'])->name('kejuruan.inventaris-lab.peminjaman.store');
+        Route::post('kejuruan/inventaris-lab/peminjaman/{id}/kembalikan', [InventarisLabController::class, 'kembalikanPeminjaman'])->name('kejuruan.inventaris-lab.peminjaman.kembalikan');
+        Route::post('kejuruan/inventaris-lab/bahan/pakai', [InventarisLabController::class, 'storePemakaianBahan'])->name('kejuruan.inventaris-lab.bahan.pakai');
+        Route::post('kejuruan/inventaris-lab/perawatan', [InventarisLabController::class, 'storePerawatan'])->name('kejuruan.inventaris-lab.perawatan.store');
+        Route::post('kejuruan/inventaris-lab/perawatan/{id}', [InventarisLabController::class, 'updatePerawatan'])->name('kejuruan.inventaris-lab.perawatan.update');
+
+        Route::resource('jurusan', JurusanController::class);
+        Route::resource('lab', LabController::class);
+        Route::resource('kompetensi', KompetensiController::class);
+    });
+
+    // =========================================================================
     // 13. MASTER DATA INTI & SISTEM (Strict Admin-Only)
     // =========================================================================
     Route::group(['middleware' => ['role:admin']], function () {
         Route::resource('importDataMaster', ImportDataMasterController::class);
         Route::post('/import', [ImportDataMasterController::class, 'importData']);
         Route::post('/import-foto-zip', [ImportDataMasterController::class, 'importFotoZip'])->name('import-foto-zip');
-        Route::resource('jurusan', JurusanController::class);
         Route::resource('level', LevelController::class);
         Route::resource('kelas', KelasController::class);
         Route::resource('mapel', MapelController::class);

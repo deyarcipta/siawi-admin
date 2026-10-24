@@ -47,24 +47,47 @@ class Setting extends Model
         return json_decode($value, true);
     }
 
-    public function getSpStatus($score)
+    public function getSpStatus($score, $defaultUnderThreshold = 'Aman')
     {
         $spSettings = $this->sp_settings;
         $rules = $spSettings['sp_rules'] ?? [];
         
-        // Urutkan key SP secara terbalik (cth: SP 4, SP 3, SP 2, SP 1)
+        // Urutkan key SP secara terbalik (cth: SP 3, SP 2, SP 1)
         krsort($rules);
+        $maxLevel = !empty($rules) ? max(array_keys($rules)) : 3;
         
         foreach ($rules as $spLevel => $threshold) {
-            if ($score >= $threshold) {
-                if ($spLevel == max(array_keys($rules))) {
-                    return "SP {$spLevel} (Orang Tua)";
+            if ($score >= (int) $threshold) {
+                if ($spLevel == $maxLevel) {
+                    return "SP {$spLevel} (Orang tua)";
                 }
                 return "SP {$spLevel}";
             }
         }
         
-        return "Aman";
+        return $defaultUnderThreshold;
+    }
+
+    public function getSpBadgeClass($score)
+    {
+        $spSettings = $this->sp_settings;
+        $rules = $spSettings['sp_rules'] ?? [];
+        krsort($rules);
+        $maxLevel = !empty($rules) ? max(array_keys($rules)) : 3;
+
+        foreach ($rules as $spLevel => $threshold) {
+            if ($score >= (int) $threshold) {
+                if ($spLevel == $maxLevel) {
+                    return 'sp-danger';
+                }
+                if ($spLevel == 1) {
+                    return 'sp-amber';
+                }
+                return 'sp-warning';
+            }
+        }
+
+        return 'sp-info';
     }
 
     public function getRekapWaSettingsAttribute($value)
@@ -113,5 +136,146 @@ class Setting extends Model
         }
         $allowed = $this->level_pkl;
         return in_array(strtoupper(trim($kodeLevel)), array_map('strtoupper', $allowed));
+    }
+
+    public function getKejuruanNomorSettingsAttribute($value): array
+    {
+        $default = [
+            'tkk' => [
+                'format' => 'TKK/{JURUSAN}/{KLASTER}/{ROMAWI}/{TAHUN}/{NO}',
+                'padding' => 4,
+                'reset_periode' => 'tahun', // 'tahun', 'tahun_ajaran', 'tidak_pernah'
+                'counter' => 0,
+                'last_reset_year' => date('Y'),
+                'keterangan' => 'Format nomor seri resmi Piagam Tanda Kecakapan Khusus (TKK)',
+            ],
+            'sertifikat' => [
+                'format' => 'SERT-UKK/{JURUSAN}/{ROMAWI}/{TAHUN}/{NO}',
+                'padding' => 4,
+                'reset_periode' => 'tahun',
+                'counter' => 0,
+                'last_reset_year' => date('Y'),
+                'keterangan' => 'Format nomor sertifikat Uji Kompetensi Keahlian (UKK) & Portofolio',
+            ],
+        ];
+
+        if (!$value) {
+            return $default;
+        }
+
+        $decoded = json_decode($value, true);
+        if (!is_array($decoded)) {
+            return $default;
+        }
+
+        return array_replace_recursive($default, $decoded);
+    }
+
+    public static function getRomanMonth($month = null): string
+    {
+        $m = intval($month ?: date('n'));
+        $romans = [
+            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI',
+            7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+        ];
+        return $romans[$m] ?? 'I';
+    }
+
+    public function generateNomorTkk($tkk, $siswa = null, bool $increment = true): string
+    {
+        $settings = $this->kejuruan_nomor_settings;
+        $tkkCfg = $settings['tkk'] ?? [];
+
+        $currentYear = date('Y');
+        $resetPeriode = $tkkCfg['reset_periode'] ?? 'tahun';
+        $lastResetYear = $tkkCfg['last_reset_year'] ?? $currentYear;
+        $counter = intval($tkkCfg['counter'] ?? 0);
+
+        if ($resetPeriode === 'tahun' && $lastResetYear != $currentYear) {
+            $counter = 0;
+            $tkkCfg['last_reset_year'] = $currentYear;
+        }
+
+        $targetCounter = $counter + 1;
+        $padding = intval($tkkCfg['padding'] ?? 4);
+        $paddedNo = str_pad($targetCounter, $padding, '0', STR_PAD_LEFT);
+
+        $kodeJurusan = 'KEJ';
+        if ($tkk && isset($tkk->jurusan) && $tkk->jurusan) {
+            $kodeJurusan = $tkk->jurusan->kode_jurusan ?? $kodeJurusan;
+        }
+
+        $klasterStr = 'GEN';
+        if ($tkk && !empty($tkk->nomor_klaster)) {
+            $klasterStr = 'KL' . $tkk->nomor_klaster;
+        }
+
+        $kodeTkk = ($tkk && !empty($tkk->kode_tkk)) ? $tkk->kode_tkk : 'TKK';
+
+        $format = $tkkCfg['format'] ?? 'TKK/{JURUSAN}/{KLASTER}/{ROMAWI}/{TAHUN}/{NO}';
+        $replacements = [
+            '{NO}' => $paddedNo,
+            '{JURUSAN}' => $kodeJurusan,
+            '{KLASTER}' => $klasterStr,
+            '{KODE_TKK}' => $kodeTkk,
+            '{BULAN}' => date('m'),
+            '{ROMAWI}' => self::getRomanMonth(),
+            '{TAHUN}' => $currentYear,
+            '{TA}' => str_replace('/', '-', $this->tahun_ajaran ?? date('Y')),
+        ];
+
+        $nomorFinal = str_replace(array_keys($replacements), array_values($replacements), $format);
+
+        if ($increment) {
+            $tkkCfg['counter'] = $targetCounter;
+            $settings['tkk'] = $tkkCfg;
+            $this->kejuruan_nomor_settings = json_encode($settings);
+            $this->save();
+        }
+
+        return $nomorFinal;
+    }
+
+    public function generateNomorSertifikat($jurusan = null, $siswa = null, bool $increment = true): string
+    {
+        $settings = $this->kejuruan_nomor_settings;
+        $sertCfg = $settings['sertifikat'] ?? [];
+
+        $currentYear = date('Y');
+        $resetPeriode = $sertCfg['reset_periode'] ?? 'tahun';
+        $lastResetYear = $sertCfg['last_reset_year'] ?? $currentYear;
+        $counter = intval($sertCfg['counter'] ?? 0);
+
+        if ($resetPeriode === 'tahun' && $lastResetYear != $currentYear) {
+            $counter = 0;
+            $sertCfg['last_reset_year'] = $currentYear;
+        }
+
+        $targetCounter = $counter + 1;
+        $padding = intval($sertCfg['padding'] ?? 4);
+        $paddedNo = str_pad($targetCounter, $padding, '0', STR_PAD_LEFT);
+
+        $kodeJurusan = is_object($jurusan) ? ($jurusan->kode_jurusan ?? 'KEJ') : (is_string($jurusan) && !empty($jurusan) ? $jurusan : 'KEJ');
+
+        $format = $sertCfg['format'] ?? 'SERT-UKK/{JURUSAN}/{ROMAWI}/{TAHUN}/{NO}';
+        $replacements = [
+            '{NO}' => $paddedNo,
+            '{JURUSAN}' => $kodeJurusan,
+            '{BULAN}' => date('m'),
+            '{ROMAWI}' => self::getRomanMonth(),
+            '{TAHUN}' => $currentYear,
+            '{TA}' => str_replace('/', '-', $this->tahun_ajaran ?? date('Y')),
+        ];
+
+        $nomorFinal = str_replace(array_keys($replacements), array_values($replacements), $format);
+
+        if ($increment) {
+            $sertCfg['counter'] = $targetCounter;
+            $settings['sertifikat'] = $sertCfg;
+            $this->kejuruan_nomor_settings = json_encode($settings);
+            $this->save();
+        }
+
+        return $nomorFinal;
     }
 }

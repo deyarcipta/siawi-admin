@@ -126,12 +126,14 @@ class Guru extends Model implements Authenticatable
             'admin' => 1,
             'kurikulum' => 2,
             'kesiswaan' => 3,
-            'hubin' => 4,
-            'keuangan' => 5,
-            'tata_usaha' => 6,
-            'wali_kelas' => 7,
-            'guru' => 8,
-            'staff' => 9,
+            'kaprog' => 4,
+            'hubin' => 5,
+            'keuangan' => 6,
+            'tata_usaha' => 7,
+            'wali_kelas' => 8,
+            'guru_jurusan' => 9,
+            'guru' => 10,
+            'staff' => 11,
         ];
 
         $roles = $this->roles_list;
@@ -157,10 +159,12 @@ class Guru extends Model implements Authenticatable
             'admin' => 'Admin',
             'kurikulum' => 'Kurikulum',
             'kesiswaan' => 'Kesiswaan',
+            'kaprog' => 'Kaprog',
             'hubin' => 'Hubin',
             'keuangan' => 'Keuangan',
             'tata_usaha' => 'Tata Usaha',
             'wali_kelas' => 'Wali Kelas',
+            'guru_jurusan' => 'Guru Jurusan',
             'guru' => 'Guru',
             'staff' => 'Staff',
         ];
@@ -198,4 +202,49 @@ class Guru extends Model implements Authenticatable
     {
         return Kelas::where('id_guru', $this->id_guru)->pluck('id_kelas')->toArray();
     }
+
+    /**
+     * Relasi ke jurusan melalui tabel pivot guru_jurusan.
+     */
+    public function jurusans()
+    {
+        return $this->belongsToMany(Jurusan::class, 'guru_jurusan', 'id_guru', 'id_jurusan')
+            ->withPivot('role')
+            ->withTimestamps();
+    }
+
+    /**
+     * Relasi ke jurusan khusus untuk tugas Kaprog.
+     */
+    public function kaprogJurusan()
+    {
+        return $this->belongsToMany(Jurusan::class, 'guru_jurusan', 'id_guru', 'id_jurusan')
+            ->wherePivot('role', 'kaprog')
+            ->withTimestamps();
+    }
+
+    /**
+     * Cek apakah guru memegang amanah Kaprog.
+     */
+    public function isKaprog(): bool
+    {
+        return $this->hasRole('kaprog');
+    }
+
+    /**
+     * Cek apakah guru mengajar sebagai Guru Jurusan.
+     */
+    public function isGuruJurusan(): bool
+    {
+        return $this->hasRole('guru_jurusan');
+    }
+
+    /**
+     * Dapatkan objek Jurusan utama yang dipegang sebagai Kaprog.
+     */
+    public function getJurusanKaprogAttribute()
+    {
+        return $this->kaprogJurusan()->first();
+    }
 }
+

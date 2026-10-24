@@ -254,24 +254,11 @@ class DashboardController extends Controller
             }
         }
 
-        // Format data siswa kritis dengan status SP dan styling
-        $siswaKritisFormatted = $siswaKritis->map(function ($item) {
-            $skor = $item->total_skor;
-            if ($skor >= 70) {
-                $statusSP = 'SP 1 (Orang tua)';
-                $badgeClass = 'sp-danger';
-            } elseif ($skor >= 45) {
-                $statusSP = 'SP 1';
-                $badgeClass = 'sp-warning';
-            } elseif ($skor >= 30) {
-                $statusSP = 'Teguran Tertulis';
-                $badgeClass = 'sp-amber';
-            } else {
-                $statusSP = 'Perhatian';
-                $badgeClass = 'sp-info';
-            }
-            $item->status_sp = $statusSP;
-            $item->badge_class = $badgeClass;
+        // Format data siswa kritis dengan status SP dan styling dinamis sesuai konfigurasi SP di pengaturan
+        $siswaKritisFormatted = $siswaKritis->map(function ($item) use ($setting) {
+            $skor = (int) $item->total_skor;
+            $item->status_sp = $setting ? $setting->getSpStatus($skor, 'Perhatian') : 'Perhatian';
+            $item->badge_class = $setting ? $setting->getSpBadgeClass($skor) : 'sp-info';
             return $item;
         });
 

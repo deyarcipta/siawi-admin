@@ -1888,6 +1888,10 @@
       var tableSelectors = '#example1, #example2, #example3, #spTable, #siswaTable, #siswaPiketTable, #terlambatHariIniTable, .datatable-auto, .datatable, .card-body > table:not(.no-datatable):not(.table-dashboard):not(.table-sm), .card-body > .table-responsive > table:not(.no-datatable):not(.table-dashboard):not(.table-sm)';
       $(tableSelectors).each(function() {
         if (!$.fn.DataTable.isDataTable(this)) {
+          if ($(this).hasClass('no-datatable')) {
+            return;
+          }
+
           // Pastikan table memiliki thead dan tbody sebelum init
           if ($(this).find('thead').length > 0 && $(this).find('tbody').length > 0) {
             $(this).DataTable({

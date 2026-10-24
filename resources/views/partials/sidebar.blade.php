@@ -365,6 +365,168 @@
         @endif
 
         <!-- ============================================== -->
+        <!-- KEJURUAN & PRAKTIK                             -->
+        <!-- ============================================== -->
+        @if($user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan', 'guru']))
+        <li class="nav-header">
+          KEJURUAN & PRAKTIK
+        </li>
+
+        @php
+          $canPraktik = $user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan', 'guru']);
+          $canUjiKompetensi = $user->hasAnyRole(['admin', 'kaprog']);
+          $canInventarisLab = $user->hasAnyRole(['admin', 'kaprog']);
+          $canMasterKejuruan = $user->hasAnyRole(['admin', 'kaprog']);
+        @endphp
+
+        <!-- 1. Pelaksanaan Praktik (Guru, Guru Jurusan, Kaprog, Admin) -->
+        @if($canPraktik && \App\Models\Jurusan::userCanAccessModul($user, 'praktik'))
+        @php
+          $isPelaksanaanOpen = Request::is('admin/kejuruan/jadwal-praktik*') || Request::is('admin/kejuruan/jurnal-praktik*') || Request::is('admin/kejuruan/laporan-praktik*') || Request::is('admin/kejuruan/modul-praktik*');
+        @endphp
+        <li class="nav-item has-treeview {{ $isPelaksanaanOpen ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ $isPelaksanaanOpen ? 'active' : '' }}">
+            <i class="nav-icon fas fa-chalkboard-teacher"></i>
+            <p>
+              Pelaksanaan Praktik
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="/admin/kejuruan/modul-praktik" class="nav-link {{ Request::is('admin/kejuruan/modul-praktik*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Bank Modul Praktik</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/kejuruan/jadwal-praktik" class="nav-link {{ Request::is('admin/kejuruan/jadwal-praktik*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Jadwal Praktik</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/kejuruan/jurnal-praktik" class="nav-link {{ Request::is('admin/kejuruan/jurnal-praktik*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Jurnal Praktik</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/kejuruan/laporan-praktik" class="nav-link {{ Request::is('admin/kejuruan/laporan-praktik*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Laporan Praktik</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- 2. Penilaian & Sertifikasi (Guru, Guru Jurusan, Kaprog, Admin) -->
+        @php
+          $isPenilaianOpen = Request::is('admin/kejuruan/penilaian-praktik*') || Request::is('admin/kejuruan/capaian-siswa*') || Request::is('admin/kejuruan/uji-kompetensi*') || Request::is('admin/kejuruan/tkk*') || Request::is('admin/kejuruan/portofolio*') || Request::is('admin/kompetensi*') || Request::is('admin/kejuruan/pengaturan-nomor*');
+        @endphp
+        <li class="nav-item has-treeview {{ $isPenilaianOpen ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ $isPenilaianOpen ? 'active' : '' }}">
+            <i class="nav-icon fas fa-award"></i>
+            <p>
+              Penilaian & Sertifikasi
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            @if($canMasterKejuruan)
+            <li class="nav-item">
+              <a href="/admin/kompetensi" class="nav-link {{ Request::is('admin/kompetensi*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Standar Kompetensi</p>
+              </a>
+            </li>
+            @endif
+            <li class="nav-item">
+              <a href="/admin/kejuruan/penilaian-praktik" class="nav-link {{ Request::is('admin/kejuruan/penilaian-praktik*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Penilaian Praktik</p>
+              </a>
+            </li>
+            @if(\App\Models\Jurusan::userCanAccessModul($user, 'ukk'))
+            <li class="nav-item">
+              <a href="/admin/kejuruan/uji-kompetensi" class="nav-link {{ Request::is('admin/kejuruan/uji-kompetensi*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Uji Kompetensi (UKK)</p>
+              </a>
+            </li>
+            @endif
+
+            @if(\App\Models\Jurusan::userCanAccessModul($user, 'tkk'))
+            <li class="nav-item">
+              <a href="/admin/kejuruan/tkk" class="nav-link {{ Request::is('admin/kejuruan/tkk*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Kecakapan Khusus (TKK)</p>
+              </a>
+            </li>
+            @endif
+
+            @if(\App\Models\Jurusan::userCanAccessModul($user, 'portofolio'))
+            <li class="nav-item">
+              <a href="/admin/kejuruan/portofolio" class="nav-link {{ Request::is('admin/kejuruan/portofolio*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Portofolio & Sertifikat</p>
+              </a>
+            </li>
+            @endif
+            <li class="nav-item">
+              <a href="/admin/kejuruan/capaian-siswa" class="nav-link {{ Request::is('admin/kejuruan/capaian-siswa*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Buku Induk Capaian</p>
+              </a>
+            </li>
+            @if($user->hasRole('admin') || ($user->hasRole('kaprog') && (\App\Models\Jurusan::userCanAccessModul($user, 'tkk') || \App\Models\Jurusan::userCanAccessModul($user, 'ukk') || \App\Models\Jurusan::userCanAccessModul($user, 'portofolio'))))
+            <li class="nav-item">
+              <a href="/admin/kejuruan/pengaturan-nomor" class="nav-link {{ Request::is('admin/kejuruan/pengaturan-nomor*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Format Nomor Kejuruan</p>
+              </a>
+            </li>
+            @endif
+          </ul>
+        </li>
+        @endif
+
+        <!-- 3. Laboratorium & Inventaris (Kaprog & Admin) -->
+        @if(($canInventarisLab || $canMasterKejuruan) && \App\Models\Jurusan::userCanAccessModul($user, 'lab'))
+        @php
+          $isLabOpen = Request::is('admin/kejuruan/inventaris-lab*') || Request::is('admin/lab*');
+        @endphp
+        <li class="nav-item has-treeview {{ $isLabOpen ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ $isLabOpen ? 'active' : '' }}">
+            <i class="nav-icon fas fa-flask"></i>
+            <p>
+              Laboratorium & Inventaris
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            @if($canMasterKejuruan)
+            <li class="nav-item">
+              <a href="/admin/lab" class="nav-link {{ Request::is('admin/lab*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Data Ruang Lab</p>
+              </a>
+            </li>
+            @endif
+            @if($canInventarisLab)
+            <li class="nav-item">
+              <a href="/admin/kejuruan/inventaris-lab" class="nav-link {{ Request::is('admin/kejuruan/inventaris-lab*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Inventaris & Bahan Lab</p>
+              </a>
+            </li>
+            @endif
+          </ul>
+        </li>
+        @endif
+        @endif
+
+        <!-- ============================================== -->
         <!-- 4. KESISWAAN & KEDISIPLINAN                    -->
         <!-- ============================================== -->
         @if($user->hasAnyRole(['admin', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'tata_usaha', 'hubin', 'bkk']))
@@ -561,7 +723,7 @@
         <!-- ============================================== -->
         <!-- 6. SISTEM & PENGATURAN                         -->
         <!-- ============================================== -->
-        @if($user->hasAnyRole(['admin', 'tata_usaha', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'keuangan', 'hubin']))
+        @if($user->hasAnyRole(['admin', 'tata_usaha', 'kesiswaan', 'wali_kelas', 'kurikulum', 'guru', 'keuangan', 'hubin', 'kaprog', 'guru_jurusan']))
         <li class="nav-header">
           Sistem & Pengaturan
         </li>
@@ -601,7 +763,7 @@
             </li>
             @endif
 
-            @if($user->hasAnyRole(['admin', 'tata_usaha']))
+            @if($user->hasAnyRole(['admin', 'tata_usaha', 'kaprog']))
             <li class="nav-item">
               <a href="/admin/jurusan" class="nav-link {{ Request::is('admin/jurusan*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>

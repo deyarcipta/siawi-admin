@@ -49,4 +49,28 @@ class Kelas extends Model
     {
         return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
     }
+
+    /**
+     * Scope query kelas sesuai hak akses jurusan user.
+     */
+    public function scopeForUserJurusan($query, $user = null)
+    {
+        $user = $user ?: \Illuminate\Support\Facades\Auth::user();
+        if (!$user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if ($user->hasRole('admin')) {
+            return $query;
+        }
+
+        $accessibleJurusanIds = Jurusan::getAccessibleJurusanIds($user);
+        if (empty($accessibleJurusanIds)) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->whereHas('jurusan', function ($q) use ($accessibleJurusanIds) {
+            $q->whereIn('id_jurusan', $accessibleJurusanIds);
+        });
+    }
 }
