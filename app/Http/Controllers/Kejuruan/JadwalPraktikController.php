@@ -84,8 +84,18 @@ class JadwalPraktikController extends Controller
         $mapels = Mapel::orderBy('nama_mapel', 'asc')->get();
         $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
+        // Ambil jadwal mapel kurikulum yang dapat ditautkan secara langsung
+        $jadwalMapelQuery = JadwalMapel::with(['kelas.jurusan', 'guru', 'mapel']);
+        if (!$user->hasRole('admin')) {
+            $accessibleJurusanIds = Lab::getAccessibleJurusanIds($user);
+            $jadwalMapelQuery->whereHas('kelas', function ($q) use ($accessibleJurusanIds) {
+                $q->whereIn('id_jurusan', $accessibleJurusanIds);
+            });
+        }
+        $jadwalMapelList = $jadwalMapelQuery->orderBy('hari', 'asc')->orderBy('waktu_awal', 'asc')->get();
+
         return view('kejuruan.jadwal_praktik.create', compact(
-            'layout', 'setting', 'user', 'labs', 'kelas', 'gurus', 'mapels', 'hariList'
+            'layout', 'setting', 'user', 'labs', 'kelas', 'gurus', 'mapels', 'hariList', 'jadwalMapelList'
         ));
     }
 
@@ -99,21 +109,45 @@ class JadwalPraktikController extends Controller
             abort(403, 'Akses terbatas.');
         }
 
-        $request->validate([
+        $tipeJadwal = $request->input('tipe_jadwal', 'rutin');
+        $tanggalKhusus = $request->input('tanggal_khusus');
+        $allowOverrideMapel = $request->boolean('override_mapel');
+
+        $rules = [
             'id_kelas' => 'required|exists:kelas,id_kelas',
             'id_lab' => 'required|exists:lab,id_lab',
             'id_guru' => 'required|exists:guru,id_guru',
             'id_mapel' => 'required|exists:mapel,id_mapel',
-            'hari' => 'required|string',
             'jam_mulai' => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
             'alat_bahan' => 'nullable|string',
-        ], [
+            'tipe_jadwal' => 'required|in:rutin,insidental',
+            'id_jadwal_mapel' => 'nullable|exists:jadwal_mapel,id_jadwal',
+        ];
+
+        if ($tipeJadwal === 'insidental') {
+            $rules['tanggal_khusus'] = 'required|date';
+            $hariMap = [
+                'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu',
+                'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu',
+            ];
+            $hari = $hariMap[\Carbon\Carbon::parse($tanggalKhusus)->format('l')] ?? 'Senin';
+            $frekuensi = 'setiap_minggu';
+        } else {
+            $rules['hari'] = 'required|string';
+            $rules['frekuensi'] = 'required|in:setiap_minggu,minggu_ganjil,minggu_genap';
+            $hari = ucfirst(strtolower($request->hari));
+            $frekuensi = $request->input('frekuensi', 'setiap_minggu');
+            $tanggalKhusus = null;
+        }
+
+        $request->validate($rules, [
             'id_kelas.required' => 'Kelas wajib dipilih.',
             'id_lab.required' => 'Laboratorium wajib dipilih.',
             'id_guru.required' => 'Guru instruktur wajib dipilih.',
             'id_mapel.required' => 'Mata pelajaran kejuruan wajib dipilih.',
             'hari.required' => 'Hari pelaksanaan wajib dipilih.',
+            'tanggal_khusus.required' => 'Tanggal pelaksanaan khusus wajib diisi untuk praktik dadakan.',
             'jam_mulai.required' => 'Jam mulai wajib diisi.',
             'jam_selesai.required' => 'Jam selesai wajib diisi.',
             'jam_selesai.after' => 'Jam selesai harus lebih akhir dari jam mulai.',
@@ -123,14 +157,20 @@ class JadwalPraktikController extends Controller
         $tahunAjaran = $setting->tahun_ajaran ?? '2026/2027';
         $semester = $setting->semester_aktif ?? 'Ganjil';
 
-        // Pengecekan bentrok otomatis
+        // Pengecekan bentrok cerdas
         $conflictError = $this->detectScheduleConflict(
-            $request->hari,
+            $hari,
             $request->jam_mulai,
             $request->jam_selesai,
-            $request->id_lab,
-            $request->id_guru,
-            $request->id_kelas
+            (int) $request->id_lab,
+            (int) $request->id_guru,
+            (int) $request->id_kelas,
+            (int) $request->id_mapel,
+            null,
+            $tipeJadwal,
+            $frekuensi,
+            $tanggalKhusus,
+            $allowOverrideMapel
         );
 
         if ($conflictError) {
@@ -142,7 +182,11 @@ class JadwalPraktikController extends Controller
             'id_lab' => $request->id_lab,
             'id_guru' => $request->id_guru,
             'id_mapel' => $request->id_mapel,
-            'hari' => ucfirst(strtolower($request->hari)),
+            'tipe_jadwal' => $tipeJadwal,
+            'frekuensi' => $frekuensi,
+            'tanggal_khusus' => $tanggalKhusus,
+            'id_jadwal_mapel' => $request->id_jadwal_mapel,
+            'hari' => $hari,
             'jam_mulai' => $request->jam_mulai,
             'jam_selesai' => $request->jam_selesai,
             'tahun_ajaran' => $tahunAjaran,
@@ -150,7 +194,11 @@ class JadwalPraktikController extends Controller
             'alat_bahan' => $request->alat_bahan,
         ]);
 
-        return redirect('/admin/kejuruan/jadwal-praktik')->with('success', 'Jadwal praktik berhasil disimpan tanpa bentrok.');
+        $pesan = $tipeJadwal === 'insidental' 
+            ? 'Praktik tambahan / insidental berhasil dijadwalkan.'
+            : 'Jadwal praktik mingguan berhasil disimpan.';
+
+        return redirect('/admin/kejuruan/jadwal-praktik')->with('success', $pesan);
     }
 
     /**
@@ -173,8 +221,17 @@ class JadwalPraktikController extends Controller
         $mapels = Mapel::orderBy('nama_mapel', 'asc')->get();
         $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
+        $jadwalMapelQuery = JadwalMapel::with(['kelas.jurusan', 'guru', 'mapel']);
+        if (!$user->hasRole('admin')) {
+            $accessibleJurusanIds = Lab::getAccessibleJurusanIds($user);
+            $jadwalMapelQuery->whereHas('kelas', function ($q) use ($accessibleJurusanIds) {
+                $q->whereIn('id_jurusan', $accessibleJurusanIds);
+            });
+        }
+        $jadwalMapelList = $jadwalMapelQuery->orderBy('hari', 'asc')->orderBy('waktu_awal', 'asc')->get();
+
         return view('kejuruan.jadwal_praktik.edit', compact(
-            'layout', 'setting', 'user', 'jadwal', 'labs', 'kelas', 'gurus', 'mapels', 'hariList'
+            'layout', 'setting', 'user', 'jadwal', 'labs', 'kelas', 'gurus', 'mapels', 'hariList', 'jadwalMapelList'
         ));
     }
 
@@ -190,26 +247,54 @@ class JadwalPraktikController extends Controller
 
         $jadwal = JadwalPraktik::forUserJurusan($user)->findOrFail($id);
 
-        $request->validate([
+        $tipeJadwal = $request->input('tipe_jadwal', 'rutin');
+        $tanggalKhusus = $request->input('tanggal_khusus');
+        $allowOverrideMapel = $request->boolean('override_mapel');
+
+        $rules = [
             'id_kelas' => 'required|exists:kelas,id_kelas',
             'id_lab' => 'required|exists:lab,id_lab',
             'id_guru' => 'required|exists:guru,id_guru',
             'id_mapel' => 'required|exists:mapel,id_mapel',
-            'hari' => 'required|string',
             'jam_mulai' => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
             'alat_bahan' => 'nullable|string',
-        ]);
+            'tipe_jadwal' => 'required|in:rutin,insidental',
+            'id_jadwal_mapel' => 'nullable|exists:jadwal_mapel,id_jadwal',
+        ];
+
+        if ($tipeJadwal === 'insidental') {
+            $rules['tanggal_khusus'] = 'required|date';
+            $hariMap = [
+                'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu',
+                'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu',
+            ];
+            $hari = $hariMap[\Carbon\Carbon::parse($tanggalKhusus)->format('l')] ?? 'Senin';
+            $frekuensi = 'setiap_minggu';
+        } else {
+            $rules['hari'] = 'required|string';
+            $rules['frekuensi'] = 'required|in:setiap_minggu,minggu_ganjil,minggu_genap';
+            $hari = ucfirst(strtolower($request->hari));
+            $frekuensi = $request->input('frekuensi', 'setiap_minggu');
+            $tanggalKhusus = null;
+        }
+
+        $request->validate($rules);
 
         // Cek bentrok dengan mengabaikan ID saat ini
         $conflictError = $this->detectScheduleConflict(
-            $request->hari,
+            $hari,
             $request->jam_mulai,
             $request->jam_selesai,
-            $request->id_lab,
-            $request->id_guru,
-            $request->id_kelas,
-            $id
+            (int) $request->id_lab,
+            (int) $request->id_guru,
+            (int) $request->id_kelas,
+            (int) $request->id_mapel,
+            (int) $id,
+            $tipeJadwal,
+            $frekuensi,
+            $tanggalKhusus,
+            $allowOverrideMapel
         );
 
         if ($conflictError) {
@@ -221,7 +306,11 @@ class JadwalPraktikController extends Controller
             'id_lab' => $request->id_lab,
             'id_guru' => $request->id_guru,
             'id_mapel' => $request->id_mapel,
-            'hari' => ucfirst(strtolower($request->hari)),
+            'tipe_jadwal' => $tipeJadwal,
+            'frekuensi' => $frekuensi,
+            'tanggal_khusus' => $tanggalKhusus,
+            'id_jadwal_mapel' => $request->id_jadwal_mapel,
+            'hari' => $hari,
             'jam_mulai' => $request->jam_mulai,
             'jam_selesai' => $request->jam_selesai,
             'alat_bahan' => $request->alat_bahan,
@@ -247,7 +336,7 @@ class JadwalPraktikController extends Controller
     }
 
     /**
-     * Deteksi bentrok jadwal praktik dengan jadwal praktik lain maupun jadwal pelajaran umum.
+     * Deteksi bentrok jadwal praktik cerdas dengan mempertimbangkan siklus, tanggal, dan toleransi mapel sendiri.
      */
     public function detectScheduleConflict(
         string $hari,
@@ -256,7 +345,12 @@ class JadwalPraktikController extends Controller
         int $idLab,
         int $idGuru,
         int $idKelas,
-        ?int $excludeId = null
+        int $idMapel,
+        ?int $excludeId = null,
+        string $tipeJadwal = 'rutin',
+        string $frekuensi = 'setiap_minggu',
+        ?string $tanggalKhusus = null,
+        bool $allowOverrideMapel = false
     ): ?string {
         $hariNorm = ucfirst(strtolower(trim($hari)));
         $hariLower = strtolower(trim($hari));
@@ -276,78 +370,115 @@ class JadwalPraktikController extends Controller
             $basePraktikQuery->where('id_jadwal_praktik', '!=', $excludeId);
         }
 
-        // 1a. Bentrok Laboratorium
-        $labConflict = (clone $basePraktikQuery)
-            ->where('id_lab', $idLab)
-            ->with(['lab', 'kelas'])
-            ->first();
+        $existingPraktiks = $basePraktikQuery->with(['lab', 'kelas', 'guru', 'mapel'])->get();
 
-        if ($labConflict) {
-            return "Bentrok Laboratorium: Ruang " . ($labConflict->lab->nama_lab ?? 'Lab') .
-                " sudah dijadwalkan untuk kelas " . ($labConflict->kelas->nama_kelas ?? 'Lain') .
-                " pada hari " . $hariNorm . " pukul " . substr($labConflict->jam_mulai, 0, 5) .
-                " sampai " . substr($labConflict->jam_selesai, 0, 5) . ".";
-        }
+        foreach ($existingPraktiks as $item) {
+            // Cek apakah ada irisan siklus/minggu pelaksanaan
+            $isOverlapCycle = false;
 
-        // 1b. Bentrok Guru di jadwal praktik
-        $guruPraktikConflict = (clone $basePraktikQuery)
-            ->where('id_guru', $idGuru)
-            ->with(['guru', 'lab'])
-            ->first();
+            if ($tipeJadwal === 'insidental' && $tanggalKhusus) {
+                // Untuk jadwal insidental: overlap jika jadwal yang dibandingkan aktif di tanggal tersebut
+                $isOverlapCycle = $item->isActiveOnDate($tanggalKhusus);
+            } elseif ($item->isInsidental() && $item->tanggal_khusus) {
+                // Jadwal pembanding adalah insidental, cek apakah aktif di siklus rutin
+                $dt = \Carbon\Carbon::parse($item->tanggal_khusus);
+                $isOverlapCycle = (new JadwalPraktik(['hari' => $hariNorm, 'frekuensi' => $frekuensi, 'tipe_jadwal' => 'rutin']))->isActiveOnDate($dt);
+            } else {
+                // Keduanya adalah jadwal rutin:
+                $f1 = $frekuensi;
+                $f2 = $item->frekuensi ?? 'setiap_minggu';
 
-        if ($guruPraktikConflict) {
-            return "Bentrok Jadwal Guru: Guru " . ($guruPraktikConflict->guru->nama_guru ?? 'Pengajar') .
-                " sudah memiliki jadwal praktik lain di " . ($guruPraktikConflict->lab->nama_lab ?? 'Lab lain') .
-                " pada hari " . $hariNorm . " pukul " . substr($guruPraktikConflict->jam_mulai, 0, 5) .
-                " sampai " . substr($guruPraktikConflict->jam_selesai, 0, 5) . ".";
-        }
+                if ($f1 === 'setiap_minggu' || $f2 === 'setiap_minggu') {
+                    $isOverlapCycle = true;
+                } elseif ($f1 === $f2) {
+                    $isOverlapCycle = true;
+                } else {
+                    // Satu ganjil, satu genap -> TIDAK PERNAH BENTROK!
+                    $isOverlapCycle = false;
+                }
+            }
 
-        // 1c. Bentrok Kelas di jadwal praktik
-        $kelasPraktikConflict = (clone $basePraktikQuery)
-            ->where('id_kelas', $idKelas)
-            ->with(['kelas', 'lab'])
-            ->first();
+            if (!$isOverlapCycle) {
+                continue; // Lewati karena beda siklus minggu
+            }
 
-        if ($kelasPraktikConflict) {
-            return "Bentrok Jadwal Kelas: Kelas " . ($kelasPraktikConflict->kelas->nama_kelas ?? 'Kelas') .
-                " sudah memiliki jadwal praktik di " . ($kelasPraktikConflict->lab->nama_lab ?? 'Lab lain') .
-                " pada hari " . $hariNorm . " pukul " . substr($kelasPraktikConflict->jam_mulai, 0, 5) .
-                " sampai " . substr($kelasPraktikConflict->jam_selesai, 0, 5) . ".";
+            // 1a. Bentrok Laboratorium
+            if ($item->id_lab == $idLab) {
+                $detailSiklus = $item->isInsidental() 
+                    ? " (Praktik Tambahan tanggal " . \Carbon\Carbon::parse($item->tanggal_khusus)->format('d/m/Y') . ")" 
+                    : ($item->frekuensi !== 'setiap_minggu' ? " [" . $item->label_frekuensi . "]" : "");
+
+                return "Bentrok Laboratorium: Ruang " . ($item->lab->nama_lab ?? 'Lab') .
+                    " sudah dijadwalkan untuk kelas " . ($item->kelas->nama_kelas ?? 'Lain') .
+                    $detailSiklus . " pada hari " . $hariNorm . " pukul " . substr($item->jam_mulai, 0, 5) .
+                    " sampai " . substr($item->jam_selesai, 0, 5) . ".";
+            }
+
+            // 1b. Bentrok Guru di jadwal praktik
+            if ($item->id_guru == $idGuru) {
+                return "Bentrok Jadwal Guru: Guru " . ($item->guru->nama_guru ?? 'Pengajar') .
+                    " sudah memiliki jadwal praktik di " . ($item->lab->nama_lab ?? 'Lab lain') .
+                    " pada hari " . $hariNorm . " pukul " . substr($item->jam_mulai, 0, 5) .
+                    " sampai " . substr($item->jam_selesai, 0, 5) . ".";
+            }
+
+            // 1c. Bentrok Kelas di jadwal praktik
+            if ($item->id_kelas == $idKelas) {
+                return "Bentrok Jadwal Kelas: Kelas " . ($item->kelas->nama_kelas ?? 'Kelas') .
+                    " sudah memiliki jadwal praktik di " . ($item->lab->nama_lab ?? 'Lab lain') .
+                    " pada hari " . $hariNorm . " pukul " . substr($item->jam_mulai, 0, 5) .
+                    " sampai " . substr($item->jam_selesai, 0, 5) . ".";
+            }
         }
 
         // -------------------------------------------------------------
-        // 2. Cek silang bentrok dengan jadwal_mapel umum (teori)
+        // 2. Cek silang bentrok dengan jadwal_mapel kurikulum
         // -------------------------------------------------------------
+        if ($allowOverrideMapel) {
+            // Pengguna memberi persetujuan dispensasi/praktik blok mengambil jam KBM
+            return null;
+        }
+
         $baseMapelQuery = JadwalMapel::whereRaw('LOWER(hari) = ?', [$hariLower])
             ->where('waktu_awal', '<', substr($selesaiTime, 0, 5))
             ->where('waktu_akhir', '>', substr($mulaiTime, 0, 5));
 
-        // 2a. Bentrok Guru dengan jadwal mengajar teori umum
-        $guruMapelConflict = (clone $baseMapelQuery)
+        // 2a. Bentrok Guru dengan jadwal mengajar umum
+        $guruMapelConflicts = (clone $baseMapelQuery)
             ->where('id_guru', $idGuru)
             ->with(['guru', 'mapel', 'kelas'])
-            ->first();
+            ->get();
 
-        if ($guruMapelConflict) {
-            return "Bentrok Jadwal Teori Umum: Guru " . ($guruMapelConflict->guru->nama_guru ?? 'Pengajar') .
-                " memiliki jadwal mengajar mapel " . ($guruMapelConflict->mapel->nama_mapel ?? 'Teori') .
-                " di kelas " . ($guruMapelConflict->kelas->nama_kelas ?? '-') .
-                " pada hari " . $hariNorm . " pukul " . $guruMapelConflict->waktu_awal .
-                " sampai " . $guruMapelConflict->waktu_akhir . ".";
+        foreach ($guruMapelConflicts as $conf) {
+            // Toleransi KBM produktif: jika ini adalah guru, kelas, dan mapel yang sama persis,
+            // berarti jam mengajar tersebut memang dialokasikan sebagai praktik di Lab!
+            if ($conf->id_kelas == $idKelas && $conf->id_mapel == $idMapel) {
+                continue; // BUKAN BENTROK
+            }
+
+            return "Bentrok Jadwal Mengajar: Guru " . ($conf->guru->nama_guru ?? 'Pengajar') .
+                " memiliki jadwal mengajar " . ($conf->mapel->nama_mapel ?? 'Mapel') .
+                " di kelas " . ($conf->kelas->nama_kelas ?? '-') .
+                " pada hari " . $hariNorm . " pukul " . $conf->waktu_awal .
+                " sampai " . $conf->waktu_akhir . ". (Aktifkan centang 'Izinkan Mengambil Jam Pelajaran' jika ini adalah Praktik Blok).";
         }
 
-        // 2b. Bentrok Kelas dengan jadwal teori umum
-        $kelasMapelConflict = (clone $baseMapelQuery)
+        // 2b. Bentrok Kelas dengan jadwal pelajaran umum
+        $kelasMapelConflicts = (clone $baseMapelQuery)
             ->where('id_kelas', $idKelas)
             ->with(['kelas', 'mapel', 'guru'])
-            ->first();
+            ->get();
 
-        if ($kelasMapelConflict) {
-            return "Bentrok Jadwal Teori Umum: Kelas " . ($kelasMapelConflict->kelas->nama_kelas ?? 'Kelas') .
-                " sudah memiliki jadwal pelajaran " . ($kelasMapelConflict->mapel->nama_mapel ?? 'Mapel') .
-                " bersama " . ($kelasMapelConflict->guru->nama_guru ?? 'Guru') .
-                " pada hari " . $hariNorm . " pukul " . $kelasMapelConflict->waktu_awal .
-                " sampai " . $kelasMapelConflict->waktu_akhir . ".";
+        foreach ($kelasMapelConflicts as $conf) {
+            if ($conf->id_guru == $idGuru && $conf->id_mapel == $idMapel) {
+                continue; // BUKAN BENTROK
+            }
+
+            return "Bentrok Jadwal Pelajaran: Kelas " . ($conf->kelas->nama_kelas ?? 'Kelas') .
+                " memiliki jadwal " . ($conf->mapel->nama_mapel ?? 'Mapel') .
+                " bersama " . ($conf->guru->nama_guru ?? 'Guru') .
+                " pada hari " . $hariNorm . " pukul " . $conf->waktu_awal .
+                " sampai " . $conf->waktu_akhir . ". (Aktifkan centang 'Izinkan Mengambil Jam Pelajaran' jika ini adalah Praktik Blok).";
         }
 
         return null;

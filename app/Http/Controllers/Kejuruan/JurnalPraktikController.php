@@ -38,14 +38,25 @@ class JurnalPraktikController extends Controller
         $todayIndo = $hariMap[$todayEnglish] ?? 'Senin';
         $todayDate = Carbon::now()->toDateString();
 
-        // 1. Ambil jadwal praktik hari ini khusus untuk user yang login
+        // 1. Ambil jadwal praktik hari ini khusus untuk user yang login (memperhitungkan siklus ganjil/genap dan dadakan)
         $jadwalHariIniQuery = JadwalPraktik::with(['kelas', 'lab', 'mapel', 'guru']);
         if (!$user->hasRole('admin')) {
             $jadwalHariIniQuery->where('id_guru', $user->id_guru);
         }
-        $jadwalHariIni = $jadwalHariIniQuery->where('hari', $todayIndo)
+        $jadwalHariIni = $jadwalHariIniQuery
+            ->where(function($q) use ($todayIndo, $todayDate) {
+                $q->where(function($sub) use ($todayIndo) {
+                    $sub->where('tipe_jadwal', 'rutin')->where('hari', $todayIndo);
+                })->orWhere(function($sub) use ($todayDate) {
+                    $sub->where('tipe_jadwal', 'insidental')->where('tanggal_khusus', $todayDate);
+                });
+            })
             ->orderBy('jam_mulai', 'asc')
-            ->get();
+            ->get()
+            ->filter(function($j) use ($todayDate) {
+                return $j->isActiveOnDate($todayDate);
+            })
+            ->values();
 
         // Cek jurnal yang sudah diisi hari ini
         $jurnalHariIniJadwalIds = JurnalPraktik::where('tanggal', $todayDate)

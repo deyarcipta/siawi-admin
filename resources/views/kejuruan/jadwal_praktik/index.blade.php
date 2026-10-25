@@ -183,6 +183,9 @@
               <a href="/admin/kejuruan/jadwal-praktik/create" class="btn btn-primary btn-sm shadow-sm font-weight-bold">
                 <i class="fas fa-plus mr-1"></i> Tambah Jadwal
               </a>
+              <a href="/admin/kejuruan/jadwal-praktik/create?tipe=insidental" class="btn btn-warning btn-sm shadow-sm font-weight-bold text-dark">
+                <i class="fas fa-bolt mr-1"></i> Praktik Dadakan
+              </a>
             @endif
 
             <div class="btn-group shadow-sm" role="group">
@@ -222,15 +225,30 @@
               </div>
               <div class="card-body p-2" style="background-color: #f8fafc; min-height: 220px;">
                 @forelse($jadwalPerHari[$hari] as $j)
-                  <div class="card border-0 shadow-sm mb-2" style="border-radius: 8px; border-left: 4px solid #007bff !important;">
+                  <div class="card border-0 shadow-sm mb-2" style="border-radius: 8px; border-left: 4px solid {{ $j->isInsidental() ? '#f59e0b' : '#007bff' }} !important;">
                     <div class="card-body p-2">
-                      <div class="d-flex justify-content-between align-items-start mb-1">
+                      <div class="d-flex justify-content-between align-items-start mb-1 flex-wrap" style="gap: 4px;">
                         <span class="badge badge-light border text-primary font-weight-bold" style="font-size: 0.75rem;">
                           {{ substr($j->jam_mulai, 0, 5) }} - {{ substr($j->jam_selesai, 0, 5) }}
                         </span>
-                        <span class="badge badge-info px-2" style="font-size: 0.72rem;">
-                          {{ $j->kelas->nama_kelas ?? '-' }}
-                        </span>
+                        <div>
+                          @if($j->isInsidental())
+                            <span class="badge badge-warning text-dark px-2" style="font-size: 0.7rem;" title="Praktik Tambahan / Dadakan">
+                              <i class="fas fa-bolt"></i> {{ $j->tanggal_khusus ? \Carbon\Carbon::parse($j->tanggal_khusus)->format('d/m') : 'Dadakan' }}
+                            </span>
+                          @elseif($j->frekuensi === 'minggu_ganjil')
+                            <span class="badge badge-secondary px-2" style="font-size: 0.7rem;" title="2 Minggu Sekali (Ganjil)">
+                              Siklus Ganjil
+                            </span>
+                          @elseif($j->frekuensi === 'minggu_genap')
+                            <span class="badge badge-secondary px-2" style="font-size: 0.7rem;" title="2 Minggu Sekali (Genap)">
+                              Siklus Genap
+                            </span>
+                          @endif
+                          <span class="badge badge-info px-2" style="font-size: 0.72rem;">
+                            {{ $j->kelas->nama_kelas ?? '-' }}
+                          </span>
+                        </div>
                       </div>
                       <h6 class="font-weight-bold text-dark mb-1" style="font-size: 0.88rem; line-height: 1.3;">
                         {{ $j->mapel->nama_mapel ?? '-' }}
@@ -313,6 +331,19 @@
                     <td class="align-middle">
                       <span class="badge badge-primary px-2 py-1 mr-1">{{ $j->hari }}</span>
                       <span class="font-weight-bold text-dark">{{ substr($j->jam_mulai, 0, 5) }} - {{ substr($j->jam_selesai, 0, 5) }}</span>
+                      @if($j->isInsidental())
+                        <span class="badge badge-warning text-dark ml-1" style="font-size: 0.72rem;">
+                          <i class="fas fa-bolt mr-1"></i>Dadakan: {{ $j->tanggal_khusus ? \Carbon\Carbon::parse($j->tanggal_khusus)->format('d/m/Y') : '' }}
+                        </span>
+                      @elseif($j->frekuensi === 'minggu_ganjil')
+                        <span class="badge badge-secondary ml-1" style="font-size: 0.72rem;">
+                          2 Mgg Sekali (Ganjil)
+                        </span>
+                      @elseif($j->frekuensi === 'minggu_genap')
+                        <span class="badge badge-secondary ml-1" style="font-size: 0.72rem;">
+                          2 Mgg Sekali (Genap)
+                        </span>
+                      @endif
                     </td>
                     <td class="align-middle font-weight-500">{{ $j->kelas->nama_kelas ?? '-' }}</td>
                     <td class="align-middle font-weight-bold text-dark">{{ $j->mapel->nama_mapel ?? '-' }}</td>

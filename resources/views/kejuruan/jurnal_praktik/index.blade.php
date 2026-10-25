@@ -147,6 +147,9 @@
             <a href="/admin/kejuruan/jurnal-praktik/create" class="btn btn-primary btn-sm shadow-sm font-weight-bold">
               <i class="fas fa-plus mr-1"></i> Isi Jurnal Baru
             </a>
+            <a href="/admin/kejuruan/jadwal-praktik/create?tipe=insidental" class="btn btn-warning btn-sm shadow-sm font-weight-bold text-dark">
+              <i class="fas fa-bolt mr-1"></i> + Praktik Dadakan / Tambahan
+            </a>
             <a href="/admin/kejuruan/laporan-praktik" class="btn btn-outline-secondary btn-sm shadow-sm">
               <i class="fas fa-file-invoice mr-1"></i> Rekap Laporan
             </a>
