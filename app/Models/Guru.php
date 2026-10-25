@@ -246,5 +246,18 @@ class Guru extends Model implements Authenticatable
     {
         return $this->kaprogJurusan()->first();
     }
+
+    /**
+     * Scope query untuk mencari guru yang memiliki role tertentu
+     * (baik di kolom 'role' utama maupun di array/json kolom 'roles').
+     */
+    public function scopeHavingRole($query, string $role)
+    {
+        return $query->where(function ($q) use ($role) {
+            $q->where('role', $role)
+              ->orWhereJsonContains('roles', $role)
+              ->orWhere('roles', 'like', '%"' . $role . '"%');
+        });
+    }
 }
 

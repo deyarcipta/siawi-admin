@@ -136,50 +136,55 @@
 <!-- /.navbar -->
 
 @php
+  $findGuruByRole = function ($roleKey) {
+      return \App\Models\Guru::havingRole($roleKey)
+          ->whereNotNull('no_hp')
+          ->where('no_hp', '!=', '')
+          ->first();
+  };
+
   $contactsByRole = [
     [
       'role_name' => 'IT & Administrator SIAWI',
       'category' => 'Kendala akun login, reset password, error sistem, dan sinkronisasi mesin presensi.',
       'icon' => 'fas fa-laptop-code',
       'icon_bg' => 'bg-primary',
-      'guru' => \App\Models\Guru::where('role', 'admin')->whereNotNull('no_hp')->where('no_hp', '!=', '')->first(),
+      'guru' => $findGuruByRole('admin'),
     ],
     [
       'role_name' => 'Tata Usaha (Administrasi)',
       'category' => 'Koreksi data induk siswa/guru, nomor induk, mutasi, dan pengarsipan dokumen surat.',
       'icon' => 'fas fa-file-alt',
       'icon_bg' => 'bg-info',
-      'guru' => \App\Models\Guru::where('role', 'tata_usaha')->whereNotNull('no_hp')->where('no_hp', '!=', '')->first(),
+      'guru' => $findGuruByRole('tata_usaha'),
     ],
     [
       'role_name' => 'Kurikulum & Pembelajaran',
       'category' => 'Jadwal pelajaran, pengaturan mapel, e-rapot, dan monitoring jurnal mengajar.',
       'icon' => 'fas fa-book-reader',
       'icon_bg' => 'bg-indigo',
-      'guru' => \App\Models\Guru::where('role', 'kurikulum')->whereNotNull('no_hp')->where('no_hp', '!=', '')->first(),
+      'guru' => $findGuruByRole('kurikulum'),
     ],
     [
       'role_name' => 'Bagian Keuangan & SPP',
       'category' => 'Penyesuaian tagihan pembayaran, konfirmasi transfer, dan administrasi keuangan.',
       'icon' => 'fas fa-file-invoice-dollar',
       'icon_bg' => 'bg-success',
-      'guru' => \App\Models\Guru::where('role', 'keuangan')->whereNotNull('no_hp')->where('no_hp', '!=', '')->first(),
+      'guru' => $findGuruByRole('keuangan'),
     ],
     [
       'role_name' => 'Kesiswaan & Kedisiplinan',
       'category' => 'Pencatatan poin pelanggaran, pembinaan siswa, dan penerbitan Surat Peringatan (SP).',
       'icon' => 'fas fa-user-shield',
       'icon_bg' => 'bg-warning',
-      'guru' => \App\Models\Guru::where('role', 'kesiswaan')->whereNotNull('no_hp')->where('no_hp', '!=', '')->first(),
+      'guru' => $findGuruByRole('kesiswaan'),
     ],
     [
       'role_name' => 'Hubungan Industri & BKK',
       'category' => 'Kerjasama mitra DU/DI, penempatan PKL, lowongan kerja, dan penelusuran data alumni.',
       'icon' => 'fas fa-briefcase',
       'icon_bg' => 'bg-purple',
-      'guru' => \App\Models\Guru::where(function($q) {
-          $q->where('role', 'hubin')->orWhereJsonContains('roles', 'hubin');
-      })->whereNotNull('no_hp')->where('no_hp', '!=', '')->first(),
+      'guru' => $findGuruByRole('hubin'),
     ],
   ];
 @endphp
