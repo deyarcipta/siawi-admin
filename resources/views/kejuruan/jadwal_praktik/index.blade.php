@@ -1,5 +1,53 @@
 @extends($layout)
 
+@push('css')
+<style>
+  .table-jadwal th {
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 700;
+    color: #475569;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0 !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+    padding: 12px 14px !important;
+    vertical-align: middle;
+  }
+  .table-jadwal td {
+    padding: 12px 14px !important;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .table-jadwal tr:hover td {
+    background-color: #f8fafc;
+  }
+  .badge-soft-primary {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+    font-weight: 700;
+  }
+  .badge-soft-secondary {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    font-weight: 600;
+  }
+  .btn-action-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    transition: all 0.15s ease;
+  }
+</style>
+@endpush
+
 @section('content')
 <!-- Content Header -->
 <div class="content-header">
@@ -311,63 +359,96 @@
 
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
-              <thead class="bg-light text-secondary text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+            <table class="table table-hover align-middle mb-0 table-jadwal" style="font-size: 0.88rem;">
+              <thead>
                 <tr>
-                  <th style="width: 50px" class="text-center">No</th>
-                  <th>Hari & Jam</th>
-                  <th>Kelas</th>
-                  <th>Mata Pelajaran</th>
-                  <th>Laboratorium</th>
-                  <th>Guru Pengajar</th>
-                  <th>Alat / Bahan Siswa</th>
-                  <th style="width: 100px" class="text-center">Aksi</th>
+                  <th style="width: 48px;" class="text-center">No</th>
+                  <th style="min-width: 175px;">Hari & Jam</th>
+                  <th style="min-width: 95px;">Kelas</th>
+                  <th style="min-width: 200px;">Mata Pelajaran</th>
+                  <th style="min-width: 130px;">Laboratorium</th>
+                  <th style="min-width: 180px;">Guru Pengajar</th>
+                  <th style="min-width: 140px;">Alat / Bahan</th>
+                  <th style="width: 90px;" class="text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 @forelse($jadwals as $j)
                   <tr>
-                    <td class="text-center align-middle">{{ $loop->iteration }}</td>
-                    <td class="align-middle">
-                      <span class="badge badge-primary px-2 py-1 mr-1">{{ $j->hari }}</span>
-                      <span class="font-weight-bold text-dark">{{ substr($j->jam_mulai, 0, 5) }} - {{ substr($j->jam_selesai, 0, 5) }}</span>
+                    <td class="text-center align-middle font-weight-500 text-secondary">{{ $loop->iteration }}</td>
+                    <td class="align-middle text-nowrap">
+                      <div class="d-flex align-items-center" style="gap: 8px;">
+                        <span class="badge badge-soft-primary px-2 py-1" style="font-size: 0.76rem; border-radius: 6px; min-width: 50px; text-align: center;">
+                          {{ $j->hari }}
+                        </span>
+                        <span class="font-weight-bold text-dark" style="font-size: 0.86rem; letter-spacing: 0.2px;">
+                          {{ substr($j->jam_mulai, 0, 5) }} &ndash; {{ substr($j->jam_selesai, 0, 5) }}
+                        </span>
+                      </div>
                       @if($j->isInsidental())
-                        <span class="badge badge-warning text-dark ml-1" style="font-size: 0.72rem;">
-                          <i class="fas fa-bolt mr-1"></i>Dadakan: {{ $j->tanggal_khusus ? \Carbon\Carbon::parse($j->tanggal_khusus)->format('d/m/Y') : '' }}
-                        </span>
+                        <div class="mt-1">
+                          <span class="badge badge-warning text-dark px-2 py-0" style="font-size: 0.68rem; font-weight: 600;">
+                            <i class="fas fa-bolt mr-1"></i>Dadakan: {{ $j->tanggal_khusus ? \Carbon\Carbon::parse($j->tanggal_khusus)->format('d/m/Y') : '' }}
+                          </span>
+                        </div>
                       @elseif($j->frekuensi === 'minggu_ganjil')
-                        <span class="badge badge-secondary ml-1" style="font-size: 0.72rem;">
-                          2 Mgg Sekali (Ganjil)
-                        </span>
+                        <div class="mt-1">
+                          <span class="badge badge-soft-secondary px-2 py-0" style="font-size: 0.68rem;">
+                            <i class="fas fa-sync-alt mr-1"></i>2 Mgg Sekali (Ganjil)
+                          </span>
+                        </div>
                       @elseif($j->frekuensi === 'minggu_genap')
-                        <span class="badge badge-secondary ml-1" style="font-size: 0.72rem;">
-                          2 Mgg Sekali (Genap)
-                        </span>
+                        <div class="mt-1">
+                          <span class="badge badge-soft-secondary px-2 py-0" style="font-size: 0.68rem;">
+                            <i class="fas fa-sync-alt mr-1"></i>2 Mgg Sekali (Genap)
+                          </span>
+                        </div>
                       @endif
                     </td>
-                    <td class="align-middle font-weight-500">{{ $j->kelas->nama_kelas ?? '-' }}</td>
-                    <td class="align-middle font-weight-bold text-dark">{{ $j->mapel->nama_mapel ?? '-' }}</td>
-                    <td class="align-middle">{{ $j->lab->nama_lab ?? '-' }}</td>
-                    <td class="align-middle">{{ $j->guru->nama_guru ?? '-' }}</td>
-                    <td class="align-middle" style="max-width: 200px;">
+                    <td class="align-middle text-nowrap">
+                      <span class="badge badge-light border text-dark font-weight-bold px-2 py-1" style="font-size: 0.82rem; border-radius: 6px; letter-spacing: 0.3px;">
+                        {{ $j->kelas->nama_kelas ?? '-' }}
+                      </span>
+                    </td>
+                    <td class="align-middle">
+                      <div class="font-weight-bold text-dark" style="font-size: 0.88rem; line-height: 1.35;">
+                        {{ $j->mapel->nama_mapel ?? '-' }}
+                      </div>
+                    </td>
+                    <td class="align-middle text-nowrap">
+                      <div class="d-flex align-items-center text-dark font-weight-500" style="gap: 6px; font-size: 0.85rem;">
+                        <i class="fas fa-flask text-primary" style="font-size: 0.8rem;"></i>
+                        <span>{{ $j->lab->nama_lab ?? '-' }}</span>
+                      </div>
+                    </td>
+                    <td class="align-middle text-nowrap">
+                      <div class="d-flex align-items-center" style="gap: 7px;">
+                        <div class="rounded-circle bg-light border d-inline-flex align-items-center justify-content-center text-secondary" style="width: 26px; height: 26px; font-size: 0.72rem; flex-shrink: 0;">
+                          <i class="fas fa-user"></i>
+                        </div>
+                        <span class="font-weight-500 text-dark" style="font-size: 0.85rem;">{{ $j->guru->nama_guru ?? '-' }}</span>
+                      </div>
+                    </td>
+                    <td class="align-middle" style="max-width: 220px;">
                       @if($j->alat_bahan)
-                        <span class="d-inline-block text-truncate small" style="max-width: 190px;" title="{{ $j->alat_bahan }}">
-                          <i class="fas fa-toolbox text-primary mr-1"></i> {{ $j->alat_bahan }}
+                        <span class="d-inline-flex align-items-center px-2 py-1 rounded small" style="background: #f1f5f9; color: #334155; font-size: 0.78rem; max-width: 200px;" title="{{ $j->alat_bahan }}">
+                          <i class="fas fa-toolbox text-secondary mr-1"></i>
+                          <span class="text-truncate">{{ $j->alat_bahan }}</span>
                         </span>
                       @else
-                        <span class="text-muted font-italic small">-</span>
+                        <span class="text-muted small">-</span>
                       @endif
                     </td>
-                    <td class="text-center align-middle">
+                    <td class="text-center align-middle text-nowrap">
                       @if($user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan']))
-                        <div class="btn-group" role="group">
-                          <a href="/admin/kejuruan/jadwal-praktik/{{ $j->id_jadwal_praktik }}/edit" class="btn btn-sm btn-outline-primary" title="Ubah">
+                        <div class="d-inline-flex align-items-center" style="gap: 6px;">
+                          <a href="/admin/kejuruan/jadwal-praktik/{{ $j->id_jadwal_praktik }}/edit" class="btn btn-outline-primary btn-action-icon" title="Ubah Jadwal">
                             <i class="fas fa-edit"></i>
                           </a>
                           <form action="/admin/kejuruan/jadwal-praktik/{{ $j->id_jadwal_praktik }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus jadwal ini?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus">
+                            <button type="submit" class="btn btn-outline-danger btn-action-icon" title="Hapus Jadwal">
                               <i class="fas fa-trash-alt"></i>
                             </button>
                           </form>
