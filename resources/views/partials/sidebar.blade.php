@@ -500,7 +500,7 @@
           <a href="#" class="nav-link {{ $isLabOpen ? 'active' : '' }}">
             <i class="nav-icon fas fa-flask"></i>
             <p>
-              Laboratorium & Inventaris
+              Lab & Inventaris
               <i class="right fas fa-angle-left"></i>
             </p>
           </a>
