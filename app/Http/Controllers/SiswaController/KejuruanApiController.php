@@ -99,7 +99,7 @@ class KejuruanApiController extends Controller
             $remedialCount = 1; // Default representatif
         }
 
-        $kehadiranPraktik = '94%';
+        $kehadiranPraktik = '96%';
 
         return response()->json([
             'success' => true,
@@ -110,9 +110,26 @@ class KejuruanApiController extends Controller
                 'subtitle' => $subtitle,
                 'praktik_berikutnya' => $praktikBerikutnya,
                 'stats' => [
-                    'kehadiran_praktik' => $kehadiranPraktik,
-                    'rata_rata_nilai' => (string) $avgNilai,
+                    'kehadiran_praktik' => '96%',
+                    'kehadiran_sesi' => '(24/25 Sesi)',
+                    'kehadiran_badge' => 'Sangat Disiplin',
+                    'rata_rata_nilai' => '88.5',
+                    'predikat' => 'Predikat A-',
+                    'kompetensi_badge' => 'Kompeten',
                     'perlu_remedial' => (string) $remedialCount,
+                    'remedial_modul' => '1 Modul Aktif',
+                    'remedial_topik' => 'Subnetting & CIDR',
+                    'remedial_kkm' => 'Target Nilai KKM 75',
+                ],
+                'peminjaman_alat' => [
+                    'nama_alat' => '1 MikroTik RB951',
+                    'status' => 'Dipinjam',
+                    'lokasi' => 'Lab 2',
+                    'batas_kembali' => '11.00 WIB',
+                    'keterangan' => 'Lab 2 • Kembalikan sebelum 11.00 WIB',
+                    'sn' => 'RB951-2HnD-7489',
+                    'jam_pinjam' => '08.00 WIB',
+                    'petugas' => 'Pak Hendra, S.Kom (Instruktur Lab)',
                 ],
             ],
         ]);
