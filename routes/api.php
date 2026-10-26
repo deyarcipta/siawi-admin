@@ -66,3 +66,13 @@ Route::get('/pengajuan-pkl/{idSiswa}', [\App\Http\Controllers\SiswaController\Pe
 Route::post('/pengajuan-pkl', [\App\Http\Controllers\SiswaController\PengajuanPklController::class, 'store']);
 Route::get('/pengajuan-pkl/detail/{id}', [\App\Http\Controllers\SiswaController\PengajuanPklController::class, 'show']);
 
+// Modul Kejuruan Siswa (SIAWI Mobile App)
+Route::prefix('kejuruan')->group(function () {
+    Route::get('/dashboard/{idSiswa}', [\App\Http\Controllers\SiswaController\KejuruanApiController::class, 'dashboard']);
+    Route::get('/jadwal/{idSiswa}', [\App\Http\Controllers\SiswaController\KejuruanApiController::class, 'jadwal']);
+    Route::get('/modul/{idSiswa}', [\App\Http\Controllers\SiswaController\KejuruanApiController::class, 'modul']);
+    Route::get('/nilai/{idSiswa}', [\App\Http\Controllers\SiswaController\KejuruanApiController::class, 'nilai']);
+    Route::get('/ukk/{idSiswa}', [\App\Http\Controllers\SiswaController\KejuruanApiController::class, 'ukk']);
+    Route::get('/portofolio/{idSiswa}', [\App\Http\Controllers\SiswaController\KejuruanApiController::class, 'portofolio']);
+    Route::get('/tkk/{idSiswa}', [\App\Http\Controllers\SiswaController\KejuruanApiController::class, 'tkk']);
+});
