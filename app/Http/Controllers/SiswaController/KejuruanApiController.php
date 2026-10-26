@@ -104,6 +104,7 @@ class KejuruanApiController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
+                'nama_siswa' => $siswa->nama_siswa ?? 'Siswa',
                 'jurusan' => $namaJurusan,
                 'kelas' => $namaKelas,
                 'subtitle' => $subtitle,
