@@ -4,34 +4,67 @@
     <meta charset="UTF-8">
     <title>Laporan Praktik Kejuruan - {{ $periodeLabel }}</title>
     <style>
+        @page {
+            margin: 20px 25px 25px 25px;
+        }
         body {
             font-family: Arial, sans-serif;
             font-size: 11px;
             color: #333;
             margin: 0;
-            padding: 10px;
+            padding: 0;
         }
-        .header-kop {
+        .header-kop-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+            margin-bottom: 4px;
+        }
+        .header-kop-table td {
+            border: none !important;
+            padding: 0;
+            vertical-align: middle;
+        }
+        .header-kop-table .kop-logo-td {
+            width: 70px;
             text-align: center;
-            border-bottom: 2px solid #222;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
         }
-        .header-kop img.kop-banner {
-            max-width: 100%;
-            height: auto;
-            max-height: 80px;
+        .header-kop-table .kop-logo-td img {
+            max-width: 60px;
+            max-height: 60px;
         }
-        .kop-text-sekolah {
-            font-size: 16px;
+        .header-kop-table .kop-text-td {
+            text-align: center;
+            padding-right: 70px;
+        }
+        .kop-yayasan {
+            font-size: 11px;
             font-weight: bold;
+            color: #111;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            margin: 0 0 4px 0;
         }
-        .kop-text-alamat {
+        .kop-sekolah {
+            font-size: 17px;
+            font-weight: bold;
+            color: #000;
+            margin: 2px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .kop-kejuruan {
             font-size: 10px;
-            color: #555;
-            margin: 0;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 2px;
+        }
+        .kop-alamat {
+            font-size: 9px;
+            color: #444;
+        }
+        .kop-divider-line {
+            border-bottom: 2.5px solid #000;
+            margin-bottom: 12px;
         }
         .judul-laporan {
             text-align: center;
@@ -99,21 +132,55 @@
         .ttd-space {
             height: 60px;
         }
+        .materi-box {
+            text-align: left;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+        .materi-box p {
+            margin: 0 0 3px 0;
+        }
+        .materi-box ul, .materi-box ol {
+            margin: 0;
+            padding-left: 14px;
+        }
+        .materi-box li {
+            margin-bottom: 2px;
+        }
+        .filter-info-table {
+            width: 100%;
+            border: none;
+            margin-bottom: 8px;
+        }
+        .filter-info-table td {
+            border: none;
+            padding: 2px 4px;
+            font-size: 11px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- KOP SURAT SEKOLAH -->
-    <div class="header-kop">
-        @if($setting && $setting->kop_surat && file_exists(public_path('storage/gambar/' . $setting->kop_surat)))
-            <img src="{{ public_path('storage/gambar/' . $setting->kop_surat) }}" class="kop-banner" alt="Kop Surat">
-        @else
-            <div class="kop-text-sekolah">{{ $setting->nama_sekolah ?? 'SMK PUSAT KEUNGGULAN' }}</div>
-            <div class="kop-text-alamat">
-                {{ $setting->alamat ?? 'Jalan Raya Pendidikan No. 1' }} | Telp: {{ $setting->no_telp ?? '-' }} | Website: {{ $setting->website ?? '-' }}
-            </div>
-        @endif
-    </div>
+    <!-- KOP SURAT SEKOLAH (LANDSCAPE RESMI) -->
+    @php
+        $appSetting = $setting ?? \App\Models\Setting::find(1);
+    @endphp
+    <table class="header-kop-table">
+        <tr>
+            <td class="kop-logo-td">
+                @if($appSetting && $appSetting->logo && file_exists(public_path('storage/gambar/' . $appSetting->logo)))
+                    <img src="{{ public_path('storage/gambar/' . $appSetting->logo) }}" alt="Logo">
+                @endif
+            </td>
+            <td class="kop-text-td">
+                <div class="kop-yayasan">YAYASAN TAQWASH SHOBIRIN</div>
+                <div class="kop-sekolah">{{ strtoupper($appSetting->nama_sekolah ?? 'SMK WISATA INDONESIA') }}</div>
+                <div class="kop-kejuruan">Perhotelan &bull; Kuliner &bull; Teknik Komputer dan Jaringan</div>
+                <div class="kop-alamat">{{ $appSetting->alamat ?? 'Jl. Raya Lenteng Agung Gg. Langgar Kebagusan Pasar Minggu Jakarta Selatan' }} | Tlp/Fax: {{ $appSetting->no_telp ?? '78830781' }}</div>
+            </td>
+        </tr>
+    </table>
+    <div class="kop-divider-line"></div>
 
     <!-- JUDUL LAPORAN -->
     <div class="judul-laporan">
@@ -121,19 +188,39 @@
         <p>Periode: <strong>{{ $periodeLabel }}</strong></p>
     </div>
 
+    @if(!empty($selectedGuru) || !empty($selectedLab))
+    <table class="filter-info-table">
+        <tr>
+            @if(!empty($selectedGuru))
+            <td style="width: 50%;">
+                <strong>Guru Pengampu / Instruktur:</strong> {{ $selectedGuru->nama_guru }} 
+                @if($selectedGuru->username) <span style="color: #666;">(NIP/NUPTK: {{ $selectedGuru->username }})</span> @endif
+            </td>
+            @endif
+            @if(!empty($selectedLab))
+            <td style="{{ !empty($selectedGuru) ? 'width: 50%; text-align: right;' : 'width: 100%;' }}">
+                <strong>Laboratorium:</strong> {{ $selectedLab->nama_lab }}
+            </td>
+            @endif
+        </tr>
+    </table>
+    @endif
+
     <!-- DATA TABEL -->
     <table class="data-table">
         <thead>
             <tr>
                 <th style="width: 25px;">No</th>
-                <th style="width: 75px;">Tanggal</th>
-                <th style="width: 80px;">Kelas</th>
+                <th style="width: 70px;">Tanggal</th>
+                <th style="width: 75px;">Kelas</th>
                 <th>Mata Pelajaran</th>
                 <th>Laboratorium</th>
-                <th>Guru Instruktur</th>
-                <th>Materi Praktik</th>
-                <th style="width: 50px;">Hadir</th>
-                <th style="width: 80px;">Status</th>
+                @if(empty($selectedGuru))
+                    <th style="width: 125px;">Guru Instruktur</th>
+                @endif
+                <th style="{{ !empty($selectedGuru) ? 'width: 45%;' : 'width: 32%;' }}">Materi Praktik</th>
+                <th style="width: 45px;">Hadir</th>
+                <th style="width: 75px;">Status</th>
             </tr>
         </thead>
         <tbody>
@@ -144,8 +231,12 @@
                     <td class="text-center">{{ $j->jadwalPraktik->kelas->nama_kelas ?? '-' }}</td>
                     <td>{{ $j->jadwalPraktik->mapel->nama_mapel ?? '-' }}</td>
                     <td>{{ $j->jadwalPraktik->lab->nama_lab ?? '-' }}</td>
-                    <td>{{ $j->jadwalPraktik->guru->nama_guru ?? '-' }}</td>
-                    <td>{{ $j->materi }}</td>
+                    @if(empty($selectedGuru))
+                        <td>{{ $j->jadwalPraktik->guru->nama_guru ?? '-' }}</td>
+                    @endif
+                    <td class="materi-box">
+                        {!! strip_tags($j->materi, '<p><br><b><strong><i><em><u><ul><ol><li><code>') !!}
+                    </td>
                     <td class="text-center">{{ $j->jumlah_hadir }}</td>
                     <td class="text-center">
                         @if($j->status_approval === 'disetujui')
@@ -159,7 +250,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" class="text-center">Tidak ada catatan jurnal praktik pada periode ini.</td>
+                    <td colspan="{{ !empty($selectedGuru) ? 8 : 9 }}" class="text-center">Tidak ada catatan jurnal praktik pada periode ini.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -168,20 +259,39 @@
     <!-- TANDA TANGAN -->
     <table class="ttd-table">
         <tr>
-            <td>
-                Mengetahui,<br>
-                <strong>Kepala Program Keahlian</strong>
-                <div class="ttd-space"></div>
-                <u><strong>{{ $kaprog->nama_guru ?? '...................................................' }}</strong></u><br>
-                NIP/NUPTK: {{ $kaprog->username ?? '........................' }}
-            </td>
-            <td>
-                Dicetak pada: {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
-                <strong>Guru Instruktur Pengajar</strong>
-                <div class="ttd-space"></div>
-                <u><strong>{{ $user->nama_guru ?? '...................................................' }}</strong></u><br>
-                NIP/NUPTK: {{ $user->username ?? '........................' }}
-            </td>
+            @if(!empty($selectedGuru))
+                {{-- Skenario A: Rekap Khusus Per Guru --}}
+                <td>
+                    Mengetahui,<br>
+                    <strong>Kepala Program Keahlian</strong>
+                    <div class="ttd-space"></div>
+                    <u><strong>{{ $kaprog->nama_guru ?? ($user->hasRole('kaprog') ? $user->nama_guru : '...................................................') }}</strong></u><br>
+                    NIP/NUPTK: {{ $kaprog->username ?? ($user->hasRole('kaprog') ? $user->username : '........................') }}
+                </td>
+                <td>
+                    Dicetak pada: {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
+                    <strong>Guru Instruktur Pengajar</strong>
+                    <div class="ttd-space"></div>
+                    <u><strong>{{ $selectedGuru->nama_guru }}</strong></u><br>
+                    NIP/NUPTK: {{ $selectedGuru->username ?? '........................' }}
+                </td>
+            @else
+                {{-- Skenario B: Rekap Umum Jurusan (Semua Guru) --}}
+                <td>
+                    Mengetahui,<br>
+                    <strong>Kepala Sekolah</strong>
+                    <div class="ttd-space"></div>
+                    <u><strong>{{ $setting->nama_kepsek ?? '...................................................' }}</strong></u><br>
+                    NIP/NUPTK: {{ $setting->nip_kepsek ?? '........................' }}
+                </td>
+                <td>
+                    Dicetak pada: {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
+                    <strong>Kepala Program Keahlian</strong>
+                    <div class="ttd-space"></div>
+                    <u><strong>{{ $kaprog->nama_guru ?? ($user->hasRole('kaprog') ? $user->nama_guru : '...................................................') }}</strong></u><br>
+                    NIP/NUPTK: {{ $kaprog->username ?? ($user->hasRole('kaprog') ? $user->username : '........................') }}
+                </td>
+            @endif
         </tr>
     </table>
 

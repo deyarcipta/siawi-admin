@@ -13,28 +13,57 @@
             color: #1e293b;
             line-height: 1.3;
         }
-        .header-kop {
-            text-align: center;
-            border-bottom: 2px solid #0f172a;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-        }
-        .kop-banner {
+        .header-kop-table {
             width: 100%;
-            max-height: 95px;
-            object-fit: contain;
+            border-collapse: collapse;
+            border: none;
+            margin-bottom: 4px;
         }
-        .kop-text-sekolah {
-            font-size: 15px;
+        .header-kop-table td {
+            border: none !important;
+            padding: 0;
+            vertical-align: middle;
+        }
+        .header-kop-table .kop-logo-td {
+            width: 70px;
+            text-align: center;
+        }
+        .header-kop-table .kop-logo-td img {
+            max-width: 60px;
+            max-height: 60px;
+        }
+        .header-kop-table .kop-text-td {
+            text-align: center;
+            padding-right: 70px;
+        }
+        .kop-yayasan {
+            font-size: 11px;
             font-weight: bold;
+            color: #111;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .kop-sekolah {
+            font-size: 17px;
+            font-weight: bold;
+            color: #000;
+            margin: 2px 0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: #0f172a;
         }
-        .kop-text-alamat {
+        .kop-kejuruan {
+            font-size: 10px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 2px;
+        }
+        .kop-alamat {
             font-size: 9px;
-            color: #475569;
-            margin-top: 2px;
+            color: #444;
+        }
+        .kop-divider-line {
+            border-bottom: 2.5px solid #000;
+            margin-bottom: 12px;
         }
         .judul-laporan {
             text-align: center;
@@ -114,17 +143,26 @@
 </head>
 <body>
 
-    <!-- KOP SURAT SEKOLAH -->
-    <div class="header-kop">
-        @if($setting && $setting->kop_surat && file_exists(public_path('storage/gambar/' . $setting->kop_surat)))
-            <img src="{{ public_path('storage/gambar/' . $setting->kop_surat) }}" class="kop-banner" alt="Kop Surat">
-        @else
-            <div class="kop-text-sekolah">{{ $setting->nama_sekolah ?? 'SMK NEGERI' }}</div>
-            <div class="kop-text-alamat">
-                {{ $setting->alamat ?? 'Jalan Pendidikan Kejuruan' }} | Telp: {{ $setting->no_telp ?? '-' }} | Website: {{ $setting->website ?? '-' }}
-            </div>
-        @endif
-    </div>
+    <!-- KOP SURAT SEKOLAH (LANDSCAPE RESMI) -->
+    @php
+        $appSetting = $setting ?? \App\Models\Setting::find(1);
+    @endphp
+    <table class="header-kop-table">
+        <tr>
+            <td class="kop-logo-td">
+                @if($appSetting && $appSetting->logo && file_exists(public_path('storage/gambar/' . $appSetting->logo)))
+                    <img src="{{ public_path('storage/gambar/' . $appSetting->logo) }}" alt="Logo">
+                @endif
+            </td>
+            <td class="kop-text-td">
+                <div class="kop-yayasan">YAYASAN TAQWASH SHOBIRIN</div>
+                <div class="kop-sekolah">{{ strtoupper($appSetting->nama_sekolah ?? 'SMK WISATA INDONESIA') }}</div>
+                <div class="kop-kejuruan">Perhotelan &bull; Kuliner &bull; Teknik Komputer dan Jaringan</div>
+                <div class="kop-alamat">{{ $appSetting->alamat ?? 'Jl. Raya Lenteng Agung Gg. Langgar Kebagusan Pasar Minggu Jakarta Selatan' }} | Tlp/Fax: {{ $appSetting->no_telp ?? '78830781' }}</div>
+            </td>
+        </tr>
+    </table>
+    <div class="kop-divider-line"></div>
 
     <!-- JUDUL LAPORAN -->
     <div class="judul-laporan">

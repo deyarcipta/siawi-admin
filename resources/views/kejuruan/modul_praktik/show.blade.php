@@ -123,8 +123,8 @@
               <h6 class="font-weight-bold text-dark mb-2" style="font-size: 0.95rem;">
                 <i class="fas fa-tasks text-primary mr-2"></i> Prosedur & Langkah Kerja Praktikum
               </h6>
-              <div class="p-3 rounded border text-dark" style="font-size: 0.9rem; line-height: 1.7; white-space: pre-line; background-color: #fbfbfb;">
-                {{ $modul->langkah_kerja }}
+              <div class="p-3 rounded border text-dark" style="font-size: 0.92rem; line-height: 1.7; background-color: #fbfbfb;">
+                {!! $modul->langkah_kerja !!}
               </div>
             </div>
 

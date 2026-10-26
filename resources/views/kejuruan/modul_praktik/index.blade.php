@@ -159,7 +159,7 @@
         <!-- Lower Action Toolbar -->
         <div class="d-flex align-items-center justify-content-between mt-3 pt-2 border-top flex-wrap" style="gap: 8px;">
           <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
-            @if($user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan', 'guru']))
+            @if($user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan']))
               <a href="/admin/kejuruan/modul-praktik/create" class="btn btn-primary btn-sm shadow-sm font-weight-bold">
                 <i class="fas fa-plus mr-1"></i> Buat Modul Praktik Baru
               </a>
@@ -275,7 +275,7 @@
               <i class="fas fa-book-open text-muted mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
               <h5 class="font-weight-bold text-dark">Belum Ada Modul Praktik</h5>
               <p class="text-muted small mb-3">Mulai buat modul praktikum kejuruan pertama untuk mempermudah guru dan siswa.</p>
-              @if($user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan', 'guru']))
+              @if($user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan']))
                 <a href="/admin/kejuruan/modul-praktik/create" class="btn btn-primary btn-sm px-4 shadow-sm" style="border-radius: 8px; font-weight: 600;">
                   <i class="fas fa-plus mr-1"></i> Buat Modul Baru
                 </a>

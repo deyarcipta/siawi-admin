@@ -152,24 +152,107 @@
                     @enderror
                   </div>
 
-                  <!-- Container Pilihan Program Keahlian untuk Guru Jurusan -->
+                  <!-- Container Pilihan Program Keahlian untuk Guru Jurusan (Multi Jurusan) -->
                   <div id="guru_jurusan_box" class="mt-3 p-3 bg-white rounded border shadow-sm" style="display: {{ in_array('guru_jurusan', $selectedRoles) ? 'block' : 'none' }}; border-color: #cbd5e1 !important;">
-                    <label for="id_jurusan_guru" class="font-weight-bold text-dark d-block mb-1" style="font-size: 0.85rem;">
-                      Program Keahlian Utama (Guru Jurusan)
-                    </label>
-                    <p class="text-muted small mb-2">Pilih program keahlian tempat guru mengajar materi kejuruan.</p>
-                    <select name="id_jurusan_guru" id="id_jurusan_guru" class="form-control select2bs4 @error('id_jurusan_guru') is-invalid @enderror" style="border-radius: 8px; height: 42px;">
-                      <option value="">Pilih Program Keahlian (Opsional)</option>
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <div>
+                        <label class="font-weight-bold text-dark d-block mb-0" style="font-size: 0.88rem;">
+                          Penugasan Jurusan Praktik (Guru Jurusan)
+                        </label>
+                        <p class="text-muted small mb-0">Centang satu atau lebih jurusan tempat guru ini mengajar praktik kejuruan.</p>
+                      </div>
+                      <span class="badge badge-info px-2 py-1" style="font-size: 0.75rem; border-radius: 6px;">
+                        <i class="fas fa-layer-group mr-1"></i> Multi-Jurusan
+                      </span>
+                    </div>
+
+                    <style>
+                      .jurusan-card-grid {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 10px;
+                      }
+                      @media (max-width: 768px) {
+                        .jurusan-card-grid {
+                          grid-template-columns: 1fr;
+                        }
+                      }
+                      .jurusan-card-box {
+                        background: #f8fafc;
+                        border: 1.5px solid #e2e8f0;
+                        border-radius: 12px;
+                        padding: 10px 14px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        transition: all 0.2s ease;
+                        margin: 0 !important;
+                      }
+                      .jurusan-card-box:hover {
+                        border-color: #93c5fd;
+                        background: #f0f9ff;
+                      }
+                      .jurusan-card-box:has(.custom-control-input:checked) {
+                        border-color: #0284c7 !important;
+                        background: #f0f9ff !important;
+                        box-shadow: 0 2px 6px rgba(2, 132, 199, 0.08);
+                      }
+                      .jurusan-card-box .icon-box {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 10px;
+                        background: #e2e8f0;
+                        color: #475569;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.1rem;
+                        flex-shrink: 0;
+                        transition: all 0.2s ease;
+                      }
+                      .jurusan-card-box:has(.custom-control-input:checked) .icon-box {
+                        background: #e0f2fe;
+                        color: #0284c7;
+                      }
+                    </style>
+
+                    <div class="jurusan-card-grid">
                       @if(isset($jurusans))
+                        @php
+                          $currentJurusanGurus = old('id_jurusan_guru', []);
+                        @endphp
                         @foreach($jurusans as $j)
-                          <option value="{{ $j->id_jurusan }}" {{ old('id_jurusan_guru') == $j->id_jurusan ? 'selected' : '' }}>
-                            {{ $j->nama_jurusan }} ({{ $j->kode_jurusan }})
-                          </option>
+                          <div class="jurusan-card-box position-relative">
+                            <div class="d-flex align-items-center" style="gap: 12px; min-width: 0; flex: 1;">
+                              <div class="icon-box">
+                                <i class="fas fa-graduation-cap"></i>
+                              </div>
+                              <div style="min-width: 0;">
+                                <label class="font-weight-bold text-dark text-truncate mb-0 d-block" for="jurusan_guru_{{ $j->id_jurusan }}" style="cursor: pointer; font-size: 0.88rem;" title="{{ $j->nama_jurusan }}">
+                                  {{ $j->nama_jurusan }}
+                                </label>
+                                <div class="d-flex align-items-center mt-1" style="gap: 6px;">
+                                  <span class="badge badge-light border text-secondary px-1 py-0" style="font-size: 0.72rem; font-weight: 600;">
+                                    {{ $j->kode_jurusan }}
+                                  </span>
+                                  @if($j->labs && $j->labs->count() > 0)
+                                    <span class="badge badge-light border text-primary px-1 py-0" style="font-size: 0.7rem;">
+                                      {{ $j->labs->count() }} Lab
+                                    </span>
+                                  @endif
+                                </div>
+                              </div>
+                            </div>
+                            <div class="custom-control custom-checkbox ml-2">
+                              <input type="checkbox" class="custom-control-input" id="jurusan_guru_{{ $j->id_jurusan }}" name="id_jurusan_guru[]" value="{{ $j->id_jurusan }}" {{ in_array($j->id_jurusan, $currentJurusanGurus) ? 'checked' : '' }}>
+                              <label class="custom-control-label" for="jurusan_guru_{{ $j->id_jurusan }}" style="cursor: pointer;"></label>
+                            </div>
+                          </div>
                         @endforeach
                       @endif
-                    </select>
+                    </div>
                     @error('id_jurusan_guru')
-                      <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                      <small class="text-danger font-weight-500 mt-2 d-block">{{ $message }}</small>
                     @enderror
                   </div>
 

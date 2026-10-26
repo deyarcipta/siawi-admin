@@ -367,13 +367,13 @@
         <!-- ============================================== -->
         <!-- KEJURUAN & PRAKTIK                             -->
         <!-- ============================================== -->
-        @if($user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan', 'guru']))
+        @if($user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan']))
         <li class="nav-header">
           KEJURUAN & PRAKTIK
         </li>
 
         @php
-          $canPraktik = $user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan', 'guru']);
+          $canPraktik = $user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan']);
           $canUjiKompetensi = $user->hasAnyRole(['admin', 'kaprog']);
           $canInventarisLab = $user->hasAnyRole(['admin', 'kaprog']);
           $canMasterKejuruan = $user->hasAnyRole(['admin', 'kaprog']);

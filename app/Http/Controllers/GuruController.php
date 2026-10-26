@@ -33,7 +33,7 @@ class GuruController extends Controller
         $layout = 'layout.app';
         $setting = Setting::find('1');
         $user = Auth::user();
-        $jurusans = Jurusan::orderBy('nama_jurusan', 'asc')->get();
+        $jurusans = Jurusan::with('labs')->orderBy('nama_jurusan', 'asc')->get();
         return view('dataGuru.tambah_guru', compact('layout','setting','user','jurusans'));
     }
 
@@ -97,13 +97,18 @@ class GuruController extends Controller
         }
 
         if (in_array('guru_jurusan', $selectedRoles) && $request->filled('id_jurusan_guru')) {
-            DB::table('guru_jurusan')->insert([
-                'id_guru' => $guru->id_guru,
-                'id_jurusan' => $request->id_jurusan_guru,
-                'role' => 'guru_jurusan',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            $jurusanGuruIds = (array) $request->id_jurusan_guru;
+            foreach ($jurusanGuruIds as $jId) {
+                if ($jId) {
+                    DB::table('guru_jurusan')->insert([
+                        'id_guru' => $guru->id_guru,
+                        'id_jurusan' => $jId,
+                        'role' => 'guru_jurusan',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
         }
 
         return redirect('/admin/guru')->with('success', 'Data Guru Berhasil Ditambah<br>password default adalah <b>admin123</b>');
@@ -118,17 +123,18 @@ class GuruController extends Controller
         $setting = Setting::find('1');
         $user = Auth::user();
         $edit = Guru::find($id_guru);
-        $jurusans = Jurusan::orderBy('nama_jurusan', 'asc')->get();
+        $jurusans = Jurusan::with('labs')->orderBy('nama_jurusan', 'asc')->get();
         $kaprogJurusanId = DB::table('guru_jurusan')
             ->where('id_guru', $id_guru)
             ->where('role', 'kaprog')
             ->value('id_jurusan');
-        $guruJurusanId = DB::table('guru_jurusan')
+        $guruJurusanIds = DB::table('guru_jurusan')
             ->where('id_guru', $id_guru)
             ->where('role', 'guru_jurusan')
-            ->value('id_jurusan');
+            ->pluck('id_jurusan')
+            ->toArray();
 
-        return view('dataGuru.edit_guru', compact('layout','edit','setting','user','jurusans','kaprogJurusanId','guruJurusanId'));
+        return view('dataGuru.edit_guru', compact('layout','edit','setting','user','jurusans','kaprogJurusanId','guruJurusanIds'));
     }
 
     /**
@@ -194,20 +200,25 @@ class GuruController extends Controller
             ]);
         }
 
-        // Sinkronisasi pivot penugasan Guru Jurusan
+        // Sinkronisasi pivot penugasan Guru Jurusan (bisa lebih dari 1 jurusan)
         DB::table('guru_jurusan')
             ->where('id_guru', $id_guru)
             ->where('role', 'guru_jurusan')
             ->delete();
 
         if (in_array('guru_jurusan', $selectedRoles) && $request->filled('id_jurusan_guru')) {
-            DB::table('guru_jurusan')->insert([
-                'id_guru' => $id_guru,
-                'id_jurusan' => $request->id_jurusan_guru,
-                'role' => 'guru_jurusan',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            $jurusanGuruIds = (array) $request->id_jurusan_guru;
+            foreach ($jurusanGuruIds as $jId) {
+                if ($jId) {
+                    DB::table('guru_jurusan')->insert([
+                        'id_guru' => $id_guru,
+                        'id_jurusan' => $jId,
+                        'role' => 'guru_jurusan',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
         }
 
         return redirect('/admin/guru')->with('success', 'Data guru berhasil diperbarui.');

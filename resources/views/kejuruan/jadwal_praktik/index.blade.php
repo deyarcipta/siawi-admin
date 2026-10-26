@@ -363,12 +363,11 @@
               <thead>
                 <tr>
                   <th style="width: 48px;" class="text-center">No</th>
-                  <th style="min-width: 175px;">Hari & Jam</th>
+                  <th style="min-width: 140px;">Hari & Jam</th>
                   <th style="min-width: 95px;">Kelas</th>
                   <th style="min-width: 200px;">Mata Pelajaran</th>
                   <th style="min-width: 130px;">Laboratorium</th>
                   <th style="min-width: 180px;">Guru Pengajar</th>
-                  <th style="min-width: 140px;">Alat / Bahan</th>
                   <th style="width: 90px;" class="text-center">Aksi</th>
                 </tr>
               </thead>
@@ -377,11 +376,11 @@
                   <tr>
                     <td class="text-center align-middle font-weight-500 text-secondary">{{ $loop->iteration }}</td>
                     <td class="align-middle text-nowrap">
-                      <div class="d-flex align-items-center" style="gap: 8px;">
-                        <span class="badge badge-soft-primary px-2 py-1" style="font-size: 0.76rem; border-radius: 6px; min-width: 50px; text-align: center;">
+                      <div class="d-flex flex-column align-items-start" style="gap: 4px;">
+                        <span class="badge badge-soft-primary px-2 py-1 font-weight-bold" style="font-size: 0.76rem; border-radius: 6px;">
                           {{ $j->hari }}
                         </span>
-                        <span class="font-weight-bold text-dark" style="font-size: 0.86rem; letter-spacing: 0.2px;">
+                        <span class="font-weight-bold text-dark" style="font-size: 0.84rem; letter-spacing: 0.2px;">
                           {{ substr($j->jam_mulai, 0, 5) }} &ndash; {{ substr($j->jam_selesai, 0, 5) }}
                         </span>
                       </div>
@@ -429,16 +428,6 @@
                         <span class="font-weight-500 text-dark" style="font-size: 0.85rem;">{{ $j->guru->nama_guru ?? '-' }}</span>
                       </div>
                     </td>
-                    <td class="align-middle" style="max-width: 220px;">
-                      @if($j->alat_bahan)
-                        <span class="d-inline-flex align-items-center px-2 py-1 rounded small" style="background: #f1f5f9; color: #334155; font-size: 0.78rem; max-width: 200px;" title="{{ $j->alat_bahan }}">
-                          <i class="fas fa-toolbox text-secondary mr-1"></i>
-                          <span class="text-truncate">{{ $j->alat_bahan }}</span>
-                        </span>
-                      @else
-                        <span class="text-muted small">-</span>
-                      @endif
-                    </td>
                     <td class="text-center align-middle text-nowrap">
                       @if($user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan']))
                         <div class="d-inline-flex align-items-center" style="gap: 6px;">
@@ -460,7 +449,7 @@
                   </tr>
                 @empty
                   <tr>
-                    <td colspan="8" class="text-center py-4 text-muted">
+                    <td colspan="7" class="text-center py-4 text-muted">
                       <i class="fas fa-info-circle mr-1"></i> Tidak ada jadwal praktik yang sesuai filter.
                     </td>
                   </tr>

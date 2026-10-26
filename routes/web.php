@@ -297,7 +297,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     // =========================================================================
     // 12.2. KEJURUAN & PRAKTIK
     // =========================================================================
-    Route::group(['middleware' => ['role:admin,kaprog,guru_jurusan,guru']], function () {
+    Route::group(['middleware' => ['role:admin,kaprog,guru_jurusan']], function () {
         Route::redirect('kejuruan/praktik', '/admin/kejuruan/jadwal-praktik');
 
         // Jadwal Praktik Kejuruan
@@ -361,6 +361,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
 
     Route::group(['middleware' => ['role:admin,kaprog']], function () {
         // Approval Laporan / Jurnal Praktik oleh Kaprog & Admin
+        Route::post('kejuruan/jurnal-praktik/{id}/approve', [JurnalPraktikController::class, 'approve'])->name('kejuruan.jurnal-praktik.approve');
         Route::post('kejuruan/laporan-praktik/{id}/approve', [LaporanPraktikController::class, 'approve'])->name('kejuruan.laporan-praktik.approve');
 
         // Manajemen Kegiatan UKK (Admin & Kaprog)

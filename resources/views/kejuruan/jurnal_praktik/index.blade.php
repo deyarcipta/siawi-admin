@@ -278,8 +278,8 @@
                     {{ $j->jadwalPraktik->guru->nama_guru ?? '-' }}
                   </td>
                   <td class="align-middle" style="max-width: 200px;">
-                    <span class="d-inline-block text-truncate" style="max-width: 190px;" title="{{ $j->materi }}">
-                      {{ $j->materi }}
+                    <span class="d-inline-block text-truncate" style="max-width: 190px;" title="{{ strip_tags($j->materi) }}">
+                      {{ strip_tags($j->materi) }}
                     </span>
                   </td>
                   <td class="text-center align-middle">
@@ -304,7 +304,7 @@
                   </td>
                   <td class="text-center align-middle">
                     <div class="btn-group" role="group">
-                      <a href="/admin/kejuruan/jurnal-praktik/{{ $j->id_jurnal_praktik }}" class="btn btn-sm btn-outline-info" title="Lihat Detail">
+                      <a href="/admin/kejuruan/jurnal-praktik/{{ $j->id_jurnal_praktik }}" class="btn btn-sm btn-outline-info" title="Lihat Detail & Verifikasi">
                         <i class="fas fa-eye"></i>
                       </a>
                       @if($user->hasRole('admin') || ($j->status_approval !== 'disetujui' && $j->jadwalPraktik->id_guru == $user->id_guru))

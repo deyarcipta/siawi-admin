@@ -128,20 +128,20 @@
       </div>
 
       <div class="card-body p-3">
-        <form method="GET" action="/admin/kejuruan/laporan-praktik" class="row align-items-end">
+        <form method="GET" action="/admin/kejuruan/laporan-praktik" class="row">
           <input type="hidden" name="periode" value="{{ $periode }}">
 
           @if($periode === 'mingguan')
-            <div class="col-md-3 col-sm-6 mb-2 mb-md-0">
+            <div class="col-md-3 col-sm-6 mb-2">
               <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Tanggal Awal</label>
               <input type="date" name="tanggal_awal" class="form-control form-control-sm" value="{{ request('tanggal_awal', \Carbon\Carbon::now()->startOfWeek()->toDateString()) }}">
             </div>
-            <div class="col-md-3 col-sm-6 mb-2 mb-md-0">
+            <div class="col-md-3 col-sm-6 mb-2">
               <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Tanggal Akhir</label>
               <input type="date" name="tanggal_akhir" class="form-control form-control-sm" value="{{ request('tanggal_akhir', \Carbon\Carbon::now()->endOfWeek()->toDateString()) }}">
             </div>
           @elseif($periode === 'bulanan')
-            <div class="col-md-3 col-sm-6 mb-2 mb-md-0">
+            <div class="col-md-3 col-sm-6 mb-2">
               <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Bulan</label>
               <select name="bulan" class="form-control form-control-sm">
                 @for($m = 1; $m <= 12; $m++)
@@ -151,7 +151,7 @@
                 @endfor
               </select>
             </div>
-            <div class="col-md-3 col-sm-6 mb-2 mb-md-0">
+            <div class="col-md-3 col-sm-6 mb-2">
               <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Tahun</label>
               <select name="tahun" class="form-control form-control-sm">
                 @for($y = \Carbon\Carbon::now()->year; $y >= \Carbon\Carbon::now()->year - 3; $y--)
@@ -160,7 +160,7 @@
               </select>
             </div>
           @elseif($periode === 'tahunan')
-            <div class="col-md-4 col-sm-6 mb-2 mb-md-0">
+            <div class="col-md-6 col-sm-6 mb-2">
               <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Pilih Tahun</label>
               <select name="tahun" class="form-control form-control-sm">
                 @for($y = \Carbon\Carbon::now()->year; $y >= \Carbon\Carbon::now()->year - 3; $y--)
@@ -170,7 +170,31 @@
             </div>
           @endif
 
-          <div class="col-md-3 col-sm-6 mb-2 mb-md-0">
+          <div class="col-md-3 col-sm-6 mb-2">
+            <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Guru Pengajar</label>
+            <select name="id_guru" class="form-control form-control-sm select2bs4">
+              <option value="">-- Semua Guru --</option>
+              @foreach($gurus as $g)
+                <option value="{{ $g->id_guru }}" {{ request('id_guru') == $g->id_guru ? 'selected' : '' }}>
+                  {{ $g->nama_guru }}
+                </option>
+              @endforeach
+            </select>
+          </div>
+
+          <div class="col-md-3 col-sm-6 mb-2">
+            <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Laboratorium</label>
+            <select name="id_lab" class="form-control form-control-sm select2bs4">
+              <option value="">-- Semua Lab --</option>
+              @foreach($labs as $l)
+                <option value="{{ $l->id_lab }}" {{ request('id_lab') == $l->id_lab ? 'selected' : '' }}>
+                  {{ $l->nama_lab }}
+                </option>
+              @endforeach
+            </select>
+          </div>
+
+          <div class="col-md-3 col-sm-6 mb-2">
             <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Status Approval</label>
             <div class="d-flex align-items-center" style="gap: 8px;">
               <select name="status_approval" class="form-control form-control-sm" style="flex: 1;">
@@ -201,7 +225,7 @@
           </div>
 
           <div>
-            @if(request()->anyFilled(['tanggal_awal', 'tanggal_akhir', 'bulan', 'tahun', 'status_approval']))
+            @if(request()->anyFilled(['tanggal_awal', 'tanggal_akhir', 'bulan', 'tahun', 'status_approval', 'id_guru', 'id_lab']))
               <a href="/admin/kejuruan/laporan-praktik?periode={{ $periode }}" class="btn btn-link text-muted btn-sm p-0">
                 <i class="fas fa-undo mr-1"></i> Reset Filter
               </a>
@@ -252,8 +276,8 @@
                   <td class="align-middle">{{ $j->jadwalPraktik->lab->nama_lab ?? '-' }}</td>
                   <td class="align-middle text-muted">{{ $j->jadwalPraktik->guru->nama_guru ?? '-' }}</td>
                   <td class="align-middle" style="max-width: 220px;">
-                    <span class="d-inline-block text-truncate" style="max-width: 210px;" title="{{ $j->materi }}">
-                      {{ $j->materi }}
+                    <span class="d-inline-block text-truncate" style="max-width: 210px;" title="{{ strip_tags($j->materi) }}">
+                      {{ strip_tags($j->materi) }}
                     </span>
                   </td>
                   <td class="text-center align-middle">

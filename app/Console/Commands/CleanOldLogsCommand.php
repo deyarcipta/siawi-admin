@@ -83,7 +83,34 @@ class CleanOldLogsCommand extends Command
             }
         }
 
+        // Pemeliharaan file log berkelanjutan (worker.log) agar tidak membengkak
+        $this->maintainWorkerLog($logPath);
+
         $this->info("Pembersihan log selesai. Sebanyak {$deletedCount} file log lama berhasil dihapus.");
         return 0;
+    }
+
+    /**
+     * Memangkas file worker.log jika ukurannya melebihi batas wajar (2 MB),
+     * dengan tetap menyisakan 1.000 baris riwayat terbaru untuk keperluan debugging.
+     */
+    protected function maintainWorkerLog(string $logPath): void
+    {
+        $workerLogPath = $logPath . DIRECTORY_SEPARATOR . 'worker.log';
+
+        if (File::exists($workerLogPath)) {
+            $fileSizeBytes = File::size($workerLogPath);
+            $maxBytes = 2 * 1024 * 1024; // 2 MB
+
+            if ($fileSizeBytes > $maxBytes) {
+                $lines = @file($workerLogPath);
+                if (is_array($lines) && count($lines) > 1000) {
+                    $preservedLines = array_slice($lines, -1000);
+                    File::put($workerLogPath, implode('', $preservedLines));
+                    $newSizeBytes = File::size($workerLogPath);
+                    $this->line(" <fg=yellow>[DIPANGKAS]</> worker.log (" . round($fileSizeBytes / 1024 / 1024, 2) . " MB -> " . round($newSizeBytes / 1024, 2) . " KB, disisakan 1.000 baris terbaru)");
+                }
+            }
+        }
     }
 }

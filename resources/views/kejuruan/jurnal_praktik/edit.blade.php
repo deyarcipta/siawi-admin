@@ -64,10 +64,11 @@
               </div>
 
               <div class="form-group mb-3">
-                <label for="materi" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  Materi Praktik / Topik Jobsheet <span class="text-danger">*</span>
+                <label for="materi" class="font-weight-bold text-dark d-flex align-items-center justify-content-between" style="font-size: 0.85rem;">
+                  <span>Materi Praktik / Topik Jobsheet <span class="text-danger">*</span></span>
+                  <small class="text-muted font-weight-normal"><i class="fas fa-magic text-primary mr-1"></i> Editor Dokumen</small>
                 </label>
-                <textarea class="form-control @error('materi') is-invalid @enderror" id="materi" name="materi" rows="3" required style="border-radius: 8px;">{{ old('materi', $jurnal->materi) }}</textarea>
+                <textarea class="form-control summernote-kejuruan @error('materi') is-invalid @enderror" id="materi" name="materi" rows="4">{{ old('materi', $jurnal->materi) }}</textarea>
                 @error('materi')
                   <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
                 @enderror
@@ -147,4 +148,56 @@
     </div>
   </div>
 </div>
+<style>
+  .note-editor.note-frame {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 10px !important;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .note-editor.note-frame .note-toolbar {
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding: 6px 8px !important;
+  }
+  .note-editor.note-frame .note-btn {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #334155 !important;
+    border-radius: 6px !important;
+    padding: 3px 8px !important;
+    font-size: 0.82rem !important;
+  }
+  .note-editor.note-frame .note-btn:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+  }
+  .note-editor.note-frame .note-btn.active {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    border-color: #0284c7 !important;
+  }
+  .note-editor.note-frame .note-statusbar {
+    background-color: #f8fafc !important;
+    border-top: 1px solid #e2e8f0 !important;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.jQuery && $.fn.summernote) {
+      $('#materi').summernote({
+        placeholder: 'Tuliskan materi praktik, topik jobsheet, atau poin kegiatan praktikum...',
+        tabsize: 2,
+        height: 180,
+        toolbar: [
+          ['style', ['bold', 'italic', 'underline', 'strikethrough']],
+          ['insert', ['picture', 'video', 'link']],
+          ['para', ['ul', 'ol', 'paragraph']],
+          ['misc', ['codeview', 'clear']]
+        ]
+      });
+    }
+  });
+</script>
 @endsection

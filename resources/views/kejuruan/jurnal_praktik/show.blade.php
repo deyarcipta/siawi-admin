@@ -94,8 +94,10 @@
             </div>
 
             <div class="mb-3 pb-3 border-bottom">
-              <span class="text-muted d-block small mb-1">Materi Praktik / Topik Jobsheet</span>
-              <p class="text-dark font-weight-500 mb-0" style="white-space: pre-line;">{{ $jurnal->materi }}</p>
+              <span class="text-muted d-block small mb-2">Materi Praktik / Topik Jobsheet</span>
+              <div class="text-dark font-weight-500 mb-0 content-materi" style="line-height: 1.6;">
+                {!! $jurnal->materi !!}
+              </div>
             </div>
 
             <div class="mb-3 pb-3 border-bottom">
@@ -152,9 +154,15 @@
               <div class="small text-muted mb-1">
                 <strong>Disetujui oleh:</strong> {{ $jurnal->approver->nama_guru ?? 'Kaprog' }}
               </div>
-              <div class="small text-muted mb-0">
+              <div class="small text-muted mb-2">
                 <strong>Tanggal:</strong> {{ $jurnal->approved_at ? $jurnal->approved_at->format('d/m/Y H:i') : '-' }}
               </div>
+              @if($jurnal->catatan_kaprog)
+                <div class="p-2 rounded bg-white border small text-dark mb-2">
+                  <strong>Catatan Kaprog:</strong><br>
+                  {{ $jurnal->catatan_kaprog }}
+                </div>
+              @endif
             @elseif($jurnal->status_approval === 'ditolak')
               <div class="alert alert-danger py-2 px-3 small mb-2">
                 <i class="fas fa-exclamation-circle mr-1"></i> Jurnal ditolak.
@@ -165,13 +173,48 @@
                   {{ $jurnal->catatan_kaprog }}
                 </div>
               @endif
-              <div class="small text-muted">
+              <div class="small text-muted mb-2">
                 Silakan lakukan revisi data jurnal dan simpan kembali.
               </div>
             @else
-              <div class="alert alert-warning py-2 px-3 small mb-0 text-dark">
+              <div class="alert alert-warning py-2 px-3 small mb-2 text-dark">
                 <i class="fas fa-hourglass-half mr-1"></i> Sedang menunggu verifikasi dari Kepala Program Keahlian.
               </div>
+            @endif
+
+            @if($user->hasAnyRole(['admin', 'kaprog']))
+              <hr class="my-3">
+              <h6 class="font-weight-bold text-dark mb-2" style="font-size: 0.88rem;">
+                <i class="fas fa-stamp text-success mr-1"></i> Tindakan Verifikasi
+              </h6>
+              <form action="/admin/kejuruan/jurnal-praktik/{{ $jurnal->id_jurnal_praktik }}/approve" method="POST">
+                @csrf
+                <div class="form-group mb-2">
+                  <div class="d-flex align-items-center" style="gap: 15px;">
+                    <div class="custom-control custom-radio">
+                      <input type="radio" id="showStatusSetuju" name="status" value="disetujui" class="custom-control-input" {{ $jurnal->status_approval === 'disetujui' || $jurnal->status_approval === 'menunggu' ? 'checked' : '' }}>
+                      <label class="custom-control-label font-weight-bold text-success" for="showStatusSetuju" style="font-size: 0.85rem;">
+                        <i class="fas fa-check mr-1"></i> Disetujui
+                      </label>
+                    </div>
+                    <div class="custom-control custom-radio">
+                      <input type="radio" id="showStatusTolak" name="status" value="ditolak" class="custom-control-input" {{ $jurnal->status_approval === 'ditolak' ? 'checked' : '' }}>
+                      <label class="custom-control-label font-weight-bold text-danger" for="showStatusTolak" style="font-size: 0.85rem;">
+                        <i class="fas fa-times mr-1"></i> Ditolak
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group mb-3">
+                  <label class="text-secondary small font-weight-bold mb-1">Catatan Kaprog</label>
+                  <textarea name="catatan_kaprog" class="form-control form-control-sm" rows="3" placeholder="Tuliskan arahan atau alasan jika ditolak..." style="border-radius: 8px;">{{ old('catatan_kaprog', $jurnal->catatan_kaprog) }}</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-sm btn-success btn-block font-weight-bold shadow-sm" style="border-radius: 8px;">
+                  <i class="fas fa-check-double mr-1"></i> Simpan Status Verifikasi
+                </button>
+              </form>
             @endif
           </div>
         </div>

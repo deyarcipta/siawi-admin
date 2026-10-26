@@ -165,7 +165,7 @@
         <!-- Lower Action Toolbar -->
         <div class="d-flex align-items-center justify-content-between mt-3 pt-2 border-top flex-wrap" style="gap: 8px;">
           <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
-            @if($user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan', 'guru']))
+            @if($user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan']))
               <a href="/admin/kejuruan/penilaian-praktik/create" class="btn btn-primary btn-sm shadow-sm font-weight-bold">
                 <i class="fas fa-plus mr-1"></i> Mulai Penilaian Kelas
               </a>
@@ -281,7 +281,7 @@
                     <i class="fas fa-clipboard-list text-muted mb-2" style="font-size: 2.5rem; opacity: 0.5;"></i>
                     <h6 class="font-weight-bold text-dark">Belum Ada Sesi Penilaian Praktik</h6>
                     <p class="text-muted small mb-3">Mulai buat sesi penilaian untuk menilai hasil praktik siswa satu kelas sekaligus.</p>
-                    @if($user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan', 'guru']))
+                    @if($user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan']))
                       <a href="/admin/kejuruan/penilaian-praktik/create" class="btn btn-primary btn-sm px-3 shadow-sm" style="border-radius: 6px; font-weight: 600;">
                         <i class="fas fa-plus mr-1"></i> Mulai Penilaian Kelas
                       </a>

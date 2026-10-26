@@ -10,15 +10,57 @@
             color: #1f2937;
             margin: 15px;
         }
-        .kop-table {
+        .header-kop-table {
             width: 100%;
             border-collapse: collapse;
-            border-bottom: 2px solid #000;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
+            border: none;
+            margin-bottom: 4px;
         }
-        .kop-table td {
+        .header-kop-table td {
+            border: none !important;
+            padding: 0;
             vertical-align: middle;
+        }
+        .header-kop-table .kop-logo-td {
+            width: 70px;
+            text-align: center;
+        }
+        .header-kop-table .kop-logo-td img {
+            max-width: 60px;
+            max-height: 60px;
+        }
+        .header-kop-table .kop-text-td {
+            text-align: center;
+            padding-right: 70px;
+        }
+        .kop-yayasan {
+            font-size: 11px;
+            font-weight: bold;
+            color: #111;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .kop-sekolah {
+            font-size: 17px;
+            font-weight: bold;
+            color: #000;
+            margin: 2px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .kop-kejuruan {
+            font-size: 10px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 2px;
+        }
+        .kop-alamat {
+            font-size: 9px;
+            color: #444;
+        }
+        .kop-divider-line {
+            border-bottom: 2.5px solid #000;
+            margin-bottom: 12px;
         }
         .title-section {
             text-align: center;
@@ -92,21 +134,26 @@
 </head>
 <body>
 
-    <!-- KOP SURAT -->
-    <table class="kop-table">
+    <!-- KOP SURAT (LANDSCAPE RESMI) -->
+    @php
+        $appSetting = $setting ?? \App\Models\Setting::find(1);
+    @endphp
+    <table class="header-kop-table">
         <tr>
-            <td style="width: 70px; text-align: center;">
-                @if($setting->logo)
-                    <img src="{{ public_path('storage/gambar/' . $setting->logo) }}" alt="Logo" style="max-height: 55px;">
+            <td class="kop-logo-td">
+                @if($appSetting && $appSetting->logo && file_exists(public_path('storage/gambar/' . $appSetting->logo)))
+                    <img src="{{ public_path('storage/gambar/' . $appSetting->logo) }}" alt="Logo">
                 @endif
             </td>
-            <td style="text-align: center;">
-                <h2 style="margin: 0; font-size: 16px; font-weight: bold;">{{ strtoupper($setting->nama_sekolah ?? 'SMK WISATA INDONESIA') }}</h2>
-                <p style="margin: 2px 0; font-size: 10px;">{{ $setting->alamat ?? '-' }} {{ $setting->kel ? ', ' . $setting->kel : '' }} {{ $setting->kec ? ', ' . $setting->kec : '' }}</p>
-                <p style="margin: 0; font-size: 10px;">{{ $setting->kota ?? '-' }} - {{ $setting->prov ?? '-' }}</p>
+            <td class="kop-text-td">
+                <div class="kop-yayasan">YAYASAN TAQWASH SHOBIRIN</div>
+                <div class="kop-sekolah">{{ strtoupper($appSetting->nama_sekolah ?? 'SMK WISATA INDONESIA') }}</div>
+                <div class="kop-kejuruan">Perhotelan &bull; Kuliner &bull; Teknik Komputer dan Jaringan</div>
+                <div class="kop-alamat">{{ $appSetting->alamat ?? 'Jl. Raya Lenteng Agung Gg. Langgar Kebagusan Pasar Minggu Jakarta Selatan' }} | Tlp/Fax: {{ $appSetting->no_telp ?? '78830781' }}</div>
             </td>
         </tr>
     </table>
+    <div class="kop-divider-line"></div>
 
     <!-- JUDUL -->
     <div class="title-section">

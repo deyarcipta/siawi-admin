@@ -108,10 +108,11 @@
               </div>
 
               <div class="form-group mb-3">
-                <label for="langkah_kerja" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  Langkah-Langkah Kerja / Prosedur Praktik <span class="text-danger">*</span>
+                <label for="langkah_kerja" class="font-weight-bold text-dark d-flex align-items-center justify-content-between" style="font-size: 0.85rem;">
+                  <span>Langkah-Langkah Kerja / Prosedur Praktik <span class="text-danger">*</span></span>
+                  <small class="text-muted font-weight-normal"><i class="fas fa-magic text-primary mr-1"></i> Editor Dokumen Jobsheet</small>
                 </label>
-                <textarea class="form-control @error('langkah_kerja') is-invalid @enderror" id="langkah_kerja" name="langkah_kerja" rows="6" required style="border-radius: 8px;">{{ old('langkah_kerja', $modul->langkah_kerja) }}</textarea>
+                <textarea class="form-control summernote-kejuruan @error('langkah_kerja') is-invalid @enderror" id="langkah_kerja" name="langkah_kerja" rows="6">{{ old('langkah_kerja', $modul->langkah_kerja) }}</textarea>
                 @error('langkah_kerja')
                   <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
                 @enderror
@@ -287,6 +288,55 @@
         }
       }
     });
+
+    if (window.jQuery && $.fn.summernote) {
+      $('#langkah_kerja').summernote({
+        placeholder: 'Tuliskan prosedur langkah kerja, panduan keselamatan kerja, dan tugas praktik di sini...',
+        tabsize: 2,
+        height: 240,
+        toolbar: [
+          ['style', ['bold', 'italic', 'underline', 'strikethrough']],
+          ['insert', ['picture', 'video', 'link']],
+          ['para', ['ul', 'ol', 'paragraph']],
+          ['misc', ['codeview', 'clear']]
+        ]
+      });
+    }
   });
 </script>
+
+<style>
+  .note-editor.note-frame {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 10px !important;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .note-editor.note-frame .note-toolbar {
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding: 6px 8px !important;
+  }
+  .note-editor.note-frame .note-btn {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #334155 !important;
+    border-radius: 6px !important;
+    padding: 3px 8px !important;
+    font-size: 0.82rem !important;
+  }
+  .note-editor.note-frame .note-btn:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+  }
+  .note-editor.note-frame .note-btn.active {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    border-color: #0284c7 !important;
+  }
+  .note-editor.note-frame .note-statusbar {
+    background-color: #f8fafc !important;
+    border-top: 1px solid #e2e8f0 !important;
+  }
+</style>
 @endsection

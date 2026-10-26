@@ -142,15 +142,21 @@ class LaporanPraktikController extends Controller
             }
         }
 
+        $selectedGuru = $data['selectedGuru'];
+        $selectedLab = $data['selectedLab'];
+
         $pdf = Pdf::loadView('kejuruan.laporan_praktik.pdf', [
             'jurnals' => $jurnals,
             'setting' => $setting,
             'periodeLabel' => $periodeLabel,
             'user' => $user,
             'kaprog' => $kaprog,
+            'selectedGuru' => $selectedGuru,
+            'selectedLab' => $selectedLab,
         ])->setPaper('a4', 'landscape');
 
-        $filename = 'Laporan_Praktik_Kejuruan_' . str_replace(' ', '_', $periodeLabel) . '.pdf';
+        $guruSuffix = $selectedGuru ? '_' . preg_replace('/[^A-Za-z0-9]/', '_', $selectedGuru->nama_guru) : '';
+        $filename = 'Laporan_Praktik_Kejuruan' . $guruSuffix . '_' . preg_replace('/[^A-Za-z0-9]/', '_', $periodeLabel) . '.pdf';
         return $pdf->download($filename);
     }
 
@@ -198,13 +204,17 @@ class LaporanPraktikController extends Controller
             $periodeLabel = 'Tahun ' . $tahun;
         }
 
+        $selectedGuru = null;
         if ($request->filled('id_guru')) {
+            $selectedGuru = Guru::find($request->id_guru);
             $query->whereHas('jadwalPraktik', function ($q) use ($request) {
                 $q->where('id_guru', $request->id_guru);
             });
         }
 
+        $selectedLab = null;
         if ($request->filled('id_lab')) {
+            $selectedLab = Lab::find($request->id_lab);
             $query->whereHas('jadwalPraktik', function ($q) use ($request) {
                 $q->where('id_lab', $request->id_lab);
             });
@@ -219,6 +229,8 @@ class LaporanPraktikController extends Controller
         return [
             'jurnals' => $jurnals,
             'periodeLabel' => $periodeLabel,
+            'selectedGuru' => $selectedGuru,
+            'selectedLab' => $selectedLab,
         ];
     }
 }

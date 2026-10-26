@@ -65,7 +65,7 @@ class PenilaianPraktikController extends Controller
         $setting = Setting::find(1);
         $user = Auth::user();
 
-        if (!$user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan', 'guru'])) {
+        if (!$user->hasAnyRole(['admin', 'kaprog', 'guru_jurusan'])) {
             abort(403, 'Akses terbatas untuk penilaian praktik.');
         }
 

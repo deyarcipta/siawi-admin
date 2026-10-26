@@ -291,6 +291,35 @@ class JurnalPraktikController extends Controller
     }
 
     /**
+     * Persetujuan (Approval / Verifikasi) Jurnal Praktik oleh Kaprog atau Admin.
+     */
+    public function approve(Request $request, string $id)
+    {
+        $user = Auth::user();
+
+        if (!$user->hasAnyRole(['admin', 'kaprog'])) {
+            abort(403, 'Hanya Kaprog dan Admin yang berhak memverifikasi jurnal praktik.');
+        }
+
+        $jurnal = JurnalPraktik::forUserJurusan($user)->findOrFail($id);
+
+        $request->validate([
+            'status' => 'required|in:disetujui,ditolak',
+            'catatan_kaprog' => 'nullable|string|max:500',
+        ]);
+
+        $jurnal->update([
+            'status_approval' => $request->status,
+            'approved_by' => $user->id_guru,
+            'approved_at' => now(),
+            'catatan_kaprog' => $request->catatan_kaprog ? trim($request->catatan_kaprog) : null,
+        ]);
+
+        $statusText = $request->status === 'disetujui' ? 'disetujui' : 'ditolak dengan catatan revisi';
+        return back()->with('success', "Jurnal praktik berhasil diverifikasi dan {$statusText}.");
+    }
+
+    /**
      * Hitung perkiraan kehadiran siswa dari data absensi harian kelas yang sudah ada.
      */
     protected function calculateStudentAttendance(int $idKelas, string $tanggal): int

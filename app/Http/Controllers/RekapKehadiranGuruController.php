@@ -121,6 +121,9 @@ class RekapKehadiranGuruController extends Controller
 
     public function downloadPdf(Request $request)
     {
+        ini_set('memory_limit', '1024M');
+        ini_set('max_execution_time', 300);
+
         $tanggalAwal = $request->tanggal_awal ?? Carbon::now()->startOfMonth()->format('Y-m-d');
         $tanggalAkhir = $request->tanggal_akhir ?? Carbon::now()->endOfMonth()->format('Y-m-d');
         $guruId = $request->guru_id;
@@ -137,6 +140,25 @@ class RekapKehadiranGuruController extends Controller
 
         $no = 1;
 
+        // Pre-fetch absensi dan jurnal sekaligus untuk mencegah 2.000+ query berulang & menghemat memori
+        $allAbsen = AbsensiGuru::whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir])
+            ->when($guruId, function ($q) use ($guruId) {
+                $q->where('id_guru', $guruId);
+            })
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->id_guru . '_' . Carbon::parse($item->tanggal)->format('Y-m-d');
+            });
+
+        $allJurnal = JurnalMengajar::whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir])
+            ->when($guruId, function ($q) use ($guruId) {
+                $q->where('id_guru', $guruId);
+            })
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->id_jadwal . '_' . $item->id_guru . '_' . Carbon::parse($item->tanggal)->format('Y-m-d');
+            });
+
         foreach ($tanggalRange as $tanggal) {
             $hari = $tanggal->translatedFormat('l');
 
@@ -150,14 +172,11 @@ class RekapKehadiranGuruController extends Controller
                 ->get();
 
             foreach ($jadwalHari as $item) {
-                $absen = AbsensiGuru::where('id_guru', $item->id_guru)
-                    ->whereDate('tanggal', $tanggal->format('Y-m-d'))
-                    ->first();
+                $absenKey = $item->id_guru . '_' . $tanggal->format('Y-m-d');
+                $absen = isset($allAbsen[$absenKey]) ? $allAbsen[$absenKey]->first() : null;
 
-                $jurnal = JurnalMengajar::where('id_jadwal', $item->id_jadwal)
-                    ->where('id_guru', $item->id_guru)
-                    ->whereDate('tanggal', $tanggal->format('Y-m-d'))
-                    ->first();
+                $jurnalKey = $item->id_jadwal . '_' . $item->id_guru . '_' . $tanggal->format('Y-m-d');
+                $jurnal = isset($allJurnal[$jurnalKey]) ? $allJurnal[$jurnalKey]->first() : null;
 
                 $statusAbsensi = 'Alfa';
                 if ($absen) {
