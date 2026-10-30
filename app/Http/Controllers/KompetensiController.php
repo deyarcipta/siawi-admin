@@ -72,6 +72,7 @@ class KompetensiController extends Controller
             'nama_kompetensi' => 'required|string|max:255',
             'tingkat' => 'required|string|max:20',
             'semester' => 'required|string|max:20',
+            'kkm' => 'nullable|numeric|min:0|max:100',
         ], [
             'id_jurusan.required' => 'Program keahlian/jurusan wajib dipilih.',
             'id_jurusan.in' => 'Anda tidak memiliki hak akses untuk jurusan ini.',
@@ -79,6 +80,7 @@ class KompetensiController extends Controller
             'nama_kompetensi.required' => 'Nama kompetensi wajib diisi.',
             'tingkat.required' => 'Tingkat kelas wajib dipilih.',
             'semester.required' => 'Semester wajib dipilih.',
+            'kkm.numeric' => 'Nilai KKM harus berupa angka.',
         ]);
 
         Kompetensi::create([
@@ -87,6 +89,7 @@ class KompetensiController extends Controller
             'nama_kompetensi' => trim($request->nama_kompetensi),
             'tingkat' => trim($request->tingkat),
             'semester' => trim($request->semester),
+            'kkm' => $request->filled('kkm') ? $request->kkm : 75.00,
         ]);
 
         return redirect('/admin/kompetensi')->with('success', 'Data kompetensi kejuruan berhasil ditambahkan.');
@@ -133,6 +136,7 @@ class KompetensiController extends Controller
             'nama_kompetensi' => 'required|string|max:255',
             'tingkat' => 'required|string|max:20',
             'semester' => 'required|string|max:20',
+            'kkm' => 'nullable|numeric|min:0|max:100',
         ], [
             'id_jurusan.required' => 'Program keahlian/jurusan wajib dipilih.',
             'id_jurusan.in' => 'Anda tidak memiliki hak akses untuk jurusan ini.',
@@ -140,6 +144,7 @@ class KompetensiController extends Controller
             'nama_kompetensi.required' => 'Nama kompetensi wajib diisi.',
             'tingkat.required' => 'Tingkat kelas wajib dipilih.',
             'semester.required' => 'Semester wajib dipilih.',
+            'kkm.numeric' => 'Nilai KKM harus berupa angka.',
         ]);
 
         $kompetensi->update([
@@ -148,6 +153,7 @@ class KompetensiController extends Controller
             'nama_kompetensi' => trim($request->nama_kompetensi),
             'tingkat' => trim($request->tingkat),
             'semester' => trim($request->semester),
+            'kkm' => $request->filled('kkm') ? $request->kkm : 75.00,
         ]);
 
         return redirect('/admin/kompetensi')->with('success', 'Data kompetensi kejuruan berhasil diperbarui.');
