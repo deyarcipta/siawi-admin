@@ -910,7 +910,7 @@
     }
 
     /* Form Controls & Inputs */
-    .form-control, select.form-control, input[type="text"].form-control, input[type="date"].form-control, input[type="search"].form-control, input[type="password"].form-control, input[type="email"].form-control {
+    .form-control:not(textarea), select.form-control, input[type="text"].form-control, input[type="date"].form-control, input[type="search"].form-control, input[type="password"].form-control, input[type="email"].form-control {
       background: #f8fafc !important;
       border: 1px solid #e2e8f0 !important;
       border-radius: 10px !important;
@@ -1757,16 +1757,31 @@
        MODERN FORM CONTROLS & TEXTAREA STYLING (PREMIUM UI)
        ======================================================== */
     textarea.form-control {
+      height: auto !important;
+      min-height: 105px !important;
       background-color: #ffffff !important;
       border: 1.5px solid #cbd5e1 !important;
       border-radius: 10px !important;
       color: #1e293b !important;
       font-size: 0.88rem !important;
-      line-height: 1.55 !important;
+      line-height: 1.6 !important;
       padding: 10px 14px !important;
       transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out !important;
       resize: vertical !important;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    }
+    textarea.form-control[rows="2"] {
+      min-height: 75px !important;
+    }
+    textarea.form-control[rows="3"] {
+      min-height: 105px !important;
+    }
+    textarea.form-control[rows="4"] {
+      min-height: 130px !important;
+    }
+    textarea.form-control[rows="5"],
+    textarea.form-control[rows="6"] {
+      min-height: 170px !important;
     }
     textarea.form-control::placeholder {
       color: #94a3b8 !important;
