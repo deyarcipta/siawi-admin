@@ -437,7 +437,7 @@
             <li class="nav-item">
               <a href="/admin/kompetensi" class="nav-link {{ Request::is('admin/kompetensi*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Standar Kompetensi</p>
+                <p>Capaian & Tujuan (CP/TP)</p>
               </a>
             </li>
             @endif

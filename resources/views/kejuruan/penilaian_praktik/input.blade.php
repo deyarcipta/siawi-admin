@@ -88,7 +88,7 @@
           </div>
 
           <div class="col-md-2 mb-2 mb-md-0 border-right text-center">
-            <span class="text-muted small d-block">Batas KKM:</span>
+            <span class="text-muted small d-block">Batas KKTP / KKM:</span>
             <span class="badge badge-primary px-3 py-1 font-weight-bold" style="font-size: 1rem;">
               {{ floatval($penilaian->kkm_saat_penilaian) }}
             </span>

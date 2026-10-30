@@ -8,14 +8,14 @@
           <i class="fas fa-award"></i>
         </div>
         <div>
-          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2; font-size: 1.35rem;">Ubah Standar Kompetensi</h1>
-          <p class="text-muted mt-1 mb-0" style="font-size: 0.84rem;">Perbarui data standar kompetensi kejuruan dan batas ambang ketuntasan</p>
+          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2; font-size: 1.35rem;">Ubah Capaian & Tujuan Pembelajaran (CP / TP)</h1>
+          <p class="text-muted mt-1 mb-0" style="font-size: 0.84rem;">Perbarui rumusan capaian kompetensi, tujuan pembelajaran, dan batas ambang KKTP</p>
         </div>
       </div>
       <div class="col-sm-5">
         <ol class="breadcrumb float-sm-right bg-transparent p-0 mb-0">
-          <li class="breadcrumb-item"><a href="/admin/kompetensi" class="text-primary font-weight-500">Data Kompetensi</a></li>
-          <li class="breadcrumb-item active">Ubah Kompetensi</li>
+          <li class="breadcrumb-item"><a href="/admin/kompetensi" class="text-primary font-weight-500">Capaian & TP</a></li>
+          <li class="breadcrumb-item active">Ubah CP/TP</li>
         </ol>
       </div>
     </div>
@@ -47,7 +47,7 @@
         <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden;">
           <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
             <h5 class="card-title font-weight-bold text-dark mb-0" style="font-size: 1.05rem;">
-              <i class="fas fa-edit text-primary mr-2"></i> Formulir Ubah Kompetensi
+              <i class="fas fa-edit text-primary mr-2"></i> Formulir Ubah Capaian & TP
             </h5>
             <span class="badge badge-info px-2 py-1 font-weight-normal small">
               {{ $kompetensi->kode_kompetensi }}
@@ -76,51 +76,53 @@
                 @enderror
               </div>
 
-              <!-- Kode Kompetensi -->
+              <!-- Kodefikasi CP / TP -->
               <div class="form-group mb-3">
                 <label for="kode_kompetensi" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  Kode Kompetensi / Unit Keahlian <span class="text-danger">*</span>
+                  Kodefikasi Capaian / TP <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text bg-light border-right-0"><i class="fas fa-barcode text-muted"></i></span>
                   </div>
-                  <input type="text" class="form-control border-left-0 @error('kode_kompetensi') is-invalid @enderror" id="kode_kompetensi" placeholder="Contoh: TKJ-KD-01" name="kode_kompetensi" value="{{ old('kode_kompetensi', $kompetensi->kode_kompetensi) }}" required style="border-radius: 0 8px 8px 0; font-weight: 600;">
+                  <input type="text" class="form-control border-left-0 @error('kode_kompetensi') is-invalid @enderror" id="kode_kompetensi" placeholder="Contoh: CP-TKJ-01 atau TP-01" name="kode_kompetensi" value="{{ old('kode_kompetensi', $kompetensi->kode_kompetensi) }}" required style="border-radius: 0 8px 8px 0; font-weight: 600;">
                 </div>
+                <small class="form-text text-muted">Kode identifikasi Capaian Pembelajaran atau Tujuan Pembelajaran.</small>
                 @error('kode_kompetensi')
                   <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
                 @enderror
               </div>
 
-              <!-- Nama Capaian / Kompetensi -->
+              <!-- Judul Capaian / Tujuan Pembelajaran -->
               <div class="form-group mb-3">
                 <label for="nama_kompetensi" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  Nama Capaian / Standar Kompetensi <span class="text-danger">*</span>
+                  Rumusan Capaian / Tujuan Pembelajaran <span class="text-danger">*</span>
                 </label>
                 <input type="text" class="form-control @error('nama_kompetensi') is-invalid @enderror" id="nama_kompetensi" placeholder="Contoh: Mengkonfigurasi Routing Dinamis BGP" name="nama_kompetensi" value="{{ old('nama_kompetensi', $kompetensi->nama_kompetensi) }}" required style="border-radius: 8px;">
+                <small class="form-text text-muted">Rumusan kompetensi operasional keterampilan dan materi kejuruan.</small>
                 @error('nama_kompetensi')
                   <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
                 @enderror
               </div>
 
-              <!-- Baris Tingkat, Semester, KKM -->
+              <!-- Baris Fase/Tingkat, Semester, KKTP -->
               <div class="row">
-                <div class="col-md-4 form-group mb-3">
+                <div class="col-md-5 form-group mb-3">
                   <label for="tingkat" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                    Tingkat Kelas <span class="text-danger">*</span>
+                    Fase / Tingkat Kelas <span class="text-danger">*</span>
                   </label>
                   <select name="tingkat" id="tingkat" class="form-control @error('tingkat') is-invalid @enderror" required style="border-radius: 8px;">
-                    <option value="">Pilih Tingkat</option>
-                    <option value="X" {{ old('tingkat', $kompetensi->tingkat) == 'X' ? 'selected' : '' }}>Kelas X</option>
-                    <option value="XI" {{ old('tingkat', $kompetensi->tingkat) == 'XI' ? 'selected' : '' }}>Kelas XI</option>
-                    <option value="XII" {{ old('tingkat', $kompetensi->tingkat) == 'XII' ? 'selected' : '' }}>Kelas XII</option>
+                    <option value="">Pilih Fase & Kelas</option>
+                    <option value="X" {{ old('tingkat', $kompetensi->tingkat) == 'X' ? 'selected' : '' }}>Fase E — Kelas X (Dasar Kejuruan)</option>
+                    <option value="XI" {{ old('tingkat', $kompetensi->tingkat) == 'XI' ? 'selected' : '' }}>Fase F — Kelas XI (Konsentrasi)</option>
+                    <option value="XII" {{ old('tingkat', $kompetensi->tingkat) == 'XII' ? 'selected' : '' }}>Fase F — Kelas XII (Proyek & UKK)</option>
                   </select>
                   @error('tingkat')
                     <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
                   @enderror
                 </div>
 
-                <div class="col-md-4 form-group mb-3">
+                <div class="col-md-3 form-group mb-3">
                   <label for="semester" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
                     Semester <span class="text-danger">*</span>
                   </label>
@@ -136,7 +138,7 @@
 
                 <div class="col-md-4 form-group mb-3">
                   <label for="kkm" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                    Batas KKM <span class="text-muted">(Min Kelulusan)</span>
+                    Batas KKTP <span class="text-muted">(Min Kelulusan)</span>
                   </label>
                   <div class="input-group">
                     <input type="number" step="0.1" min="0" max="100" class="form-control @error('kkm') is-invalid @enderror" id="kkm" name="kkm" value="{{ old('kkm', $kompetensi->kkm ?? 75.00) }}" style="border-radius: 8px 0 0 8px; font-weight: bold;">
@@ -165,25 +167,25 @@
 
       <!-- Kolom Informasi & Petunjuk Standar (Kanan) -->
       <div class="col-12 col-lg-5 mb-4">
-        <!-- Kartu 1: Pedoman Penamaan Kode -->
+        <!-- Kartu 1: Pedoman Kurikulum Merdeka -->
         <div class="card border-0 shadow-sm mb-3" style="border-radius: 14px;">
           <div class="card-header bg-white py-3 border-bottom d-flex align-items-center">
             <div class="rounded-circle d-flex align-items-center justify-content-center bg-info text-white mr-2" style="width: 32px; height: 32px; font-size: 0.9rem;">
-              <i class="fas fa-info"></i>
+              <i class="fas fa-graduation-cap"></i>
             </div>
-            <h6 class="font-weight-bold text-dark mb-0">Petunjuk Kodefikasi Kompetensi</h6>
+            <h6 class="font-weight-bold text-dark mb-0">Sinkronisasi Capaian Pembelajaran</h6>
           </div>
           <div class="card-body p-3 small text-secondary">
             <p class="mb-2">
-              Perubahan pada nama atau kode kompetensi akan tersinkronisasi ke:
+              Perubahan pada rumusan CP atau TP ini akan otomatis tersinkronisasi ke:
             </p>
             <ul class="pl-3 mb-2">
-              <li class="mb-1">Seluruh <strong>Bank Modul Praktik</strong> yang menggunakan kompetensi ini.</li>
-              <li class="mb-1">Rekam data <strong>Penilaian Praktik</strong> pada rombel kelas.</li>
+              <li class="mb-1">Seluruh <strong>Bank Modul Praktik</strong> yang menggunakan unit ini.</li>
+              <li class="mb-1">Rekam data <strong>Penilaian Praktik</strong> rombel kelas.</li>
               <li>Riwayat <strong>Transkrip Portofolio Siswa</strong> yang telah divalidasi.</li>
             </ul>
             <div class="text-muted" style="font-size: 0.8rem;">
-              <i class="fas fa-lightbulb text-warning mr-1"></i> Pastikan kode kompetensi tetap unik dalam 1 program keahlian.
+              <i class="fas fa-lightbulb text-warning mr-1"></i> Pastikan kode CP/TP tetap unik dalam satu program keahlian.
             </div>
           </div>
         </div>

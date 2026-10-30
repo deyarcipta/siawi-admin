@@ -8,14 +8,14 @@
           <i class="fas fa-award"></i>
         </div>
         <div>
-          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2; font-size: 1.35rem;">Tambah Standar Kompetensi</h1>
-          <p class="text-muted mt-1 mb-0" style="font-size: 0.84rem;">Daftarkan standar capaian kompetensi dan unit keahlian kejuruan baru</p>
+          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2; font-size: 1.35rem;">Tambah Capaian & Tujuan Pembelajaran (CP / TP)</h1>
+          <p class="text-muted mt-1 mb-0" style="font-size: 0.84rem;">Penyusunan standar capaian kompetensi dan alur tujuan pembelajaran Kurikulum Merdeka Kejuruan</p>
         </div>
       </div>
       <div class="col-sm-5">
         <ol class="breadcrumb float-sm-right bg-transparent p-0 mb-0">
-          <li class="breadcrumb-item"><a href="/admin/kompetensi" class="text-primary font-weight-500">Data Kompetensi</a></li>
-          <li class="breadcrumb-item active">Tambah Kompetensi</li>
+          <li class="breadcrumb-item"><a href="/admin/kompetensi" class="text-primary font-weight-500">Capaian & TP</a></li>
+          <li class="breadcrumb-item active">Tambah CP/TP</li>
         </ol>
       </div>
     </div>
@@ -47,10 +47,10 @@
         <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden;">
           <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
             <h5 class="card-title font-weight-bold text-dark mb-0" style="font-size: 1.05rem;">
-              <i class="fas fa-plus-circle text-primary mr-2"></i> Formulir Standar Kompetensi
+              <i class="fas fa-plus-circle text-primary mr-2"></i> Formulir Capaian & Tujuan Pembelajaran
             </h5>
-            <span class="badge badge-light border text-muted px-2 py-1 font-weight-normal small">
-              Bidang Kejuruan
+            <span class="badge badge-light border text-primary px-2 py-1 font-weight-normal small">
+              Kurikulum Merdeka
             </span>
           </div>
 
@@ -70,59 +70,59 @@
                     </option>
                   @endforeach
                 </select>
-                <small class="form-text text-muted">Kompetensi akan terikat pada kurikulum jurusan yang dipilih.</small>
+                <small class="form-text text-muted">Kompetensi akan terikat pada kurikulum jurusan kejuruan yang dipilih.</small>
                 @error('id_jurusan')
                   <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
                 @enderror
               </div>
 
-              <!-- Kode Kompetensi -->
+              <!-- Kodefikasi CP / TP -->
               <div class="form-group mb-3">
                 <label for="kode_kompetensi" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  Kode Kompetensi / Unit Keahlian <span class="text-danger">*</span>
+                  Kodefikasi Capaian / TP <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text bg-light border-right-0"><i class="fas fa-barcode text-muted"></i></span>
                   </div>
-                  <input type="text" class="form-control border-left-0 @error('kode_kompetensi') is-invalid @enderror" id="kode_kompetensi" placeholder="Contoh: TKJ-KD-01, RPL-C3-02, atau DKV-SK-05" name="kode_kompetensi" value="{{ old('kode_kompetensi') }}" required style="border-radius: 0 8px 8px 0; font-weight: 600;">
+                  <input type="text" class="form-control border-left-0 @error('kode_kompetensi') is-invalid @enderror" id="kode_kompetensi" placeholder="Contoh: CP-TKJ-01, TP-01, atau EL-02" name="kode_kompetensi" value="{{ old('kode_kompetensi') }}" required style="border-radius: 0 8px 8px 0; font-weight: 600;">
                 </div>
-                <small class="form-text text-muted">Gunakan format singkatan jurusan, rumpun materi, dan nomor urut.</small>
+                <small class="form-text text-muted">Format kode identifikasi Capaian Pembelajaran (CP) atau butir Tujuan Pembelajaran (TP).</small>
                 @error('kode_kompetensi')
                   <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
                 @enderror
               </div>
 
-              <!-- Nama Capaian / Kompetensi -->
+              <!-- Judul Capaian / Tujuan Pembelajaran -->
               <div class="form-group mb-3">
                 <label for="nama_kompetensi" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  Nama Capaian / Standar Kompetensi <span class="text-danger">*</span>
+                  Rumusan Capaian / Tujuan Pembelajaran <span class="text-danger">*</span>
                 </label>
                 <input type="text" class="form-control @error('nama_kompetensi') is-invalid @enderror" id="nama_kompetensi" placeholder="Contoh: Mengkonfigurasi Routing Dinamis BGP pada Jaringan Enterprise" name="nama_kompetensi" value="{{ old('nama_kompetensi') }}" required style="border-radius: 8px;">
-                <small class="form-text text-muted">Tuliskan deskripsi kompetensi kerja sesuai standar silabus atau SKKNI.</small>
+                <small class="form-text text-muted">Rumusan kompetensi operasional mencakup kompetensi keterampilan kerja dan materi ajar.</small>
                 @error('nama_kompetensi')
                   <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
                 @enderror
               </div>
 
-              <!-- Baris Tingkat, Semester, KKM -->
+              <!-- Baris Fase/Tingkat, Semester, KKTP -->
               <div class="row">
-                <div class="col-md-4 form-group mb-3">
+                <div class="col-md-5 form-group mb-3">
                   <label for="tingkat" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                    Tingkat Kelas <span class="text-danger">*</span>
+                    Fase / Tingkat Kelas <span class="text-danger">*</span>
                   </label>
                   <select name="tingkat" id="tingkat" class="form-control @error('tingkat') is-invalid @enderror" required style="border-radius: 8px;">
-                    <option value="">Pilih Tingkat</option>
-                    <option value="X" {{ old('tingkat') == 'X' ? 'selected' : '' }}>Kelas X</option>
-                    <option value="XI" {{ old('tingkat') == 'XI' ? 'selected' : '' }}>Kelas XI</option>
-                    <option value="XII" {{ old('tingkat') == 'XII' ? 'selected' : '' }}>Kelas XII</option>
+                    <option value="">Pilih Fase & Kelas</option>
+                    <option value="X" {{ old('tingkat') == 'X' ? 'selected' : '' }}>Fase E — Kelas X (Dasar Kejuruan)</option>
+                    <option value="XI" {{ old('tingkat') == 'XI' ? 'selected' : '' }}>Fase F — Kelas XI (Konsentrasi)</option>
+                    <option value="XII" {{ old('tingkat') == 'XII' ? 'selected' : '' }}>Fase F — Kelas XII (Proyek & UKK)</option>
                   </select>
                   @error('tingkat')
                     <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
                   @enderror
                 </div>
 
-                <div class="col-md-4 form-group mb-3">
+                <div class="col-md-3 form-group mb-3">
                   <label for="semester" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
                     Semester <span class="text-danger">*</span>
                   </label>
@@ -138,7 +138,7 @@
 
                 <div class="col-md-4 form-group mb-3">
                   <label for="kkm" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                    Batas KKM <span class="text-muted">(Min Kelulusan)</span>
+                    Batas KKTP <span class="text-muted">(Min Kelulusan)</span>
                   </label>
                   <div class="input-group">
                     <input type="number" step="0.1" min="0" max="100" class="form-control @error('kkm') is-invalid @enderror" id="kkm" name="kkm" value="{{ old('kkm', 75.00) }}" style="border-radius: 8px 0 0 8px; font-weight: bold;">
@@ -158,7 +158,7 @@
                 <i class="fas fa-arrow-left mr-1"></i> Batal
               </a>
               <button type="submit" class="btn btn-primary px-4 shadow-sm" style="border-radius: 8px; font-weight: 600;">
-                <i class="fas fa-save mr-1"></i> Simpan Standar Kompetensi
+                <i class="fas fa-save mr-1"></i> Simpan Capaian / TP
               </button>
             </div>
           </form>
@@ -167,34 +167,30 @@
 
       <!-- Kolom Informasi & Petunjuk Standar (Kanan) -->
       <div class="col-12 col-lg-5 mb-4">
-        <!-- Kartu 1: Pedoman Penamaan Kode -->
+        <!-- Kartu 1: Pedoman Kurikulum Merdeka -->
         <div class="card border-0 shadow-sm mb-3" style="border-radius: 14px;">
           <div class="card-header bg-white py-3 border-bottom d-flex align-items-center">
             <div class="rounded-circle d-flex align-items-center justify-content-center bg-info text-white mr-2" style="width: 32px; height: 32px; font-size: 0.9rem;">
-              <i class="fas fa-info"></i>
+              <i class="fas fa-graduation-cap"></i>
             </div>
-            <h6 class="font-weight-bold text-dark mb-0">Petunjuk Kodefikasi Kompetensi</h6>
+            <h6 class="font-weight-bold text-dark mb-0">Struktur Kurikulum Merdeka SMK</h6>
           </div>
           <div class="card-body p-3 small text-secondary">
-            <p class="mb-2">
-              Gunakan struktur kode yang terstandarisasi agar mudah dipilah pada modul praktikum, rubrik penilaian guru, dan transkrip kelulusan:
-            </p>
-            <div class="p-2 rounded bg-light border mb-2 font-monospace">
-              <div class="d-flex align-items-center mb-1">
-                <span class="badge badge-primary px-2 py-1 mr-2">[KODE_JURUSAN]</span>
-                <span>Inisial jurusan (TKJ, RPL, DKV, MM, dll.)</span>
-              </div>
-              <div class="d-flex align-items-center mb-1">
-                <span class="badge badge-secondary px-2 py-1 mr-2">[JENIS_SKEMA]</span>
-                <span>KD (Kompetensi Dasar), C3 (Peminatan), UKK</span>
-              </div>
-              <div class="d-flex align-items-center">
-                <span class="badge badge-info px-2 py-1 mr-2">[NOMOR_URUT]</span>
-                <span>Nomor urutan materi (01, 02, 03, dst.)</span>
-              </div>
+            <div class="mb-2">
+              <strong class="text-dark d-block">1. Pembagian Fase SMK:</strong>
+              <ul class="pl-3 mb-2">
+                <li class="mb-1"><strong>Fase E (Kelas X):</strong> Dasar-dasar Program Keahlian, pembentukan fondasi kerja, K3LH, dan etika profesi.</li>
+                <li><strong>Fase F (Kelas XI & XII):</strong> Konsentrasi Keahlian, pembelajaran berbasis proyek (PjBL), PKL di industri, dan sertifikasi UKK.</li>
+              </ul>
             </div>
-            <div class="text-muted" style="font-size: 0.8rem;">
-              <i class="fas fa-lightbulb text-warning mr-1"></i> Contoh implementasi: <code>TKJ-KD-01</code>, <code>RPL-C3-05</code>, <code>AKL-PRAK-03</code>.
+            <div class="mb-2">
+              <strong class="text-dark d-block">2. Hubungan CP & TP:</strong>
+              <p class="mb-1 text-muted" style="font-size: 0.8rem;">
+                <strong>Capaian Pembelajaran (CP)</strong> merupakan kompetensi makro per fase. Guru menurunkan CP menjadi butir-butir <strong>Tujuan Pembelajaran (TP)</strong> yang dievaluasi melalui modul praktik.
+              </p>
+            </div>
+            <div class="p-2 rounded bg-light border font-monospace" style="font-size: 0.78rem;">
+              <i class="fas fa-lightbulb text-warning mr-1"></i> Contoh penamaan: <code>CP-TKJ-01</code> (Capaian Elemen), <code>TP-ROUTING-01</code> (Tujuan Pembelajaran).
             </div>
           </div>
         </div>
@@ -205,28 +201,28 @@
             <div class="rounded-circle d-flex align-items-center justify-content-center bg-success text-white mr-2" style="width: 32px; height: 32px; font-size: 0.9rem;">
               <i class="fas fa-network-wired"></i>
             </div>
-            <h6 class="font-weight-bold text-dark mb-0">Integrasi Otomatis di Sistem</h6>
+            <h6 class="font-weight-bold text-dark mb-0">Integrasi Otomatis Pembelajaran</h6>
           </div>
           <div class="card-body p-3 small">
             <div class="d-flex align-items-start mb-3">
               <div class="text-primary font-weight-bold mr-2 mt-1"><i class="fas fa-check-circle"></i></div>
               <div>
-                <strong class="text-dark d-block">Bank Modul Praktik:</strong>
-                <span class="text-muted">Setiap jobsheet atau SOP yang dibuat guru dapat dikaitkan dengan capaian kompetensi ini.</span>
+                <strong class="text-dark d-block">Bank Modul & Jobsheet:</strong>
+                <span class="text-muted">Setiap lembar kerja praktikum dikaitkan dengan CP/TP ini sebagai bukti materi ajar.</span>
               </div>
             </div>
             <div class="d-flex align-items-start mb-3">
               <div class="text-primary font-weight-bold mr-2 mt-1"><i class="fas fa-check-circle"></i></div>
               <div>
-                <strong class="text-dark d-block">Penilaian Praktik & Rubrik:</strong>
-                <span class="text-muted">Nilai siswa pada sesi praktikum dihitung otomatis terhadap batas ambang KKM kompetensi.</span>
+                <strong class="text-dark d-block">Penilaian & KKTP:</strong>
+                <span class="text-muted">Hasil asesmen praktik siswa otomatis dievaluasi terhadap ambang batas KKTP yang ditetapkan.</span>
               </div>
             </div>
             <div class="d-flex align-items-start">
               <div class="text-primary font-weight-bold mr-2 mt-1"><i class="fas fa-check-circle"></i></div>
               <div>
-                <strong class="text-dark d-block">Tanda Kecakapan Khusus (TKK):</strong>
-                <span class="text-muted">Kelayakan perolehan lencana piagam keahlian siswa dihitung otomatis dari ketuntasan kompetensi ini.</span>
+                <strong class="text-dark d-block">Portofolio & Transkrip Siswa:</strong>
+                <span class="text-muted">Kompetensi yang tuntas otomatis tercatat dalam rekam jejak portofolio keahlian siswa.</span>
               </div>
             </div>
           </div>

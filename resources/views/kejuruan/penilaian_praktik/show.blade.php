@@ -124,7 +124,7 @@
               <span class="mr-3"><i class="fas fa-chalkboard mr-1 text-primary"></i> Kelas: <strong>{{ $penilaian->kelas->nama_kelas ?? '-' }}</strong></span>
               <span class="mr-3"><i class="fas fa-calendar-day mr-1 text-primary"></i> Tanggal: <strong>{{ \Carbon\Carbon::parse($penilaian->tanggal_penilaian)->translatedFormat('d F Y') }}</strong></span>
               <span class="mr-3"><i class="fas fa-user-tie mr-1 text-primary"></i> Guru: <strong>{{ $penilaian->guru->nama_guru ?? '-' }}</strong></span>
-              <span><i class="fas fa-award mr-1 text-primary"></i> KKM: <strong>{{ floatval($penilaian->kkm_saat_penilaian) }}</strong></span>
+              <span><i class="fas fa-award mr-1 text-primary"></i> KKTP / KKM: <strong>{{ floatval($penilaian->kkm_saat_penilaian) }}</strong></span>
             </div>
           </div>
 
