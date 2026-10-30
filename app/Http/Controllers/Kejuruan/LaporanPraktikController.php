@@ -67,7 +67,7 @@ class LaporanPraktikController extends Controller
             $query->where('status_approval', $request->status_approval);
         }
 
-        $jurnals = $query->orderBy('tanggal', 'asc')->get();
+        $jurnals = $query->orderBy('tanggal', 'desc')->orderBy('id_jurnal_praktik', 'desc')->get();
 
         // Statistik ringkasan
         $stats = [
@@ -195,7 +195,7 @@ class LaporanPraktikController extends Controller
             $query->where('status_approval', $request->status_approval);
         }
 
-        $jurnals = $query->orderBy('tanggal', 'asc')->get();
+        $jurnals = $query->orderBy('tanggal', 'desc')->orderBy('id_jurnal_praktik', 'desc')->get();
 
         return [
             'jurnals' => $jurnals,
