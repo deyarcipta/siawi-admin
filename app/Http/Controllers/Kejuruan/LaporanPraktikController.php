@@ -90,35 +90,6 @@ class LaporanPraktikController extends Controller
     }
 
     /**
-     * Persetujuan (Approval) Laporan oleh Kaprog atau Admin.
-     */
-    public function approve(Request $request, string $id)
-    {
-        $user = Auth::user();
-
-        if (!$user->hasAnyRole(['admin', 'kaprog'])) {
-            abort(403, 'Hanya Kaprog dan Admin yang berhak menyetujui laporan praktik.');
-        }
-
-        $jurnal = JurnalPraktik::forUserJurusan($user)->findOrFail($id);
-
-        $request->validate([
-            'status' => 'required|in:disetujui,ditolak',
-            'catatan_kaprog' => 'nullable|string',
-        ]);
-
-        $jurnal->update([
-            'status_approval' => $request->status,
-            'approved_by' => $user->id_guru,
-            'approved_at' => now(),
-            'catatan_kaprog' => $request->catatan_kaprog ? trim($request->catatan_kaprog) : null,
-        ]);
-
-        $statusText = $request->status === 'disetujui' ? 'disetujui' : 'ditolak dengan catatan';
-        return back()->with('success', "Laporan jurnal praktik berhasil {$statusText}.");
-    }
-
-    /**
      * Ekspor Laporan ke format PDF resmi ber-kop sekolah.
      */
     public function exportPdf(Request $request)

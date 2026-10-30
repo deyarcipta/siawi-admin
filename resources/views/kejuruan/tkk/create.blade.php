@@ -169,9 +169,9 @@
         <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap">
           <div>
             <h5 class="card-title text-dark font-weight-bold mb-0">
-              <i class="fas fa-check-double text-primary mr-2"></i> Syarat Unit Kompetensi yang Harus Tercapai <span class="text-danger">*</span>
+              <i class="fas fa-check-double text-primary mr-2"></i> Syarat Unit Kompetensi yang Harus Tercapai <span class="badge badge-light border text-muted ml-1" style="font-size: 0.75rem;">Opsional</span>
             </h5>
-            <p class="text-muted small mb-0 mt-1">Centang unit kompetensi yang wajib berstatus "Kompeten" di Buku Induk Capaian Siswa agar berhak memperoleh TKK ini.</p>
+            <p class="text-muted small mb-0 mt-1">Centang unit kompetensi prasyarat jika ingin kelayakan dihitung otomatis dari nilai web. <strong>Kosongkan bagian ini jika verifikasi kelayakan dilakukan langsung melalui Buku Saku Fisik siswa.</strong></p>
           </div>
           <div class="mt-2 mt-sm-0 d-flex align-items-center" style="gap: 6px;">
             <button type="button" class="btn btn-xs btn-outline-primary font-weight-bold px-2 py-1" onclick="selectFilteredKomp(true)">

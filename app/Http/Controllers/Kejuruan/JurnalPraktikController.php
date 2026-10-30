@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Kejuruan;
 use App\Http\Controllers\Controller;
 use App\Models\JadwalPraktik;
 use App\Models\JurnalPraktik;
+use App\Models\JurnalPraktikPresensi;
+use App\Models\Siswa;
 use App\Models\ModulPraktik;
 use App\Models\Setting;
 use Carbon\Carbon;
@@ -15,6 +17,27 @@ use Illuminate\Support\Facades\Storage;
 
 class JurnalPraktikController extends Controller
 {
+/**
+     * Ambil daftar siswa berdasarkan jadwal praktik (untuk absensi praktik)
+     */
+    public function getSiswaByJadwal(string $id)
+    {
+        $jadwal = JadwalPraktik::with('kelas')->find($id);
+        if (!$jadwal) {
+            return response()->json(['success' => false, 'message' => 'Jadwal tidak ditemukan', 'siswas' => []], 404);
+        }
+
+        $siswas = Siswa::where('id_kelas', $jadwal->id_kelas)
+            ->orderBy('nama_siswa', 'asc')
+            ->get(['id_siswa', 'nisn', 'nis', 'nama_siswa']);
+
+        return response()->json([
+            'success' => true,
+            'kelas' => $jadwal->kelas->nama_kelas ?? '',
+            'siswas' => $siswas
+        ]);
+    }
+
     /**
      * Tampilkan riwayat jurnal praktik dan daftar jadwal hari ini yang siap diisi.
      */
@@ -94,9 +117,11 @@ class JurnalPraktikController extends Controller
 
         $idJadwal = $request->query('id_jadwal_praktik');
         $jadwal = null;
+        $siswaList = collect();
 
         if ($idJadwal) {
             $jadwal = JadwalPraktik::with(['kelas', 'lab', 'mapel', 'guru'])->findOrFail($idJadwal);
+            $siswaList = Siswa::where('id_kelas', $jadwal->id_kelas)->orderBy('nama_siswa', 'asc')->get();
         }
 
         $tanggal = $request->query('tanggal', Carbon::now()->toDateString());
@@ -118,7 +143,7 @@ class JurnalPraktikController extends Controller
         $modulList = ModulPraktik::forUserJurusan($user)->terbit()->with('kompetensi')->orderBy('judul', 'asc')->get();
 
         return view('kejuruan.jurnal_praktik.create', compact(
-            'layout', 'setting', 'user', 'jadwal', 'jadwalList', 'tanggal', 'defaultHadir', 'modulList'
+            'layout', 'setting', 'user', 'jadwal', 'jadwalList', 'tanggal', 'defaultHadir', 'modulList', 'siswaList'
         ));
     }
 
@@ -138,14 +163,14 @@ class JurnalPraktikController extends Controller
             'kendala' => 'nullable|string',
             'alat_dipakai' => 'nullable|string',
             'catatan' => 'nullable|string',
-            'foto_praktik' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:3072',
+            'foto_praktik' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:512',
         ], [
             'id_jadwal_praktik.required' => 'Jadwal praktik wajib dipilih.',
             'tanggal.required' => 'Tanggal pelaksanaan wajib diisi.',
             'materi.required' => 'Materi/jobsheet praktik wajib diisi.',
             'jumlah_hadir.required' => 'Jumlah siswa hadir wajib diisi.',
             'foto_praktik.image' => 'File dokumentasi harus berupa gambar.',
-            'foto_praktik.max' => 'Ukuran foto maksimal 3MB.',
+            'foto_praktik.max' => 'Ukuran foto dokumentasi maksimal 512 KB.',
         ]);
 
         $jadwal = JadwalPraktik::findOrFail($request->id_jadwal_praktik);
@@ -169,7 +194,7 @@ class JurnalPraktikController extends Controller
             $fotoPath = $request->file('foto_praktik')->store('jurnal_praktik', 'public');
         }
 
-        JurnalPraktik::create([
+        $jurnal = JurnalPraktik::create([
             'id_jadwal_praktik' => $jadwal->id_jadwal_praktik,
             'tanggal' => $request->tanggal,
             'modul_praktik_id' => $request->modul_praktik_id,
@@ -181,6 +206,28 @@ class JurnalPraktikController extends Controller
             'foto_praktik' => $fotoPath,
             'status_approval' => 'menunggu',
         ]);
+
+        // Simpan presensi per siswa (hanya siswa yang dicentang / ikut praktik)
+        if ($request->has('presensi') && is_array($request->presensi)) {
+            $presensiData = [];
+            foreach ($request->presensi as $idSiswa => $p) {
+                if (empty($p['terpilih'])) {
+                    continue;
+                }
+                $status = in_array($p['status'] ?? '', ['hadir', 'sakit', 'izin', 'alpa']) ? $p['status'] : 'hadir';
+                $presensiData[] = [
+                    'id_jurnal_praktik' => $jurnal->id_jurnal_praktik,
+                    'id_siswa' => $idSiswa,
+                    'status' => $status,
+                    'catatan' => !empty($p['catatan']) ? trim($p['catatan']) : null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+            if (!empty($presensiData)) {
+                JurnalPraktikPresensi::insert($presensiData);
+            }
+        }
 
         return redirect('/admin/kejuruan/jurnal-praktik')->with('success', 'Jurnal praktik berhasil disimpan dan siap ditinjau oleh Kaprog.');
     }
@@ -195,7 +242,7 @@ class JurnalPraktikController extends Controller
         $user = Auth::user();
 
         $jurnal = JurnalPraktik::forUserJurusan($user)
-            ->with(['jadwalPraktik.kelas', 'jadwalPraktik.lab', 'jadwalPraktik.guru', 'jadwalPraktik.mapel', 'approver', 'modulPraktik'])
+            ->with(['jadwalPraktik.kelas', 'jadwalPraktik.lab', 'jadwalPraktik.guru', 'jadwalPraktik.mapel', 'approver', 'modulPraktik', 'presensis.siswa'])
             ->findOrFail($id);
 
         return view('kejuruan.jurnal_praktik.show', compact('layout', 'setting', 'user', 'jurnal'));
@@ -211,7 +258,7 @@ class JurnalPraktikController extends Controller
         $user = Auth::user();
 
         $jurnal = JurnalPraktik::forUserJurusan($user)
-            ->with(['jadwalPraktik.kelas', 'jadwalPraktik.lab', 'jadwalPraktik.guru', 'jadwalPraktik.mapel', 'modulPraktik'])
+            ->with(['jadwalPraktik.kelas', 'jadwalPraktik.lab', 'jadwalPraktik.guru', 'jadwalPraktik.mapel', 'modulPraktik', 'presensis'])
             ->findOrFail($id);
 
         // Jika sudah disetujui, guru biasa tidak dapat mengubah tanpa izin Kaprog/Admin
@@ -221,7 +268,13 @@ class JurnalPraktikController extends Controller
 
         $modulList = ModulPraktik::forUserJurusan($user)->terbit()->with('kompetensi')->orderBy('judul', 'asc')->get();
 
-        return view('kejuruan.jurnal_praktik.edit', compact('layout', 'setting', 'user', 'jurnal', 'modulList'));
+        $siswaList = collect();
+        if ($jurnal->jadwalPraktik && $jurnal->jadwalPraktik->id_kelas) {
+            $siswaList = Siswa::where('id_kelas', $jurnal->jadwalPraktik->id_kelas)->orderBy('nama_siswa', 'asc')->get();
+        }
+        $existingPresensi = $jurnal->presensis->keyBy('id_siswa');
+
+        return view('kejuruan.jurnal_praktik.edit', compact('layout', 'setting', 'user', 'jurnal', 'modulList', 'siswaList', 'existingPresensi'));
     }
 
     /**
@@ -239,7 +292,12 @@ class JurnalPraktikController extends Controller
             'kendala' => 'nullable|string',
             'alat_dipakai' => 'nullable|string',
             'catatan' => 'nullable|string',
-            'foto_praktik' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:3072',
+            'foto_praktik' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:512',
+        ], [
+            'materi.required' => 'Materi/jobsheet praktik wajib diisi.',
+            'jumlah_hadir.required' => 'Jumlah siswa hadir wajib diisi.',
+            'foto_praktik.image' => 'File dokumentasi harus berupa gambar.',
+            'foto_praktik.max' => 'Ukuran foto dokumentasi maksimal 512 KB.',
         ]);
 
         $updateData = [
@@ -266,7 +324,34 @@ class JurnalPraktikController extends Controller
 
         $jurnal->update($updateData);
 
-        return redirect('/admin/kejuruan/jurnal-praktik/' . $id)->with('success', 'Jurnal praktik berhasil diperbarui.');
+        // Sinkronisasi data presensi siswa jika dikirim
+        if ($request->has('presensi') && is_array($request->presensi)) {
+            JurnalPraktikPresensi::where('id_jurnal_praktik', $jurnal->id_jurnal_praktik)->delete();
+            $presensiData = [];
+            foreach ($request->presensi as $idSiswa => $p) {
+                if (empty($p['terpilih'])) {
+                    continue;
+                }
+                $status = in_array($p['status'] ?? '', ['hadir', 'sakit', 'izin', 'alpa']) ? $p['status'] : 'hadir';
+                $presensiData[] = [
+                    'id_jurnal_praktik' => $jurnal->id_jurnal_praktik,
+                    'id_siswa' => $idSiswa,
+                    'status' => $status,
+                    'catatan' => !empty($p['catatan']) ? trim($p['catatan']) : null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+            if (!empty($presensiData)) {
+                JurnalPraktikPresensi::insert($presensiData);
+            }
+        }
+
+        $redirectUrl = '/admin/kejuruan/jurnal-praktik/' . $id;
+        if ($request->input('from') === 'laporan-praktik') {
+            $redirectUrl .= '?from=laporan-praktik';
+        }
+        return redirect($redirectUrl)->with('success', 'Jurnal praktik berhasil diperbarui.');
     }
 
     /**
@@ -343,3 +428,5 @@ class JurnalPraktikController extends Controller
         return $totalSiswa > 0 ? $totalSiswa : 36;
     }
 }
+
+

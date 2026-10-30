@@ -75,4 +75,7 @@ Route::prefix('kejuruan')->group(function () {
     Route::get('/ukk/{idSiswa}', [\App\Http\Controllers\SiswaController\KejuruanApiController::class, 'ukk']);
     Route::get('/portofolio/{idSiswa}', [\App\Http\Controllers\SiswaController\KejuruanApiController::class, 'portofolio']);
     Route::get('/tkk/{idSiswa}', [\App\Http\Controllers\SiswaController\KejuruanApiController::class, 'tkk']);
+    Route::get('/presensi/{idSiswa}', [\App\Http\Controllers\SiswaController\KejuruanApiController::class, 'presensi']);
+    Route::get('/peminjaman/{idSiswa}', [\App\Http\Controllers\SiswaController\KejuruanApiController::class, 'peminjaman']);
 });
+

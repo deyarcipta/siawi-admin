@@ -1774,6 +1774,212 @@
         -webkit-overflow-scrolling: touch !important;
       }
     }
+
+    /* --- MODUL KEJURUAN COMPREHENSIVE RESPONSIVE ENHANCEMENTS --- */
+    @media (max-width: 767.98px) {
+      /* 1. Header & Title */
+      .content-header h1 {
+        font-size: 1.25rem !important;
+      }
+      .content-header .breadcrumb {
+        font-size: 0.78rem !important;
+        margin-top: 4px !important;
+      }
+
+      /* 2. Stat / Metric Cards across all Kejuruan modules */
+      .col-6 .card-body {
+        padding: 10px 12px !important;
+      }
+      .col-6 .card-body .font-weight-bold.text-dark {
+        font-size: 1.3rem !important;
+      }
+      .col-6 .card-body .rounded-circle {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1rem !important;
+      }
+
+      /* 3. Card Headers & Action Toolbars */
+      .card-header:not(.note-toolbar) {
+        padding: 10px 14px !important;
+      }
+      .card-header:not(.note-toolbar) .d-flex {
+        flex-wrap: wrap !important;
+      }
+      .card-header:not(.note-toolbar) .btn-group {
+        width: 100% !important;
+      }
+      .card-header:not(.note-toolbar) .btn-group > .btn {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+      }
+
+      /* 4. Filter Forms & Lower Toolbars */
+      .card-body form.row.align-items-end > div {
+        margin-bottom: 8px !important;
+      }
+      .card-body .border-top.d-flex {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+      }
+      .card-body .border-top.d-flex > div {
+        width: 100% !important;
+      }
+      .card-body .border-top.d-flex .btn {
+        width: 100% !important;
+        margin-bottom: 4px !important;
+      }
+
+      /* 5. Select2 & Custom Form Controls */
+      .select2-container {
+        width: 100% !important;
+      }
+      .custom-file {
+        height: 42px !important;
+      }
+      .custom-file-label {
+        font-size: 0.8rem !important;
+        padding-right: 75px !important;
+      }
+
+      /* 6. Form Footer Action Buttons */
+      .card-footer.d-flex {
+        flex-direction: column-reverse !important;
+        gap: 8px !important;
+        padding: 12px 14px !important;
+      }
+      .card-footer.d-flex .btn,
+      .card-footer.d-flex a.btn {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        text-align: center !important;
+        height: 40px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      /* 7. Tables in Kejuruan */
+      .table-responsive {
+        border-radius: 8px;
+        -webkit-overflow-scrolling: touch !important;
+      }
+      .table-responsive table {
+        margin-bottom: 0 !important;
+      }
+      .table-responsive th,
+      .table-responsive td {
+        padding: 8px 10px !important;
+      }
+      .table-responsive th.text-center,
+      .table-responsive td.text-center {
+        white-space: nowrap !important;
+      }
+      .table-responsive .btn-group {
+        display: inline-flex !important;
+        white-space: nowrap !important;
+      }
+      .table-responsive .btn-group .btn {
+        padding: 4px 8px !important;
+        font-size: 0.78rem !important;
+        min-height: 32px !important;
+      }
+
+      /* 8. Attendance Button Group in Jurnal Praktik */
+      .group-kehadiran {
+        display: inline-flex !important;
+        width: auto !important;
+      }
+      .group-kehadiran .btn-status {
+        min-width: 32px !important;
+        height: 32px !important;
+        padding: 2px 6px !important;
+        font-size: 0.8rem !important;
+        line-height: 26px !important;
+        font-weight: 700 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      /* 9. Summernote Toolbar Responsive & Compact on Mobile */
+      .note-editor.note-frame .note-toolbar,
+      .note-toolbar.card-header {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 4px !important;
+        padding: 6px !important;
+        background-color: #f8fafc !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+      }
+      .note-editor.note-frame .note-toolbar .note-btn-group,
+      .note-editor.note-frame .note-toolbar .btn-group,
+      .note-toolbar.card-header .btn-group {
+        width: auto !important;
+        display: inline-flex !important;
+        flex: 0 0 auto !important;
+        margin: 0 2px 2px 0 !important;
+      }
+      .note-editor.note-frame .note-toolbar .note-btn-group > .note-btn,
+      .note-editor.note-frame .note-toolbar .btn-group > .btn,
+      .note-editor.note-frame .note-toolbar .note-btn {
+        width: auto !important;
+        flex: 0 0 auto !important;
+        min-width: 32px !important;
+        height: 32px !important;
+        padding: 2px 7px !important;
+        font-size: 0.8rem !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #334155 !important;
+        border-radius: 6px !important;
+      }
+      /* Sembunyikan tooltip popover hover pada layar sentuh/mobile agar tidak macet menutupi tombol */
+      .note-editor .tooltip,
+      .tooltip {
+        display: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+
+      /* 10. Border helpers on stacked columns */
+      .border-right {
+        border-right: none !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        padding-bottom: 8px !important;
+        margin-bottom: 8px !important;
+      }
+    }
+
+    @media (max-width: 576px) {
+      /* Extra tweaks for phone screens (< 576px) */
+      .content {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+      }
+      .container-fluid {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+      }
+      .card-body {
+        padding: 12px !important;
+      }
+      .btn-group-sm > .btn {
+        font-size: 0.74rem !important;
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+      }
+    }
   </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -1931,6 +2137,7 @@
         placeholder: 'Tulis isi berita atau artikel di sini...',
         tabsize: 2,
         height: 320,
+        tooltip: false,
         toolbar: [
           ['style', ['bold', 'italic', 'underline', 'strikethrough']],
           ['insert', ['picture', 'video', 'link']],

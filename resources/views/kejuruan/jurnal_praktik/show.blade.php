@@ -1,4 +1,9 @@
 @extends($layout)
+@php
+  $fromLaporan = request('from') === 'laporan-praktik';
+  $backUrl = $fromLaporan ? '/admin/kejuruan/laporan-praktik' : '/admin/kejuruan/jurnal-praktik';
+  $parentTitle = $fromLaporan ? 'Laporan Praktik' : 'Jurnal Praktik';
+@endphp
 @section('content')
 <div class="content-header pb-2">
   <div class="container-fluid">
@@ -14,7 +19,7 @@
       </div>
       <div class="col-sm-5">
         <ol class="breadcrumb float-sm-right bg-transparent p-0 mb-0">
-          <li class="breadcrumb-item"><a href="/admin/kejuruan/jurnal-praktik" class="text-primary font-weight-500">Jurnal Praktik</a></li>
+          <li class="breadcrumb-item"><a href="{{ $backUrl }}" class="text-primary font-weight-500">{{ $parentTitle }}</a></li>
           <li class="breadcrumb-item active">Detail Jurnal</li>
         </ol>
       </div>
@@ -124,14 +129,64 @@
                 </a>
               </div>
             @endif
+            <div class="mt-4 pt-3 border-top">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="font-weight-bold text-dark mb-0">
+                  <i class="fas fa-user-check text-primary mr-1"></i> Rekapitulasi Presensi Praktik Siswa
+                </h6>
+                <span class="badge badge-light border text-muted">Total: {{ $jurnal->presensis->count() }} Siswa</span>
+              </div>
+
+              @if($jurnal->presensis->count() > 0)
+                <div class="table-responsive rounded border" style="max-height: 320px;">
+                  <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
+                    <thead class="bg-light text-muted">
+                      <tr>
+                        <th style="width: 40px;" class="text-center">No</th>
+                        <th>Nama Siswa</th>
+                        <th style="width: 140px;" class="text-center">Status</th>
+                        <th>Keterangan</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @foreach($jurnal->presensis as $idx => $p)
+                        <tr>
+                          <td class="text-center align-middle">{{ $idx + 1 }}</td>
+                          <td class="align-middle">
+                            <span class="font-weight-bold text-dark">{{ $p->siswa->nama_siswa ?? 'Siswa' }}</span>
+                            <small class="text-muted d-block">NISN: {{ $p->siswa->nisn ?? ($p->siswa->nis ?? '-') }}</small>
+                          </td>
+                          <td class="text-center align-middle">
+                            @if($p->status === 'hadir')
+                              <span class="badge badge-success px-2 py-1"><i class="fas fa-check mr-1"></i> Hadir</span>
+                            @elseif($p->status === 'sakit')
+                              <span class="badge badge-warning text-dark px-2 py-1"><i class="fas fa-ambulance mr-1"></i> Sakit</span>
+                            @elseif($p->status === 'izin')
+                              <span class="badge badge-info px-2 py-1"><i class="fas fa-info-circle mr-1"></i> Izin</span>
+                            @else
+                              <span class="badge badge-danger px-2 py-1"><i class="fas fa-times mr-1"></i> Alpa</span>
+                            @endif
+                          </td>
+                          <td class="align-middle text-muted">{{ $p->catatan ?: '-' }}</td>
+                        </tr>
+                      @endforeach
+                    </tbody>
+                  </table>
+                </div>
+              @else
+                <div class="alert alert-light border text-muted py-2 small mb-0">
+                  <i class="fas fa-info-circle mr-1"></i> Belum ada detail presensi per siswa yang tercatat pada jurnal ini.
+                </div>
+              @endif
+            </div>
           </div>
 
           <div class="card-footer bg-light py-3 px-4 d-flex align-items-center">
-            <a href="/admin/kejuruan/jurnal-praktik" class="btn btn-outline-secondary px-3" style="border-radius: 8px; font-weight: 500;">
+            <a href="{{ $backUrl }}" class="btn btn-outline-secondary px-3" style="border-radius: 8px; font-weight: 500;">
               <i class="fas fa-arrow-left mr-1"></i> Kembali
             </a>
             @if($user->hasRole('admin') || ($jurnal->status_approval !== 'disetujui' && $jurnal->jadwalPraktik->id_guru == $user->id_guru))
-              <a href="/admin/kejuruan/jurnal-praktik/{{ $jurnal->id_jurnal_praktik }}/edit" class="btn btn-primary ml-auto px-4 shadow-sm" style="border-radius: 8px; font-weight: 600;">
+              <a href="/admin/kejuruan/jurnal-praktik/{{ $jurnal->id_jurnal_praktik }}/edit{{ $fromLaporan ? '?from=laporan-praktik' : '' }}" class="btn btn-primary ml-auto px-4 shadow-sm" style="border-radius: 8px; font-weight: 600;">
                 <i class="fas fa-edit mr-1"></i> Ubah Jurnal
               </a>
             @endif
@@ -187,8 +242,11 @@
               <h6 class="font-weight-bold text-dark mb-2" style="font-size: 0.88rem;">
                 <i class="fas fa-stamp text-success mr-1"></i> Tindakan Verifikasi
               </h6>
-              <form action="/admin/kejuruan/jurnal-praktik/{{ $jurnal->id_jurnal_praktik }}/approve" method="POST">
+              <form action="/admin/kejuruan/jurnal-praktik/{{ $jurnal->id_jurnal_praktik }}/approve{{ $fromLaporan ? '?from=laporan-praktik' : '' }}" method="POST">
                 @csrf
+                @if($fromLaporan)
+                  <input type="hidden" name="from" value="laporan-praktik">
+                @endif
                 <div class="form-group mb-2">
                   <div class="d-flex align-items-center" style="gap: 15px;">
                     <div class="custom-control custom-radio">

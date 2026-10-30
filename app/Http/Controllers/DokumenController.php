@@ -73,7 +73,7 @@ class DokumenController extends Controller
             'file_dokumen' => $nama_file,
         ]);
 
-        return redirect()->route('admin.dokumen.index', ['kelas' => $siswa->id_kelas])->with('success', 'Dokumen berhasil ditambahkan.');
+        return redirect()->route('admin.dokumen.index', ['kelas' => $siswa->id_kelas])->with('success', 'Prestasi / Piagam berhasil ditambahkan.');
     }
 
     public function show(string $id_siswa)
@@ -139,7 +139,7 @@ class DokumenController extends Controller
             'file_dokumen' => $nama_file_baru,
         ]);
 
-        return redirect('/admin/dokumen/' . $dokumen->id_siswa)->with('success', 'Dokumen berhasil diubah.');
+        return redirect('/admin/dokumen/' . $dokumen->id_siswa)->with('success', 'Prestasi / Piagam berhasil diperbarui.');
     }
 
     public function destroy(string $id_dokumen)
@@ -151,6 +151,6 @@ class DokumenController extends Controller
             Storage::delete('public/file_dokumen/' . $dokumen->file_dokumen);
         }
         Dokumen::destroy($id_dokumen);
-        return redirect('/admin/dokumen/' . $id_siswa)->with('success', 'Dokumen berhasil dihapus.');
+        return redirect('/admin/dokumen/' . $id_siswa)->with('success', 'Prestasi / Piagam berhasil dihapus.');
     }
 }

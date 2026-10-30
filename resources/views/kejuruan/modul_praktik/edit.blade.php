@@ -294,6 +294,7 @@
         placeholder: 'Tuliskan prosedur langkah kerja, panduan keselamatan kerja, dan tugas praktik di sini...',
         tabsize: 2,
         height: 240,
+        tooltip: false,
         toolbar: [
           ['style', ['bold', 'italic', 'underline', 'strikethrough']],
           ['insert', ['picture', 'video', 'link']],

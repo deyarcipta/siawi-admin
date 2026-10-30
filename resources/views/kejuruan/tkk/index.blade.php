@@ -238,17 +238,24 @@
                     @endif
                   </td>
                   <td class="align-middle">
-                    <span class="badge badge-light border text-primary font-weight-bold px-2 py-1 mb-1">
-                      {{ $t->syarats->count() }} Unit Kompetensi
-                    </span>
-                    <div class="small text-muted" style="max-width: 250px;">
-                      @foreach($t->syarats->take(2) as $s)
-                        <div class="text-truncate" title="{{ $s->nama_kompetensi }}">• {{ $s->nama_kompetensi }}</div>
-                      @endforeach
-                      @if($t->syarats->count() > 2)
-                        <span class="text-muted font-italic">+ {{ $t->syarats->count() - 2 }} unit lainnya</span>
-                      @endif
-                    </div>
+                    @if($t->syarats->isEmpty())
+                      <span class="badge badge-light border text-info font-weight-bold px-2 py-1">
+                        <i class="fas fa-book-reader mr-1"></i> Verifikasi Buku Saku
+                      </span>
+                      <small class="text-muted d-block mt-1">Buku saku fisik (langsung disahkan)</small>
+                    @else
+                      <span class="badge badge-light border text-primary font-weight-bold px-2 py-1 mb-1">
+                        {{ $t->syarats->count() }} Unit Kompetensi
+                      </span>
+                      <div class="small text-muted" style="max-width: 250px;">
+                        @foreach($t->syarats->take(2) as $s)
+                          <div class="text-truncate" title="{{ $s->nama_kompetensi }}">• {{ $s->nama_kompetensi }}</div>
+                        @endforeach
+                        @if($t->syarats->count() > 2)
+                          <span class="text-muted font-italic">+ {{ $t->syarats->count() - 2 }} unit lainnya</span>
+                        @endif
+                      </div>
+                    @endif
                   </td>
                   <td class="text-center align-middle">
                     @php

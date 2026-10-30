@@ -84,7 +84,7 @@ class TkkController extends Controller
             'nomor_klaster' => 'nullable|integer|min:1|max:9',
             'id_jurusan' => 'required|exists:jurusan,id_jurusan',
             'tingkat' => 'required|in:dasar,menengah,utama',
-            'syarat_kompetensi' => 'required|array|min:1',
+            'syarat_kompetensi' => 'nullable|array',
             'syarat_kompetensi.*' => 'exists:kompetensi,id_kompetensi',
         ]);
 
@@ -99,7 +99,7 @@ class TkkController extends Controller
                 'deskripsi' => $request->deskripsi,
             ]);
 
-            $tkk->syarats()->sync($request->syarat_kompetensi);
+            $tkk->syarats()->sync($request->syarat_kompetensi ?? []);
 
             DB::commit();
 
@@ -154,6 +154,12 @@ class TkkController extends Controller
                         ->havingRaw('COUNT(DISTINCT id_kompetensi) >= ?', [$totalSyarat])
                         ->pluck('id_siswa')
                         ->toArray();
+                } else {
+                    // Jika tanpa syarat kompetensi web (buku saku fisik), tampilkan siswa di kelas jurusan ini
+                    $jurusanKelasIds = Kelas::whereHas('jurusan', function ($q) use ($activeTkk) {
+                        $q->where('id_jurusan', $activeTkk->id_jurusan);
+                    })->pluck('id_kelas')->toArray();
+                    $candidateSiswaIds = Siswa::whereIn('id_kelas', $jurusanKelasIds)->pluck('id_siswa')->toArray();
                 }
 
                 $allRelevantSiswaIds = array_unique(array_merge($siswaTkkIds, $candidateSiswaIds));
@@ -185,6 +191,9 @@ class TkkController extends Controller
                 $statusKalkulasi = 'belum_memenuhi';
                 if ($rekorTkk && $rekorTkk->status === 'diberikan') {
                     $statusKalkulasi = 'diberikan';
+                } elseif ($totalSyarat === 0) {
+                    // Model Buku Saku Fisik: Tanpa syarat kompetensi di web, verifikasi dilakukan oleh guru langsung
+                    $statusKalkulasi = 'memenuhi_syarat';
                 } elseif ($totalSyarat > 0 && $lulusCount >= $totalSyarat) {
                     $statusKalkulasi = 'memenuhi_syarat';
                 } elseif ($lulusCount > 0) {
@@ -207,8 +216,8 @@ class TkkController extends Controller
 
                 $s->tkk_rekor = $rekorTkk;
                 $s->tkk_syarat_total = $totalSyarat;
-                $s->tkk_syarat_lulus = $lulusCount;
-                $s->tkk_syarat_persen = $totalSyarat > 0 ? min(100, round(($lulusCount / $totalSyarat) * 100)) : 0;
+                $s->tkk_syarat_lulus = $totalSyarat === 0 ? 0 : $lulusCount;
+                $s->tkk_syarat_persen = $totalSyarat === 0 ? 100 : ($totalSyarat > 0 ? min(100, round(($lulusCount / $totalSyarat) * 100)) : 0);
                 $s->tkk_syarat_ids_lulus = $lulusKompetensiIds;
                 $s->tkk_syarat_details = $syaratDetails;
                 $s->tkk_status = $statusKalkulasi;
@@ -533,7 +542,7 @@ class TkkController extends Controller
             'nomor_klaster' => 'nullable|integer|between:1,9',
             'kode_tkk' => 'nullable|string|max:50',
             'deskripsi' => 'nullable|string',
-            'syarat_kompetensi' => 'required|array|min:1',
+            'syarat_kompetensi' => 'nullable|array',
             'syarat_kompetensi.*' => 'exists:kompetensi,id_kompetensi',
         ]);
 
@@ -550,7 +559,7 @@ class TkkController extends Controller
                 'deskripsi' => $request->deskripsi,
             ]);
 
-            $tkk->syarats()->sync($request->syarat_kompetensi);
+            $tkk->syarats()->sync($request->syarat_kompetensi ?? []);
             DB::commit();
 
             return redirect('/admin/kejuruan/tkk')

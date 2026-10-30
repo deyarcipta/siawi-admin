@@ -9,7 +9,7 @@
         <i class="fas fa-file-invoice text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
         <div class="d-flex flex-column justify-content-center">
           <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Rekap & Laporan Praktik Kejuruan</h1>
-          <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Laporan periodik mingguan, bulanan, tahunan beserta verifikasi persetujuan Kaprog</p>
+          <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Rekapitulasi periodik mingguan, bulanan, tahunan dan monitoring pelaksanaan praktik kejuruan</p>
         </div>
       </div>
       <div class="col-sm-5">
@@ -293,67 +293,9 @@
                     @endif
                   </td>
                   <td class="text-center align-middle">
-                    <a href="/admin/kejuruan/jurnal-praktik/{{ $j->id_jurnal_praktik }}" class="btn btn-xs btn-outline-info mr-1" title="Detail">
+                    <a href="/admin/kejuruan/jurnal-praktik/{{ $j->id_jurnal_praktik }}?from=laporan-praktik" class="btn btn-sm btn-outline-info" title="Lihat Detail Jurnal & Bukti Praktik">
                       <i class="fas fa-eye"></i>
                     </a>
-                    @if($user->hasAnyRole(['admin', 'kaprog']))
-                      <button type="button" class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#modalApprove{{ $j->id_jurnal_praktik }}" title="Verifikasi">
-                        <i class="fas fa-check-double"></i>
-                      </button>
-
-                      <!-- Modal Verifikasi Kaprog -->
-                      <div class="modal fade text-left" id="modalApprove{{ $j->id_jurnal_praktik }}" tabindex="-1" role="dialog" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                          <div class="modal-content" style="border-radius: 12px; overflow: hidden;">
-                            <div class="modal-header bg-primary text-white py-2 px-3">
-                              <h6 class="modal-title font-weight-bold mb-0">
-                                <i class="fas fa-clipboard-check mr-1"></i> Verifikasi Jurnal Praktik
-                              </h6>
-                              <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                              </button>
-                            </div>
-                            <form action="/admin/kejuruan/laporan-praktik/{{ $j->id_jurnal_praktik }}/approve" method="POST">
-                              @csrf
-                              <div class="modal-body p-3">
-                                <div class="p-2 rounded bg-light border mb-3 small">
-                                  <strong>Instruktur:</strong> {{ $j->jadwalPraktik->guru->nama_guru ?? '-' }}<br>
-                                  <strong>Mapel:</strong> {{ $j->jadwalPraktik->mapel->nama_mapel ?? '-' }} ({{ $j->jadwalPraktik->kelas->nama_kelas ?? '-' }})<br>
-                                  <strong>Materi:</strong> {{ $j->materi }}
-                                </div>
-
-                                <div class="form-group mb-3">
-                                  <label class="font-weight-bold text-dark small">Tindakan Persetujuan</label>
-                                  <div class="d-flex">
-                                    <div class="custom-control custom-radio mr-4">
-                                      <input type="radio" id="setuju{{ $j->id_jurnal_praktik }}" name="status" value="disetujui" class="custom-control-input" {{ $j->status_approval === 'disetujui' ? 'checked' : 'checked' }}>
-                                      <label class="custom-control-label text-success font-weight-bold" for="setuju{{ $j->id_jurnal_praktik }}">
-                                        <i class="fas fa-check mr-1"></i> Setujui Laporan
-                                      </label>
-                                    </div>
-                                    <div class="custom-control custom-radio">
-                                      <input type="radio" id="tolak{{ $j->id_jurnal_praktik }}" name="status" value="ditolak" class="custom-control-input" {{ $j->status_approval === 'ditolak' ? 'checked' : '' }}>
-                                      <label class="custom-control-label text-danger font-weight-bold" for="tolak{{ $j->id_jurnal_praktik }}">
-                                        <i class="fas fa-times mr-1"></i> Tolak / Perlu Revisi
-                                      </label>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div class="form-group mb-0">
-                                  <label for="catatan_kaprog{{ $j->id_jurnal_praktik }}" class="font-weight-bold text-dark small">Catatan / Arahan Kaprog (Opsional)</label>
-                                  <textarea name="catatan_kaprog" id="catatan_kaprog{{ $j->id_jurnal_praktik }}" class="form-control" rows="2" placeholder="Catatan perbaikan atau tindak lanjut pemakaian alat lab">{{ $j->catatan_kaprog }}</textarea>
-                                </div>
-                              </div>
-                              <div class="modal-footer bg-light py-2 px-3">
-                                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Tutup</button>
-                                <button type="submit" class="btn btn-primary btn-sm px-3 font-weight-bold">Simpan Verifikasi</button>
-                              </div>
-                            </form>
-                          </div>
-                        </div>
-                      </div>
-                    @endif
                   </td>
                 </tr>
               @empty

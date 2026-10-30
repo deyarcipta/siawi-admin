@@ -314,7 +314,7 @@
             <li class="nav-item">
               <a href="/admin/dokumen" class="nav-link {{ Request::is('admin/dokumen*') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
-                <p>Dokumen Siswa</p>
+                <p>Prestasi & Penghargaan</p>
               </a>
             </li>
             @endif
@@ -350,7 +350,7 @@
           <li class="nav-item">
             <a href="/admin/dokumen" class="nav-link {{ Request::is('admin/dokumen*') ? 'active' : '' }}">
               <i class="nav-icon far fa-file-alt"></i>
-              <p>Dokumen Siswa</p>
+              <p>Prestasi & Penghargaan</p>
             </a>
           </li>
           @elseif($canRapot)
@@ -406,13 +406,13 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/kejuruan/jurnal-praktik" class="nav-link {{ Request::is('admin/kejuruan/jurnal-praktik*') ? 'active' : '' }}">
+              <a href="/admin/kejuruan/jurnal-praktik" class="nav-link {{ (Request::is('admin/kejuruan/jurnal-praktik*') && request('from') !== 'laporan-praktik') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Jurnal Praktik</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/kejuruan/laporan-praktik" class="nav-link {{ Request::is('admin/kejuruan/laporan-praktik*') ? 'active' : '' }}">
+              <a href="/admin/kejuruan/laporan-praktik" class="nav-link {{ (Request::is('admin/kejuruan/laporan-praktik*') || request('from') === 'laporan-praktik') ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Laporan Praktik</p>
               </a>

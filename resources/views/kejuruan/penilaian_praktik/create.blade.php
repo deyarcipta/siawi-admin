@@ -104,10 +104,27 @@
                   <label for="id_jadwal_praktik" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
                     Tautkan ke Jadwal Praktik <span class="badge badge-light border text-primary ml-1">Opsional</span>
                   </label>
-                  <input type="text" class="form-control" readonly value="{{ $selectedJadwal ? ($selectedJadwal->hari . ' ' . substr($selectedJadwal->jam_mulai,0,5) . ' di ' . ($selectedJadwal->lab->nama_lab ?? 'Lab')) : 'Tanpa jadwal spesifik' }}" style="border-radius: 8px; height: 42px; background-color: #f8fafc;">
-                  @if($selectedJadwal)
-                    <input type="hidden" name="id_jadwal_praktik" value="{{ $selectedJadwal->id_jadwal_praktik }}">
-                  @endif
+                  <select name="id_jadwal_praktik" id="id_jadwal_praktik" class="form-control @error('id_jadwal_praktik') is-invalid @enderror" style="border-radius: 8px; height: 42px;">
+                    <option value="">-- Tanpa Jadwal Spesifik (Opsional) --</option>
+                    @foreach($jadwals as $j)
+                      @php
+                        $isSelected = (string)old('id_jadwal_praktik', $selectedJadwal->id_jadwal_praktik ?? '') === (string)$j->id_jadwal_praktik;
+                        $jamMulai = $j->jam_mulai ? substr($j->jam_mulai, 0, 5) : '-';
+                        $jamSelesai = $j->jam_selesai ? substr($j->jam_selesai, 0, 5) : '-';
+                        $namaKelas = $j->kelas->nama_kelas ?? 'Semua Kelas';
+                        $namaLab = $j->lab->nama_lab ?? 'Lab';
+                        $namaMapel = $j->mapel->nama_mapel ?? 'Praktik';
+                        $label = "{$j->hari} ({$jamMulai}-{$jamSelesai}) - {$namaKelas} - {$namaMapel} [{$namaLab}]";
+                      @endphp
+                      <option value="{{ $j->id_jadwal_praktik }}" data-kelas="{{ $j->id_kelas }}" {{ $isSelected ? 'selected' : '' }}>
+                        {{ $label }}
+                      </option>
+                    @endforeach
+                  </select>
+                  <small class="text-muted d-block mt-1">Opsional: tautkan sesi penilaian ini dengan jadwal praktik lab.</small>
+                  @error('id_jadwal_praktik')
+                    <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                  @enderror
                 </div>
               </div>
 
@@ -153,3 +170,76 @@
   </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+  $(document).ready(function() {
+    var $kelasSelect = $('#id_kelas');
+    var $jadwalSelect = $('#id_jadwal_praktik');
+    var allOptions = [];
+
+    // Ambil semua daftar opsi jadwal saat inisialisasi awal
+    $jadwalSelect.find('option').each(function() {
+      allOptions.push({
+        value: $(this).val(),
+        text: $(this).text(),
+        kelas: $(this).data('kelas'),
+        selected: $(this).is(':selected')
+      });
+    });
+
+    function filterJadwal(selectedKelasId, preserveSelected) {
+      var currentVal = preserveSelected ? $jadwalSelect.val() : '';
+      $jadwalSelect.empty();
+
+      $jadwalSelect.append($('<option>', {
+        value: '',
+        text: '-- Tanpa Jadwal Spesifik (Opsional) --'
+      }));
+
+      var matchedVal = '';
+      allOptions.forEach(function(opt) {
+        if (!opt.value) return;
+        if (!selectedKelasId || !opt.kelas || opt.kelas == selectedKelasId) {
+          var isSelected = (currentVal && currentVal == opt.value) || (!currentVal && opt.selected && (!selectedKelasId || opt.kelas == selectedKelasId));
+          if (isSelected) matchedVal = opt.value;
+          $jadwalSelect.append($('<option>', {
+            value: opt.value,
+            text: opt.text,
+            'data-kelas': opt.kelas,
+            selected: isSelected
+          }));
+        }
+      });
+
+      if (matchedVal) {
+        $jadwalSelect.val(matchedVal);
+      } else if (!preserveSelected) {
+        $jadwalSelect.val('');
+      }
+
+      if ($jadwalSelect.hasClass('select2-hidden-accessible')) {
+        $jadwalSelect.trigger('change.select2');
+      }
+    }
+
+    $kelasSelect.on('change', function() {
+      filterJadwal($(this).val(), false);
+    });
+
+    $jadwalSelect.on('change', function() {
+      var selectedKelas = $(this).find(':selected').data('kelas');
+      if (selectedKelas && !$kelasSelect.val()) {
+        $kelasSelect.val(selectedKelas);
+        if ($kelasSelect.hasClass('select2-hidden-accessible')) {
+          $kelasSelect.trigger('change.select2');
+        }
+      }
+    });
+
+    if ($kelasSelect.val()) {
+      filterJadwal($kelasSelect.val(), true);
+    }
+  });
+</script>
+@endpush

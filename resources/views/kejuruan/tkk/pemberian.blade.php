@@ -181,24 +181,34 @@
                   </td>
                   <td class="align-middle text-muted">{{ $s->nis ?: '-' }}</td>
                   <td class="text-center align-middle">
-                    <div class="d-flex flex-column align-items-center">
-                      <span class="badge badge-light border font-weight-bold px-2 py-0 mb-1" style="font-size: 0.78rem;">
-                        {{ $s->tkk_syarat_lulus }} / {{ $s->tkk_syarat_total }} Unit ({{ $s->tkk_syarat_persen ?? 0 }}%)
+                    @if($activeTkk && $activeTkk->syarats->isEmpty())
+                      <span class="badge badge-light border text-info px-2 py-1 font-weight-bold" style="font-size: 0.78rem;">
+                        <i class="fas fa-book-reader mr-1"></i> Buku Saku Fisik
                       </span>
-                      <div class="progress w-100" style="height: 6px; border-radius: 4px; background-color: #e2e8f0; max-width: 120px;">
-                        <div class="progress-bar {{ ($s->tkk_syarat_persen ?? 0) >= 100 ? 'bg-success' : (($s->tkk_syarat_persen ?? 0) > 0 ? 'bg-info' : 'bg-secondary') }}" 
-                             role="progressbar" 
-                             style="width: {{ $s->tkk_syarat_persen ?? 0 }}%" 
-                             aria-valuenow="{{ $s->tkk_syarat_persen ?? 0 }}" 
-                             aria-valuemin="0" 
-                             aria-valuemax="100"></div>
+                    @else
+                      <div class="d-flex flex-column align-items-center">
+                        <span class="badge badge-light border font-weight-bold px-2 py-0 mb-1" style="font-size: 0.78rem;">
+                          {{ $s->tkk_syarat_lulus }} / {{ $s->tkk_syarat_total }} Unit ({{ $s->tkk_syarat_persen ?? 0 }}%)
+                        </span>
+                        <div class="progress w-100" style="height: 6px; border-radius: 4px; background-color: #e2e8f0; max-width: 120px;">
+                          <div class="progress-bar {{ ($s->tkk_syarat_persen ?? 0) >= 100 ? 'bg-success' : (($s->tkk_syarat_persen ?? 0) > 0 ? 'bg-info' : 'bg-secondary') }}" 
+                               role="progressbar" 
+                               style="width: {{ $s->tkk_syarat_persen ?? 0 }}%" 
+                               aria-valuenow="{{ $s->tkk_syarat_persen ?? 0 }}" 
+                               aria-valuemin="0" 
+                               aria-valuemax="100"></div>
+                        </div>
                       </div>
-                    </div>
+                    @endif
                   </td>
                   <td class="text-center align-middle">
                     @if($s->tkk_status === 'diberikan')
                       <span class="badge badge-success px-2 py-1 font-weight-bold">
                         <i class="fas fa-check-double mr-1"></i> Telah Diberikan
+                      </span>
+                    @elseif($activeTkk && $activeTkk->syarats->isEmpty())
+                      <span class="badge badge-info px-2 py-1 font-weight-bold">
+                        <i class="fas fa-check-circle mr-1"></i> Siap Disahkan
                       </span>
                     @elseif($s->tkk_status === 'memenuhi_syarat')
                       <span class="badge badge-primary px-2 py-1 font-weight-bold">
@@ -225,7 +235,8 @@
                   <td class="text-center align-middle">
                     @php
                       $isSudahDiberikan = ($s->tkk_status === 'diberikan' && $s->tkk_rekor);
-                      $isLayak100 = ($s->tkk_syarat_persen >= 100);
+                      $isTanpaSyaratDigital = ($activeTkk && $activeTkk->syarats->isEmpty());
+                      $isLayak100 = ($s->tkk_syarat_persen >= 100 || $isTanpaSyaratDigital);
                       $currNomorPiagam = ($s->tkk_rekor && $s->tkk_rekor->nomor_piagam) ? $s->tkk_rekor->nomor_piagam : '';
                     @endphp
 
@@ -253,7 +264,7 @@
                       </div>
 
                     @elseif($isLayak100)
-                      <!-- Siswa Memenuhi Syarat 100% -->
+                      <!-- Siswa Memenuhi Syarat 100% atau TKK Buku Saku -->
                       <button type="button" class="btn btn-sm btn-success px-3 shadow-sm font-weight-bold" data-toggle="modal" data-target="#modalSahkan{{ $s->id_siswa }}" title="Sahkan Piagam TKK Siswa">
                         <i class="fas fa-award mr-1"></i> Sahkan TKK
                       </button>
@@ -279,6 +290,8 @@
                               <i class="fas fa-award mr-2"></i>
                               @if($isSudahDiberikan)
                                 Edit Pengesahan Piagam TKK: {{ $s->nama_siswa }}
+                              @elseif($isTanpaSyaratDigital)
+                                Pengesahan TKK (Buku Saku): {{ $s->nama_siswa }}
                               @elseif($isLayak100)
                                 Pengesahan Piagam TKK: {{ $s->nama_siswa }}
                               @else
@@ -312,48 +325,60 @@
                                 </div>
                               </div>
 
-                              <!-- Rincian Checklist Unit Kompetensi Prasyarat -->
-                              <div class="mb-3">
-                                <label class="font-weight-bold text-dark small mb-2 d-flex align-items-center justify-content-between">
-                                  <span><i class="fas fa-tasks mr-1 text-primary"></i> Status Pemenuhan Unit Kompetensi ({{ $s->tkk_syarat_lulus }} / {{ $s->tkk_syarat_total }} Unit Lulus)</span>
-                                  <span class="badge {{ $isLayak100 ? 'badge-success' : 'badge-warning text-dark' }} px-2 py-1 font-weight-bold">
-                                    {{ $s->tkk_syarat_persen }}% Terpenuhi
-                                  </span>
-                                </label>
-                                <div class="table-responsive border rounded" style="max-height: 180px; overflow-y: auto;">
-                                  <table class="table table-sm table-striped mb-0 small">
-                                    <thead class="bg-light">
-                                      <tr>
-                                        <th style="width: 30px;" class="text-center">#</th>
-                                        <th>Kode & Nama Unit Kompetensi</th>
-                                        <th style="width: 130px;" class="text-center">Status</th>
-                                        <th style="width: 80px;" class="text-center">Nilai</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      @foreach($s->tkk_syarat_details ?? [] as $uIdx => $uDet)
-                                        <tr>
-                                          <td class="text-center font-weight-bold text-muted">{{ $uIdx + 1 }}</td>
-                                          <td>
-                                            <span class="badge badge-light border text-monospace mr-1">{{ $uDet->kode_kompetensi }}</span>
-                                            {{ $uDet->nama_kompetensi }}
-                                          </td>
-                                          <td class="text-center">
-                                            @if($uDet->is_lulus)
-                                              <span class="badge badge-success px-2 py-0"><i class="fas fa-check-circle mr-1"></i> Kompeten</span>
-                                            @else
-                                              <span class="badge badge-secondary px-2 py-0"><i class="fas fa-clock mr-1"></i> Belum Lulus</span>
-                                            @endif
-                                          </td>
-                                          <td class="text-center font-weight-bold">
-                                            {{ $uDet->nilai !== null ? $uDet->nilai : '-' }}
-                                          </td>
-                                        </tr>
-                                      @endforeach
-                                    </tbody>
-                                  </table>
+                              @if($isTanpaSyaratDigital)
+                                <!-- Keterangan Model Buku Saku Fisik -->
+                                <div class="alert alert-info border-0 p-3 mb-3 small" style="border-radius: 8px;">
+                                  <div class="d-flex align-items-center">
+                                    <i class="fas fa-book-reader mr-2 text-info" style="font-size: 1.25rem;"></i>
+                                    <div>
+                                      <strong>Verifikasi Buku Saku Fisik:</strong> Skema TKK ini tidak mensyaratkan unit kompetensi digital di web. Guru dapat langsung mengesahkan tanggal perolehan dan nomor piagam untuk mencatatnya secara resmi ke Buku Induk Capaian Siswa.
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
+                              @else
+                                <!-- Rincian Checklist Unit Kompetensi Prasyarat -->
+                                <div class="mb-3">
+                                  <label class="font-weight-bold text-dark small mb-2 d-flex align-items-center justify-content-between">
+                                    <span><i class="fas fa-tasks mr-1 text-primary"></i> Status Pemenuhan Unit Kompetensi ({{ $s->tkk_syarat_lulus }} / {{ $s->tkk_syarat_total }} Unit Lulus)</span>
+                                    <span class="badge {{ $isLayak100 ? 'badge-success' : 'badge-warning text-dark' }} px-2 py-1 font-weight-bold">
+                                      {{ $s->tkk_syarat_persen }}% Terpenuhi
+                                    </span>
+                                  </label>
+                                  <div class="table-responsive border rounded" style="max-height: 180px; overflow-y: auto;">
+                                    <table class="table table-sm table-striped mb-0 small">
+                                      <thead class="bg-light">
+                                        <tr>
+                                          <th style="width: 30px;" class="text-center">#</th>
+                                          <th>Kode & Nama Unit Kompetensi</th>
+                                          <th style="width: 130px;" class="text-center">Status</th>
+                                          <th style="width: 80px;" class="text-center">Nilai</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        @foreach($s->tkk_syarat_details ?? [] as $uIdx => $uDet)
+                                          <tr>
+                                            <td class="text-center font-weight-bold text-muted">{{ $uIdx + 1 }}</td>
+                                            <td>
+                                              <span class="badge badge-light border text-monospace mr-1">{{ $uDet->kode_kompetensi }}</span>
+                                              {{ $uDet->nama_kompetensi }}
+                                            </td>
+                                            <td class="text-center">
+                                              @if($uDet->is_lulus)
+                                                <span class="badge badge-success px-2 py-0"><i class="fas fa-check-circle mr-1"></i> Kompeten</span>
+                                              @else
+                                                <span class="badge badge-secondary px-2 py-0"><i class="fas fa-clock mr-1"></i> Belum Lulus</span>
+                                              @endif
+                                            </td>
+                                            <td class="text-center font-weight-bold">
+                                              {{ $uDet->nilai !== null ? $uDet->nilai : '-' }}
+                                            </td>
+                                          </tr>
+                                        @endforeach
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+                              @endif
 
                               @if(!$isLayak100 && !$isSudahDiberikan)
                                 <!-- Peringatan & Opsi Dispensasi Jika Belum 100% -->
@@ -397,7 +422,7 @@
 
                               <div class="form-group mb-0">
                                 <label class="font-weight-bold text-dark small mb-1">Catatan Penguji / Kaprog</label>
-                                <textarea name="catatan" class="form-control form-control-sm" rows="2" placeholder="Catatan pengesahan lencana keahlian">{{ $s->tkk_rekor ? $s->tkk_rekor->catatan : ($isLayak100 ? 'Telah memenuhi seluruh unit kompetensi prasyarat skema ' . $activeTkk->nama_tkk : '') }}</textarea>
+                                <textarea name="catatan" class="form-control form-control-sm" rows="2" placeholder="Catatan pengesahan lencana keahlian">{{ $s->tkk_rekor ? $s->tkk_rekor->catatan : ($isTanpaSyaratDigital ? 'Telah memenuhi seluruh syarat kecakapan pada Buku Saku Fisik ' . $activeTkk->nama_tkk : ($isLayak100 ? 'Telah memenuhi seluruh unit kompetensi prasyarat skema ' . $activeTkk->nama_tkk : '')) }}</textarea>
                               </div>
                             </div>
 

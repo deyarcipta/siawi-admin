@@ -306,6 +306,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
         ]);
 
         // Jurnal Praktik Guru
+        Route::get('kejuruan/jurnal-praktik/siswa-by-jadwal/{id}', [JurnalPraktikController::class, 'getSiswaByJadwal'])->name('kejuruan.jurnal-praktik.siswa-by-jadwal');
         Route::resource('kejuruan/jurnal-praktik', JurnalPraktikController::class, [
             'names' => 'kejuruan.jurnal-praktik'
         ]);
@@ -360,9 +361,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     });
 
     Route::group(['middleware' => ['role:admin,kaprog']], function () {
-        // Approval Laporan / Jurnal Praktik oleh Kaprog & Admin
+        // Approval Jurnal Praktik oleh Kaprog & Admin (Terpusat di Detail Jurnal)
         Route::post('kejuruan/jurnal-praktik/{id}/approve', [JurnalPraktikController::class, 'approve'])->name('kejuruan.jurnal-praktik.approve');
-        Route::post('kejuruan/laporan-praktik/{id}/approve', [LaporanPraktikController::class, 'approve'])->name('kejuruan.laporan-praktik.approve');
 
         // Manajemen Kegiatan UKK (Admin & Kaprog)
         Route::get('kejuruan/uji-kompetensi/create', [UkkController::class, 'create'])->name('kejuruan.uji-kompetensi.create');
@@ -448,3 +448,4 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     });
 
 });
+

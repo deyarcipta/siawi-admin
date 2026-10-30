@@ -78,8 +78,14 @@ class PenilaianPraktikController extends Controller
             $selectedJadwal = JadwalPraktik::forUserJurusan($user)->find($request->jadwal_id);
         }
 
+        $jadwals = JadwalPraktik::forUserJurusan($user)
+            ->with(['lab', 'kelas', 'mapel'])
+            ->orderBy('hari', 'asc')
+            ->orderBy('jam_mulai', 'asc')
+            ->get();
+
         return view('kejuruan.penilaian_praktik.create', compact(
-            'layout', 'setting', 'user', 'kelas', 'kompetensis', 'moduls', 'selectedJadwal'
+            'layout', 'setting', 'user', 'kelas', 'kompetensis', 'moduls', 'selectedJadwal', 'jadwals'
         ));
     }
 

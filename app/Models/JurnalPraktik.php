@@ -36,6 +36,11 @@ class JurnalPraktik extends Model
         return $this->belongsTo(ModulPraktik::class, 'id_modul_praktik', 'id_modul_praktik');
     }
 
+    public function presensis()
+    {
+        return $this->hasMany(JurnalPraktikPresensi::class, 'id_jurnal_praktik', 'id_jurnal_praktik');
+    }
+
     /**
      * Scope jurnal praktik berdasarkan hak akses user.
      */
@@ -64,3 +69,4 @@ class JurnalPraktik extends Model
         });
     }
 }
+

@@ -6,16 +6,16 @@
   <div class="container-fluid">
     <div class="row align-items-center mb-2">
       <div class="col-sm-7 d-flex align-items-center">
-        <i class="fas fa-folder-open text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
+        <i class="fas fa-award text-primary mr-3" style="font-size: 2rem; flex-shrink: 0;"></i>
         <div class="d-flex flex-column justify-content-center">
-          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Data Dokumen Siswa</h1>
-          <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Arsip berkas digital, sertifikat, dan dokumen kelengkapan siswa</p>
+          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2;">Prestasi & Penghargaan Siswa</h1>
+          <p class="text-muted mt-1 mb-0" style="line-height: 1.2; font-size: 0.85rem;">Arsip piagam penghargaan, sertifikat LDKS, lomba non-kejuruan, dan prestasi umum siswa</p>
         </div>
       </div>
       <div class="col-sm-5">
         <ol class="breadcrumb float-sm-right">
           <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
-          <li class="breadcrumb-item active">Data Dokumen</li>
+          <li class="breadcrumb-item active">Prestasi & Penghargaan</li>
         </ol>
       </div>
     </div>
@@ -31,7 +31,7 @@
         <div class="card shadow-sm border-0 mb-3" style="border-radius: 12px;">
           <div class="card-header bg-white py-3 border-0 d-flex align-items-center">
             <h3 class="card-title text-dark font-weight-bold mb-0" style="font-size: 0.95rem;">
-              <i class="fas fa-sliders-h text-primary mr-2"></i> Filter Dokumen Per Kelas
+              <i class="fas fa-sliders-h text-primary mr-2"></i> Filter Prestasi Per Kelas
             </h3>
           </div>
           <div class="card-body pt-0 pb-3">
@@ -66,7 +66,7 @@
           <div class="card-header bg-white py-3 border-0 d-flex align-items-center flex-wrap">
             <div>
               <h3 class="card-title text-dark font-weight-bold mb-0" style="font-size: 1rem;">
-                <i class="fas fa-table text-primary mr-2"></i> Data Dokumen Siswa
+                <i class="fas fa-award text-primary mr-2"></i> Data Prestasi & Penghargaan Siswa
               </h3>
               @if($dataKelas)
                 <span class="badge badge-primary ml-2 px-2 py-1" style="font-size: 0.78rem;">Kelas: {{ $dataKelas->nama_kelas }}</span>
@@ -74,7 +74,7 @@
             </div>
             <div class="ml-auto">
               <button type="button" class="btn btn-success btn-sm shadow-sm" data-toggle="modal" data-target="#modalTambahDokumen" style="border-radius: 8px; font-weight: 500;">
-                <i class="fas fa-plus mr-1"></i> Tambah Dokumen
+                <i class="fas fa-plus mr-1"></i> Tambah Prestasi / Piagam
               </button>
             </div>
           </div>
@@ -86,7 +86,7 @@
                     <th style="width: 50px; text-align: center;">No</th>
                     <th>Nama Siswa</th>
                     <th>Kelas</th>
-                    <th style="text-align: center; width: 140px;">Jumlah Dokumen</th>
+                    <th style="text-align: center; width: 150px;">Jumlah Prestasi</th>
                     <th style="width: 100px; text-align: center;">Aksi</th>
                   </tr>
                 </thead>
@@ -109,17 +109,17 @@
                         @php $docCount = $data->dokumen->count() ?? 0; @endphp
                         @if($docCount > 0)
                           <span class="badge badge-success px-2 py-1" style="font-size: 0.80rem; border-radius: 6px;">
-                            <i class="fas fa-file-alt mr-1"></i> {{ $docCount }} Dokumen
+                            <i class="fas fa-award mr-1"></i> {{ $docCount }} Prestasi
                           </span>
                         @else
                           <span class="badge badge-secondary px-2 py-1" style="font-size: 0.78rem; opacity: 0.7; border-radius: 6px;">
-                            0 Dokumen
+                            0 Prestasi
                           </span>
                         @endif
                       </td>
                       <td class="text-center">
                         <div class="d-inline-flex align-items-center justify-content-center">
-                          <a href="/admin/dokumen/{{$data->id_siswa}}" class="btn-action btn-action-view" title="Lihat & Kelola Dokumen">
+                          <a href="/admin/dokumen/{{$data->id_siswa}}" class="btn-action btn-action-view" title="Lihat & Kelola Prestasi">
                             <i class="fas fa-folder-open"></i>
                           </a>
                         </div>
@@ -151,7 +151,7 @@
         @csrf
         <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #1d72fe 0%, #0b1f3a 100%);">
           <h5 class="modal-title font-weight-bold" id="modalLabel">
-            <i class="fas fa-file-upload mr-2"></i> Tambah Dokumen Siswa
+            <i class="fas fa-award mr-2"></i> Tambah Prestasi & Penghargaan Siswa
           </h5>
           <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
             <span aria-hidden="true">&times;</span>
@@ -170,11 +170,11 @@
             </select>
           </div>
           <div class="form-group mb-3">
-            <label for="jenis_dokumen" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Jenis / Nama Dokumen <span class="text-danger">*</span></label>
-            <input type="text" name="jenis_dokumen" id="jenis_dokumen" class="form-control" placeholder="Contoh: Ijazah SMP, Akta Kelahiran, Sertifikat PKL" required style="border-radius: 8px; height: 42px;">
+            <label for="jenis_dokumen" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Nama Prestasi / Piagam / Sertifikat <span class="text-danger">*</span></label>
+            <input type="text" name="jenis_dokumen" id="jenis_dokumen" class="form-control" placeholder="Contoh: Juara 1 Futsal Cup, Sertifikat LDKS OSIS, Piagam PMR" required style="border-radius: 8px; height: 42px;">
           </div>
           <div class="form-group mb-0">
-            <label for="file_dokumen" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Upload Berkas (Format PDF) <span class="text-danger">*</span></label>
+            <label for="file_dokumen" class="font-weight-bold text-dark" style="font-size: 0.85rem;">Upload Berkas Piagam / Sertifikat (Format PDF) <span class="text-danger">*</span></label>
             <input type="file" name="file_dokumen" id="file_dokumen" class="form-control-file p-2 border" accept=".pdf" required style="border-radius: 8px; background: #f8fafc;">
             <small class="text-muted mt-1 d-block"><i class="fas fa-info-circle mr-1"></i> File harus berformat PDF dengan ukuran maksimal 5MB.</small>
           </div>
@@ -182,7 +182,7 @@
         <div class="modal-footer bg-light py-3 px-4">
           <button type="button" class="btn btn-secondary px-3" data-dismiss="modal" style="border-radius: 8px;">Batal</button>
           <button type="submit" class="btn btn-primary px-4 font-weight-bold shadow-sm" style="border-radius: 8px;">
-            <i class="fas fa-save mr-1"></i> Simpan Dokumen
+            <i class="fas fa-save mr-1"></i> Simpan Prestasi / Piagam
           </button>
         </div>
       </form>
