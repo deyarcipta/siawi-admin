@@ -315,7 +315,8 @@
                                 <div class="text-muted" style="font-size: 0.85rem;">Penyelenggara: {{ $p->penyelenggara ?: '-' }}</div>
                                 @if($p->deskripsi)
                                   <div class="mt-2 text-secondary" style="font-size: 0.83rem;">
-                                    <strong>Deskripsi:</strong> {{ $p->deskripsi }}
+                                    <strong>Deskripsi:</strong><br>
+                                    {!! strip_tags($p->deskripsi, '<p><br><strong><b><i><em><u><ul><ol><li><a>') !!}
                                   </div>
                                 @endif
                               </div>

@@ -150,7 +150,7 @@
                 <label class="font-weight-bold text-secondary" style="font-size: 0.85rem;">
                   Deskripsi Singkat Karya / Pencapaian
                 </label>
-                <textarea name="deskripsi" class="form-control" rows="3" placeholder="Tuliskan gambaran ringkas karya yang dibuat, peran siswa, atau rincian materi sertifikasi yang ditempuh...">{{ old('deskripsi') }}</textarea>
+                <textarea name="deskripsi" id="deskripsi" class="form-control summernote-kejuruan" rows="3" placeholder="Tuliskan gambaran ringkas karya yang dibuat, peran siswa, atau rincian materi sertifikasi yang ditempuh...">{{ old('deskripsi') }}</textarea>
               </div>
             </div>
 
@@ -176,5 +176,22 @@
       document.getElementById('customFileLabel').innerText = input.files[0].name;
     }
   }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.jQuery && $.fn.summernote) {
+      $('#deskripsi').summernote({
+        placeholder: 'Tuliskan gambaran ringkas karya yang dibuat, peran siswa, atau rincian materi sertifikasi yang ditempuh...',
+        tabsize: 2,
+        height: 150,
+        tooltip: false,
+        toolbar: [
+          ['style', ['bold', 'italic', 'underline', 'strikethrough']],
+          ['para', ['ul', 'ol']],
+          ['insert', ['link']],
+          ['misc', ['clear']]
+        ]
+      });
+    }
+  });
 </script>
 @endsection

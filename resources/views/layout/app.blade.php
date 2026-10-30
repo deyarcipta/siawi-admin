@@ -1753,6 +1753,41 @@
       }
     }
 
+    /* ========================================================
+       MODERN FORM CONTROLS & TEXTAREA STYLING (PREMIUM UI)
+       ======================================================== */
+    textarea.form-control {
+      background-color: #ffffff !important;
+      border: 1.5px solid #cbd5e1 !important;
+      border-radius: 10px !important;
+      color: #1e293b !important;
+      font-size: 0.88rem !important;
+      line-height: 1.55 !important;
+      padding: 10px 14px !important;
+      transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out !important;
+      resize: vertical !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    }
+    textarea.form-control::placeholder {
+      color: #94a3b8 !important;
+      font-size: 0.85rem !important;
+      font-weight: 400 !important;
+    }
+    textarea.form-control:hover {
+      border-color: #94a3b8 !important;
+    }
+    textarea.form-control:focus {
+      background-color: #ffffff !important;
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 0 3.5px rgba(59, 130, 246, 0.15) !important;
+      color: #0f172a !important;
+      outline: 0 !important;
+    }
+    textarea.form-control.is-invalid {
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+    }
+
     /* --- UNIVERSAL TABLE & CONTAINER RESPONSIVENESS --- */
     .table-responsive,
     .dataTables_wrapper {
