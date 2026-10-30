@@ -209,9 +209,9 @@
             </div>
 
             <!-- Card Footer -->
-            <div class="card-footer bg-light py-3 px-4 d-flex align-items-center justify-content-between border-top">
-              <a href="/admin/kejuruan/portofolio" class="btn btn-outline-secondary px-3" style="border-radius: 8px; font-weight: 500;">
-                <i class="fas fa-arrow-left mr-1"></i> Kembali ke Daftar
+            <div class="card-footer bg-light py-3 px-4 d-flex align-items-center justify-content-end border-top" style="gap: 10px;">
+              <a href="/admin/kejuruan/portofolio" class="btn btn-outline-secondary px-3 mr-2" style="border-radius: 8px; font-weight: 500;">
+                <i class="fas fa-arrow-left mr-1"></i> Batal
               </a>
               <button type="submit" class="btn btn-primary px-4 shadow-sm" style="border-radius: 8px; font-weight: 600;">
                 <i class="fas fa-cloud-upload-alt mr-1"></i> Simpan & Unggah Portofolio
