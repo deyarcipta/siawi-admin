@@ -44,12 +44,20 @@ class LaporanAbsensiBulananService
         $totalSakit = 0;
         $totalIzin = 0;
         $totalAlfa = 0;
-        $totalHariEfektif = Carbon::parse($tanggalMulai)->diffInDaysFiltered(function (Carbon $date) {
-            return !$date->isSunday(); // Hari aktif non-Minggu
-        }, Carbon::parse($tanggalSelesai)) + 1;
+        // Hitung total hari efektif riil dari absensi yang benar-benar tercatat pada periode ini
+        $hariEfektifRiil = Absensi::whereBetween('tanggal', [$tanggalMulai, $tanggalSelesai])
+            ->when($idKelas && $idKelas !== 'all', function ($q) use ($idKelas) {
+                $q->where('id_kelas', $idKelas);
+            })
+            ->distinct('tanggal')
+            ->count('tanggal');
+
+        $totalHariEfektif = $hariEfektifRiil > 0 ? $hariEfektifRiil : (Carbon::parse($tanggalMulai)->diffInDaysFiltered(function (Carbon $date) {
+            return !$date->isSunday();
+        }, Carbon::parse($tanggalSelesai)) + 1);
 
         if ($totalHariEfektif <= 0) {
-            $totalHariEfektif = 20; // Default estimasi hari efektif bulanan
+            $totalHariEfektif = 20; // Default estimasi
         }
 
         foreach ($daftarSiswa as $siswa) {
@@ -81,13 +89,18 @@ class LaporanAbsensiBulananService
             }
 
             $totalPresensi = $hadirTepat + $terlambat;
-            // Persentase kehadiran berdasarkan hari aktif
-            $persentase = $totalHariEfektif > 0 
-                ? min(100, round(($totalPresensi / $totalHariEfektif) * 100)) 
+            $totalSesiSiswa = $hadirTepat + $terlambat + $sakit + $izin + $alfa;
+
+            // OPSI A: Persentase kehadiran dihitung berdasarkan total riil catatan presensi siswa tersebut
+            $persentase = $totalSesiSiswa > 0 
+                ? min(100, round(($totalPresensi / $totalSesiSiswa) * 100)) 
                 : 0;
 
-            // Tentukan status kedisiplinan bulanan
-            if ($persentase >= 90 && $alfa === 0 && $terlambat <= 2) {
+            // Tentukan status kedisiplinan bulanan yang adil
+            if ($totalSesiSiswa === 0) {
+                $statusKedisiplinan = 'Belum Ada Data';
+                $badgeClass = 'badge-secondary';
+            } elseif ($persentase >= 90 && $alfa === 0 && $terlambat <= 2) {
                 $statusKedisiplinan = 'Sangat Disiplin';
                 $badgeClass = 'badge-success';
             } elseif ($persentase >= 75 && $alfa <= 2) {

@@ -262,24 +262,24 @@
               </div>
             </div>
 
-            <div class="card-footer bg-white border-top py-2 d-flex justify-content-between align-items-center">
-              <a href="/admin/kejuruan/modul-praktik/{{ $m->id_modul_praktik }}" class="btn btn-outline-info btn-sm px-3" style="border-radius: 6px;">
+            <div class="card-footer bg-white border-top py-2 px-3 d-flex align-items-center justify-content-between">
+              <a href="/admin/kejuruan/modul-praktik/{{ $m->id_modul_praktik }}" class="btn btn-outline-info btn-sm px-3 mr-auto" style="border-radius: 6px; font-weight: 500;">
                 <i class="fas fa-eye mr-1"></i> Detail
               </a>
-              <div>
-                @if($user->hasRole('admin') || $user->hasRole('kaprog') || $m->id_guru == $user->id_guru)
-                  <a href="/admin/kejuruan/modul-praktik/{{ $m->id_modul_praktik }}/edit" class="btn btn-outline-primary btn-sm px-2 mr-1" style="border-radius: 6px;" title="Ubah Modul">
+              @if($user->hasRole('admin') || $user->hasRole('kaprog') || $m->id_guru == $user->id_guru)
+                <div class="d-inline-flex align-items-center ml-auto" style="gap: 6px;">
+                  <a href="/admin/kejuruan/modul-praktik/{{ $m->id_modul_praktik }}/edit" class="btn btn-outline-primary btn-sm px-2" style="border-radius: 6px;" title="Ubah Modul">
                     <i class="fas fa-edit"></i>
                   </a>
-                  <form action="/admin/kejuruan/modul-praktik/{{ $m->id_modul_praktik }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus modul praktik ini beserta seluruh riwayatnya?')">
+                  <form action="/admin/kejuruan/modul-praktik/{{ $m->id_modul_praktik }}" method="POST" class="d-inline m-0" onsubmit="return confirm('Hapus modul praktik ini beserta seluruh riwayatnya?')">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-outline-danger btn-sm px-2" style="border-radius: 6px;" title="Hapus">
                       <i class="fas fa-trash-alt"></i>
                     </button>
                   </form>
-                @endif
-              </div>
+                </div>
+              @endif
             </div>
           </div>
         </div>
