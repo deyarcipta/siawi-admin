@@ -208,7 +208,7 @@
                     </small>
                   </td>
                   <td class="align-middle">
-                    <span class="badge badge-info px-2 py-1 mb-1 d-inline-block">{{ $k->jurusan->nama_jurusan ?? '-' }}</span>
+                    <span class="badge badge-info px-2 py-1 mb-1 d-inline-block font-weight-bold" title="{{ $k->jurusan->nama_jurusan ?? '-' }}" style="cursor: help;">{{ $k->jurusan->nama_singkat ?? '-' }}</span>
                     <small class="text-muted d-block"><i class="fas fa-flask mr-1"></i> {{ $k->lab->nama_lab ?? 'Lab Umum' }}</small>
                   </td>
                   <td class="align-middle">

@@ -156,7 +156,7 @@
                 <th style="width: 45px" class="text-center">No</th>
                 <th style="width: 130px">Kode CP/TP</th>
                 <th>Capaian / Tujuan Pembelajaran</th>
-                <th>Program Keahlian</th>
+                <th style="width: 130px" class="text-center">Program Keahlian</th>
                 <th style="width: 130px" class="text-center">Fase / Kelas</th>
                 <th style="width: 100px" class="text-center">Semester</th>
                 <th style="width: 100px" class="text-center">Batas KKTP</th>
@@ -173,9 +173,9 @@
                     </span>
                   </td>
                   <td class="align-middle font-weight-600 text-dark">{{ $k->nama_kompetensi }}</td>
-                  <td class="align-middle">
-                    <span class="badge badge-info px-2 py-1">
-                      {{ $k->jurusan->nama_jurusan ?? '-' }}
+                  <td class="text-center align-middle">
+                    <span class="badge badge-info px-2 py-1 font-weight-bold" title="{{ $k->jurusan->nama_jurusan ?? '-' }}" style="font-size: 0.82rem; cursor: help;">
+                      {{ $k->jurusan->nama_singkat ?? '-' }}
                     </span>
                   </td>
                   <td class="text-center align-middle">

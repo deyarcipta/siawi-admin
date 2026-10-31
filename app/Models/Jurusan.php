@@ -49,6 +49,17 @@ class Jurusan extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Nama jurusan ringkas (menggunakan kode_jurusan jika nama terlalu panjang agar tabel rapi)
+     */
+    public function getNamaSingkatAttribute(): string
+    {
+        if (!empty($this->kode_jurusan) && mb_strlen($this->nama_jurusan ?? '') > 18) {
+            return $this->kode_jurusan;
+        }
+        return $this->nama_jurusan ?? '-';
+    }
+
     public function getModulKejuruanAttribute($value): array
     {
         $default = [
