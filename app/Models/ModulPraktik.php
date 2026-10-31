@@ -21,6 +21,12 @@ class ModulPraktik extends Model
         return $this->belongsTo(Kompetensi::class, 'id_kompetensi', 'id_kompetensi');
     }
 
+    public function kompetensis()
+    {
+        return $this->belongsToMany(Kompetensi::class, 'modul_praktik_kompetensi', 'id_modul_praktik', 'id_kompetensi')
+            ->withTimestamps();
+    }
+
     public function guru()
     {
         return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
@@ -67,8 +73,12 @@ class ModulPraktik extends Model
 
         $accessibleJurusanIds = Lab::getAccessibleJurusanIds($user);
 
-        return $query->whereHas('kompetensi', function ($q) use ($accessibleJurusanIds) {
-            $q->whereIn('id_jurusan', $accessibleJurusanIds);
+        return $query->where(function ($q) use ($accessibleJurusanIds) {
+            $q->whereHas('kompetensi', function ($sub) use ($accessibleJurusanIds) {
+                $sub->whereIn('id_jurusan', $accessibleJurusanIds);
+            })->orWhereHas('kompetensis', function ($sub) use ($accessibleJurusanIds) {
+                $sub->whereIn('id_jurusan', $accessibleJurusanIds);
+            });
         });
     }
 

@@ -81,20 +81,44 @@
             </h3>
 
             <div class="row mb-4 pb-3 border-bottom">
-              <div class="col-sm-6 mb-2 mb-sm-0">
-                <span class="text-muted d-block small">Kompetensi Kejuruan:</span>
-                <span class="font-weight-bold text-dark">
-                  [{{ $modul->kompetensi->kode_kompetensi ?? '-' }}] {{ $modul->kompetensi->nama_kompetensi ?? '-' }}
-                </span>
-                @if($modul->kompetensi && $modul->kompetensi->jurusan)
-                  <span class="badge badge-info ml-1">{{ $modul->kompetensi->jurusan->kode_jurusan }}</span>
+              <div class="col-sm-7 mb-2 mb-sm-0">
+                <span class="text-muted d-block small mb-1">Target Capaian Pembelajaran / Tujuan Pembelajaran (CP / TP):</span>
+                @php
+                  $targets = $modul->kompetensis && $modul->kompetensis->count() > 0 
+                    ? $modul->kompetensis 
+                    : ($modul->kompetensi ? collect([$modul->kompetensi]) : collect());
+                @endphp
+                @if($targets->count() > 0)
+                  <div class="d-flex flex-column" style="gap: 6px;">
+                    @foreach($targets as $index => $k)
+                      <div class="d-inline-flex align-items-center p-2 rounded {{ $index === 0 ? 'bg-primary-light border-primary' : 'bg-light border' }}" style="border: 1px solid {{ $index === 0 ? '#bbf7d0' : '#e2e8f0' }}; font-size: 0.85rem;">
+                        <span class="badge {{ $index === 0 ? 'badge-primary' : 'badge-secondary' }} mr-2 px-2 py-1" style="font-size: 0.75rem;">
+                          {{ $k->kode_kompetensi }}
+                        </span>
+                        <span class="font-weight-600 text-dark flex-grow-1">
+                          {{ $k->nama_kompetensi }}
+                        </span>
+                        @if($k->jurusan)
+                          <span class="badge badge-info ml-2">{{ $k->jurusan->kode_jurusan ?? $k->jurusan->nama_jurusan }}</span>
+                        @endif
+                        @if($index === 0 && $targets->count() > 1)
+                          <span class="badge badge-success ml-1" style="font-size: 0.68rem;">Utama</span>
+                        @endif
+                      </div>
+                    @endforeach
+                  </div>
+                @else
+                  <span class="text-muted">-</span>
                 @endif
               </div>
-              <div class="col-sm-6 text-sm-right">
+              <div class="col-sm-5 text-sm-right mt-3 mt-sm-0">
                 <span class="text-muted d-block small">Guru Pengampu / Pembuat:</span>
-                <span class="font-weight-bold text-dark">
+                <span class="font-weight-bold text-dark" style="font-size: 0.95rem;">
                   <i class="fas fa-user-tie text-secondary mr-1"></i> {{ $modul->guru->nama_guru ?? 'Guru Pengampu' }}
                 </span>
+                <div class="mt-2 text-muted small">
+                  <span><i class="fas fa-calendar-alt mr-1"></i> Dibuat: {{ \Carbon\Carbon::parse($modul->created_at)->translatedFormat('d F Y') }}</span>
+                </div>
               </div>
             </div>
 

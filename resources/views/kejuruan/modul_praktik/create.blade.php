@@ -56,18 +56,29 @@
             <div class="card-body p-4">
 
               <div class="form-group mb-3">
-                <label for="id_kompetensi" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  Target Capaian Kompetensi <span class="text-danger">*</span>
-                </label>
-                <select name="id_kompetensi" id="id_kompetensi" class="form-control select2bs4 @error('id_kompetensi') is-invalid @enderror" required style="border-radius: 8px; height: 42px;">
-                  <option value="">-- Pilih Capaian Kompetensi --</option>
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                  <label for="kompetensi_ids" class="font-weight-bold text-dark mb-0" style="font-size: 0.85rem;">
+                    Target Capaian Pembelajaran / Tujuan Pembelajaran (CP / TP) <span class="text-danger">*</span>
+                  </label>
+                  <small class="text-muted"><i class="fas fa-layer-group text-primary mr-1"></i> Bisa pilih lebih dari 1 CP/TP</small>
+                </div>
+                @php
+                  $selectedOldKompetensi = (array) old('kompetensi_ids', old('id_kompetensi', []));
+                @endphp
+                <select name="kompetensi_ids[]" id="kompetensi_ids" class="form-control select2 @error('kompetensi_ids') is-invalid @enderror @error('id_kompetensi') is-invalid @enderror" multiple="multiple" data-placeholder="-- Pilih satu atau beberapa Target CP / TP yang diampu --" required style="border-radius: 8px;">
                   @foreach($kompetensis as $k)
-                    <option value="{{ $k->id_kompetensi }}" {{ old('id_kompetensi') == $k->id_kompetensi ? 'selected' : '' }}>
+                    <option value="{{ $k->id_kompetensi }}" {{ in_array($k->id_kompetensi, $selectedOldKompetensi) ? 'selected' : '' }}>
                       [{{ $k->kode_kompetensi }}] {{ $k->nama_kompetensi }} - Kelas {{ $k->tingkat }} (Sem. {{ $k->semester }})
-                      @if($k->jurusan) ({{ $k->jurusan->nama_jurusan }}) @endif
+                      @if($k->jurusan) ({{ $k->jurusan->kode_jurusan ?? $k->jurusan->nama_jurusan }}) @endif
                     </option>
                   @endforeach
                 </select>
+                <small class="text-muted d-block mt-1">
+                  <i class="fas fa-info-circle text-info mr-1"></i> Praktikum berbasis proyek (PjBL) atau integrasi modul dapat mengaitkan beberapa Capaian / Tujuan Pembelajaran sekaligus. Target pertama yang dipilih akan menjadi target utama.
+                </small>
+                @error('kompetensi_ids')
+                  <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                @enderror
                 @error('id_kompetensi')
                   <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
                 @enderror
@@ -287,6 +298,15 @@
         }
       }
     });
+
+    if (window.jQuery && $.fn.select2) {
+      $('#kompetensi_ids').select2({
+        theme: 'bootstrap4',
+        width: '100%',
+        placeholder: '-- Pilih satu atau beberapa Target CP / TP yang diampu --',
+        allowClear: true
+      });
+    }
 
     if (window.jQuery && $.fn.summernote) {
       $('#langkah_kerja').summernote({

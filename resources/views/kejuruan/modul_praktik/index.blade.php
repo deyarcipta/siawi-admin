@@ -129,9 +129,9 @@
           </div>
 
           <div class="col-md-4 col-sm-6 mb-2 mb-md-0">
-            <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Filter Kompetensi</label>
+            <label class="font-weight-bold text-secondary mb-1" style="font-size: 0.78rem; text-transform: uppercase;">Filter Target CP / TP</label>
             <select name="kompetensi_id" class="form-control form-control-sm select2bs4">
-              <option value="">-- Semua Kompetensi --</option>
+              <option value="">-- Semua Target CP / TP --</option>
               @foreach($kompetensis as $k)
                 <option value="{{ $k->id_kompetensi }}" {{ request('kompetensi_id') == $k->id_kompetensi ? 'selected' : '' }}>
                   [{{ $k->kode_kompetensi }}] {{ $k->nama_kompetensi }}
@@ -231,9 +231,24 @@
 
               <div class="p-2 rounded bg-light text-muted small mb-2">
                 <i class="fas fa-award mr-1 text-primary"></i> 
-                <strong>Kompetensi:</strong> {{ $m->kompetensi->nama_kompetensi ?? '-' }}
-                @if($m->kompetensi && $m->kompetensi->jurusan)
-                  <span class="badge badge-info ml-1">{{ $m->kompetensi->jurusan->kode_jurusan }}</span>
+                <strong>Target CP/TP:</strong>
+                @php
+                  $modulKompetensis = $m->kompetensis && $m->kompetensis->count() > 0 
+                    ? $m->kompetensis 
+                    : ($m->kompetensi ? collect([$m->kompetensi]) : collect());
+                  $firstK = $modulKompetensis->first();
+                  $moreCount = $modulKompetensis->count() - 1;
+                @endphp
+                @if($firstK)
+                  <span>{{ $firstK->nama_kompetensi }}</span>
+                  @if($firstK->jurusan)
+                    <span class="badge badge-info ml-1">{{ $firstK->jurusan->kode_jurusan ?? $firstK->jurusan->nama_jurusan }}</span>
+                  @endif
+                  @if($moreCount > 0)
+                    <span class="badge badge-primary ml-1" title="+{{ $moreCount }} Target CP/TP lainnya">+{{ $moreCount }} CP/TP</span>
+                  @endif
+                @else
+                  <span>-</span>
                 @endif
               </div>
 

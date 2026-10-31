@@ -26,11 +26,17 @@ class ModulPraktikController extends Controller
         $user = Auth::user();
 
         $query = ModulPraktik::forUserJurusan($user)
-            ->with(['kompetensi.jurusan', 'guru', 'rubriks'])
+            ->with(['kompetensi.jurusan', 'kompetensis.jurusan', 'guru', 'rubriks'])
             ->orderBy('id_modul_praktik', 'desc');
 
         if ($request->filled('kompetensi_id')) {
-            $query->where('id_kompetensi', $request->kompetensi_id);
+            $compFilterId = $request->kompetensi_id;
+            $query->where(function($q) use ($compFilterId) {
+                $q->where('id_kompetensi', $compFilterId)
+                  ->orWhereHas('kompetensis', function($sub) use ($compFilterId) {
+                      $sub->where('kompetensi.id_kompetensi', $compFilterId);
+                  });
+            });
         }
 
         if ($request->filled('status')) {
@@ -87,8 +93,14 @@ class ModulPraktikController extends Controller
     {
         $user = Auth::user();
 
+        // Normalisasi jika input dikirim sebagai id_kompetensi tunggal
+        if (!$request->has('kompetensi_ids') && $request->filled('id_kompetensi')) {
+            $request->merge(['kompetensi_ids' => [$request->id_kompetensi]]);
+        }
+
         $request->validate([
-            'id_kompetensi' => 'required|exists:kompetensi,id_kompetensi',
+            'kompetensi_ids' => 'required|array|min:1',
+            'kompetensi_ids.*' => 'exists:kompetensi,id_kompetensi',
             'judul' => 'required|string|max:255',
             'tujuan' => 'required|string',
             'alat_bahan' => 'required|string',
@@ -98,7 +110,7 @@ class ModulPraktikController extends Controller
             'rubrik_indikator' => 'nullable|array',
             'rubrik_bobot' => 'nullable|array',
         ], [
-            'id_kompetensi.required' => 'Kompetensi kejuruan wajib dipilih.',
+            'kompetensi_ids.required' => 'Target Capaian Pembelajaran / Tujuan Pembelajaran (CP / TP) wajib dipilih minimal 1.',
             'judul.required' => 'Judul modul praktik wajib diisi.',
             'tujuan.required' => 'Tujuan praktik wajib diisi.',
             'alat_bahan.required' => 'Daftar alat dan bahan wajib diisi.',
@@ -118,10 +130,13 @@ class ModulPraktikController extends Controller
                 $file->storeAs('modul_praktik', $fileName, 'public');
             }
 
-            // Generate kode modul unik
-            $kompetensi = Kompetensi::with('jurusan')->findOrFail($request->id_kompetensi);
+            $kompetensiIds = (array) $request->input('kompetensi_ids', []);
+            $primaryKompetensiId = $kompetensiIds[0];
+
+            // Generate kode modul unik berdasarkan kompetensi utama
+            $kompetensi = Kompetensi::with('jurusan')->findOrFail($primaryKompetensiId);
             $kodeJurusan = $kompetensi->jurusan ? strtoupper($kompetensi->jurusan->kode_jurusan) : 'KJ';
-            $countExisting = ModulPraktik::where('id_kompetensi', $request->id_kompetensi)->count() + 1;
+            $countExisting = ModulPraktik::where('id_kompetensi', $primaryKompetensiId)->count() + 1;
             $kodeModul = 'MOD-' . $kodeJurusan . '-' . str_pad($countExisting, 3, '0', STR_PAD_LEFT);
 
             // Jika kode sudah terpakai, tambahkan suffix unik
@@ -130,7 +145,7 @@ class ModulPraktikController extends Controller
             }
 
             $modul = ModulPraktik::create([
-                'id_kompetensi' => $request->id_kompetensi,
+                'id_kompetensi' => $primaryKompetensiId,
                 'id_guru' => $user->id_guru,
                 'kode_modul' => $kodeModul,
                 'judul' => $request->judul,
@@ -141,6 +156,9 @@ class ModulPraktikController extends Controller
                 'versi' => '1.0',
                 'status' => $request->status,
             ]);
+
+            // Sinkronisasi seluruh target CP/TP yang dipilih ke pivot table
+            $modul->kompetensis()->sync($kompetensiIds);
 
             // Catat ke riwayat versi perdana (1.0)
             ModulPraktikVersi::create([
@@ -193,7 +211,7 @@ class ModulPraktikController extends Controller
         $user = Auth::user();
 
         $modul = ModulPraktik::forUserJurusan($user)
-            ->with(['kompetensi.jurusan', 'guru', 'rubriks', 'versis.pengubah'])
+            ->with(['kompetensi.jurusan', 'kompetensis.jurusan', 'guru', 'rubriks', 'versis.pengubah'])
             ->findOrFail($id);
 
         return view('kejuruan.modul_praktik.show', compact(
@@ -211,7 +229,7 @@ class ModulPraktikController extends Controller
         $user = Auth::user();
 
         $modul = ModulPraktik::forUserJurusan($user)
-            ->with(['rubriks'])
+            ->with(['kompetensis', 'rubriks'])
             ->findOrFail($id);
 
         // Hanya pembuat, kaprog jurusannya, atau admin yang boleh mengedit
@@ -241,8 +259,14 @@ class ModulPraktikController extends Controller
             abort(403, 'Akses ditolak.');
         }
 
+        // Normalisasi jika dikirim sebagai id_kompetensi tunggal
+        if (!$request->has('kompetensi_ids') && $request->filled('id_kompetensi')) {
+            $request->merge(['kompetensi_ids' => [$request->id_kompetensi]]);
+        }
+
         $request->validate([
-            'id_kompetensi' => 'required|exists:kompetensi,id_kompetensi',
+            'kompetensi_ids' => 'required|array|min:1',
+            'kompetensi_ids.*' => 'exists:kompetensi,id_kompetensi',
             'judul' => 'required|string|max:255',
             'tujuan' => 'required|string',
             'alat_bahan' => 'required|string',
@@ -251,6 +275,8 @@ class ModulPraktikController extends Controller
             'is_new_version' => 'nullable|boolean',
             'catatan_revisi' => 'nullable|string',
             'file_lembar_kerja' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ], [
+            'kompetensi_ids.required' => 'Target Capaian Pembelajaran / Tujuan Pembelajaran (CP / TP) wajib dipilih minimal 1.',
         ]);
 
         DB::beginTransaction();
@@ -276,8 +302,11 @@ class ModulPraktikController extends Controller
                 $versiBaru = number_format($currentFloat + 0.1, 1, '.', '');
             }
 
+            $kompetensiIds = (array) $request->input('kompetensi_ids', []);
+            $primaryKompetensiId = $kompetensiIds[0] ?? $modul->id_kompetensi;
+
             $modul->update([
-                'id_kompetensi' => $request->id_kompetensi,
+                'id_kompetensi' => $primaryKompetensiId,
                 'judul' => $request->judul,
                 'tujuan' => $request->tujuan,
                 'alat_bahan' => $request->alat_bahan,
@@ -286,6 +315,9 @@ class ModulPraktikController extends Controller
                 'versi' => $versiBaru,
                 'status' => $request->status,
             ]);
+
+            // Sinkronkan seluruh target CP/TP yang dipilih ke pivot table
+            $modul->kompetensis()->sync($kompetensiIds);
 
             // Jika versi baru dibuat, simpan ke riwayat versi
             if ($request->boolean('is_new_version') || $request->filled('catatan_revisi')) {

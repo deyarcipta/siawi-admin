@@ -28,6 +28,11 @@ class Kompetensi extends Model
         return $this->hasMany(ModulPraktik::class, 'id_kompetensi', 'id_kompetensi');
     }
 
+    public function moduls()
+    {
+        return $this->belongsToMany(ModulPraktik::class, 'modul_praktik_kompetensi', 'id_kompetensi', 'id_modul_praktik')->withTimestamps();
+    }
+
     public function rubriks()
     {
         return $this->hasMany(RubrikPenilaian::class, 'id_kompetensi', 'id_kompetensi')->orderBy('urutan', 'asc');
