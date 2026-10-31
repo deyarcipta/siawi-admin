@@ -60,21 +60,24 @@
                   <label for="kompetensi_ids" class="font-weight-bold text-dark mb-0" style="font-size: 0.85rem;">
                     Target Capaian Pembelajaran / Tujuan Pembelajaran (CP / TP) <span class="text-danger">*</span>
                   </label>
-                  <small class="text-muted"><i class="fas fa-layer-group text-primary mr-1"></i> Bisa pilih lebih dari 1 CP/TP</small>
+                  <span class="badge badge-primary px-2 py-1" style="font-size: 0.75rem; font-weight: 500;">
+                    <i class="fas fa-layer-group mr-1"></i> Multi-pilih (PjBL / Integrasi CP)
+                  </span>
                 </div>
                 @php
                   $selectedOldKompetensi = (array) old('kompetensi_ids', old('id_kompetensi', []));
                 @endphp
-                <select name="kompetensi_ids[]" id="kompetensi_ids" class="form-control select2 @error('kompetensi_ids') is-invalid @enderror @error('id_kompetensi') is-invalid @enderror" multiple="multiple" data-placeholder="-- Pilih satu atau beberapa Target CP / TP yang diampu --" required style="border-radius: 8px;">
-                  @foreach($kompetensis as $k)
-                    <option value="{{ $k->id_kompetensi }}" {{ in_array($k->id_kompetensi, $selectedOldKompetensi) ? 'selected' : '' }}>
-                      [{{ $k->kode_kompetensi }}] {{ $k->nama_kompetensi }} - Kelas {{ $k->tingkat }} (Sem. {{ $k->semester }})
-                      @if($k->jurusan) ({{ $k->jurusan->kode_jurusan ?? $k->jurusan->nama_jurusan }}) @endif
-                    </option>
+                <select name="kompetensi_ids[]" id="kompetensi_ids" class="form-control select2-cp @error('kompetensi_ids') is-invalid @enderror @error('id_kompetensi') is-invalid @enderror" multiple="multiple" data-placeholder="-- Klik untuk memilih satu atau beberapa Target CP / TP --" required style="width: 100%;">
+                  @foreach($kompetensis->groupBy(function($item) { return $item->jurusan ? $item->jurusan->nama_jurusan : 'Umum / Semua Konsentrasi'; }) as $jurusanNama => $items)
+                    <optgroup label="Konsentrasi Keahlian: {{ $jurusanNama }}">
+                      @foreach($items as $k)
+                        <option value="{{ $k->id_kompetensi }}" {{ in_array($k->id_kompetensi, $selectedOldKompetensi) ? 'selected' : '' }}>[{{ $k->kode_kompetensi }}] {{ $k->nama_kompetensi }} (Kelas {{ $k->tingkat }} - Sem. {{ $k->semester }})</option>
+                      @endforeach
+                    </optgroup>
                   @endforeach
                 </select>
-                <small class="text-muted d-block mt-1">
-                  <i class="fas fa-info-circle text-info mr-1"></i> Praktikum berbasis proyek (PjBL) atau integrasi modul dapat mengaitkan beberapa Capaian / Tujuan Pembelajaran sekaligus. Target pertama yang dipilih akan menjadi target utama.
+                <small class="text-muted d-block mt-1" style="font-size: 0.8rem;">
+                  <i class="fas fa-info-circle text-info mr-1"></i> Klik untuk memilih satu atau lebih Capaian / Tujuan Pembelajaran. Target pertama yang dipilih otomatis menjadi target utama modul.
                 </small>
                 @error('kompetensi_ids')
                   <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
@@ -257,74 +260,6 @@
   </div>
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const container = document.getElementById('rubrikContainer');
-    const btnAdd = document.getElementById('btnAddRubrik');
-    let rubrikCount = 3;
-
-    btnAdd.addEventListener('click', function () {
-      const rowId = 'rubrik-' + rubrikCount;
-      const html = `
-        <div class="rubrik-row p-3 mb-2 rounded border bg-light" id="${rowId}">
-          <div class="row">
-            <div class="col-md-7 form-group mb-2">
-              <label class="small font-weight-bold text-dark mb-1">Nama Indikator / Kriteria Keterampilan</label>
-              <input type="text" name="rubrik_indikator[]" class="form-control" placeholder="Contoh: Ketepatan Analisa & Laporan" required style="border-radius: 6px;">
-            </div>
-            <div class="col-md-3 form-group mb-2">
-              <label class="small font-weight-bold text-dark mb-1">Bobot (%)</label>
-              <input type="number" name="rubrik_bobot[]" class="form-control" value="20" min="1" max="100" required style="border-radius: 6px;">
-            </div>
-            <div class="col-md-2 form-group mb-2 d-flex align-items-end">
-              <button type="button" class="btn btn-outline-danger btn-block btn-remove-rubrik" style="border-radius: 6px; height: 38px;" title="Hapus Indikator">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-      container.insertAdjacentHTML('beforeend', html);
-      rubrikCount++;
-    });
-
-    container.addEventListener('click', function (e) {
-      if (e.target.closest('.btn-remove-rubrik')) {
-        const row = e.target.closest('.rubrik-row');
-        if (container.querySelectorAll('.rubrik-row').length > 1) {
-          row.remove();
-        } else {
-          alert('Minimal harus ada 1 indikator penilaian.');
-        }
-      }
-    });
-
-    if (window.jQuery && $.fn.select2) {
-      $('#kompetensi_ids').select2({
-        theme: 'bootstrap4',
-        width: '100%',
-        placeholder: '-- Pilih satu atau beberapa Target CP / TP yang diampu --',
-        allowClear: true
-      });
-    }
-
-    if (window.jQuery && $.fn.summernote) {
-      $('#langkah_kerja').summernote({
-        placeholder: 'Tuliskan prosedur langkah kerja, panduan keselamatan kerja, dan tugas praktik di sini...',
-        tabsize: 2,
-        height: 240,
-        tooltip: false,
-        toolbar: [
-          ['style', ['bold', 'italic', 'underline', 'strikethrough']],
-          ['insert', ['picture', 'video', 'link']],
-          ['para', ['ul', 'ol', 'paragraph']],
-          ['misc', ['codeview', 'clear']]
-        ]
-      });
-    }
-  });
-</script>
-
 <style>
   .note-editor.note-frame {
     border: 1px solid #cbd5e1 !important;
@@ -358,5 +293,130 @@
     background-color: #f8fafc !important;
     border-top: 1px solid #e2e8f0 !important;
   }
+  /* Styling Select2 Multi-Select */
+  .select2-container--bootstrap4 .select2-selection--multiple {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    min-height: 42px !important;
+    padding: 3px 6px !important;
+    background-color: #ffffff !important;
+  }
+  .select2-container--bootstrap4.select2-container--focus .select2-selection--multiple {
+    border-color: #1d72fe !important;
+    box-shadow: 0 0 0 0.2rem rgba(29, 114, 254, 0.2) !important;
+  }
+  .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice {
+    background-color: #eff6ff !important;
+    border: 1px solid #bfdbfe !important;
+    color: #1e40af !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    padding: 3px 8px !important;
+    margin: 3px !important;
+  }
+  .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice__remove {
+    color: #ef4444 !important;
+    font-weight: bold !important;
+    margin-right: 6px !important;
+  }
+  .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: #b91c1c !important;
+  }
+  .select2-container--bootstrap4 .select2-dropdown {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+    overflow: hidden !important;
+  }
+  .select2-container--bootstrap4 .select2-results__group {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+    font-weight: 700 !important;
+    font-size: 0.8rem !important;
+    padding: 6px 12px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+  }
+  .select2-container--bootstrap4 .select2-results__option {
+    font-size: 0.84rem !important;
+    padding: 8px 12px !important;
+  }
 </style>
 @endsection
+
+@push('scripts')
+<script>
+  $(function () {
+    // 1. Inisialisasi Select2 Multi-Select untuk Target CP / TP
+    if ($.fn.select2) {
+      $('#kompetensi_ids').select2({
+        theme: 'bootstrap4',
+        width: '100%',
+        placeholder: '-- Klik untuk memilih satu atau beberapa Target CP / TP --',
+        closeOnSelect: false,
+        allowClear: false
+      });
+    }
+
+    // 2. Dinamika Tambah/Hapus Indikator Rubrik
+    const container = document.getElementById('rubrikContainer');
+    const btnAdd = document.getElementById('btnAddRubrik');
+    let rubrikCount = 3;
+
+    if (btnAdd && container) {
+      btnAdd.addEventListener('click', function () {
+        const rowId = 'rubrik-' + rubrikCount;
+        const html = `
+          <div class="rubrik-row p-3 mb-2 rounded border bg-light" id="${rowId}">
+            <div class="row">
+              <div class="col-md-7 form-group mb-2">
+                <label class="small font-weight-bold text-dark mb-1">Nama Indikator / Kriteria Keterampilan</label>
+                <input type="text" name="rubrik_indikator[]" class="form-control" placeholder="Contoh: Ketepatan Analisa & Laporan" required style="border-radius: 6px;">
+              </div>
+              <div class="col-md-3 form-group mb-2">
+                <label class="small font-weight-bold text-dark mb-1">Bobot (%)</label>
+                <input type="number" name="rubrik_bobot[]" class="form-control" value="20" min="1" max="100" required style="border-radius: 6px;">
+              </div>
+              <div class="col-md-2 form-group mb-2 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-danger btn-block btn-remove-rubrik" style="border-radius: 6px; height: 38px;" title="Hapus Indikator">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+        rubrikCount++;
+      });
+
+      container.addEventListener('click', function (e) {
+        if (e.target.closest('.btn-remove-rubrik')) {
+          const row = e.target.closest('.rubrik-row');
+          if (container.querySelectorAll('.rubrik-row').length > 1) {
+            row.remove();
+          } else {
+            alert('Minimal harus ada 1 indikator penilaian.');
+          }
+        }
+      });
+    }
+
+    // 3. Summernote Editor Prosedur Kerja
+    if ($.fn.summernote) {
+      $('#langkah_kerja').summernote({
+        placeholder: 'Tuliskan prosedur langkah kerja, panduan keselamatan kerja, dan tugas praktik di sini...',
+        tabsize: 2,
+        height: 240,
+        tooltip: false,
+        toolbar: [
+          ['style', ['bold', 'italic', 'underline', 'strikethrough']],
+          ['insert', ['picture', 'video', 'link']],
+          ['para', ['ul', 'ol', 'paragraph']],
+          ['misc', ['codeview', 'clear']]
+        ]
+      });
+    }
+  });
+</script>
+@endpush
