@@ -153,11 +153,11 @@
               </div>
             </div>
 
-            <div class="card-footer bg-light py-3 px-4 d-flex align-items-center justify-content-end" style="gap: 10px;">
-              <a href="/admin/kompetensi" class="btn btn-outline-secondary px-3 mr-2" style="border-radius: 8px; font-weight: 500;">
+            <div class="card-footer bg-light py-3 px-4 d-flex align-items-center justify-content-between">
+              <a href="/admin/kompetensi" class="btn btn-outline-secondary px-3" style="border-radius: 8px; font-weight: 500;">
                 <i class="fas fa-arrow-left mr-1"></i> Batal
               </a>
-              <button type="submit" class="btn btn-primary px-4 shadow-sm" style="border-radius: 8px; font-weight: 600;">
+              <button type="submit" class="btn btn-primary ml-auto px-4 shadow-sm" style="border-radius: 8px; font-weight: 600;">
                 <i class="fas fa-save mr-1"></i> Simpan Perubahan
               </button>
             </div>
