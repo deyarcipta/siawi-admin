@@ -265,48 +265,6 @@
   </div>
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const container = document.getElementById('rubrikContainer');
-    const btnAdd = document.getElementById('btnAddRubrik');
-    let rubrikCount = container.querySelectorAll('.rubrik-row').length + 1;
-
-    btnAdd.addEventListener('click', function () {
-      const rowId = 'rubrik-' + rubrikCount;
-      const html = `
-        <div class="rubrik-row p-3 mb-2 rounded border bg-light" id="${rowId}">
-          <div class="row">
-            <div class="col-md-7 form-group mb-2">
-              <label class="small font-weight-bold text-dark mb-1">Nama Indikator / Kriteria Keterampilan</label>
-              <input type="text" name="rubrik_indikator[]" class="form-control" placeholder="Contoh: Ketepatan Analisa & Laporan" required style="border-radius: 6px;">
-            </div>
-            <div class="col-md-3 form-group mb-2">
-              <label class="small font-weight-bold text-dark mb-1">Bobot (%)</label>
-              <input type="number" name="rubrik_bobot[]" class="form-control" value="20" min="1" max="100" required style="border-radius: 6px;">
-            </div>
-            <div class="col-md-2 form-group mb-2 d-flex align-items-end">
-              <button type="button" class="btn btn-outline-danger btn-block btn-remove-rubrik" style="border-radius: 6px; height: 38px;" title="Hapus Indikator">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-      container.insertAdjacentHTML('beforeend', html);
-      rubrikCount++;
-    });
-
-    container.addEventListener('click', function (e) {
-      if (e.target.closest('.btn-remove-rubrik')) {
-        const row = e.target.closest('.rubrik-row');
-        if (container.querySelectorAll('.rubrik-row').length > 1) {
-          row.remove();
-        } else {
-          alert('Minimal harus ada 1 indikator penilaian.');
-        }
-      }
-    });
-
 <style>
   .note-editor.note-frame {
     border: 1px solid #cbd5e1 !important;
