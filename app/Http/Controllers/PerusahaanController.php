@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use App\Models\Perusahaan;
 use App\Models\SiswaPkl;
 use App\Models\Setting;
@@ -83,7 +85,16 @@ class PerusahaanController extends Controller
             'id_guru' => 'nullable|exists:guru,id_guru',
             'pic' => 'nullable|string|max:255',
             'kontak_pic' => 'nullable|string|max:50',
+            'file_mou' => 'nullable|file|mimes:pdf|max:5120',
+        ], [
+            'file_mou.mimes' => 'File MoU harus berformat PDF.',
+            'file_mou.max' => 'Ukuran file MoU maksimal 5 MB.',
         ]);
+
+        $namaFileMou = null;
+        if ($request->hasFile('file_mou')) {
+            $namaFileMou = $this->simpanFileMou($request->file('file_mou'));
+        }
 
         Perusahaan::create([
             'nama_perusahaan' => $request->nama_perusahaan,
@@ -92,6 +103,7 @@ class PerusahaanController extends Controller
             'id_guru' => $request->id_guru ?: null,
             'pic' => $request->pic,
             'kontak_pic' => $request->kontak_pic,
+            'file_mou' => $namaFileMou,
         ]);
 
         return redirect()->route('admin.perusahaan.index')->with('success', 'Perusahaan berhasil ditambahkan.');
@@ -125,9 +137,18 @@ class PerusahaanController extends Controller
             'id_guru' => 'nullable|exists:guru,id_guru',
             'pic' => 'nullable|string|max:255',
             'kontak_pic' => 'nullable|string|max:50',
+            'file_mou' => 'nullable|file|mimes:pdf|max:5120',
+        ], [
+            'file_mou.mimes' => 'File MoU harus berformat PDF.',
+            'file_mou.max' => 'Ukuran file MoU maksimal 5 MB.',
         ]);
 
         $perusahaan = Perusahaan::findOrFail($id);
+
+        if ($request->hasFile('file_mou')) {
+            $this->hapusFileMou($perusahaan->file_mou);
+            $perusahaan->file_mou = $this->simpanFileMou($request->file('file_mou'));
+        }
         $perusahaan->nama_perusahaan = $request->nama_perusahaan;
         $perusahaan->alamat_perusahaan = $request->alamat_perusahaan;
         $perusahaan->penanggung_jawab = $request->penanggung_jawab ?: '-';
@@ -150,10 +171,27 @@ class PerusahaanController extends Controller
         // Hapus semua siswa PKL yang terkait dengan perusahaan ini
         SiswaPkl::where('id_perusahaan', $data->id_perusahaan)->delete();
 
+        $this->hapusFileMou($data->file_mou);
+
         // Hapus perusahaan
         $data->delete();
 
         return redirect()->route('admin.perusahaan.index')
                         ->with('success', 'Data Perusahaan dan siswa PKL terkait berhasil dihapus');
+    }
+
+    private function simpanFileMou($file): string
+    {
+        $namaFile = 'mou_' . time() . '_' . Str::random(6) . '.pdf';
+        $file->storeAs('mou_perusahaan', $namaFile, 'public');
+
+        return $namaFile;
+    }
+
+    private function hapusFileMou(?string $namaFile): void
+    {
+        if ($namaFile) {
+            Storage::disk('public')->delete('mou_perusahaan/' . $namaFile);
+        }
     }
 }

@@ -222,9 +222,8 @@ class JadwalPraktikController extends Controller
 
         $jadwalMapelQuery = JadwalMapel::with(['kelas.jurusan', 'guru', 'mapel']);
         if (!$user->hasRole('admin')) {
-            $accessibleJurusanIds = Lab::getAccessibleJurusanIds($user);
-            $jadwalMapelQuery->whereHas('kelas', function ($q) use ($accessibleJurusanIds) {
-                $q->whereIn('id_jurusan', $accessibleJurusanIds);
+            $jadwalMapelQuery->whereHas('kelas', function ($q) use ($user) {
+                $q->forUserJurusan($user);
             });
         }
         $jadwalMapelList = $jadwalMapelQuery->orderBy('hari', 'asc')->orderBy('waktu_awal', 'asc')->get();

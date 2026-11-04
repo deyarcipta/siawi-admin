@@ -182,6 +182,17 @@
                           @endif
                         </div>
                       @endif
+
+                      <!-- Dokumen MoU -->
+                      <div class="mt-1">
+                        @if($data->mou_url)
+                          <a href="{{ $data->mou_url }}" target="_blank" class="badge badge-light border text-danger font-weight-normal py-1 px-2" title="Buka file MoU (PDF)">
+                            <i class="fas fa-file-pdf mr-1"></i>MoU
+                          </a>
+                        @else
+                          <span class="badge badge-light border text-muted font-weight-normal py-1 px-2" style="font-size: 0.72rem;">MoU belum diunggah</span>
+                        @endif
+                      </div>
                     </td>
                     <td class="text-center">
                       @if($data->siswa_aktif_count > 0)
@@ -246,6 +257,7 @@
                           data-id-guru="{{ $data->id_guru ?? '' }}"
                           data-pic="{{ $data->pic ?? '' }}"
                           data-kontak-pic="{{ $data->kontak_pic ?? '' }}"
+                          data-mou-url="{{ $data->mou_url ?? '' }}"
                           title="Edit Info Perusahaan"
                         >
                           <i class="fa fa-edit"></i>
@@ -333,6 +345,7 @@
                   data-id-guru="{{ $data->id_guru ?? '' }}"
                   data-pic="{{ $data->pic ?? '' }}"
                   data-kontak-pic="{{ $data->kontak_pic ?? '' }}"
+                  data-mou-url="{{ $data->mou_url ?? '' }}"
                   style="border-radius: 8px;">
                   <i class="fas fa-edit mr-1"></i> Edit Data
                 </button>
@@ -420,6 +433,16 @@
                   <div class="font-weight-bold text-dark" style="font-size: 0.95rem;">
                     {{ $data->pic ?: '-' }}
                   </div>
+                </div>
+                <div class="mb-2">
+                  <small class="text-muted d-block font-weight-bold" style="font-size: 0.75rem;">DOKUMEN MOU</small>
+                  @if($data->mou_url)
+                    <a href="{{ $data->mou_url }}" target="_blank" class="btn btn-outline-danger btn-sm font-weight-bold px-3 py-1 mt-1" style="border-radius: 6px;">
+                      <i class="fas fa-file-pdf mr-1"></i> Buka MoU (PDF)
+                    </a>
+                  @else
+                    <span class="text-muted font-italic" style="font-size: 0.85rem;">Belum ada file MoU</span>
+                  @endif
                 </div>
                 <div>
                   <small class="text-muted d-block font-weight-bold" style="font-size: 0.75rem;">KONTAK WHATSAPP PIC</small>
@@ -755,7 +778,7 @@
 <!-- ========================================================================= -->
 <div class="modal fade" id="modalTambahPerusahaan" tabindex="-1" role="dialog" aria-labelledby="modalTambahPerusahaanLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <form action="{{ route('admin.perusahaan.store') }}" method="POST">
+    <form action="{{ route('admin.perusahaan.store') }}" method="POST" enctype="multipart/form-data">
       @csrf
       <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
         <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #1d72fe 0%, #0b1f3a 100%);">
@@ -833,6 +856,15 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Upload MoU -->
+              <div class="form-group mb-0 mt-2">
+                <label for="file_mou" class="font-weight-bold text-dark" style="font-size: 0.82rem;">
+                  <i class="fas fa-file-pdf text-danger mr-1"></i> File MoU (PDF)
+                </label>
+                <input type="file" class="form-control-file" id="file_mou" name="file_mou" accept="application/pdf,.pdf">
+                <small class="text-muted d-block mt-1">Opsional. Format PDF, maksimal 5 MB.</small>
+              </div>
             </div>
           </div>
         </div>
@@ -853,7 +885,7 @@
 <!-- ========================================================================= -->
 <div class="modal fade" id="modalEditPerusahaan" tabindex="-1" role="dialog" aria-labelledby="modalEditPerusahaanLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <form id="formEditPerusahaan" method="POST">
+    <form id="formEditPerusahaan" method="POST" enctype="multipart/form-data">
       @csrf
       @method('PUT')
       <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
@@ -932,6 +964,18 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Upload MoU -->
+              <div class="form-group mb-0 mt-2">
+                <label for="edit_file_mou" class="font-weight-bold text-dark" style="font-size: 0.82rem;">
+                  <i class="fas fa-file-pdf text-danger mr-1"></i> File MoU (PDF)
+                </label>
+                <div id="edit_mou_saat_ini" class="small mb-1 d-none">
+                  MoU saat ini: <a href="#" target="_blank" id="edit_mou_link" class="font-weight-bold">Lihat file</a>
+                </div>
+                <input type="file" class="form-control-file" id="edit_file_mou" name="file_mou" accept="application/pdf,.pdf">
+                <small class="text-muted d-block mt-1">Kosongkan jika tidak ingin mengganti file. Format PDF, maksimal 5 MB.</small>
+              </div>
             </div>
           </div>
         </div>
@@ -992,6 +1036,15 @@ $(document).ready(function () {
     $('#edit_id_guru').val(idGuru).trigger('change');
     $('#edit_pic').val(pic);
     $('#edit_kontak_pic').val(kontakPic);
+
+    let mouUrl = $(this).data('mou-url') || '';
+    $('#edit_file_mou').val('');
+    if (mouUrl) {
+      $('#edit_mou_link').attr('href', mouUrl);
+      $('#edit_mou_saat_ini').removeClass('d-none');
+    } else {
+      $('#edit_mou_saat_ini').addClass('d-none');
+    }
 
     $('#formEditPerusahaan').attr('action', '/admin/perusahaan/' + id);
   });

@@ -410,7 +410,7 @@
     <!-- Penutup -->
     <div class="isi-section" style="margin-top: 16px;">
       <p style="text-indent: 0; margin-bottom: 8px;">
-        Demikian Surat permohonan ini kami buat, selanjutnya kami akan menunggu informasi dari {{ $sapaan }}.
+        Demikian Surat permohonan ini kami buat, selanjutnya kami menunggu informasi dari {{ $sapaan }}.
       </p>
       <p style="text-indent: 0; margin-bottom: 0;">
         Atas perhatian dan kerja sama {{ $sapaan }} kami ucapkan terima kasih

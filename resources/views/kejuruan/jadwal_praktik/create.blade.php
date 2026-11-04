@@ -76,24 +76,48 @@
                 <label class="font-weight-bold text-dark mb-2" style="font-size: 0.88rem;">
                   <i class="fas fa-sliders-h text-primary mr-1"></i> Tipe & Frekuensi Praktik
                 </label>
-                <div class="row">
-                  <div class="col-md-6 mb-2 mb-md-0">
-                    <div class="custom-control custom-radio p-2 border rounded" style="background: #fafafa; border-radius: 8px !important;">
-                      <input type="radio" id="tipe_rutin" name="tipe_jadwal" value="rutin" class="custom-control-input" {{ old('tipe_jadwal', 'rutin') === 'rutin' ? 'checked' : '' }}>
-                      <label class="custom-control-label font-weight-bold text-dark" for="tipe_rutin" style="cursor: pointer;">
-                        Jadwal Rutin Mingguan
-                        <small class="d-block text-muted font-weight-normal">Berlaku berulang (setiap minggu atau 2 minggu sekali)</small>
-                      </label>
-                    </div>
+                <style>
+                  .tipe-card-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 12px;
+                  }
+                  @media (max-width: 575.98px) {
+                    .tipe-card-grid {
+                      grid-template-columns: 1fr;
+                    }
+                  }
+                  .tipe-card-box {
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 10px;
+                    padding: 10px 12px 10px 36px;
+                    min-height: 64px;
+                    display: flex;
+                    align-items: center;
+                    transition: all 0.2s ease;
+                    box-sizing: border-box;
+                    margin: 0 !important;
+                  }
+                  .tipe-card-box:hover {
+                    border-color: #cbd5e1;
+                    background: #f1f5f9;
+                  }
+                </style>
+                <div class="tipe-card-grid">
+                  <div class="custom-control custom-checkbox tipe-card-box">
+                    <input type="radio" id="tipe_rutin" name="tipe_jadwal" value="rutin" class="custom-control-input" {{ old('tipe_jadwal', 'rutin') === 'rutin' ? 'checked' : '' }}>
+                    <label class="custom-control-label font-weight-bold text-dark w-100 mb-0" for="tipe_rutin" style="cursor: pointer; font-size: 0.84rem; line-height: 1.25;">
+                      <span class="d-block">Jadwal Rutin Mingguan</span>
+                      <small class="d-block text-muted font-weight-normal mt-1" style="font-size: 0.72rem; line-height: 1.2;">Berlaku berulang (setiap minggu atau 2 minggu sekali)</small>
+                    </label>
                   </div>
-                  <div class="col-md-6">
-                    <div class="custom-control custom-radio p-2 border rounded" style="background: #fafafa; border-radius: 8px !important;">
-                      <input type="radio" id="tipe_insidental" name="tipe_jadwal" value="insidental" class="custom-control-input" {{ old('tipe_jadwal') === 'insidental' ? 'checked' : '' }}>
-                      <label class="custom-control-label font-weight-bold text-dark" for="tipe_insidental" style="cursor: pointer;">
-                        Praktik Tambahan / Dadakan
-                        <small class="d-block text-muted font-weight-normal">Hanya berlaku pada tanggal tertentu (tidak berulang)</small>
-                      </label>
-                    </div>
+                  <div class="custom-control custom-checkbox tipe-card-box">
+                    <input type="radio" id="tipe_insidental" name="tipe_jadwal" value="insidental" class="custom-control-input" {{ old('tipe_jadwal') === 'insidental' ? 'checked' : '' }}>
+                    <label class="custom-control-label font-weight-bold text-dark w-100 mb-0" for="tipe_insidental" style="cursor: pointer; font-size: 0.84rem; line-height: 1.25;">
+                      <span class="d-block">Praktik Tambahan / Dadakan</span>
+                      <small class="d-block text-muted font-weight-normal mt-1" style="font-size: 0.72rem; line-height: 1.2;">Hanya berlaku pada tanggal tertentu (tidak berulang)</small>
+                    </label>
                   </div>
                 </div>
 
