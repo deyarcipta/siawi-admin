@@ -116,6 +116,51 @@
         </div>
       </div>
 
+      <style>
+        .ukk-komp-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+        }
+        .ukk-kelas-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 12px;
+        }
+        @media (max-width: 991.98px) {
+          .ukk-kelas-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        @media (max-width: 767.98px) {
+          .ukk-komp-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        @media (max-width: 575.98px) {
+          .ukk-kelas-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .role-card-box {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 10px;
+          padding: 10px 12px 10px 36px;
+          height: 100%;
+          min-height: 64px;
+          display: flex;
+          align-items: center;
+          transition: all 0.2s ease;
+          box-sizing: border-box;
+          margin: 0 !important;
+        }
+        .role-card-box:hover {
+          border-color: #cbd5e1;
+          background: #f1f5f9;
+        }
+      </style>
+
       <!-- Card 2: Unit Kompetensi yang Diujikan -->
       <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px;">
         <div class="card-header bg-white py-3 border-bottom">
@@ -125,24 +170,26 @@
           <p class="text-muted small mb-0 mt-1">Centang seluruh unit kompetensi keahlian yang menjadi materi asesmen pada kegiatan ini.</p>
         </div>
         <div class="card-body p-4">
-          <div class="row">
-            @forelse($kompetensis as $k)
-              <div class="col-md-6 mb-2">
-                <div class="custom-control custom-checkbox p-2 rounded bg-light border">
+          @if($kompetensis->isNotEmpty())
+            <div class="ukk-komp-grid">
+              @foreach($kompetensis as $k)
+                <div class="custom-control custom-checkbox role-card-box">
                   <input type="checkbox" class="custom-control-input" id="komp_{{ $k->id_kompetensi }}" name="unit_kompetensi[]" value="{{ $k->id_kompetensi }}" {{ is_array(old('unit_kompetensi')) && in_array($k->id_kompetensi, old('unit_kompetensi')) ? 'checked' : '' }}>
-                  <label class="custom-control-label font-weight-500 text-dark d-block" for="komp_{{ $k->id_kompetensi }}" style="cursor: pointer;">
-                    <span class="badge badge-primary px-2 mr-1">{{ $k->kode_kompetensi }}</span>
-                    {{ $k->nama_kompetensi }}
-                    <small class="text-muted d-block mt-1">
+                  <label class="custom-control-label font-weight-bold text-dark w-100 mb-0" for="komp_{{ $k->id_kompetensi }}" style="cursor: pointer; font-size: 0.84rem; line-height: 1.25;">
+                    <span class="d-block">
+                      <span class="badge badge-primary px-2 mr-1">{{ $k->kode_kompetensi }}</span>
+                      {{ $k->nama_kompetensi }}
+                    </span>
+                    <small class="d-block text-muted font-weight-normal mt-1" style="font-size: 0.72rem; line-height: 1.2;">
                       Kelas {{ $k->tingkat }} - KKM: {{ floatval($k->kkm) }}
                     </small>
                   </label>
                 </div>
-              </div>
-            @empty
-              <div class="col-12 text-muted">Belum ada standar kompetensi terdaftar. Silakan atur pada menu Standar Kompetensi terlebih dahulu.</div>
-            @endforelse
-          </div>
+              @endforeach
+            </div>
+          @else
+            <div class="text-muted">Belum ada standar kompetensi terdaftar. Silakan atur pada menu Standar Kompetensi terlebih dahulu.</div>
+          @endif
         </div>
       </div>
 
@@ -210,23 +257,23 @@
           <p class="text-muted small mb-0 mt-1">Seluruh siswa aktif di kelas yang Anda centang akan otomatis didaftarkan sebagai peserta kegiatan UKK ini.</p>
         </div>
         <div class="card-body p-4">
-          <div class="row">
-            @forelse($kelas as $k)
-              <div class="col-md-4 col-sm-6 mb-2">
-                <div class="custom-control custom-checkbox p-2 rounded bg-light border">
-                  <input type="checkbox" class="custom-control-input" id="kls_{{ $k->id_kelas }}" name="id_kelas[]" value="{{ $k->id_kelas }}">
-                  <label class="custom-control-label font-weight-bold text-dark d-block" for="kls_{{ $k->id_kelas }}" style="cursor: pointer;">
-                    {{ $k->nama_kelas }}
-                    <small class="text-muted d-block font-weight-normal">
+          @if($kelas->isNotEmpty())
+            <div class="ukk-kelas-grid">
+              @foreach($kelas as $k)
+                <div class="custom-control custom-checkbox role-card-box">
+                  <input type="checkbox" class="custom-control-input" id="kls_{{ $k->id_kelas }}" name="id_kelas[]" value="{{ $k->id_kelas }}" {{ is_array(old('id_kelas')) && in_array($k->id_kelas, old('id_kelas')) ? 'checked' : '' }}>
+                  <label class="custom-control-label font-weight-bold text-dark w-100 mb-0" for="kls_{{ $k->id_kelas }}" style="cursor: pointer; font-size: 0.84rem; line-height: 1.25;">
+                    <span class="d-block" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $k->nama_kelas }}</span>
+                    <small class="d-block text-muted font-weight-normal mt-1" style="font-size: 0.72rem; line-height: 1.2;">
                       {{ $k->siswa_count ?? '' }} Siswa
                     </small>
                   </label>
                 </div>
-              </div>
-            @empty
-              <div class="col-12 text-muted">Belum ada kelas yang terdaftar.</div>
-            @endforelse
-          </div>
+              @endforeach
+            </div>
+          @else
+            <div class="text-muted">Belum ada kelas yang terdaftar.</div>
+          @endif
         </div>
       </div>
 

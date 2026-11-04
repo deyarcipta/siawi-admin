@@ -14,6 +14,8 @@ class Kompetensi extends Model
 
     protected $primaryKey = 'id_kompetensi';
 
+    protected $guarded = [];
+
     protected $casts = [
         'kkm' => 'float',
     ];
@@ -21,6 +23,34 @@ class Kompetensi extends Model
     public function jurusan()
     {
         return $this->belongsTo(Jurusan::class, 'id_jurusan', 'id_jurusan');
+    }
+
+    /**
+     * Relasi ke Induk Capaian Pembelajaran (Elemen CP).
+     */
+    public function capaianPembelajaran()
+    {
+        return $this->belongsTo(CapaianPembelajaran::class, 'id_cp', 'id_cp');
+    }
+
+    /**
+     * Alias relasi capaianPembelajaran.
+     */
+    public function elemenCp()
+    {
+        return $this->capaianPembelajaran();
+    }
+
+    /**
+     * Helper untuk mendapatkan Fase Kurikulum Merdeka (Fase E atau Fase F).
+     */
+    public function getFaseAttribute(): string
+    {
+        if ($this->capaianPembelajaran && !empty($this->capaianPembelajaran->fase)) {
+            return $this->capaianPembelajaran->fase;
+        }
+
+        return in_array($this->tingkat, ['X', '10']) ? 'E' : 'F';
     }
 
     public function modulPraktiks()

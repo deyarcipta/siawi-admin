@@ -27,35 +27,6 @@
 
 <div class="content">
     <div class="container-fluid">
-        <!-- Notifikasi Status Standar -->
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-4" role="alert" style="border-radius: 10px;">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-check-circle fa-lg mr-2 text-success"></i>
-                    <div>
-                        <strong class="font-weight-600">Berhasil!</strong> {{ session('success') }}
-                    </div>
-                </div>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 mb-4" role="alert" style="border-radius: 10px;">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-exclamation-triangle fa-lg mr-2 text-danger"></i>
-                    <div>
-                        <strong class="font-weight-600">Perhatian!</strong> {{ session('error') }}
-                    </div>
-                </div>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        @endif
-
         @if($errors->any())
             <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 mb-4" role="alert" style="border-radius: 10px;">
                 <div class="d-flex align-items-start">

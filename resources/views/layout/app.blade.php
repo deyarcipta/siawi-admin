@@ -2078,17 +2078,75 @@
     Swal.fire({
       icon: 'success',
       title: 'Berhasil!',
-      html: '{!! session('success') !!}'
+      html: @json(session('success')),
+      confirmButtonColor: '#1d72fe'
     });
   @endif
 
-  @if (session('failed'))
+  @if (session('failed') || session('error'))
     Swal.fire({
       icon: 'error',
       title: 'Gagal!',
-      html: '{!! session('failed') !!}'
+      html: @json(session('failed') ?? session('error')),
+      confirmButtonColor: '#ef4444'
     });
   @endif
+
+  @if (session('warning'))
+    Swal.fire({
+      icon: 'warning',
+      title: 'Perhatian!',
+      html: @json(session('warning')),
+      confirmButtonColor: '#f59e0b'
+    });
+  @endif
+
+  @if (session('info'))
+    Swal.fire({
+      icon: 'info',
+      title: 'Informasi',
+      html: @json(session('info')),
+      confirmButtonColor: '#1d72fe'
+    });
+  @endif
+
+  window.confirmSwal = function(event, message, options) {
+    options = options || {};
+    var target = event ? (event.currentTarget || event.target) : null;
+    if (target && target.dataset && target.dataset.swalConfirmed === 'true') {
+      delete target.dataset.swalConfirmed;
+      return true;
+    }
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    var isDelete = /hapus|batalkan|keluarkan/i.test(message || '');
+    Swal.fire({
+      title: options.title || (isDelete ? 'Konfirmasi Hapus' : 'Konfirmasi Tindakan'),
+      text: message || 'Apakah Anda yakin ingin melanjutkan tindakan ini?',
+      icon: options.icon || 'warning',
+      showCancelButton: true,
+      confirmButtonColor: options.confirmButtonColor || (isDelete ? '#ef4444' : '#1d72fe'),
+      cancelButtonColor: options.cancelButtonColor || '#64748b',
+      confirmButtonText: options.confirmButtonText || (isDelete ? 'Ya, Hapus!' : 'Ya, Lanjutkan'),
+      cancelButtonText: options.cancelButtonText || 'Batal',
+      reverseButtons: true
+    }).then(function(result) {
+      if (result.isConfirmed && target) {
+        if (target.tagName === 'FORM') {
+          target.dataset.swalConfirmed = 'true';
+          target.submit();
+        } else if (target.tagName === 'A' && target.href) {
+          window.location.href = target.href;
+        } else {
+          target.dataset.swalConfirmed = 'true';
+          target.click();
+        }
+      }
+    });
+    return false;
+  };
 
   // Inisialisasi Smooth Treeview Accordion & Global DataTables Pagination
   $(document).ready(function() {

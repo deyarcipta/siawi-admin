@@ -73,7 +73,7 @@
                       <a href="/admin/kelas/{{ $kls->id_kelas }}/edit" class="btn btn-success btn-sm" title="Edit"><i class="fa fa-edit"></i></a>
                       @csrf
                       @method('DELETE')
-                      <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus kelas ini?')" title="Hapus"><i class="fa fa-trash"></i></button>
+                      <button type="submit" class="btn btn-danger btn-sm" onclick="return confirmSwal(event, 'Apakah Anda yakin ingin menghapus kelas ini?')" title="Hapus"><i class="fa fa-trash"></i></button>
                     </form>
                   </td>
                 </tr>
@@ -97,7 +97,7 @@
         <div>
           @if(strtoupper($kls->kode_level) === 'XII')
           {{-- Tombol Pindah ke Alumni --}}
-          <form action="{{ url('/admin/kelas/'.$kls->id_kelas.'/pindah-semua-alumni') }}" method="POST" onsubmit="return confirm('Yakin ingin memindahkan semua siswa ke alumni?')">
+          <form action="{{ url('/admin/kelas/'.$kls->id_kelas.'/pindah-semua-alumni') }}" method="POST" onsubmit="return confirmSwal(event, 'Yakin ingin memindahkan semua siswa ke alumni?')">
             @csrf
             <input type="hidden" name="tahun_lulus" value="{{ date('Y') }}">
             <button type="submit" class="btn btn-danger btn-sm">

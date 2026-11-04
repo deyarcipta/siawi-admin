@@ -419,15 +419,4 @@ function previewFoto(event, targetId) {
   });
 </script>
 @endif
-
-@if(session('error'))
-<script>
-  Swal.fire({
-    icon: 'error',
-    title: 'Gagal!',
-    text: "{{ session('error') }}",
-    confirmButtonColor: '#d33'
-  });
-</script>
-@endif
 @endpush

@@ -26,25 +26,6 @@
 <div class="content">
   <div class="container-fluid">
 
-    <!-- Flash Messages -->
-    @if(session('success'))
-      <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: 10px;">
-        <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
-    @if(session('error'))
-      <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: 10px;">
-        <i class="fas fa-exclamation-triangle mr-2"></i> {{ session('error') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
     <!-- Statistic & Quick Info Cards -->
     <div class="row mb-3">
       <div class="col-md-4 col-sm-6 mb-3 mb-md-0">
@@ -288,20 +269,16 @@ $(document).ready(function() {
   });
 
   function showCopyToast(text) {
-    if (typeof Swal !== 'undefined') {
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: 'Nomor surat disalin!',
-        text: text,
-        showConfirmButton: false,
-        timer: 2000,
-        timerProgressBar: true
-      });
-    } else {
-      alert('Nomor surat berhasil disalin: ' + text);
-    }
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Nomor surat disalin!',
+      text: text,
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    });
   }
 
   // Konfirmasi Hapus Surat
@@ -310,26 +287,20 @@ $(document).ready(function() {
     var id = $(this).data('id');
     var nomor = $(this).data('nomor');
 
-    if (typeof Swal !== 'undefined') {
-      Swal.fire({
-        title: 'Hapus Surat Keluar?',
-        text: 'Surat No: ' + nomor + ' akan dihapus permanen dari arsip!',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: '<i class="fas fa-trash-alt mr-1"></i> Ya, Hapus!',
-        cancelButtonText: 'Batal'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          $('#delete-form-' + id).submit();
-        }
-      });
-    } else {
-      if (confirm('Apakah Anda yakin ingin menghapus surat no: ' + nomor + '?')) {
+    Swal.fire({
+      title: 'Hapus Surat Keluar?',
+      text: 'Surat No: ' + nomor + ' akan dihapus permanen dari arsip!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: '<i class="fas fa-trash-alt mr-1"></i> Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    }).then((result) => {
+      if (result.isConfirmed) {
         $('#delete-form-' + id).submit();
       }
-    }
+    });
   });
 });
 </script>

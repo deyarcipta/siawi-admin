@@ -464,26 +464,20 @@
         btnResetOrtu.addEventListener('click', function(e) {
           e.preventDefault();
           const form = this.closest('form');
-          if (typeof Swal !== 'undefined') {
-            Swal.fire({
-              title: 'Reset Password Orang Tua?',
-              text: 'Password akun orang tua akan dikembalikan ke default: 123456',
-              icon: 'warning',
-              showCancelButton: true,
-              confirmButtonColor: '#3085d6',
-              cancelButtonColor: '#6c757d',
-              confirmButtonText: 'Ya, Reset Password!',
-              cancelButtonText: 'Batal'
-            }).then((result) => {
-              if (result.isConfirmed) {
-                form.submit();
-              }
-            });
-          } else {
-            if (confirm('Reset password akun orang tua ini kembali ke default (123456)?')) {
+          Swal.fire({
+            title: 'Reset Password Orang Tua?',
+            text: 'Password akun orang tua akan dikembalikan ke default: 123456',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Reset Password!',
+            cancelButtonText: 'Batal'
+          }).then((result) => {
+            if (result.isConfirmed) {
               form.submit();
             }
-          }
+          });
         });
       }
 
@@ -493,26 +487,20 @@
         btnToggleOrtu.addEventListener('click', function(e) {
           e.preventDefault();
           const form = this.closest('form');
-          if (typeof Swal !== 'undefined') {
-            Swal.fire({
-              title: 'Ubah Status Akun Orang Tua?',
-              text: 'Status akses login akun orang tua ini akan diubah.',
-              icon: 'question',
-              showCancelButton: true,
-              confirmButtonColor: '#3085d6',
-              cancelButtonColor: '#6c757d',
-              confirmButtonText: 'Ya, Ubah Status!',
-              cancelButtonText: 'Batal'
-            }).then((result) => {
-              if (result.isConfirmed) {
-                form.submit();
-              }
-            });
-          } else {
-            if (confirm('Ubah status akses login akun orang tua ini?')) {
+          Swal.fire({
+            title: 'Ubah Status Akun Orang Tua?',
+            text: 'Status akses login akun orang tua ini akan diubah.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Ubah Status!',
+            cancelButtonText: 'Batal'
+          }).then((result) => {
+            if (result.isConfirmed) {
               form.submit();
             }
-          }
+          });
         });
       }
     });

@@ -80,7 +80,7 @@
                           <a href="/admin/informasi/{{$data->id}}/edit" class="btn-action btn-action-edit" title="Edit Informasi">
                             <i class="fa fa-pencil-alt"></i>
                           </a>
-                          <form action="/admin/informasi/{{$data->id}}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus informasi ini?')">
+                          <form action="/admin/informasi/{{$data->id}}" method="POST" class="d-inline" onsubmit="return confirmSwal(event, 'Apakah Anda yakin ingin menghapus informasi ini?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn-action btn-action-delete" title="Hapus Informasi">

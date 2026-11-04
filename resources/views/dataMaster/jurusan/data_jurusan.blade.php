@@ -24,24 +24,6 @@
 
   <div class="content">
     <div class="container-fluid">
-      @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-          <i class="fas fa-check-circle mr-1"></i> {!! session('success') !!}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-      @endif
-
-      @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-          <i class="fas fa-exclamation-circle mr-1"></i> {!! session('error') !!}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-      @endif
-
       <div class="row">
         <div class="col-lg-12">
           <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
@@ -114,7 +96,7 @@
                               <i class="fas fa-edit"></i>
                             </a>
                             @if($user->hasRole('admin'))
-                              <form action="/admin/jurusan/{{ $jur->id_jurusan }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jurusan ini?')">
+                              <form action="/admin/jurusan/{{ $jur->id_jurusan }}" method="POST" class="d-inline" onsubmit="return confirmSwal(event, 'Apakah Anda yakin ingin menghapus jurusan ini?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Data" style="border-radius: 0 6px 6px 0; border-left: none;">

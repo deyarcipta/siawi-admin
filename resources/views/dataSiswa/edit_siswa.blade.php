@@ -653,41 +653,4 @@
       </div>
     </div>
   </div>
-  <!-- <script>
-    document.addEventListener("DOMContentLoaded", function () {
-  // Fokuskan input RFID saat halaman dimuat
-  const rfidInput = document.getElementById("rfid");
-  rfidInput.focus(); // Fokus pada input RFID otomatis
-
-  // Menambahkan event listener untuk submit form
-  const form = document.querySelector('form');
-  if (form) {
-    form.addEventListener('submit', function (event) {
-      // Validasi input RFID sebelum submit
-      const rfidValue = rfidInput.value.trim();
-
-      if (!rfidValue) {
-        alert("RFID belum dipindai atau kosong.");
-        event.preventDefault(); // Mencegah pengiriman jika input kosong
-      }
-    });
-  }
-
-  // Event listener untuk input RFID
-  rfidInput.addEventListener("input", function () {
-    const rfidValue = rfidInput.value.trim();
-
-    // Log nilai RFID jika ada perubahan
-    console.log("Nilai RFID: ", rfidValue);
-  });
-
-  // Opsional: Tambahkan validasi saat input kehilangan fokus
-  rfidInput.addEventListener("blur", function () {
-    if (!rfidInput.value.trim()) {
-      alert("RFID belum dipindai");
-    }
-  });
-});
-
-  </script> -->
 @endsection

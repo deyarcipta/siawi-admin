@@ -5,17 +5,18 @@
     <div class="row align-items-center mb-2">
       <div class="col-sm-7 d-flex align-items-center">
         <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle shadow-sm mr-3" style="width: 46px; height: 46px; font-size: 1.25rem;">
-          <i class="fas fa-award"></i>
+          <i class="fas fa-tasks"></i>
         </div>
         <div>
-          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2; font-size: 1.35rem;">Tambah Capaian & Tujuan Pembelajaran (CP / TP)</h1>
-          <p class="text-muted mt-1 mb-0" style="font-size: 0.84rem;">Penyusunan standar capaian kompetensi dan alur tujuan pembelajaran Kurikulum Merdeka Kejuruan</p>
+          <h1 class="m-0 font-weight-bold text-dark" style="line-height: 1.2; font-size: 1.35rem;">Tambah Tujuan Pembelajaran (TP / ATP)</h1>
+          <p class="text-muted mt-1 mb-0" style="font-size: 0.84rem;">Penyusunan Alur Tujuan Pembelajaran (ATP) dan unit kompetensi Kurikulum Merdeka Kejuruan</p>
         </div>
       </div>
       <div class="col-sm-5">
         <ol class="breadcrumb float-sm-right bg-transparent p-0 mb-0">
-          <li class="breadcrumb-item"><a href="/admin/kompetensi" class="text-primary font-weight-500">Capaian & TP</a></li>
-          <li class="breadcrumb-item active">Tambah CP/TP</li>
+          <li class="breadcrumb-item"><a href="/admin/dashboard" class="text-primary font-weight-500">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="/admin/kompetensi" class="text-primary font-weight-500">CP & ATP</a></li>
+          <li class="breadcrumb-item active">Tambah TP</li>
         </ol>
       </div>
     </div>
@@ -43,11 +44,11 @@
 
     <div class="row">
       <!-- Kolom Formulir Utama (Kiri) -->
-      <div class="col-12 col-lg-7 mb-4">
+      <div class="col-12 col-lg-8 mb-4">
         <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden;">
           <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
             <h5 class="card-title font-weight-bold text-dark mb-0" style="font-size: 1.05rem;">
-              <i class="fas fa-plus-circle text-primary mr-2"></i> Formulir Capaian & Tujuan Pembelajaran
+              <i class="fas fa-plus-circle text-primary mr-2"></i> Formulir Tujuan Pembelajaran (TP)
             </h5>
             <span class="badge badge-light border text-primary px-2 py-1 font-weight-normal small">
               Kurikulum Merdeka
@@ -57,50 +58,122 @@
           <form action="/admin/kompetensi" method="POST">
             @csrf
             <div class="card-body p-4 pt-3">
-              <!-- Program Keahlian / Jurusan -->
-              <div class="form-group mb-3">
-                <label for="id_jurusan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  Program Keahlian / Jurusan <span class="text-danger">*</span>
-                </label>
-                <select name="id_jurusan" id="id_jurusan" class="form-control select2bs4 @error('id_jurusan') is-invalid @enderror" required style="border-radius: 8px;">
-                  <option value="">Pilih Program Keahlian</option>
-                  @foreach($jurusans as $j)
-                    <option value="{{ $j->id_jurusan }}" {{ old('id_jurusan') == $j->id_jurusan ? 'selected' : '' }}>
-                      {{ $j->nama_jurusan }} ({{ $j->kode_jurusan }})
-                    </option>
-                  @endforeach
-                </select>
-                <small class="form-text text-muted">Kompetensi akan terikat pada kurikulum jurusan kejuruan yang dipilih.</small>
-                @error('id_jurusan')
-                  <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
-                @enderror
+              <!-- Baris Program Keahlian & Induk Elemen CP -->
+              <div class="row">
+                <div class="col-md-6 form-group mb-3">
+                  <label for="id_jurusan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                    Program Keahlian / Jurusan <span class="text-danger">*</span>
+                  </label>
+                  <select name="id_jurusan" id="id_jurusan" class="form-control select2bs4 @error('id_jurusan') is-invalid @enderror" required style="border-radius: 8px;">
+                    <option value="">Pilih Program Keahlian</option>
+                    @foreach($jurusans as $j)
+                      <option value="{{ $j->id_jurusan }}" {{ old('id_jurusan') == $j->id_jurusan ? 'selected' : '' }}>
+                        {{ $j->nama_jurusan }} ({{ $j->kode_jurusan }})
+                      </option>
+                    @endforeach
+                  </select>
+                  @error('id_jurusan')
+                    <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                  @enderror
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                  <label for="id_cp" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                    Induk Elemen Capaian Pembelajaran (CP)
+                  </label>
+                  <select name="id_cp" id="id_cp" class="form-control @error('id_cp') is-invalid @enderror" style="border-radius: 8px;">
+                    <option value="">-- Tanpa Induk (TP Mandiri) --</option>
+                    @foreach($capaianList as $cp)
+                      <option value="{{ $cp->id_cp }}" 
+                              data-jurusan="{{ $cp->id_jurusan }}" 
+                              data-fase="{{ $cp->fase }}"
+                              {{ (old('id_cp', $selectedCpId) == $cp->id_cp) ? 'selected' : '' }}>
+                        [{{ $cp->fase_label }}] {{ $cp->kode_elemen }} - {{ $cp->nama_elemen }} ({{ $cp->jurusan->nama_singkat ?? '-' }})
+                      </option>
+                    @endforeach
+                  </select>
+                  <small class="form-text text-muted">Pilih Elemen CP induk agar TP masuk ke dalam Alur Tujuan Pembelajaran (ATP).</small>
+                  @error('id_cp')
+                    <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                  @enderror
+                </div>
               </div>
 
-              <!-- Kodefikasi CP / TP -->
+              <!-- Baris Urutan Alur ATP & Alokasi JP -->
+              <div class="row">
+                <div class="col-md-6 form-group mb-3">
+                  <label for="urutan_atp" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                    Nomor Alur dalam CP (ATP #)
+                  </label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text bg-light text-muted"><i class="fas fa-sort-numeric-down"></i></span>
+                    </div>
+                    <input type="number" min="1" max="99" class="form-control @error('urutan_atp') is-invalid @enderror" id="urutan_atp" placeholder="Contoh: 1, 2, 3..." name="urutan_atp" value="{{ old('urutan_atp') }}" style="border-radius: 0 8px 8px 0;">
+                  </div>
+                  <small class="form-text text-muted">Urutan pembelajaran TP ini di dalam fase/elemen CP terkait.</small>
+                  @error('urutan_atp')
+                    <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                  @enderror
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                  <label for="alokasi_jp" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                    Alokasi Jam Pelajaran (JP)
+                  </label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text bg-light text-muted"><i class="fas fa-clock"></i></span>
+                    </div>
+                    <input type="number" min="1" max="500" class="form-control @error('alokasi_jp') is-invalid @enderror" id="alokasi_jp" placeholder="Contoh: 18" name="alokasi_jp" value="{{ old('alokasi_jp') }}" style="border-radius: 0 8px 8px 0;">
+                    <div class="input-group-append">
+                      <span class="input-group-text bg-light text-muted small">JP</span>
+                    </div>
+                  </div>
+                  <small class="form-text text-muted">Perkiraan durasi JP pembelajaran teori & praktikum.</small>
+                  @error('alokasi_jp')
+                    <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                  @enderror
+                </div>
+              </div>
+
+              <!-- Kodefikasi TP -->
               <div class="form-group mb-3">
                 <label for="kode_kompetensi" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  Kodefikasi Capaian / TP <span class="text-danger">*</span>
+                  Kodefikasi Tujuan Pembelajaran (Kode TP) <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text bg-light border-right-0"><i class="fas fa-barcode text-muted"></i></span>
                   </div>
-                  <input type="text" class="form-control border-left-0 @error('kode_kompetensi') is-invalid @enderror" id="kode_kompetensi" placeholder="Contoh: CP-TKJ-01, TP-01, atau EL-02" name="kode_kompetensi" value="{{ old('kode_kompetensi') }}" required style="border-radius: 0 8px 8px 0; font-weight: 600;">
+                  <input type="text" class="form-control border-left-0 @error('kode_kompetensi') is-invalid @enderror" id="kode_kompetensi" placeholder="Contoh: TP-01, TP-TKJ-101, atau EL1-TP02" name="kode_kompetensi" value="{{ old('kode_kompetensi') }}" required style="border-radius: 0 8px 8px 0; font-weight: 600;">
                 </div>
-                <small class="form-text text-muted">Format kode identifikasi Capaian Pembelajaran (CP) atau butir Tujuan Pembelajaran (TP).</small>
+                <small class="form-text text-muted">Format kode identifikasi Tujuan Pembelajaran (TP) yang akan tampil di modul praktik dan penilaian.</small>
                 @error('kode_kompetensi')
                   <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
                 @enderror
               </div>
 
-              <!-- Judul Capaian / Tujuan Pembelajaran -->
+              <!-- Judul Rumusan Tujuan Pembelajaran -->
               <div class="form-group mb-3">
                 <label for="nama_kompetensi" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  Rumusan Capaian / Tujuan Pembelajaran <span class="text-danger">*</span>
+                  Rumusan Tujuan Pembelajaran (TP) <span class="text-danger">*</span>
                 </label>
-                <input type="text" class="form-control @error('nama_kompetensi') is-invalid @enderror" id="nama_kompetensi" placeholder="Contoh: Mengkonfigurasi Routing Dinamis BGP pada Jaringan Enterprise" name="nama_kompetensi" value="{{ old('nama_kompetensi') }}" required style="border-radius: 8px;">
-                <small class="form-text text-muted">Rumusan kompetensi operasional mencakup kompetensi keterampilan kerja dan materi ajar.</small>
+                <textarea rows="2" class="form-control @error('nama_kompetensi') is-invalid @enderror" id="nama_kompetensi" placeholder="Contoh: Siswa mampu merancang topologi jaringan lokal (LAN) berbasis mikrotik dengan teliti dan sesuai SOP" name="nama_kompetensi" required style="border-radius: 8px;">{{ old('nama_kompetensi') }}</textarea>
+                <small class="form-text text-muted">Rumusan operasional kemampuan peserta didik (memuat kompetensi + konten materi).</small>
                 @error('nama_kompetensi')
+                  <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
+                @enderror
+              </div>
+
+              <!-- Ruang Lingkup Materi Pokok -->
+              <div class="form-group mb-3">
+                <label for="materi_pokok" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
+                  Ruang Lingkup Materi Pokok
+                </label>
+                <input type="text" class="form-control @error('materi_pokok') is-invalid @enderror" id="materi_pokok" placeholder="Contoh: IP Subnetting, VLSM, Topologi Bintang, Kabel UTP Cat6" name="materi_pokok" value="{{ old('materi_pokok') }}" style="border-radius: 8px;">
+                <small class="form-text text-muted">Ringkasan pokok bahasan modul ajar / job sheet praktikum.</small>
+                @error('materi_pokok')
                   <small class="text-danger font-weight-500 mt-1 d-block">{{ $message }}</small>
                 @enderror
               </div>
@@ -158,71 +231,72 @@
                 <i class="fas fa-arrow-left mr-1"></i> Batal
               </a>
               <button type="submit" class="btn btn-primary ml-auto px-4 shadow-sm" style="border-radius: 8px; font-weight: 600;">
-                <i class="fas fa-save mr-1"></i> Simpan Capaian / TP
+                <i class="fas fa-save mr-1"></i> Simpan Tujuan Pembelajaran
               </button>
             </div>
           </form>
         </div>
       </div>
 
-      <!-- Kolom Informasi & Petunjuk Standar (Kanan) -->
-      <div class="col-12 col-lg-5 mb-4">
-        <!-- Kartu 1: Pedoman Kurikulum Merdeka -->
+      <!-- Kolom Petunjuk & Standar Kurikulum Merdeka (Kanan) -->
+      <div class="col-12 col-lg-4 mb-4">
+        <!-- Kartu 1: Pedoman Hierarki CP-ATP -->
         <div class="card border-0 shadow-sm mb-3" style="border-radius: 14px;">
           <div class="card-header bg-white py-3 border-bottom d-flex align-items-center">
             <div class="rounded-circle d-flex align-items-center justify-content-center bg-info text-white mr-2" style="width: 32px; height: 32px; font-size: 0.9rem;">
-              <i class="fas fa-graduation-cap"></i>
+              <i class="fas fa-sitemap"></i>
             </div>
-            <h6 class="font-weight-bold text-dark mb-0">Struktur Kurikulum Merdeka SMK</h6>
+            <h6 class="font-weight-bold text-dark mb-0">Hierarki CP & ATP SMK</h6>
           </div>
           <div class="card-body p-3 small text-secondary">
             <div class="mb-2">
-              <strong class="text-dark d-block">1. Pembagian Fase SMK:</strong>
-              <ul class="pl-3 mb-2">
-                <li class="mb-1"><strong>Fase E (Kelas X):</strong> Dasar-dasar Program Keahlian, pembentukan fondasi kerja, K3LH, dan etika profesi.</li>
-                <li><strong>Fase F (Kelas XI & XII):</strong> Konsentrasi Keahlian, pembelajaran berbasis proyek (PjBL), PKL di industri, dan sertifikasi UKK.</li>
-              </ul>
-            </div>
-            <div class="mb-2">
-              <strong class="text-dark d-block">2. Hubungan CP & TP:</strong>
-              <p class="mb-1 text-muted" style="font-size: 0.8rem;">
-                <strong>Capaian Pembelajaran (CP)</strong> merupakan kompetensi makro per fase. Guru menurunkan CP menjadi butir-butir <strong>Tujuan Pembelajaran (TP)</strong> yang dievaluasi melalui modul praktik.
+              <strong class="text-dark d-block">1. Hubungan Induk & Anak:</strong>
+              <p class="mb-1 text-muted">
+                <strong>Elemen CP (Parent):</strong> Elemen standar capaian nasional (misal: Jaringan Komputer).
+              </p>
+              <p class="mb-1 text-muted">
+                <strong>Tujuan Pembelajaran (Child):</strong> Alur langkah operasional pembelajaran per topik praktikum.
               </p>
             </div>
-            <div class="p-2 rounded bg-light border font-monospace" style="font-size: 0.78rem;">
-              <i class="fas fa-lightbulb text-warning mr-1"></i> Contoh penamaan: <code>CP-TKJ-01</code> (Capaian Elemen), <code>TP-ROUTING-01</code> (Tujuan Pembelajaran).
+            <div class="mb-2">
+              <strong class="text-dark d-block">2. Manfaat Pemisahan:</strong>
+              <ul class="pl-3 mb-2 text-muted">
+                <li>Menghindari pengetikan teks CP berulang-ulang di setiap modul.</li>
+                <li>Modul & Job Sheet langsung memilih TP yang spesifik.</li>
+                <li>Otomatis menghitung total jam pelajaran (JP) per elemen capaian.</li>
+              </ul>
             </div>
           </div>
         </div>
 
-        <!-- Kartu 2: Integrasi Sistem Kejuruan -->
+        <!-- Kartu 2: Integrasi Otomatis Pembelajaran -->
         <div class="card border-0 shadow-sm" style="border-radius: 14px; background: linear-gradient(to bottom, #ffffff, #f8fafc);">
           <div class="card-header bg-transparent py-3 border-bottom d-flex align-items-center">
             <div class="rounded-circle d-flex align-items-center justify-content-center bg-success text-white mr-2" style="width: 32px; height: 32px; font-size: 0.9rem;">
               <i class="fas fa-network-wired"></i>
             </div>
-            <h6 class="font-weight-bold text-dark mb-0">Integrasi Otomatis Pembelajaran</h6>
+            <h6 class="font-weight-bold text-dark mb-0">Integrasi Otomatis</h6>
           </div>
           <div class="card-body p-3 small">
             <div class="d-flex align-items-start mb-3">
               <div class="text-primary font-weight-bold mr-2 mt-1"><i class="fas fa-check-circle"></i></div>
               <div>
                 <strong class="text-dark d-block">Bank Modul & Jobsheet:</strong>
-                <span class="text-muted">Setiap lembar kerja praktikum dikaitkan dengan CP/TP ini sebagai bukti materi ajar.</span>
+                <span class="text-muted">Job sheet praktikum dikaitkan dengan TP ini sebagai rujukan materi.</span>
               </div>
             </div>
             <div class="d-flex align-items-start mb-3">
               <div class="text-primary font-weight-bold mr-2 mt-1"><i class="fas fa-check-circle"></i></div>
               <div>
                 <strong class="text-dark d-block">Penilaian & KKTP:</strong>
-                <span class="text-muted">Hasil asesmen praktik siswa otomatis dievaluasi terhadap ambang batas KKTP yang ditetapkan.</span>
+                <span class="text-muted">Hasil nilai praktikum dinilai terhadap ambang batas KKTP TP ini.</span>
               </div>
             </div>
             <div class="d-flex align-items-start">
               <div class="text-primary font-weight-bold mr-2 mt-1"><i class="fas fa-check-circle"></i></div>
               <div>
-                <strong class="text-dark d-block">Portofolio & Transkrip Siswa:</strong>
-                <span class="text-muted">Kompetensi yang tuntas otomatis tercatat dalam rekam jejak portofolio keahlian siswa.</span>
+                <strong class="text-dark d-block">Portofolio & UKK:</strong>
+                <span class="text-muted">Kelulusan TP ini otomatis tercatat dalam portofolio keahlian siswa.</span>
               </div>
             </div>
           </div>
@@ -231,4 +305,28 @@
     </div>
   </div>
 </div>
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+  // Sync Jurusan when Induk CP is selected
+  $('#id_cp').on('change', function() {
+    var selected = $(this).find(':selected');
+    var jurusanId = selected.data('jurusan');
+    var fase = selected.data('fase');
+    
+    if (jurusanId) {
+      $('#id_jurusan').val(jurusanId).trigger('change');
+    }
+    if (fase === 'E') {
+      $('#tingkat').val('X');
+    } else if (fase === 'F') {
+      if (!$('#tingkat').val() || $('#tingkat').val() === 'X') {
+        $('#tingkat').val('XI');
+      }
+    }
+  });
+});
+</script>
+@endpush
 @endsection

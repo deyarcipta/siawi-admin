@@ -27,24 +27,6 @@
 <div class="content">
   <div class="container-fluid">
 
-    @if(session('success'))
-      <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
-        <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
-    @if(session('error'))
-      <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
-        <i class="fas fa-exclamation-circle mr-2"></i> {{ session('error') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
     <!-- Summary Stat Cards -->
     <div class="row mb-3">
       <!-- Total Item Alat -->
@@ -342,7 +324,7 @@
                       <a href="/admin/kejuruan/inventaris-lab/aset/{{ $a->id_aset }}/edit" class="btn btn-xs btn-outline-primary mr-1" title="Ubah Aset">
                         <i class="fas fa-edit"></i>
                       </a>
-                      <form action="/admin/kejuruan/inventaris-lab/aset/{{ $a->id_aset }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus aset ini dari inventaris lab?')">
+                      <form action="/admin/kejuruan/inventaris-lab/aset/{{ $a->id_aset }}" method="POST" class="d-inline" onsubmit="return confirmSwal(event, 'Hapus aset ini dari inventaris lab?')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-xs btn-outline-danger" title="Hapus Aset">

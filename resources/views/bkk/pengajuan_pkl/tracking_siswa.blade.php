@@ -95,12 +95,6 @@
 
   <main class="container-track">
 
-    @if(session('success'))
-      <div class="alert alert-success shadow-sm mb-3" role="alert" style="border-radius: 12px;">
-        <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-      </div>
-    @endif
-
     <!-- Form Pencarian -->
     <div class="search-card">
       <form action="{{ route('pengajuan-pkl.tracking') }}" method="GET">
@@ -224,6 +218,18 @@
   <footer class="footer-text">
     &copy; 2024 {{ $setting->nama_sekolah ?? 'SMK Wisata Indonesia' }} &bull; SIAWI Integrated System
   </footer>
+
+  @if(session('success'))
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    Swal.fire({
+      icon: 'success',
+      title: 'Berhasil!',
+      html: @json(session('success')),
+      confirmButtonColor: '#1d72fe'
+    });
+  </script>
+  @endif
 
 </body>
 </html>

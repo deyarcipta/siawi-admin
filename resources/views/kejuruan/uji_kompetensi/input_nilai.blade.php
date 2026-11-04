@@ -28,15 +28,6 @@
 <!-- Main content -->
 <div class="content">
   <div class="container-fluid">
-    @if(session('error'))
-      <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
-        <i class="fas fa-exclamation-circle mr-2"></i> {!! session('error') !!}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
     <form action="/admin/kejuruan/uji-kompetensi/{{ $kegiatan->id_ukk_kegiatan }}/simpan/{{ $peserta->id_ukk_peserta }}" method="POST">
       @csrf
 

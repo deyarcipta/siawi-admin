@@ -70,7 +70,7 @@
                           <a href="/admin/kalender/{{$data->id}}/edit" class="btn-action btn-action-edit" title="Edit Agenda">
                             <i class="fa fa-pencil-alt"></i>
                           </a>
-                          <form action="/admin/kalender/{{$data->id}}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus agenda ini?')">
+                          <form action="/admin/kalender/{{$data->id}}" method="POST" class="d-inline" onsubmit="return confirmSwal(event, 'Apakah Anda yakin ingin menghapus agenda ini?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn-action btn-action-delete" title="Hapus Agenda">

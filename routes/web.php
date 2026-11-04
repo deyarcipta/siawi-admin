@@ -401,6 +401,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
 
         Route::resource('jurusan', JurusanController::class);
         Route::resource('lab', LabController::class);
+        Route::post('kompetensi/cp', [KompetensiController::class, 'storeCp'])->name('kompetensi.cp.store');
+        Route::put('kompetensi/cp/{id}', [KompetensiController::class, 'updateCp'])->name('kompetensi.cp.update');
+        Route::delete('kompetensi/cp/{id}', [KompetensiController::class, 'destroyCp'])->name('kompetensi.cp.destroy');
         Route::resource('kompetensi', KompetensiController::class);
     });
 

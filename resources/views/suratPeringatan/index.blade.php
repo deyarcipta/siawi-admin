@@ -368,22 +368,6 @@
 
 @push('scripts')
 <script>
-@if ($message = Session::get('success'))
-    Swal.fire({
-        icon: 'success',
-        title: 'Berhasil!',
-        text: '{{ $message }}'
-    });
-@endif
-
-@if ($message = Session::get('failed'))
-    Swal.fire({
-        icon: 'error',
-        title: 'Gagal!',
-        text: '{{ $message }}'
-    });
-@endif
-
 $(document).ready(function() {
     // Custom file input label update
     $('.custom-file-input').on('change', function() {

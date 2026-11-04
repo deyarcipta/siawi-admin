@@ -26,24 +26,6 @@
 <!-- Main content -->
 <div class="content">
   <div class="container-fluid">
-    @if(session('success'))
-      <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
-        <i class="fas fa-check-circle mr-2"></i> {!! session('success') !!}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
-    @if(session('error'))
-      <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
-        <i class="fas fa-exclamation-circle mr-2"></i> {!! session('error') !!}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
     <!-- Filter Card: Pilih TKK & Kelas -->
     <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px;">
       <div class="card-body p-3">
@@ -254,7 +236,7 @@
                             <i class="fas fa-edit mr-2 text-primary"></i> Edit Data Piagam
                           </a>
                           <div class="dropdown-divider"></div>
-                          <form action="/admin/kejuruan/tkk/batalkan/{{ $s->tkk_rekor->id_siswa_tkk }}" method="POST" onsubmit="return confirm('Batalkan pengesahan TKK untuk siswa {{ addslashes($s->nama_siswa) }}? Status akan dikembalikan ke Dalam Proses.')">
+                          <form action="/admin/kejuruan/tkk/batalkan/{{ $s->tkk_rekor->id_siswa_tkk }}" method="POST" onsubmit="return confirmSwal(event, 'Batalkan pengesahan TKK untuk siswa {{ addslashes($s->nama_siswa) }}? Status akan dikembalikan ke Dalam Proses.')">
                             @csrf
                             <button type="submit" class="dropdown-item py-2 text-danger">
                               <i class="fas fa-undo-alt mr-2"></i> Batalkan Pengesahan
@@ -530,7 +512,7 @@
       btnTrigger.addEventListener('click', function() {
         const selectedCount = document.querySelectorAll('.check-siswa:checked').length;
         if (selectedCount === 0) {
-          alert('Silakan centang minimal 1 siswa di kolom kotak centang tabel terlebih dahulu.');
+          Swal.fire({ icon: 'warning', title: 'Pilih Siswa Terlebih Dahulu', text: 'Silakan centang minimal 1 siswa di kolom kotak centang tabel terlebih dahulu.', confirmButtonColor: '#1d72fe' });
           return;
         }
         updateCount();

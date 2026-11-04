@@ -28,25 +28,6 @@
 <div class="content">
     <div class="container-fluid">
 
-        <!-- Flash Messages -->
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: 10px;">
-                <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        @endif
-
-        @if(session('failed'))
-            <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: 10px;">
-                <i class="fas fa-exclamation-triangle mr-2"></i> {{ session('failed') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        @endif
-
         <!-- 2 Kolom Panel Utama: Buat Cadangan & Pulihkan Cadangan -->
         <div class="row mb-4">
             <!-- Panel 1: Buat Cadangan Baru -->

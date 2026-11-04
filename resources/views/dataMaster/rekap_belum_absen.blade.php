@@ -292,34 +292,19 @@
   // Peringatan jika No WA belum ada
   function alertNoWa(namaKelas, namaWali) {
     var walasText = namaWali ? 'Bapak/Ibu ' + namaWali : 'Wali Kelas ' + namaKelas;
-    if (typeof Swal !== 'undefined') {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Nomor WhatsApp Belum Terdaftar',
-        text: walasText + ' belum memiliki nomor WhatsApp yang terdaftar di Data Guru. Silakan lengkapi nomor telepon guru terlebih dahulu di menu Data Guru.',
-        confirmButtonText: 'Mengerti',
-        confirmButtonColor: '#3085d6'
-      });
-    } else {
-      alert('Nomor WhatsApp ' + walasText + ' belum terdaftar di data guru.');
-    }
+    Swal.fire({
+      icon: 'warning',
+      title: 'Nomor WhatsApp Belum Terdaftar',
+      text: walasText + ' belum memiliki nomor WhatsApp yang terdaftar di Data Guru. Silakan lengkapi nomor telepon guru terlebih dahulu di menu Data Guru.',
+      confirmButtonText: 'Mengerti',
+      confirmButtonColor: '#3085d6'
+    });
   }
 
   // Kirim Pesan via WhatsApp Gateway
   function kirimWaGateway(idKelas, namaKelas, namaWali) {
     var walasName = namaWali ? 'Bapak/Ibu ' + namaWali : 'Wali Kelas ' + namaKelas;
     var targetUrl = '{{ url("admin/rekap-belum-absen/kirim-wa") }}/' + idKelas;
-
-    if (typeof Swal === 'undefined') {
-      if (confirm('Kirim WA ke ' + walasName + ' (' + namaKelas + ')?')) {
-        $.post(targetUrl, { tanggal: '{{ $date }}', _token: '{{ csrf_token() }}' }, function(res) {
-          alert(res.message || 'Pesan berhasil dikirim.');
-        }).fail(function(err) {
-          alert((err.responseJSON && err.responseJSON.message) ? err.responseJSON.message : 'Gagal mengirim pesan.');
-        });
-      }
-      return;
-    }
 
     Swal.fire({
       title: 'Kirim WA ke ' + (namaWali ? namaWali : namaKelas) + '?',
@@ -361,17 +346,6 @@
   // Kirim WhatsApp ke Semua Wali Kelas Sekaligus
   function kirimWaSemuaKelas() {
     var targetUrl = '{{ url("admin/rekap-belum-absen/kirim-wa-semua") }}';
-
-    if (typeof Swal === 'undefined') {
-      if (confirm('Kirim WA pemberitahuan kelalaian input ke semua Wali Kelas?')) {
-        $.post(targetUrl, { tanggal: '{{ $date }}', _token: '{{ csrf_token() }}' }, function(res) {
-          alert(res.message || 'Pengiriman diproses.');
-        }).fail(function(err) {
-          alert((err.responseJSON && err.responseJSON.message) ? err.responseJSON.message : 'Gagal mengirim pesan massal.');
-        });
-      }
-      return;
-    }
 
     Swal.fire({
       title: 'Kirim WA ke Semua Wali Kelas?',

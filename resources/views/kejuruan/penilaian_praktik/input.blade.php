@@ -27,42 +27,6 @@
 <div class="content">
   <div class="container-fluid">
 
-    @if(session('success'))
-      <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 10px;">
-        <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
-    @if(session('error'))
-      <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 10px;">
-        <i class="fas fa-exclamation-circle mr-2"></i> {{ session('error') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
-    @if(session('warning'))
-      <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 10px;">
-        <i class="fas fa-exclamation-triangle mr-2"></i> {{ session('warning') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
-    @if(session('info'))
-      <div class="alert alert-info alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 10px;">
-        <i class="fas fa-info-circle mr-2"></i> {{ session('info') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
     <!-- Info Banner Header -->
     <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
       <div class="card-body p-3">
@@ -78,12 +42,27 @@
           </div>
 
           <div class="col-md-5 mb-2 mb-md-0 border-right">
-            <span class="text-muted small d-block">Modul Praktikum:</span>
-            <span class="font-weight-bold text-dark d-block text-truncate" title="{{ $penilaian->modul->judul ?? '-' }}">
-              {{ $penilaian->modul->judul ?? '-' }}
-            </span>
-            <small class="text-primary font-weight-bold">
-              [{{ $penilaian->kompetensi->kode_kompetensi ?? '-' }}] {{ $penilaian->kompetensi->nama_kompetensi ?? '-' }}
+            @if($penilaian->modul)
+              <span class="text-muted small d-block"><i class="fas fa-book-open mr-1 text-primary"></i> Modul Praktikum:</span>
+              <span class="font-weight-bold text-dark d-block text-truncate" title="{{ $penilaian->modul->judul }}">
+                {{ $penilaian->modul->judul }}
+              </span>
+            @else
+              <span class="text-muted small d-block"><i class="fas fa-bolt mr-1 text-warning"></i> Metode Penilaian:</span>
+              <span class="font-weight-bold text-dark d-block text-truncate">
+                <span class="badge badge-warning text-dark mr-1">Jalur Cepat</span> Langsung ATP (Tanpa Modul)
+              </span>
+            @endif
+            <small class="text-primary font-weight-bold d-block mt-1">
+              @if($penilaian->kompetensis && $penilaian->kompetensis->count() > 1)
+                <span class="badge badge-info mr-1">{{ $penilaian->kompetensis->count() }} ATP Terpadu:</span>
+                {{ $penilaian->kompetensis->pluck('kode_kompetensi')->implode(', ') }}
+              @else
+                @if($penilaian->kompetensi && $penilaian->kompetensi->capaianPembelajaran)
+                  <span class="badge badge-light border mr-1 text-secondary">Elemen: {{ $penilaian->kompetensi->capaianPembelajaran->kode_elemen }}</span>
+                @endif
+                [{{ $penilaian->kompetensi->kode_kompetensi ?? '-' }}] {{ $penilaian->kompetensi->nama_kompetensi ?? '-' }}
+              @endif
             </small>
           </div>
 
@@ -133,30 +112,30 @@
       @csrf
 
       <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
-        <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between flex-wrap">
-          <div class="d-flex align-items-center mb-2 mb-sm-0">
+        <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between flex-wrap" style="gap: 10px;">
+          <div class="d-flex align-items-center">
             <h5 class="card-title font-weight-bold text-dark mb-0" style="font-size: 1rem;">
               <i class="fas fa-table text-primary mr-2"></i> Tabel Penilaian Siswa ({{ $nilaiSiswas->count() }} Siswa)
             </h5>
           </div>
 
-          <div class="d-flex align-items-center flex-wrap">
-            <button type="button" class="btn btn-outline-info btn-sm px-3 mr-2 mb-1 mb-md-0 shadow-sm" style="border-radius: 6px; font-weight: 600;" onclick="confirmSyncSiswa({{ $missingSiswas->count() }})" title="Sinkronkan seluruh siswa kelas {{ $penilaian->kelas->nama_kelas ?? '' }} ke sesi ini">
+          <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+            <button type="button" class="btn btn-outline-info btn-sm px-3 shadow-sm" style="border-radius: 6px; font-weight: 600;" onclick="confirmSyncSiswa({{ $missingSiswas->count() }})" title="Sinkronkan seluruh siswa kelas {{ $penilaian->kelas->nama_kelas ?? '' }} ke sesi ini">
               <i class="fas fa-sync-alt mr-1"></i> Sinkronkan Siswa Kelas
               @if($missingSiswas->count() > 0)
                 <span class="badge badge-warning ml-1">{{ $missingSiswas->count() }}</span>
               @endif
             </button>
-            <button type="button" class="btn btn-outline-primary btn-sm px-3 mr-2 mb-1 mb-md-0 shadow-sm" style="border-radius: 6px; font-weight: 600;" data-toggle="modal" data-target="#modalTambahSiswa">
+            <button type="button" class="btn btn-outline-primary btn-sm px-3 shadow-sm" style="border-radius: 6px; font-weight: 600;" data-toggle="modal" data-target="#modalTambahSiswa">
               <i class="fas fa-user-plus mr-1"></i> Tambah Siswa
             </button>
-            <a href="/admin/kejuruan/penilaian-praktik/{{ $penilaian->id_penilaian_praktik }}" class="btn btn-outline-secondary btn-sm px-3 mr-2 mb-1 mb-md-0" style="border-radius: 6px;">
+            <a href="/admin/kejuruan/penilaian-praktik/{{ $penilaian->id_penilaian_praktik }}" class="btn btn-outline-secondary btn-sm px-3 shadow-none" style="border-radius: 6px;">
               <i class="fas fa-eye mr-1"></i> Ringkasan
             </a>
-            <button type="submit" name="action" value="draft" class="btn btn-outline-primary btn-sm px-3 mr-2 mb-1 mb-md-0 shadow-sm" style="border-radius: 6px; font-weight: 600;">
+            <button type="submit" name="action" value="draft" class="btn btn-outline-primary btn-sm px-3 shadow-sm" style="border-radius: 6px; font-weight: 600;">
               <i class="fas fa-save mr-1"></i> Simpan Draft
             </button>
-            <button type="submit" name="action" value="finalkan" class="btn btn-success btn-sm px-3 mb-1 mb-md-0 shadow-sm" style="border-radius: 6px; font-weight: 600;" onclick="return confirm('Finalkan nilai sekarang? Nilai akan otomatis mengalir ke Portofolio Capaian Siswa dan tampil ke siswa.')">
+            <button type="submit" name="action" value="finalkan" class="btn btn-success btn-sm px-3 shadow-sm" style="border-radius: 6px; font-weight: 600;" onclick="return confirmSwal(event, 'Finalkan nilai sekarang? Nilai akan otomatis mengalir ke Portofolio Capaian Siswa dan tampil ke siswa.')">
               <i class="fas fa-check-double mr-1"></i> Finalkan & Rilis Nilai
             </button>
           </div>
@@ -294,7 +273,7 @@
             <button type="submit" name="action" value="draft" class="btn btn-outline-primary btn-sm px-3 mr-2" style="border-radius: 6px; font-weight: 600;">
               <i class="fas fa-save mr-1"></i> Simpan Draft
             </button>
-            <button type="submit" name="action" value="finalkan" class="btn btn-success btn-sm px-4 shadow-sm" style="border-radius: 6px; font-weight: 600;" onclick="return confirm('Finalkan nilai sekarang? Nilai akan resmi tercatat ke Portofolio Siswa.')">
+            <button type="submit" name="action" value="finalkan" class="btn btn-success btn-sm px-4 shadow-sm" style="border-radius: 6px; font-weight: 600;" onclick="return confirmSwal(event, 'Finalkan nilai sekarang? Nilai akan resmi tercatat ke Portofolio Siswa.')">
               <i class="fas fa-check-double mr-1"></i> Finalkan & Rilis
             </button>
           </div>
@@ -378,17 +357,41 @@
     const msg = count > 0 
       ? 'Masukkan ' + count + ' siswa kelas yang belum terdaftar ke dalam sesi penilaian ini?' 
       : 'Sinkronkan daftar siswa kelas ke dalam sesi penilaian ini?';
-    if (confirm(msg)) {
-      document.getElementById('formSyncSiswa').submit();
-    }
+    Swal.fire({
+      title: 'Konfirmasi Sinkronisasi',
+      text: msg,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#1d72fe',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Ya, Sinkronkan',
+      cancelButtonText: 'Batal',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        document.getElementById('formSyncSiswa').submit();
+      }
+    });
   }
 
   function hapusSiswa(idPenilaian, idSiswa, namaSiswa) {
-    if (confirm('Keluarkan ' + namaSiswa + ' dari sesi penilaian ini? Data nilai siswa pada sesi ini akan dihapus.')) {
-      const form = document.getElementById('formDeleteSiswa');
-      form.action = '/admin/kejuruan/penilaian-praktik/' + idPenilaian + '/siswa/' + idSiswa;
-      form.submit();
-    }
+    Swal.fire({
+      title: 'Keluarkan Siswa?',
+      text: 'Keluarkan ' + namaSiswa + ' dari sesi penilaian ini? Data nilai siswa pada sesi ini akan dihapus.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Ya, Keluarkan',
+      cancelButtonText: 'Batal',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const form = document.getElementById('formDeleteSiswa');
+        form.action = '/admin/kejuruan/penilaian-praktik/' + idPenilaian + '/siswa/' + idSiswa;
+        form.submit();
+      }
+    });
   }
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -458,15 +461,70 @@
       }
     }
 
-    // Event listener for inputs
-    matrixTable.addEventListener('input', function (e) {
-      if (e.target.classList.contains('rubrik-input') || e.target.classList.contains('remedial-input')) {
-        const row = e.target.closest('.student-row');
-        if (row) {
-          calculateRow(row);
+    // Event listener for inputs & kalkulasi nilai
+    if (matrixTable) {
+      matrixTable.addEventListener('input', function (e) {
+        if (e.target.classList.contains('rubrik-input') || e.target.classList.contains('remedial-input')) {
+          const row = e.target.closest('.student-row');
+          if (row) {
+            calculateRow(row);
+          }
         }
-      }
-    });
+      });
+    }
+
+    // Inisialisasi DataTables dengan Paging & Search bawaan
+    if (window.jQuery && $.fn.DataTable && !$.fn.DataTable.isDataTable('#matrixTable')) {
+      const dtMatrix = $('#matrixTable').DataTable({
+        paging: true,
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua Siswa"]],
+        ordering: false,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: false,
+        language: {
+          search: "Cari Siswa:",
+          searchPlaceholder: "Ketik nama / NIS...",
+          lengthMenu: "Tampilkan _MENU_ data",
+          info: "Menampilkan <strong>_START_ - _END_</strong> dari <strong>_TOTAL_</strong> siswa",
+          zeroRecords: "Tidak ada data siswa yang cocok",
+          paginate: {
+            previous: "‹",
+            next: "›"
+          }
+        }
+      });
+
+      // Sinkronkan nilai input ke memory node setiap kali guru mengetik
+      $('#matrixTable').on('input change', 'input', function () {
+        this.defaultValue = this.value;
+        this.setAttribute('value', this.value);
+      });
+    }
+
+    // Submit Interceptor: Ambil data dari SELURUH halaman DataTables sebelum dikirim ke server
+    const formPenilaian = document.getElementById('formPenilaian');
+    if (formPenilaian) {
+      formPenilaian.addEventListener('submit', function (e) {
+        if (window.jQuery && $.fn.DataTable && $.fn.DataTable.isDataTable('#matrixTable')) {
+          const dt = $('#matrixTable').DataTable();
+          // dt.$('input, select') mengambil seluruh input di SEMUA halaman DataTables
+          const allInputs = dt.$('input, select');
+          allInputs.each(function () {
+            // Jika elemen sedang di-detach (berada di halaman 1, 3, dst.)
+            if (!$.contains(document, this)) {
+              $('<input>').attr({
+                type: 'hidden',
+                name: this.name,
+                value: $(this).val()
+              }).appendTo('#formPenilaian');
+            }
+          });
+        }
+      });
+    }
   });
 </script>
 @endsection

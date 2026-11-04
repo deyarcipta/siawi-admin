@@ -161,32 +161,28 @@ function fallbackCopy(text, namaSiswa) {
         document.execCommand('copy');
         showToastSuccess(namaSiswa);
     } catch (err) {
-        alert("Link gagal disalin otomatis: " + text);
+        Swal.fire({ icon: 'error', title: 'Gagal Menyalin', text: 'Link gagal disalin otomatis: ' + text, confirmButtonColor: '#ef4444' });
     }
     document.body.removeChild(textArea);
 }
 
 function showToastSuccess(namaSiswa) {
-    if (typeof Swal !== 'undefined') {
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 2500,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer);
-                toast.addEventListener('mouseleave', Swal.resumeTimer);
-            }
-        });
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
+        }
+    });
 
-        Toast.fire({
-            icon: 'success',
-            title: 'Link tagihan ' + (namaSiswa ? namaSiswa : '') + ' berhasil disalin!'
-        });
-    } else {
-        alert("Link tagihan berhasil disalin!");
-    }
+    Toast.fire({
+        icon: 'success',
+        title: 'Link tagihan ' + (namaSiswa ? namaSiswa : '') + ' berhasil disalin!'
+    });
 }
 </script>
 @endpush

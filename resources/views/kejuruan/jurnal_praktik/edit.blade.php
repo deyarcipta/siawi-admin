@@ -24,15 +24,6 @@
 
 <div class="content">
   <div class="container-fluid">
-    @if(session('error'))
-      <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-        <i class="fas fa-exclamation-triangle mr-1"></i> {!! session('error') !!}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
     <div class="row">
       <div class="col-12 col-lg-8">
         <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden;">
@@ -525,7 +516,7 @@
     $('#btnBukaModalRandom').on('click', function () {
       const total = $('#tbodyPresensi tr.row-siswa').length;
       if (total === 0) {
-        alert('Daftar siswa belum tersedia.');
+        Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Daftar siswa belum tersedia.', confirmButtonColor: '#1d72fe' });
         return;
       }
       $('#lblTotalRombelModal').text(total);
@@ -551,13 +542,13 @@
       const total = $allRows.length;
 
       if (total === 0) {
-        alert('Daftar siswa belum dimuat.');
+        Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Daftar siswa belum dimuat.', confirmButtonColor: '#1d72fe' });
         return;
       }
 
       const targetCount = parseInt($('#inputJumlahRandom').val(), 10);
       if (isNaN(targetCount) || targetCount < 1) {
-        alert('Masukkan jumlah siswa yang valid (minimal 1).');
+        Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Masukkan jumlah siswa yang valid (minimal 1).', confirmButtonColor: '#1d72fe' });
         return;
       }
 
@@ -619,7 +610,7 @@
 
       if (file.size > maxBytes) {
         $warning.text('Ukuran file (' + sizeKb + ' KB) melebihi batas 512 KB!').removeClass('d-none');
-        alert('Ukuran foto terlalu besar (' + sizeKb + ' KB). Batas maksimal foto dokumentasi adalah 512 KB. Silakan kompres foto terlebih dahulu.');
+        Swal.fire({ icon: 'warning', title: 'Ukuran Foto Terlalu Besar', text: 'Ukuran foto (' + sizeKb + ' KB) melebihi batas maksimal 512 KB. Silakan kompres foto terlebih dahulu.', confirmButtonColor: '#1d72fe' });
         $(this).val('');
         $label.text('Pilih foto baru untuk mengganti...');
         $previewBox.addClass('d-none').removeClass('d-flex');

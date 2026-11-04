@@ -28,15 +28,6 @@
 <!-- Main content -->
 <div class="content">
   <div class="container-fluid">
-    @if(session('success'))
-      <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
-        <i class="fas fa-check-circle mr-2"></i> {!! session('success') !!}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
     @php
       $persenKompeten = $totalPeserta > 0 ? round(($totalKompeten / $totalPeserta) * 100) : 0;
     @endphp

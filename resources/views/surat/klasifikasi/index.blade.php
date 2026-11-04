@@ -27,25 +27,6 @@
 <div class="content">
   <div class="container-fluid">
 
-    <!-- Flash Messages -->
-    @if(session('success'))
-      <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: 10px;">
-        <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
-    @if(session('error'))
-      <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: 10px;">
-        <i class="fas fa-exclamation-triangle mr-2"></i> {{ session('error') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
     @if($errors->any())
       <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: 10px;">
         <i class="fas fa-exclamation-circle mr-2"></i> <strong>Terdapat kesalahan input:</strong>
@@ -131,7 +112,7 @@
                       </button>
 
                       <!-- Delete Form -->
-                      <form action="{{ route('admin.klasifikasi-surat.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus klasifikasi {{ $item->kode }}?');">
+                      <form action="{{ route('admin.klasifikasi-surat.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirmSwal(event, 'Apakah Anda yakin ingin menghapus klasifikasi {{ $item->kode }}?');">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn-action btn-action-delete" title="Hapus Klasifikasi">

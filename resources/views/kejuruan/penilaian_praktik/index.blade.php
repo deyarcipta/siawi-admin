@@ -27,24 +27,6 @@
 <div class="content">
   <div class="container-fluid">
 
-    @if(session('success'))
-      <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
-        <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
-    @if(session('error'))
-      <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
-        <i class="fas fa-exclamation-circle mr-2"></i> {{ session('error') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
     @php
       $countTotalSesi = $penilaians->count();
       $countFinal = \App\Models\PenilaianPraktik::forUserJurusan($user)->where('status', 'final')->count();
@@ -229,11 +211,30 @@
                     </span>
                   </td>
                   <td>
-                    <div class="font-weight-bold text-dark" style="font-size: 0.95rem;">
-                      {{ $p->modul->judul ?? '-' }}
-                    </div>
-                    <small class="text-muted">
-                      [{{ $p->kompetensi->kode_kompetensi ?? '-' }}] {{ $p->kompetensi->nama_kompetensi ?? '-' }} (KKM: {{ floatval($p->kkm_saat_penilaian) }})
+                    @if($p->modul)
+                      <div class="font-weight-bold text-dark" style="font-size: 0.95rem;">
+                        <span class="badge badge-light border text-primary mr-1" style="font-size: 0.72rem;"><i class="fas fa-book-open mr-1"></i>Modul</span> {{ $p->modul->judul }}
+                      </div>
+                    @else
+                      <div class="font-weight-bold text-dark" style="font-size: 0.95rem;">
+                        <span class="badge badge-warning text-dark mr-1" style="font-size: 0.72rem;"><i class="fas fa-bolt mr-1"></i>Langsung ATP</span>
+                        @if($p->kompetensis && $p->kompetensis->count() > 1)
+                          <span class="text-primary">{{ $p->kompetensis->count() }} Butir ATP Terpadu</span>
+                        @else
+                          {{ $p->kompetensi->nama_kompetensi ?? '-' }}
+                        @endif
+                      </div>
+                    @endif
+                    <small class="text-muted d-block mt-1">
+                      @if($p->kompetensis && $p->kompetensis->count() > 1)
+                        <span class="badge badge-info mr-1">{{ $p->kompetensis->count() }} ATP</span>
+                        {{ $p->kompetensis->pluck('kode_kompetensi')->implode(', ') }} (Rata-rata KKTP: {{ floatval($p->kkm_saat_penilaian) }})
+                      @else
+                        @if($p->kompetensi && $p->kompetensi->capaianPembelajaran)
+                          <span class="badge badge-light border text-secondary mr-1">Elemen: {{ $p->kompetensi->capaianPembelajaran->kode_elemen }}</span>
+                        @endif
+                        [{{ $p->kompetensi->kode_kompetensi ?? '-' }}] {{ $p->kompetensi->nama_kompetensi ?? '-' }} (KKTP: {{ floatval($p->kkm_saat_penilaian) }})
+                      @endif
                     </small>
                   </td>
                   <td>
@@ -265,7 +266,7 @@
                       <i class="fas fa-edit mr-1"></i> Input
                     </a>
                     @if($user->hasRole('admin') || $user->hasRole('kaprog') || $p->id_guru == $user->id_guru)
-                      <form action="/admin/kejuruan/penilaian-praktik/{{ $p->id_penilaian_praktik }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus sesi penilaian ini beserta seluruh nilai siswa?')">
+                      <form action="/admin/kejuruan/penilaian-praktik/{{ $p->id_penilaian_praktik }}" method="POST" class="d-inline" onsubmit="return confirmSwal(event, 'Hapus sesi penilaian ini beserta seluruh nilai siswa?')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Sesi">

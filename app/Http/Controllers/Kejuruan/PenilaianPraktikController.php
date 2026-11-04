@@ -29,7 +29,7 @@ class PenilaianPraktikController extends Controller
         $user = Auth::user();
 
         $query = PenilaianPraktik::forUserJurusan($user)
-            ->with(['kelas', 'modul', 'kompetensi.jurusan', 'guru'])
+            ->with(['kelas', 'modul', 'kompetensi.capaianPembelajaran', 'kompetensis.capaianPembelajaran', 'kompetensi.jurusan', 'guru'])
             ->withCount('nilaiSiswas')
             ->orderBy('tanggal_penilaian', 'desc')
             ->orderBy('id_penilaian_praktik', 'desc');
@@ -70,8 +70,19 @@ class PenilaianPraktikController extends Controller
         }
 
         $kelas = Kelas::forUserJurusan($user)->orderBy('nama_kelas', 'asc')->get();
-        $kompetensis = Kompetensi::forUserJurusan($user)->with('jurusan')->orderBy('kode_kompetensi', 'asc')->get();
-        $moduls = ModulPraktik::forUserJurusan($user)->terbit()->orderBy('judul', 'asc')->get();
+        $kompetensis = Kompetensi::forUserJurusan($user)
+            ->with(['jurusan', 'capaianPembelajaran'])
+            ->orderBy('id_jurusan', 'asc')
+            ->orderBy('tingkat', 'asc')
+            ->orderBy('urutan_atp', 'asc')
+            ->orderBy('kode_kompetensi', 'asc')
+            ->get();
+
+        $moduls = ModulPraktik::forUserJurusan($user)
+            ->terbit()
+            ->with(['kompetensi.capaianPembelajaran', 'rubriks'])
+            ->orderBy('judul', 'asc')
+            ->get();
 
         $selectedJadwal = null;
         if ($request->filled('jadwal_id')) {
@@ -96,27 +107,63 @@ class PenilaianPraktikController extends Controller
     {
         $user = Auth::user();
 
-        $request->validate([
-            'id_kelas' => 'required|exists:kelas,id_kelas',
-            'id_modul_praktik' => 'required|exists:modul_praktik,id_modul_praktik',
-            'tanggal_penilaian' => 'required|date',
-            'id_jadwal_praktik' => 'nullable|exists:jadwal_praktik,id_jadwal_praktik',
-            'catatan' => 'nullable|string',
-        ], [
-            'id_kelas.required' => 'Kelas wajib dipilih.',
-            'id_modul_praktik.required' => 'Modul praktik wajib dipilih.',
-            'tanggal_penilaian.required' => 'Tanggal penilaian wajib diisi.',
-        ]);
+        // Cek apakah guru memilih metode tanpa modul (Jalur Cepat / Langsung ATP)
+        $tanpaModul = $request->boolean('tanpa_modul') || $request->input('metode_penilaian') === 'atp_langsung';
 
-        $modul = ModulPraktik::with('kompetensi')->findOrFail($request->id_modul_praktik);
-        $kkm = $modul->kompetensi ? $modul->kompetensi->kkm : 75.00;
+        if ($tanpaModul) {
+            // Support multiple id_kompetensi: baik array maupun single
+            $kompetensiIds = $request->input('id_kompetensi');
+            if (!is_array($kompetensiIds)) {
+                $kompetensiIds = $kompetensiIds ? [$kompetensiIds] : [];
+            }
+            $request->merge(['id_kompetensi' => $kompetensiIds]);
+
+            $request->validate([
+                'id_kelas' => 'required|exists:kelas,id_kelas',
+                'id_kompetensi' => 'required|array|min:1',
+                'id_kompetensi.*' => 'exists:kompetensi,id_kompetensi',
+                'tanggal_penilaian' => 'required|date',
+                'id_jadwal_praktik' => 'nullable|exists:jadwal_praktik,id_jadwal_praktik',
+                'catatan' => 'nullable|string',
+            ], [
+                'id_kelas.required' => 'Kelas wajib dipilih.',
+                'id_kompetensi.required' => 'Minimal satu Tujuan Pembelajaran (ATP / TP) wajib dipilih.',
+                'id_kompetensi.min' => 'Pilih setidaknya satu Tujuan Pembelajaran (ATP / TP).',
+                'tanggal_penilaian.required' => 'Tanggal penilaian wajib diisi.',
+            ]);
+
+            $selectedKompetensis = Kompetensi::whereIn('id_kompetensi', $kompetensiIds)->get();
+            $idModul = null;
+            $idKompetensi = $selectedKompetensis->first()->id_kompetensi;
+            $kkm = floatval($selectedKompetensis->avg('kkm') ?: 75.00);
+        } else {
+            $request->validate([
+                'id_kelas' => 'required|exists:kelas,id_kelas',
+                'id_modul_praktik' => 'required|exists:modul_praktik,id_modul_praktik',
+                'tanggal_penilaian' => 'required|date',
+                'id_jadwal_praktik' => 'nullable|exists:jadwal_praktik,id_jadwal_praktik',
+                'catatan' => 'nullable|string',
+            ], [
+                'id_kelas.required' => 'Kelas wajib dipilih.',
+                'id_modul_praktik.required' => 'Modul praktik wajib dipilih.',
+                'tanggal_penilaian.required' => 'Tanggal penilaian wajib diisi.',
+            ]);
+
+            $modul = ModulPraktik::with(['kompetensi', 'kompetensis'])->findOrFail($request->id_modul_praktik);
+            $idModul = $modul->id_modul_praktik;
+            $idKompetensi = $modul->id_kompetensi;
+            $kkm = $modul->kompetensi ? floatval($modul->kompetensi->kkm) : 75.00;
+            $kompetensiIds = $modul->kompetensis->isNotEmpty()
+                ? $modul->kompetensis->pluck('id_kompetensi')->toArray()
+                : ($idKompetensi ? [$idKompetensi] : []);
+        }
 
         DB::beginTransaction();
         try {
             $penilaian = PenilaianPraktik::create([
                 'id_kelas' => $request->id_kelas,
-                'id_modul_praktik' => $modul->id_modul_praktik,
-                'id_kompetensi' => $modul->id_kompetensi,
+                'id_modul_praktik' => $idModul,
+                'id_kompetensi' => $idKompetensi,
                 'id_jadwal_praktik' => $request->id_jadwal_praktik,
                 'id_guru' => $user->id_guru,
                 'tanggal_penilaian' => $request->tanggal_penilaian,
@@ -124,6 +171,11 @@ class PenilaianPraktikController extends Controller
                 'status' => 'draft',
                 'catatan' => $request->catatan,
             ]);
+
+            // Sinkronkan semua ATP terpilih ke pivot table penilaian_praktik_kompetensi
+            if (!empty($kompetensiIds)) {
+                $penilaian->kompetensis()->sync($kompetensiIds);
+            }
 
             // Ambil semua siswa di kelas tersebut
             $siswas = Siswa::where('id_kelas', $request->id_kelas)
@@ -167,23 +219,23 @@ class PenilaianPraktikController extends Controller
             ->with([
                 'kelas',
                 'modul.rubriks',
+                'kompetensi.capaianPembelajaran',
+                'kompetensis.capaianPembelajaran',
                 'kompetensi.jurusan',
                 'guru',
                 'nilaiSiswas.siswa'
             ])
             ->findOrFail($id);
 
-        $rubriks = $penilaian->modul->rubriks;
-        // Jika modul belum memiliki rubrik khusus, buat rubrik default 1 indikator
-        if ($rubriks->isEmpty()) {
-            $rubriks = collect([
+        $rubriks = ($penilaian->modul && $penilaian->modul->rubriks && $penilaian->modul->rubriks->isNotEmpty())
+            ? $penilaian->modul->rubriks
+            : collect([
                 (object) [
                     'id_rubrik' => 0,
                     'nama_indikator' => 'Keterampilan & Hasil Praktik',
                     'bobot' => 100,
                 ]
             ]);
-        }
 
         $nilaiSiswas = $penilaian->nilaiSiswas->sortBy(function ($item) {
             return $item->siswa->nama_siswa ?? '';
@@ -310,13 +362,23 @@ class PenilaianPraktikController extends Controller
             ->with([
                 'kelas',
                 'modul.rubriks',
+                'kompetensi.capaianPembelajaran',
+                'kompetensis.capaianPembelajaran',
                 'kompetensi.jurusan',
                 'guru',
                 'nilaiSiswas.siswa'
             ])
             ->findOrFail($id);
 
-        $rubriks = $penilaian->modul->rubriks;
+        $rubriks = ($penilaian->modul && $penilaian->modul->rubriks && $penilaian->modul->rubriks->isNotEmpty())
+            ? $penilaian->modul->rubriks
+            : collect([
+                (object) [
+                    'id_rubrik' => 0,
+                    'nama_indikator' => 'Keterampilan & Hasil Praktik',
+                    'bobot' => 100,
+                ]
+            ]);
         $totalSiswa = $penilaian->nilaiSiswas->count();
         $kompetenCount = $penilaian->nilaiSiswas->where('status_kompetensi', 'kompeten')->count();
         $belumKompetenCount = $totalSiswa - $kompetenCount;
@@ -478,26 +540,37 @@ class PenilaianPraktikController extends Controller
      */
     protected function syncToCapaianSiswa(PenilaianPraktik $penilaian)
     {
-        $penilaian->load('nilaiSiswas');
+        $penilaian->load(['nilaiSiswas', 'kompetensis', 'kompetensi']);
+
+        $targetKompetensiIds = $penilaian->kompetensis->isNotEmpty()
+            ? $penilaian->kompetensis->pluck('id_kompetensi')->toArray()
+            : array_filter([$penilaian->id_kompetensi]);
 
         foreach ($penilaian->nilaiSiswas as $nilaiSiswa) {
-            CapaianSiswa::updateOrCreate(
-                [
-                    'id_siswa' => $nilaiSiswa->id_siswa,
-                    'id_kompetensi' => $penilaian->id_kompetensi,
-                    'jenis_capaian' => 'praktik',
-                    'id_referensi' => $penilaian->id_penilaian_praktik,
-                ],
-                [
-                    'nilai' => $nilaiSiswa->nilai_akhir,
-                    'kkm' => $penilaian->kkm_saat_penilaian,
-                    'status' => $nilaiSiswa->status_kompetensi,
-                    'tanggal' => $penilaian->tanggal_penilaian,
-                    'id_penilai' => $penilaian->id_guru,
-                    'file_bukti' => null,
-                    'catatan' => $nilaiSiswa->catatan_guru ?: ('Penilaian Praktik Modul: ' . ($penilaian->modul->judul ?? '-')),
-                ]
-            );
+            foreach ($targetKompetensiIds as $kompId) {
+                $komp = Kompetensi::find($kompId);
+                $catatanFallback = $penilaian->modul
+                    ? ('Penilaian Praktik Modul: ' . $penilaian->modul->judul)
+                    : ('Penilaian Praktik ATP: ' . ($komp->nama_kompetensi ?? ($penilaian->kompetensi->nama_kompetensi ?? '-')));
+
+                CapaianSiswa::updateOrCreate(
+                    [
+                        'id_siswa' => $nilaiSiswa->id_siswa,
+                        'id_kompetensi' => $kompId,
+                        'jenis_capaian' => 'praktik',
+                        'id_referensi' => $penilaian->id_penilaian_praktik,
+                    ],
+                    [
+                        'nilai' => $nilaiSiswa->nilai_akhir,
+                        'kkm' => $penilaian->kkm_saat_penilaian,
+                        'status' => $nilaiSiswa->status_kompetensi,
+                        'tanggal' => $penilaian->tanggal_penilaian,
+                        'id_penilai' => $penilaian->id_guru,
+                        'file_bukti' => null,
+                        'catatan' => $nilaiSiswa->catatan_guru ?: $catatanFallback,
+                    ]
+                );
+            }
         }
     }
 }

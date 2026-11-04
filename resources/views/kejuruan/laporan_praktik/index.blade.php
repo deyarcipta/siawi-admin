@@ -26,15 +26,6 @@
 <!-- Main content -->
 <div class="content">
   <div class="container-fluid">
-    @if(session('success'))
-      <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
-        <i class="fas fa-check-circle mr-2"></i> {!! session('success') !!}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
     <!-- STATISTIK RINGKASAN -->
     <div class="row mb-3">
       <!-- Total Pertemuan -->

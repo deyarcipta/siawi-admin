@@ -155,59 +155,41 @@
             var namaSiswa = tdSiswa.find('strong').text() || tdSiswa.text().trim();
             console.log("Nama siswa: " + namaSiswa);
 
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: 'Catat Keterlambatan?',
-                    text: 'Siswa ' + namaSiswa + ' akan dicatat terlambat, dan point pelanggaran (+5) akan ditambahkan otomatis.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Ya, Catat!',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        console.log("Menyerahkan form terlambat via Swal...");
-                        form.submit();
-                    }
-                });
-            } else {
-                console.log("Swal tidak terdefinisi. Menggunakan fallback confirm...");
-                if (confirm('Catat keterlambatan untuk ' + namaSiswa + '? Siswa akan dicatat terlambat dan poin pelanggaran (+5) akan ditambahkan.')) {
+            Swal.fire({
+                title: 'Catat Keterlambatan?',
+                text: 'Siswa ' + namaSiswa + ' akan dicatat terlambat, dan point pelanggaran (+5) akan ditambahkan otomatis.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Catat!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
                     form.submit();
                 }
-            }
+            });
         });
 
         $(document).on('click', '.btn-hapus-terlambat', function(e) {
             e.preventDefault();
-            console.log("Hapus Terlambat diklik!");
-            
             var form = $(this).closest('form');
             var namaSiswa = $(this).closest('tr').find('td:nth-child(2) strong').text();
-            console.log("Nama siswa: " + namaSiswa);
 
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: 'Batalkan Keterlambatan?',
-                    text: 'Catatan keterlambatan ' + namaSiswa + ' hari ini akan dihapus, dan poin pelanggarannya akan dibatalkan.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        console.log("Menyerahkan form hapus terlambat...");
-                        form.submit();
-                    }
-                });
-            } else {
-                if (confirm('Batalkan keterlambatan untuk ' + namaSiswa + '? Poin pelanggaran hari ini akan dihapus.')) {
+            Swal.fire({
+                title: 'Batalkan Keterlambatan?',
+                text: 'Catatan keterlambatan ' + namaSiswa + ' hari ini akan dihapus, dan poin pelanggarannya akan dibatalkan.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
                     form.submit();
                 }
-            }
+            });
         });
     });
 </script>

@@ -642,7 +642,7 @@
                               @method('PUT')
                               <input type="hidden" name="quick_status" value="1">
                               <input type="hidden" name="status" value="selesai">
-                              <button type="submit" class="btn btn-sm btn-outline-success px-2" title="Tandai PKL Selesai" onclick="return confirm('Tandai siswa ini telah menyelesaikan PKL?')">
+                              <button type="submit" class="btn btn-sm btn-outline-success px-2" title="Tandai PKL Selesai" onclick="return confirmSwal(event, 'Tandai siswa ini telah menyelesaikan PKL?')">
                                 <i class="fas fa-check"></i>
                               </button>
                             </form>

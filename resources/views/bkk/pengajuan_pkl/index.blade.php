@@ -197,7 +197,7 @@
                       <i class="fas fa-print"></i>
                     </a>
                   @endif
-                  <form action="{{ route('admin.pengajuan-pkl.destroy', $item->id_pengajuan) }}" method="POST" class="d-inline form-delete" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data pengajuan ini?')">
+                  <form action="{{ route('admin.pengajuan-pkl.destroy', $item->id_pengajuan) }}" method="POST" class="d-inline form-delete" onsubmit="return confirmSwal(event, 'Apakah Anda yakin ingin menghapus data pengajuan ini?')">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger" title="Hapus Pengajuan">

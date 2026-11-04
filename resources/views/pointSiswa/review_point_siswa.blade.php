@@ -152,27 +152,7 @@
     </div>
 </div>
 
-<script src="{{ asset('lte/dist/js/adminlte.min.js') }}"></script>
-<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-@if ($message = Session::get('success'))
-    Swal.fire({
-        icon: 'success',
-        title: 'Berhasil!',
-        text: '{{ $message }}'
-    });
-@endif
-
-@if ($message = Session::get('failed'))
-    Swal.fire({
-        icon: 'error',
-        title: 'Gagal!',
-        text: '{{ $message }}'
-    });
-@endif
-</script>
-
+@push('scripts')
 <script>
 $(document).ready(function() {
     $('#searchInput').on('keyup', function() {

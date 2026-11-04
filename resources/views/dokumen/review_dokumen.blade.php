@@ -77,7 +77,7 @@
                           <a href="/admin/dokumen/{{$data->id_dokumen}}/edit" class="btn-action btn-action-edit" title="Edit Prestasi">
                             <i class="fas fa-edit"></i>
                           </a>
-                          <form action="/admin/dokumen/{{$data->id_dokumen}}" method="POST" class="d-inline form-delete-dokumen" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data prestasi ini?')">
+                          <form action="/admin/dokumen/{{$data->id_dokumen}}" method="POST" class="d-inline form-delete-dokumen" onsubmit="return confirmSwal(event, 'Apakah Anda yakin ingin menghapus data prestasi ini?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn-action btn-action-delete" title="Hapus Prestasi">

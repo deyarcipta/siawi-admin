@@ -22,15 +22,6 @@
 
 <div class="content">
     <div class="container-fluid">
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-                <i class="fas fa-exclamation-circle mr-2"></i> {{ session('error') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        @endif
-
         <div class="row">
             <div class="col-lg-12">
                 <div class="card card-primary card-outline shadow-sm">
@@ -1121,37 +1112,48 @@
             btn.addEventListener('click', function() {
                 const target = this.dataset.target;
                 const targetLabel = target === 'walas' ? 'Wali Kelas' : 'Orang Tua';
+                const btnEl = this;
 
-                if (!confirm(`Apakah Anda yakin ingin melakukan uji coba pengiriman notifikasi rekap ke seluruh ${targetLabel}? Notifikasi akan masuk ke antrean pengiriman WhatsApp.`)) {
-                    return;
-                }
+                Swal.fire({
+                    title: 'Konfirmasi Uji Coba Rekap?',
+                    text: `Apakah Anda yakin ingin melakukan uji coba pengiriman notifikasi rekap ke seluruh ${targetLabel}? Notifikasi akan masuk ke antrean pengiriman WhatsApp.`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#1d72fe',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Ya, Kirim Uji Coba',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (!result.isConfirmed) return;
 
-                const originalHtml = this.innerHTML;
-                this.disabled = true;
-                this.innerHTML = '<span class="spinner-border spinner-border-sm mr-1"></span> Mengirim...';
+                    const originalHtml = btnEl.innerHTML;
+                    btnEl.disabled = true;
+                    btnEl.innerHTML = '<span class="spinner-border spinner-border-sm mr-1"></span> Mengirim...';
 
-                fetch('/admin/setting-test-rekap-wa', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ target: target })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    this.disabled = false;
-                    this.innerHTML = originalHtml;
-                    if (data.success) {
-                        alert(data.message);
-                    } else {
-                        alert('Gagal: ' + (data.message || 'Terjadi kesalahan sistem'));
-                    }
-                })
-                .catch(err => {
-                    this.disabled = false;
-                    this.innerHTML = originalHtml;
-                    alert('Gagal menghubungi server.');
+                    fetch('/admin/setting-test-rekap-wa', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ target: target })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        btnEl.disabled = false;
+                        btnEl.innerHTML = originalHtml;
+                        if (data.success) {
+                            Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, confirmButtonColor: '#1d72fe' });
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message || 'Terjadi kesalahan sistem', confirmButtonColor: '#ef4444' });
+                        }
+                    })
+                    .catch(err => {
+                        btnEl.disabled = false;
+                        btnEl.innerHTML = originalHtml;
+                        Swal.fire({ icon: 'error', title: 'Gagal!', text: 'Gagal menghubungi server.', confirmButtonColor: '#ef4444' });
+                    });
                 });
             });
         });
@@ -1354,12 +1356,12 @@
                     checkSessionStatus(sessionId, true);
                     startPolling(sessionId);
                 } else {
-                    alert(data.message || 'Gagal memulai sesi.');
+                    Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message || 'Gagal memulai sesi.', confirmButtonColor: '#ef4444' });
                 }
             })
             .catch(error => {
                 btn.prop('disabled', false).html('<i class="fas fa-play mr-1"></i> Mulai Sesi');
-                alert('Gagal menghubungi server.');
+                Swal.fire({ icon: 'error', title: 'Gagal!', text: 'Gagal menghubungi server.', confirmButtonColor: '#ef4444' });
             });
         });
 
@@ -1378,39 +1380,51 @@
             .then(data => {
                 if (!data.success) {
                     switchEl.prop('checked', !switchEl.prop('checked'));
-                    alert('Gagal mengubah status sesi.');
+                    Swal.fire({ icon: 'error', title: 'Gagal!', text: 'Gagal mengubah status sesi.', confirmButtonColor: '#ef4444' });
                 }
             })
             .catch(error => {
                 switchEl.prop('checked', !switchEl.prop('checked'));
-                alert('Gagal menghubungi server.');
+                Swal.fire({ icon: 'error', title: 'Gagal!', text: 'Gagal menghubungi server.', confirmButtonColor: '#ef4444' });
             });
         });
 
         // Menghapus sesi
         $(document).on('click', '.delete-session-btn', function() {
             const sessionId = $(this).data('id');
-            if (confirm('Apakah Anda yakin ingin menghapus sesi WhatsApp ini? Sesi juga akan ditutup dari server OpenWA.')) {
-                fetch(`/admin/whatsapp-sessions/${sessionId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        stopPolling(sessionId);
-                        location.reload();
-                    } else {
-                        alert(data.message || 'Gagal menghapus sesi.');
-                    }
-                })
-                .catch(error => {
-                    alert('Gagal menghubungi server.');
-                });
-            }
+            Swal.fire({
+                title: 'Hapus Sesi WhatsApp?',
+                text: 'Apakah Anda yakin ingin menghapus sesi WhatsApp ini? Sesi juga akan ditutup dari server OpenWA.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Hapus Sesi',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/admin/whatsapp-sessions/${sessionId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            stopPolling(sessionId);
+                            location.reload();
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message || 'Gagal menghapus sesi.', confirmButtonColor: '#ef4444' });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({ icon: 'error', title: 'Gagal!', text: 'Gagal menghubungi server.', confirmButtonColor: '#ef4444' });
+                    });
+                }
+            });
         });
 
         // Submit form tambah sesi baru
@@ -1439,13 +1453,13 @@
                         $('#modalAddWaSession').modal('hide');
                         location.reload();
                     } else {
-                        alert(data.message || 'Gagal menambahkan sesi.');
+                        Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message || 'Gagal menambahkan sesi.', confirmButtonColor: '#ef4444' });
                     }
                 })
                 .catch(error => {
                     btnSubmit.disabled = false;
                     btnSubmit.innerHTML = '<i class="fas fa-save mr-1"></i> Simpan Sesi';
-                    alert('Gagal menghubungi server.');
+                    Swal.fire({ icon: 'error', title: 'Gagal!', text: 'Gagal menghubungi server.', confirmButtonColor: '#ef4444' });
                 });
             });
         }

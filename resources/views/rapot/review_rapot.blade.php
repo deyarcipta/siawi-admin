@@ -86,7 +86,7 @@
                           <a href="/admin/rapot/{{$data->id_rapot}}/edit" class="btn-action btn-action-edit" title="Edit Rapot">
                             <i class="fas fa-edit"></i>
                           </a>
-                          <form action="/admin/rapot/{{$data->id_rapot}}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data rapot ini?')">
+                          <form action="/admin/rapot/{{$data->id_rapot}}" method="POST" class="d-inline" onsubmit="return confirmSwal(event, 'Apakah Anda yakin ingin menghapus data rapot ini?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn-action btn-action-delete" title="Hapus Rapot">

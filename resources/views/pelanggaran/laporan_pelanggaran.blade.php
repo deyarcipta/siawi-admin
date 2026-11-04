@@ -365,13 +365,13 @@
                             });
                         }
                     } else {
-                        alert('Gagal memuat rincian siswa.');
+                        Swal.fire({ icon: 'error', title: 'Gagal!', text: 'Gagal memuat rincian siswa.', confirmButtonColor: '#ef4444' });
                         modalEl.modal('hide');
                     }
                 })
                 .catch(err => {
                     $('#detail_loading').addClass('d-none');
-                    alert('Gagal menghubungi server.');
+                    Swal.fire({ icon: 'error', title: 'Gagal!', text: 'Gagal menghubungi server.', confirmButtonColor: '#ef4444' });
                     modalEl.modal('hide');
                 });
         });

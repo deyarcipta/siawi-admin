@@ -29,15 +29,6 @@
 
 <div class="content">
   <div class="container-fluid">
-    @if(session('success'))
-      <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-        <i class="fas fa-check-circle mr-1"></i> {!! session('success') !!}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
     <div class="row">
       <div class="col-12 col-lg-8">
         <div class="card border-0 shadow-sm mb-3" style="border-radius: 14px; overflow: hidden;">

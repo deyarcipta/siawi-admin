@@ -25,16 +25,6 @@
 
 <div class="content pb-4">
   <div class="container-fluid">
-
-    @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 10px;">
-      <i class="fas fa-exclamation-circle mr-2"></i> {{ session('error') }}
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    @endif
-
     @if($errors->any())
     <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 10px;">
       <div class="font-weight-bold mb-1"><i class="fas fa-exclamation-triangle mr-2"></i> Terdapat kesalahan pada formulir:</div>

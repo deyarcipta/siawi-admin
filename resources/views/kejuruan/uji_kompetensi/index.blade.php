@@ -26,24 +26,6 @@
 <!-- Main content -->
 <div class="content">
   <div class="container-fluid">
-    @if(session('success'))
-      <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
-        <i class="fas fa-check-circle mr-2"></i> {!! session('success') !!}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
-    @if(session('error'))
-      <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
-        <i class="fas fa-exclamation-circle mr-2"></i> {!! session('error') !!}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
     <!-- Summary Stat Cards -->
     <div class="row mb-3">
       <!-- Total Kegiatan UKK -->
@@ -239,7 +221,7 @@
                       <i class="fas fa-eye mr-1"></i> Detail
                     </a>
                     @if($user->hasAnyRole(['admin', 'kaprog']))
-                      <form action="/admin/kejuruan/uji-kompetensi/{{ $k->id_ukk_kegiatan }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus kegiatan UKK ini beserta seluruh rekor nilai pesertanya?')">
+                      <form action="/admin/kejuruan/uji-kompetensi/{{ $k->id_ukk_kegiatan }}" method="POST" class="d-inline" onsubmit="return confirmSwal(event, 'Hapus kegiatan UKK ini beserta seluruh rekor nilai pesertanya?')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus">

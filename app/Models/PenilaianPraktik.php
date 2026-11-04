@@ -31,6 +31,11 @@ class PenilaianPraktik extends Model
         return $this->belongsTo(Kompetensi::class, 'id_kompetensi', 'id_kompetensi');
     }
 
+    public function kompetensis()
+    {
+        return $this->belongsToMany(Kompetensi::class, 'penilaian_praktik_kompetensi', 'id_penilaian_praktik', 'id_kompetensi')->withTimestamps();
+    }
+
     public function jadwal()
     {
         return $this->belongsTo(JadwalPraktik::class, 'id_jadwal_praktik', 'id_jadwal_praktik');

@@ -26,24 +26,6 @@
 <!-- Main content -->
 <div class="content">
   <div class="container-fluid">
-    @if(session('success'))
-      <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
-        <i class="fas fa-check-circle mr-2"></i> {!! session('success') !!}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
-    @if(session('error'))
-      <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
-        <i class="fas fa-exclamation-circle mr-2"></i> {!! session('error') !!}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
     <!-- Stat Cards -->
     <div class="row mb-3">
       <!-- Total Portofolio -->
@@ -285,7 +267,7 @@
                       </button>
 
                       <!-- Tombol Hapus -->
-                      <form action="/admin/kejuruan/portofolio/{{ $p->id_portofolio }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus arsip portofolio ini?')">
+                      <form action="/admin/kejuruan/portofolio/{{ $p->id_portofolio }}" method="POST" class="d-inline" onsubmit="return confirmSwal(event, 'Apakah Anda yakin ingin menghapus arsip portofolio ini?')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Portofolio" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">

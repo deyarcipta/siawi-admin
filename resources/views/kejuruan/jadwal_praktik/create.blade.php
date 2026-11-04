@@ -24,15 +24,6 @@
 
 <div class="content">
   <div class="container-fluid">
-    @if(session('error'))
-      <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-        <i class="fas fa-exclamation-triangle mr-1"></i> {!! session('error') !!}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    @endif
-
     <div class="row">
       <div class="col-12 col-lg-8">
         <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden;">

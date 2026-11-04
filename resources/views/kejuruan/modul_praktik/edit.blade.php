@@ -401,7 +401,7 @@
           if (container.querySelectorAll('.rubrik-row').length > 1) {
             row.remove();
           } else {
-            alert('Minimal harus ada 1 indikator penilaian.');
+            Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Minimal harus ada 1 indikator penilaian.', confirmButtonColor: '#1d72fe' });
           }
         }
       });

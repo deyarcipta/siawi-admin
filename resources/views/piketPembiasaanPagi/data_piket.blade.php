@@ -26,9 +26,6 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-lg-12">
-        @if(session('success'))
-            <div class="alert alert-success">{!! session('success') !!}</div>
-        @endif
         <div class="card">
           <div class="card-header d-flex align-items-center">
             <h3 class="card-title text-dark font-weight-bold mb-0">
@@ -62,7 +59,7 @@
                     <a href="{{route('admin.piketPembiasaanPagi.edit', $pkt->id_pembiasaan)}}" class="btn btn-warning"><i class="fa fa-edit" style="color: white"></i></a>
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('Yakin ingin menghapus jadwal piket pembiasaan pagi ini?')"><i class="fa fa-trash" style="color: white"></i></button>
+                    <button type="submit" class="btn btn-danger" onclick="return confirmSwal(event, 'Yakin ingin menghapus jadwal piket pembiasaan pagi ini?')"><i class="fa fa-trash" style="color: white"></i></button>
                   </form>
                 </td>
               </tr>
