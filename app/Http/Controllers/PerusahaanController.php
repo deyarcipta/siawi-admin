@@ -70,7 +70,12 @@ class PerusahaanController extends Controller
      */
     public function create()
     {
-        //
+        $layout = 'layout.app';
+        $setting = Setting::find('1');
+        $user = Auth::user();
+        $guruList = Guru::orderBy('nama_guru', 'asc')->get();
+
+        return view('bkk.create_perusahaan', compact('layout', 'setting', 'user', 'guruList'));
     }
 
     /**
@@ -86,6 +91,9 @@ class PerusahaanController extends Controller
             'pic' => 'nullable|string|max:255',
             'kontak_pic' => 'nullable|string|max:50',
             'file_mou' => 'nullable|file|mimes:pdf|max:5120',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'radius_meter' => 'nullable|integer|min:10|max:10000',
         ], [
             'file_mou.mimes' => 'File MoU harus berformat PDF.',
             'file_mou.max' => 'Ukuran file MoU maksimal 5 MB.',
@@ -104,9 +112,12 @@ class PerusahaanController extends Controller
             'pic' => $request->pic,
             'kontak_pic' => $request->kontak_pic,
             'file_mou' => $namaFileMou,
+            'latitude' => $request->filled('latitude') ? $request->latitude : null,
+            'longitude' => $request->filled('longitude') ? $request->longitude : null,
+            'radius_meter' => $request->filled('radius_meter') ? (int) $request->radius_meter : 50,
         ]);
 
-        return redirect()->route('admin.perusahaan.index')->with('success', 'Perusahaan berhasil ditambahkan.');
+        return redirect()->route('admin.perusahaan.index')->with('success', 'Data mitra perusahaan berhasil ditambahkan.');
     }
 
     /**
@@ -114,7 +125,7 @@ class PerusahaanController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return redirect()->route('admin.perusahaan.edit', $id);
     }
 
     /**
@@ -122,7 +133,13 @@ class PerusahaanController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $layout = 'layout.app';
+        $setting = Setting::find('1');
+        $user = Auth::user();
+        $perusahaan = Perusahaan::with('guru')->findOrFail($id);
+        $guruList = Guru::orderBy('nama_guru', 'asc')->get();
+
+        return view('bkk.edit_perusahaan', compact('layout', 'setting', 'user', 'perusahaan', 'guruList'));
     }
 
     /**
@@ -138,6 +155,9 @@ class PerusahaanController extends Controller
             'pic' => 'nullable|string|max:255',
             'kontak_pic' => 'nullable|string|max:50',
             'file_mou' => 'nullable|file|mimes:pdf|max:5120',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'radius_meter' => 'nullable|integer|min:10|max:10000',
         ], [
             'file_mou.mimes' => 'File MoU harus berformat PDF.',
             'file_mou.max' => 'Ukuran file MoU maksimal 5 MB.',
@@ -155,9 +175,12 @@ class PerusahaanController extends Controller
         $perusahaan->id_guru = $request->id_guru ?: null;
         $perusahaan->pic = $request->pic;
         $perusahaan->kontak_pic = $request->kontak_pic;
+        $perusahaan->latitude = $request->filled('latitude') ? $request->latitude : null;
+        $perusahaan->longitude = $request->filled('longitude') ? $request->longitude : null;
+        $perusahaan->radius_meter = $request->filled('radius_meter') ? (int) $request->radius_meter : 50;
         $perusahaan->save();
 
-        return redirect()->back()->with('success', 'Data perusahaan berhasil diperbarui.');
+        return redirect()->route('admin.perusahaan.index')->with('success', 'Data mitra perusahaan berhasil diperbarui.');
     }
 
     /**

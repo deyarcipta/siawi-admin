@@ -596,8 +596,8 @@
 
         <!-- Hubungan Industri (BKK & PKL) -->
         @if($user->hasAnyRole(['admin', 'hubin', 'bkk', 'kesiswaan', 'tata_usaha']))
-        <li class="nav-item has-treeview {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') || Request::is('admin/pengajuan-pkl*') || request('from') === 'siswaPkl' ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') || Request::is('admin/pengajuan-pkl*') || request('from') === 'siswaPkl' ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') || Request::is('admin/pengajuan-pkl*') || Request::is('admin/absensi-pkl*') || request('from') === 'siswaPkl' ? 'menu-open' : '' }}">
+          <a href="#" class="nav-link {{ Request::is('admin/perusahaan*') || Request::is('admin/siswaPkl*') || Request::is('admin/pengajuan-pkl*') || Request::is('admin/absensi-pkl*') || request('from') === 'siswaPkl' ? 'active' : '' }}">
             <i class="nav-icon fas fa-briefcase"></i>
             <p>
               BKK &amp; PKL
@@ -621,6 +621,12 @@
               <a href="/admin/siswaPkl" class="nav-link {{ Request::is('admin/siswaPkl*') || request('from') === 'siswaPkl' ? 'active' : '' }}">
                 <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
                 <p>Data Siswa PKL</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/admin/absensi-pkl" class="nav-link {{ Request::is('admin/absensi-pkl*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon" style="font-size: 6px;"></i>
+                <p>Presensi Siswa PKL</p>
               </a>
             </li>
           </ul>

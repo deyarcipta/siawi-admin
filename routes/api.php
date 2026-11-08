@@ -66,6 +66,12 @@ Route::get('/pengajuan-pkl/{idSiswa}', [\App\Http\Controllers\SiswaController\Pe
 Route::post('/pengajuan-pkl', [\App\Http\Controllers\SiswaController\PengajuanPklController::class, 'store']);
 Route::get('/pengajuan-pkl/detail/{id}', [\App\Http\Controllers\SiswaController\PengajuanPklController::class, 'show']);
 
+// Presensi Siswa PKL Radius Geofencing (SIAWI Mobile App)
+Route::get('/presensi-pkl/target/{idSiswa}', [\App\Http\Controllers\SiswaController\PresensiPklController::class, 'getStatusPresensi']);
+Route::post('/presensi-pkl', [\App\Http\Controllers\SiswaController\PresensiPklController::class, 'store']);
+Route::post('/presensi-pkl/izin', [\App\Http\Controllers\SiswaController\PresensiPklController::class, 'izin']);
+Route::get('/presensi-pkl/riwayat/{idSiswa}', [\App\Http\Controllers\SiswaController\PresensiPklController::class, 'getRiwayatPresensi']);
+
 // Modul Kejuruan Siswa (SIAWI Mobile App)
 Route::prefix('kejuruan')->group(function () {
     Route::get('/dashboard/{idSiswa}', [\App\Http\Controllers\SiswaController\KejuruanApiController::class, 'dashboard']);

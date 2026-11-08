@@ -12,7 +12,10 @@
     return '62' . $digits;
   };
 @endphp
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <style>
+  .leaflet-pane { z-index: 400 !important; }
+  .leaflet-top, .leaflet-bottom { z-index: 500 !important; }
   @media (max-width: 768px) {
     .alamat-clamp {
       display: -webkit-box;
@@ -108,9 +111,9 @@
               </div>
             </div>
             <div class="flex-shrink-0">
-              <button class="btn btn-primary btn-sm px-2 px-sm-3 shadow-sm font-weight-bold" style="border-radius: 8px; font-size: 0.82rem; white-space: nowrap;" data-toggle="modal" data-target="#modalTambahPerusahaan">
+              <a href="{{ route('admin.perusahaan.create') }}" class="btn btn-primary btn-sm px-2 px-sm-3 shadow-sm font-weight-bold" style="border-radius: 8px; font-size: 0.82rem; white-space: nowrap;">
                 <i class="fas fa-plus mr-1"></i> <span class="d-none d-sm-inline">Tambah Mitra Perusahaan</span><span class="d-inline d-sm-none">Tambah Mitra</span>
-              </button>
+              </a>
             </div>
           </div>
 
@@ -140,6 +143,17 @@
                       <div class="d-flex align-items-start" title="{{ $data->alamat_perusahaan }}" style="cursor: help;">
                         <i class="fas fa-map-marker-alt text-danger mr-1 mt-1 flex-shrink-0" style="font-size: 0.8rem;"></i>
                         <span class="alamat-clamp text-muted" style="font-size: 0.86rem; line-height: 1.35;">{{ $data->alamat_perusahaan }}</span>
+                      </div>
+                      <div class="mt-1">
+                        @if($data->latitude && $data->longitude)
+                          <span class="badge badge-success text-white font-weight-normal px-2 py-1" style="font-size: 0.72rem; border-radius: 6px;" title="Radius absensi aktif: {{ $data->radius_meter ?? 50 }} meter">
+                            <i class="fas fa-crosshairs mr-1"></i> Radius {{ $data->radius_meter ?? 50 }}m
+                          </span>
+                        @else
+                          <span class="badge badge-light border text-muted font-weight-normal px-2 py-1" style="font-size: 0.72rem; border-radius: 6px;" title="Koordinat GPS belum ditentukan">
+                            <i class="fas fa-map-marker-slash mr-1"></i> GPS Belum Disetel
+                          </span>
+                        @endif
                       </div>
                     </td>
                     <td>
@@ -244,24 +258,14 @@
                           <i class="fas fa-users"></i>
                         </button>
 
-                        <!-- Tombol Edit Perusahaan -->
-                        <button 
-                          type="button" 
-                          class="btn btn-sm btn-warning text-white btn-edit-perusahaan px-2"
-                          data-toggle="modal"
-                          data-target="#modalEditPerusahaan"
-                          data-id="{{ $data->id_perusahaan }}"
-                          data-nama="{{ $data->nama_perusahaan }}"
-                          data-alamat="{{ $data->alamat_perusahaan }}"
-                          data-pj="{{ $data->penanggung_jawab }}"
-                          data-id-guru="{{ $data->id_guru ?? '' }}"
-                          data-pic="{{ $data->pic ?? '' }}"
-                          data-kontak-pic="{{ $data->kontak_pic ?? '' }}"
-                          data-mou-url="{{ $data->mou_url ?? '' }}"
+                        <!-- Tombol Edit Perusahaan (Halaman Mandiri) -->
+                        <a 
+                          href="{{ route('admin.perusahaan.edit', $data->id_perusahaan) }}"
+                          class="btn btn-sm btn-warning text-white px-2"
                           title="Edit Info Perusahaan"
                         >
                           <i class="fa fa-edit"></i>
-                        </button>
+                        </a>
 
                         <!-- Tombol Hapus Perusahaan -->
                         <button 
@@ -336,19 +340,9 @@
                 <h4 class="font-weight-bold text-dark mb-0" style="line-height: 1.2;">{{ $data->nama_perusahaan }}</h4>
               </div>
               <div class="d-flex align-items-center" style="gap: 6px;">
-                <button type="button" class="btn btn-sm btn-outline-warning font-weight-bold btn-edit-perusahaan btn-switch-modal" 
-                  data-target="#modalEditPerusahaan"
-                  data-id="{{ $data->id_perusahaan }}"
-                  data-nama="{{ $data->nama_perusahaan }}"
-                  data-alamat="{{ $data->alamat_perusahaan }}"
-                  data-pj="{{ $data->penanggung_jawab }}"
-                  data-id-guru="{{ $data->id_guru ?? '' }}"
-                  data-pic="{{ $data->pic ?? '' }}"
-                  data-kontak-pic="{{ $data->kontak_pic ?? '' }}"
-                  data-mou-url="{{ $data->mou_url ?? '' }}"
-                  style="border-radius: 8px;">
+                <a href="{{ route('admin.perusahaan.edit', $data->id_perusahaan) }}" class="btn btn-sm btn-outline-warning font-weight-bold" style="border-radius: 8px;">
                   <i class="fas fa-edit mr-1"></i> Edit Data
-                </button>
+                </a>
                 <button type="button" class="btn btn-sm btn-primary font-weight-bold btn-switch-modal" 
                   data-target="#modalKelolaPkl_{{ $data->id_perusahaan }}"
                   style="border-radius: 8px;">
@@ -369,6 +363,37 @@
                 <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($data->nama_perusahaan . ' ' . $data->alamat_perusahaan) }}" target="_blank" class="btn btn-outline-secondary btn-sm font-weight-bold" style="border-radius: 8px;" title="Cari lokasi di Google Maps">
                   <i class="fas fa-external-link-alt mr-1"></i> Google Maps
                 </a>
+              </div>
+            </div>
+
+            <!-- Info Absensi Radius (Geofencing) -->
+            <div class="row align-items-center mt-3 pt-3 border-top">
+              <div class="col-md-8 mb-2 mb-md-0">
+                <div class="d-flex align-items-center flex-wrap mb-1" style="gap: 6px;">
+                  <span class="text-muted font-weight-bold" style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.3px;">
+                    <i class="fas fa-crosshairs text-primary mr-1"></i> Absensi Radius:
+                  </span>
+                  @if($data->latitude && $data->longitude)
+                    <span class="badge badge-success text-white font-weight-bold px-2 py-1" style="font-size: 0.75rem; border-radius: 6px;">
+                      <i class="fas fa-check-circle mr-1"></i> Aktif (Radius {{ $data->radius_meter ?? 50 }}m)
+                    </span>
+                    <span class="text-muted" style="font-size: 0.8rem;">
+                      <code>{{ $data->latitude }}, {{ $data->longitude }}</code>
+                    </span>
+                  @else
+                    <span class="badge badge-warning text-dark font-weight-bold px-2 py-1" style="font-size: 0.75rem; border-radius: 6px;">
+                      <i class="fas fa-exclamation-triangle mr-1"></i> Titik Belum Disetel
+                    </span>
+                    <small class="text-muted">Edit perusahaan untuk menentukan titik GPS kantor.</small>
+                  @endif
+                </div>
+              </div>
+              <div class="col-md-4 text-md-right">
+                @if($data->latitude && $data->longitude)
+                  <a href="https://www.google.com/maps?q={{ $data->latitude }},{{ $data->longitude }}" target="_blank" class="btn btn-sm btn-outline-primary font-weight-bold" style="border-radius: 8px;">
+                    <i class="fas fa-map-marked-alt mr-1"></i> Titik Presensi Maps
+                  </a>
+                @endif
               </div>
             </div>
           </div>
@@ -773,230 +798,13 @@
 </div>
 @endforeach
 
-<!-- ========================================================================= -->
-<!-- MODAL TAMBAH PERUSAHAAN MITRA                                             -->
-<!-- ========================================================================= -->
-<div class="modal fade" id="modalTambahPerusahaan" tabindex="-1" role="dialog" aria-labelledby="modalTambahPerusahaanLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <form action="{{ route('admin.perusahaan.store') }}" method="POST" enctype="multipart/form-data">
-      @csrf
-      <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
-        <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #1d72fe 0%, #0b1f3a 100%);">
-          <h5 class="modal-title font-weight-bold" id="modalTambahPerusahaanLabel">
-            <i class="fas fa-plus-circle mr-2"></i> Tambah Mitra Perusahaan
-          </h5>
-          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        
-        <div class="modal-body p-4">
-          <div class="row">
-            <!-- Kolom Kiri: Profil & Alamat Perusahaan -->
-            <div class="col-lg-6">
-              <div class="form-group mb-3">
-                <label for="nama_perusahaan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  Nama Perusahaan / Hotel / Industri <span class="text-danger">*</span>
-                </label>
-                <input type="text" class="form-control" id="nama_perusahaan" name="nama_perusahaan" placeholder="Contoh: Hotel Grand Mercure / PT Telkom" required style="border-radius: 8px; height: 42px;">
-              </div>
-              <div class="form-group mb-3">
-                <label for="alamat_perusahaan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  Alamat Lengkap Perusahaan <span class="text-danger">*</span>
-                </label>
-                <textarea class="form-control" id="alamat_perusahaan" name="alamat_perusahaan" rows="5" placeholder="Masukkan alamat lengkap (jalan, nomor gedung, kelurahan, kecamatan, kota/kabupaten)..." required style="border-radius: 8px; min-height: 140px; resize: vertical; line-height: 1.5;"></textarea>
-                <small class="text-muted d-block mt-1">
-                  <i class="fas fa-arrows-alt-v mr-1"></i> Area input dapat ditarik ke bawah jika membutuhkan ruang lebih lebar.
-                </small>
-              </div>
-            </div>
-
-            <!-- Kolom Kanan: Penanggung Jawab & Pembimbing -->
-            <div class="col-lg-6">
-              <!-- Penanggung Jawab dari Sekolah -->
-              <div class="form-group mb-3">
-                <label for="id_guru" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  <i class="fas fa-chalkboard-teacher text-primary mr-1"></i> Penanggung Jawab Sekolah (Guru Pembimbing)
-                </label>
-                <select class="form-control select2-modal" id="id_guru" name="id_guru" style="width: 100%;">
-                  <option value="">-- Pilih dari Data Guru (Opsional) --</option>
-                  @foreach ($guruList as $guru)
-                    <option value="{{ $guru->id_guru }}">{{ $guru->nama_guru }}</option>
-                  @endforeach
-                </select>
-                <small class="text-muted d-block mt-1">
-                  Guru pembimbing PKL yang ditugaskan dari pihak sekolah untuk mitra ini.
-                </small>
-              </div>
-
-              <!-- Penanggung Jawab dari Industri -->
-              <div class="form-group mb-3">
-                <label for="penanggung_jawab" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  <i class="fas fa-building text-secondary mr-1"></i> Penanggung Jawab Industri (Pimpinan DU/DI / HRD) <span class="text-danger">*</span>
-                </label>
-                <input type="text" class="form-control" id="penanggung_jawab" name="penanggung_jawab" placeholder="Contoh: Bpk. Kurniawan / HRD Manager" required style="border-radius: 8px; height: 42px;">
-              </div>
-
-              <!-- PIC & Kontak Lapangan Industri -->
-              <div class="row">
-                <div class="col-sm-6">
-                  <div class="form-group mb-2">
-                    <label for="pic" class="font-weight-bold text-dark" style="font-size: 0.82rem;">
-                      Nama PIC Lapangan DU/DI
-                    </label>
-                    <input type="text" class="form-control" id="pic" name="pic" placeholder="Contoh: Ibu Rina" style="border-radius: 8px; height: 40px; font-size: 0.85rem;">
-                  </div>
-                </div>
-                <div class="col-sm-6">
-                  <div class="form-group mb-2">
-                    <label for="kontak_pic" class="font-weight-bold text-dark" style="font-size: 0.82rem;">
-                      No. WA PIC Lapangan
-                    </label>
-                    <input type="text" class="form-control" id="kontak_pic" name="kontak_pic" placeholder="Contoh: 081234567890" style="border-radius: 8px; height: 40px; font-size: 0.85rem;">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Upload MoU -->
-              <div class="form-group mb-0 mt-2">
-                <label for="file_mou" class="font-weight-bold text-dark" style="font-size: 0.82rem;">
-                  <i class="fas fa-file-pdf text-danger mr-1"></i> File MoU (PDF)
-                </label>
-                <input type="file" class="form-control-file" id="file_mou" name="file_mou" accept="application/pdf,.pdf">
-                <small class="text-muted d-block mt-1">Opsional. Format PDF, maksimal 5 MB.</small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-footer bg-light py-3 px-4">
-          <button type="button" class="btn btn-secondary px-3" data-dismiss="modal" style="border-radius: 8px;">Batal</button>
-          <button type="submit" class="btn btn-primary px-4 font-weight-bold shadow-sm" style="border-radius: 8px;">
-            <i class="fas fa-save mr-1"></i> Simpan Mitra
-          </button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- ========================================================================= -->
-<!-- MODAL EDIT PERUSAHAAN MITRA                                               -->
-<!-- ========================================================================= -->
-<div class="modal fade" id="modalEditPerusahaan" tabindex="-1" role="dialog" aria-labelledby="modalEditPerusahaanLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <form id="formEditPerusahaan" method="POST" enctype="multipart/form-data">
-      @csrf
-      @method('PUT')
-      <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
-        <div class="modal-header text-white px-4 py-3" style="background: linear-gradient(135deg, #1d72fe 0%, #0b1f3a 100%);">
-          <h5 class="modal-title font-weight-bold" id="modalEditPerusahaanLabel">
-            <i class="fas fa-edit mr-2"></i> Edit Data Perusahaan
-          </h5>
-          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-
-        <div class="modal-body p-4">
-          <div class="row">
-            <!-- Kolom Kiri: Profil & Alamat Perusahaan -->
-            <div class="col-lg-6">
-              <div class="form-group mb-3">
-                <label for="edit_nama_perusahaan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  Nama Perusahaan / Hotel / Industri <span class="text-danger">*</span>
-                </label>
-                <input type="text" class="form-control" id="edit_nama_perusahaan" name="nama_perusahaan" required style="border-radius: 8px; height: 42px;">
-              </div>
-              <div class="form-group mb-3">
-                <label for="edit_alamat_perusahaan" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  Alamat Lengkap Perusahaan <span class="text-danger">*</span>
-                </label>
-                <textarea class="form-control" id="edit_alamat_perusahaan" name="alamat_perusahaan" rows="5" required style="border-radius: 8px; min-height: 140px; resize: vertical; line-height: 1.5;"></textarea>
-                <small class="text-muted d-block mt-1">
-                  <i class="fas fa-arrows-alt-v mr-1"></i> Area input dapat ditarik ke bawah jika membutuhkan ruang lebih lebar.
-                </small>
-              </div>
-            </div>
-
-            <!-- Kolom Kanan: Penanggung Jawab & Pembimbing -->
-            <div class="col-lg-6">
-              <!-- Penanggung Jawab dari Sekolah -->
-              <div class="form-group mb-3">
-                <label for="edit_id_guru" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  <i class="fas fa-chalkboard-teacher text-primary mr-1"></i> Penanggung Jawab Sekolah (Guru Pembimbing)
-                </label>
-                <select class="form-control select2-modal" id="edit_id_guru" name="id_guru" style="width: 100%;">
-                  <option value="">-- Pilih dari Data Guru (Opsional) --</option>
-                  @foreach ($guruList as $guru)
-                    <option value="{{ $guru->id_guru }}">{{ $guru->nama_guru }}</option>
-                  @endforeach
-                </select>
-                <small class="text-muted d-block mt-1">
-                  Guru pembimbing PKL yang ditugaskan dari pihak sekolah untuk mitra ini.
-                </small>
-              </div>
-
-              <!-- Penanggung Jawab dari Industri -->
-              <div class="form-group mb-3">
-                <label for="edit_penanggung_jawab" class="font-weight-bold text-dark" style="font-size: 0.85rem;">
-                  <i class="fas fa-building text-secondary mr-1"></i> Penanggung Jawab Industri (Pimpinan DU/DI / HRD) <span class="text-danger">*</span>
-                </label>
-                <input type="text" class="form-control" id="edit_penanggung_jawab" name="penanggung_jawab" required style="border-radius: 8px; height: 42px;">
-              </div>
-
-              <!-- PIC & Kontak Lapangan Industri -->
-              <div class="row">
-                <div class="col-sm-6">
-                  <div class="form-group mb-2">
-                    <label for="edit_pic" class="font-weight-bold text-dark" style="font-size: 0.82rem;">
-                      Nama PIC Lapangan DU/DI
-                    </label>
-                    <input type="text" class="form-control" id="edit_pic" name="pic" placeholder="Contoh: Ibu Rina" style="border-radius: 8px; height: 40px; font-size: 0.85rem;">
-                  </div>
-                </div>
-                <div class="col-sm-6">
-                  <div class="form-group mb-2">
-                    <label for="edit_kontak_pic" class="font-weight-bold text-dark" style="font-size: 0.82rem;">
-                      No. WA PIC Lapangan
-                    </label>
-                    <input type="text" class="form-control" id="edit_kontak_pic" name="kontak_pic" placeholder="Contoh: 081234567890" style="border-radius: 8px; height: 40px; font-size: 0.85rem;">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Upload MoU -->
-              <div class="form-group mb-0 mt-2">
-                <label for="edit_file_mou" class="font-weight-bold text-dark" style="font-size: 0.82rem;">
-                  <i class="fas fa-file-pdf text-danger mr-1"></i> File MoU (PDF)
-                </label>
-                <div id="edit_mou_saat_ini" class="small mb-1 d-none">
-                  MoU saat ini: <a href="#" target="_blank" id="edit_mou_link" class="font-weight-bold">Lihat file</a>
-                </div>
-                <input type="file" class="form-control-file" id="edit_file_mou" name="file_mou" accept="application/pdf,.pdf">
-                <small class="text-muted d-block mt-1">Kosongkan jika tidak ingin mengganti file. Format PDF, maksimal 5 MB.</small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-footer bg-light py-3 px-4">
-          <button type="button" class="btn btn-secondary px-3" data-dismiss="modal" style="border-radius: 8px;">Batal</button>
-          <button type="submit" class="btn btn-primary px-4 font-weight-bold shadow-sm" style="border-radius: 8px;">
-            <i class="fas fa-save mr-1"></i> Simpan Perubahan
-          </button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
 @endsection
 
 @push('scripts')
 <script>
 $(document).ready(function () {
-  // Inisialisasi Select2 di dalam modal saat modal ditampilkan
-  $('#modalTambahPerusahaan, #modalEditPerusahaan, .modal-kelola-pkl').on('shown.bs.modal', function () {
+  // Inisialisasi Select2 di dalam modal plotting saat modal ditampilkan
+  $('.modal-kelola-pkl').on('shown.bs.modal', function () {
     $(this).find('.select2-modal').select2({
       theme: 'bootstrap4',
       width: '100%',
@@ -1004,12 +812,7 @@ $(document).ready(function () {
     });
   });
 
-  // Reset Select2 saat modal tambah dibuka
-  $('#modalTambahPerusahaan').on('show.bs.modal', function () {
-    $('#id_guru').val('').trigger('change');
-  });
-
-  // Smooth modal switch (misal dari Detail ke Edit atau Plotting)
+  // Smooth modal switch (misal dari Detail ke Plotting)
   $(document).on('click', '.btn-switch-modal', function (e) {
     e.preventDefault();
     let targetModalId = $(this).data('target');
@@ -1018,35 +821,6 @@ $(document).ready(function () {
     currentModal.one('hidden.bs.modal', function () {
       $(targetModalId).modal('show');
     });
-  });
-
-  // Tombol Edit Perusahaan
-  $('.btn-edit-perusahaan').on('click', function () {
-    let id = $(this).data('id');
-    let nama = $(this).data('nama');
-    let alamat = $(this).data('alamat');
-    let pj = $(this).data('pj');
-    let idGuru = $(this).data('id-guru') || '';
-    let pic = $(this).data('pic') || '';
-    let kontakPic = $(this).data('kontak-pic') || '';
-
-    $('#edit_nama_perusahaan').val(nama);
-    $('#edit_alamat_perusahaan').val(alamat);
-    $('#edit_penanggung_jawab').val(pj);
-    $('#edit_id_guru').val(idGuru).trigger('change');
-    $('#edit_pic').val(pic);
-    $('#edit_kontak_pic').val(kontakPic);
-
-    let mouUrl = $(this).data('mou-url') || '';
-    $('#edit_file_mou').val('');
-    if (mouUrl) {
-      $('#edit_mou_link').attr('href', mouUrl);
-      $('#edit_mou_saat_ini').removeClass('d-none');
-    } else {
-      $('#edit_mou_saat_ini').addClass('d-none');
-    }
-
-    $('#formEditPerusahaan').attr('action', '/admin/perusahaan/' + id);
   });
 
   // Delete Perusahaan with SweetAlert

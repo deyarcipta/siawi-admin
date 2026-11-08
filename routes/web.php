@@ -34,6 +34,7 @@ use App\Http\Controllers\AbsensiGuruController;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\PerusahaanController;
 use App\Http\Controllers\SiswaPklController;
+use App\Http\Controllers\AbsensiPklAdminController;
 use App\Http\Controllers\LaporanKedisiplinanController;
 use App\Http\Controllers\LaporanAbsensiMingguanController;
 use App\Http\Controllers\LaporanAbsensiBulananController;
@@ -283,6 +284,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     // =========================================================================
     Route::group(['middleware' => ['role:admin,hubin,bkk,tata_usaha,kesiswaan,wali_kelas']], function () {
         Route::resource('siswaPkl', SiswaPklController::class);
+        Route::post('absensi-pkl/reset-device/{id_siswa}', [AbsensiPklAdminController::class, 'resetDevice'])->name('absensi-pkl.reset-device');
+        Route::resource('absensi-pkl', AbsensiPklAdminController::class);
     });
 
     Route::group(['middleware' => ['role:admin,hubin,bkk,tata_usaha,kesiswaan']], function () {

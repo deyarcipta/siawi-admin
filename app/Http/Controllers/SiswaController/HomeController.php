@@ -13,6 +13,7 @@ use App\Models\Rapot;
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\Setting;
+use App\Models\SiswaPkl;
 use Carbon\Carbon;
 use DB;
 
@@ -150,6 +151,46 @@ class HomeController extends Controller
         }
         $isPklLevel = $setting ? $setting->isLevelPkl($siswaKodeLevel) : in_array($siswaKodeLevel, ['XI', 'XII']);
 
+        // Data Presensi PKL Hari Ini untuk Quick Action Card di Beranda
+        $presensiPklToday = null;
+        $quickPklAction = null;
+        if ($siswaPkl) {
+            $todayDate = now()->toDateString();
+            $presensiPklToday = \App\Models\AbsensiPkl::where('id_siswa', $id_siswa)
+                ->where('tanggal', $todayDate)
+                ->first();
+
+            $statusPkl = is_array($siswaPkl) ? ($siswaPkl['status'] ?? '') : ($siswaPkl->status ?? '');
+            $isPklAktif = !in_array(strtolower($statusPkl), ['selesai', 'ditolak', 'batal']);
+
+            if ($isPklAktif) {
+                $sudahMasuk = $presensiPklToday && !empty($presensiPklToday->jam_masuk);
+                $sudahPulang = $presensiPklToday && !empty($presensiPklToday->jam_pulang);
+
+                if (!$sudahMasuk) {
+                    $actionType = 'masuk';
+                    $actionLabel = 'Presensi Masuk';
+                } elseif (!$sudahPulang) {
+                    $actionType = 'pulang';
+                    $actionLabel = 'Presensi Pulang';
+                } else {
+                    $actionType = 'selesai';
+                    $actionLabel = 'Presensi Selesai';
+                }
+
+                $quickPklAction = [
+                    'is_aktif' => true,
+                    'action_type' => $actionType,
+                    'action_label' => $actionLabel,
+                    'sudah_masuk' => $sudahMasuk,
+                    'sudah_pulang' => $sudahPulang,
+                    'jam_masuk' => $presensiPklToday ? $presensiPklToday->jam_masuk : null,
+                    'jam_pulang' => $presensiPklToday ? $presensiPklToday->jam_pulang : null,
+                    'status_hari_ini' => $presensiPklToday ? $presensiPklToday->status : null,
+                ];
+            }
+        }
+
         return response()->json([
             'success' => true,
             'data' => $siswa,
@@ -157,6 +198,8 @@ class HomeController extends Controller
             'rapotTerakhir' => $rapotTerakhir,
             'dataRapot' => $dataRapot,
             'siswaPkl' => $siswaPkl,
+            'presensiPklToday' => $presensiPklToday,
+            'quickPklAction' => $quickPklAction,
             'is_pkl_level' => $isPklLevel,
             'pesan' => $pesan,
             'presentaseKehadiran' => $presentaseKehadiran,
@@ -193,6 +236,17 @@ class HomeController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Password Salah'
+                ], 200);
+            }
+
+            // Validasi Lock Device jika aturan aktif untuk PKL
+            $lockError = $this->validatePklDeviceLock($siswa, $request);
+            if ($lockError) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $lockError,
+                    'is_device_locked' => true,
+                    'locked_device_name' => $siswa->device_name,
                 ], 200);
             }
 
@@ -506,5 +560,98 @@ class HomeController extends Controller
         }
 
         return false;
+    }
+
+    /**
+     * Validasi aturan Lock Device untuk siswa PKL berdasarkan pengaturan sekolah.
+     */
+    private function validatePklDeviceLock(Siswa $siswa, Request $request): ?string
+    {
+        $setting = Setting::find(1);
+        if (!$setting) return null;
+
+        $attendanceMode = $setting->pkl_attendance_mode ?? 'radius_foto_lock';
+        $lockScope = $setting->pkl_lock_scope ?? 'periode_pkl';
+
+        // Jika mode tidak memerlukan lock device atau fitur dinonaktifkan
+        if ($attendanceMode === 'radius_foto' || $lockScope === 'nonaktif') {
+            return null;
+        }
+
+        $today = now()->toDateString();
+        $autoRelease = (bool) ($setting->pkl_auto_release ?? true);
+
+        // Ambil penempatan PKL aktif siswa
+        $siswaPkl = SiswaPkl::where('id_siswa', $siswa->id_siswa)->latest('id_siswa_pkl')->first();
+
+        // Fitur Auto-Release: Jika masa PKL siswa sudah selesai, otomatis bersihkan lock device
+        if ($autoRelease && $siswaPkl && !empty($siswa->device_id)) {
+            $tglSelesai = $siswaPkl->tanggal_selesai ? date('Y-m-d', strtotime($siswaPkl->tanggal_selesai)) : null;
+            if ($tglSelesai && $today > $tglSelesai) {
+                $siswa->update([
+                    'device_id' => null,
+                    'device_name' => null,
+                    'device_locked_at' => null,
+                ]);
+            }
+        }
+
+        // Tentukan apakah siswa ini termasuk kriteria yang wajib Lock Device
+        $shouldLock = false;
+        if ($lockScope === 'periode_pkl') {
+            if ($siswaPkl && strtolower($siswaPkl->status) !== 'selesai') {
+                $tglMulai = $siswaPkl->tanggal_mulai ? date('Y-m-d', strtotime($siswaPkl->tanggal_mulai)) : null;
+                $tglSelesai = $siswaPkl->tanggal_selesai ? date('Y-m-d', strtotime($siswaPkl->tanggal_selesai)) : null;
+                if ($tglMulai && $today >= $tglMulai && (!$tglSelesai || $today <= $tglSelesai)) {
+                    $shouldLock = true;
+                }
+            }
+        } elseif ($lockScope === 'level_pkl') {
+            $activeLevels = json_decode($setting->level_pkl ?? '[]', true) ?: ['XI', 'XII'];
+            $kelasNama = $siswa->kelas->nama_kelas ?? '';
+            foreach ($activeLevels as $lvl) {
+                if (stripos($kelasNama, $lvl) !== false) {
+                    $shouldLock = true;
+                    break;
+                }
+            }
+        } elseif ($lockScope === 'semua_siswa') {
+            $shouldLock = $siswaPkl !== null;
+        }
+
+        if (!$shouldLock) {
+            return null;
+        }
+
+        $deviceId = trim($request->input('device_id') ?? '');
+        $deviceName = trim($request->input('device_name') ?? $request->header('User-Agent') ?? 'Perangkat Mobile');
+
+        // Jika klien belum mengirimkan device_id, izinkan login agar tidak memblokir aplikasi
+        if (empty($deviceId)) {
+            return null;
+        }
+
+        // Jika siswa belum memiliki kuncian perangkat, daftarkan perangkat ini
+        if (empty($siswa->device_id)) {
+            $siswa->update([
+                'device_id' => $deviceId,
+                'device_name' => $deviceName,
+                'device_locked_at' => now(),
+            ]);
+            return null;
+        }
+
+        // Jika sudah terkunci dan device_id yang dikirim berbeda
+        if ($siswa->device_id !== $deviceId) {
+            $namaPerangkat = $siswa->device_name ?: 'Perangkat Lain';
+            return "Akun Anda sedang terkunci pada perangkat ({$namaPerangkat}). Untuk berpindah HP, silakan hubungi Guru Pembimbing PKL / Admin untuk melakukan Reset Perangkat.";
+        }
+
+        // Perbarui nama perangkat jika ada perubahan
+        if (!empty($deviceName) && $siswa->device_name !== $deviceName) {
+            $siswa->update(['device_name' => $deviceName]);
+        }
+
+        return null;
     }
 }

@@ -427,14 +427,14 @@
                                     </div>
                                 </div>
 
-                                <!-- Pengaturan Tingkat / Level Kelas PKL -->
+                                <!-- Pengaturan Presensi, Level & Keamanan PKL -->
                                 <div class="card card-outline card-info shadow-sm mt-4 mb-0 level-pkl-section">
                                     <div class="card-header py-2 d-flex align-items-center justify-content-between">
                                         <h3 class="card-title font-weight-bold mb-0">
-                                            <i class="fas fa-briefcase text-info mr-2"></i> Pengaturan Tingkat / Level Kelas PKL
+                                            <i class="fas fa-briefcase text-info mr-2"></i> Pengaturan Presensi &amp; Keamanan PKL
                                         </h3>
                                         <span class="badge badge-light border text-muted px-2 py-1 small">
-                                            <i class="fas fa-sliders-h mr-1 text-info"></i> Filter Partisipasi PKL
+                                            <i class="fas fa-shield-alt mr-1 text-info"></i> Geofencing &amp; Lock Device
                                         </span>
                                     </div>
                                     <div class="card-body">
@@ -450,13 +450,34 @@
                                                         <i class="fas fa-info-circle"></i>
                                                     </div>
                                                     <div class="small text-secondary mb-0">
-                                                        <strong class="text-dark d-block mb-1">Pengaturan Visibilitas Modul PKL:</strong>
-                                                        Pilih tingkat kelas yang mengikuti program Praktik Kerja Lapangan (PKL). Bagi siswa yang berada pada tingkat kelas yang <em>tidak dicentang</em>, kartu status penempatan PKL akan <strong>otomatis disembunyikan</strong> di halaman detail siswa admin maupun pada dashboard aplikasi wali murid.
+                                                        <strong class="text-dark d-block mb-1">Konfigurasi Presensi &amp; Pencegahan Kecurangan PKL:</strong>
+                                                        Atur metode presensi yang digunakan siswa saat magang kerja (Radius GPS, Foto Selfie, dan Kuncian Perangkat / Lock Device), serta tentukan jenjang kelas yang mengikuti program PKL.
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <style>
+                                                .pkl-card-option {
+                                                    display: block;
+                                                    padding: 14px 16px;
+                                                    border: 2px solid #e2e8f0;
+                                                    border-radius: 12px;
+                                                    background: #ffffff;
+                                                    cursor: pointer;
+                                                    transition: all 0.22s ease-in-out;
+                                                    margin-bottom: 0;
+                                                    user-select: none;
+                                                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+                                                }
+                                                .pkl-card-option:hover {
+                                                    border-color: #93c5fd;
+                                                    background-color: #f8faff;
+                                                }
+                                                .pkl-card-option.is-selected {
+                                                    border-color: #0284c7 !important;
+                                                    background-color: #f0f9ff !important;
+                                                    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.14) !important;
+                                                }
                                                 .level-pkl-card {
                                                     display: flex;
                                                     align-items: center;
@@ -509,8 +530,183 @@
                                                 }
                                             </style>
 
-                                            <!-- Level Cards Grid -->
-                                            <div class="row">
+                                            <!-- 1. METODE PRESENSI PKL -->
+                                            <div class="mb-4">
+                                                <label class="font-weight-bold text-dark d-block mb-1" style="font-size: 0.95rem;">
+                                                     <i class="fas fa-sliders-h text-primary mr-1"></i> 1. Metode Verifikasi Presensi Siswa PKL
+                                                </label>
+                                                <p class="text-muted small mb-3">Tentukan kombinasi metode verifikasi yang wajib dipenuhi siswa saat melakukan absensi di aplikasi <code>siawi-app</code>.</p>
+                                                
+                                                @php
+                                                    $currMode = $setting->pkl_attendance_mode ?? 'radius_foto_lock';
+                                                @endphp
+                                                <div class="row">
+                                                    <!-- Mode 1: Radius + Lock Device -->
+                                                    <div class="col-md-4 mb-2">
+                                                        <label class="pkl-card-option pkl-mode-card w-100 {{ $currMode === 'radius_lock' ? 'is-selected' : '' }}" for="mode_radius_lock">
+                                                            <div class="d-flex align-items-center mb-2">
+                                                                <input type="radio" name="pkl_attendance_mode" id="mode_radius_lock" value="radius_lock" class="mr-2" {{ $currMode === 'radius_lock' ? 'checked' : '' }} onchange="updatePklModeSelection()">
+                                                                <span class="font-weight-bold text-dark" style="font-size: 0.9rem;">Radius + Lock Device</span>
+                                                            </div>
+                                                            <div class="small text-muted mb-2" style="font-size: 0.78rem; line-height: 1.4;">
+                                                                Siswa wajib di lokasi kantor DU/DI &amp; akun terkunci ke 1 HP. Sangat hemat storage server (0 KB foto).
+                                                            </div>
+                                                            <span class="badge badge-success font-weight-normal py-1 px-2" style="font-size: 0.72rem;">
+                                                                <i class="fas fa-feather-alt mr-1"></i> 100% Bebas Kuota Foto
+                                                            </span>
+                                                        </label>
+                                                    </div>
+
+                                                    <!-- Mode 2: Radius + Foto -->
+                                                    <div class="col-md-4 mb-2">
+                                                        <label class="pkl-card-option pkl-mode-card w-100 {{ $currMode === 'radius_foto' ? 'is-selected' : '' }}" for="mode_radius_foto">
+                                                            <div class="d-flex align-items-center mb-2">
+                                                                <input type="radio" name="pkl_attendance_mode" id="mode_radius_foto" value="radius_foto" class="mr-2" {{ $currMode === 'radius_foto' ? 'checked' : '' }} onchange="updatePklModeSelection()">
+                                                                <span class="font-weight-bold text-dark" style="font-size: 0.9rem;">Radius + Foto Selfie</span>
+                                                            </div>
+                                                            <div class="small text-muted mb-2" style="font-size: 0.78rem; line-height: 1.4;">
+                                                                Siswa wajib di lokasi &amp; selfie live kamera. Tanpa mengunci HP siswa (bisa ganti HP bebas).
+                                                            </div>
+                                                            <span class="badge badge-info font-weight-normal py-1 px-2" style="font-size: 0.72rem;">
+                                                                <i class="fas fa-camera mr-1"></i> Bukti Visual Wajah
+                                                            </span>
+                                                        </label>
+                                                    </div>
+
+                                                    <!-- Mode 3: Radius + Foto + Lock Device -->
+                                                    <div class="col-md-4 mb-2">
+                                                        <label class="pkl-card-option pkl-mode-card w-100 {{ $currMode === 'radius_foto_lock' ? 'is-selected' : '' }}" for="mode_radius_foto_lock">
+                                                            <div class="d-flex align-items-center mb-2">
+                                                                <input type="radio" name="pkl_attendance_mode" id="mode_radius_foto_lock" value="radius_foto_lock" class="mr-2" {{ $currMode === 'radius_foto_lock' ? 'checked' : '' }} onchange="updatePklModeSelection()">
+                                                                <span class="font-weight-bold text-dark" style="font-size: 0.9rem;">Radius + Foto + Lock Device</span>
+                                                            </div>
+                                                            <div class="small text-muted mb-2" style="font-size: 0.78rem; line-height: 1.4;">
+                                                                Proteksi terlengkap: radius GPS, foto selfie terkompresi, dan kuncian ID perangkat (anti titip absen).
+                                                            </div>
+                                                            <span class="badge badge-primary font-weight-normal py-1 px-2" style="font-size: 0.72rem;">
+                                                                <i class="fas fa-shield-alt mr-1"></i> Keamanan Maksimal
+                                                            </span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- 2. PENGATURAN LOCK DEVICE (KAPAN BERLAKU) -->
+                                            <div class="mb-4 pt-3 border-top">
+                                                <label class="font-weight-bold text-dark d-block mb-1" style="font-size: 0.95rem;">
+                                                    <i class="fas fa-mobile-alt text-success mr-1"></i> 2. Cakupan &amp; Waktu Berlakunya Kuncian Perangkat (Lock Device)
+                                                </label>
+                                                <p class="text-muted small mb-3">Tentukan kepada siapa dan kapan kuncian <code>device_id</code> diterapkan pada siswa (Akun Orang Tua tidak pernah terpengaruh).</p>
+                                                
+                                                @php
+                                                    $currScope = $setting->pkl_lock_scope ?? 'periode_pkl';
+                                                @endphp
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-2">
+                                                        <label class="pkl-card-option pkl-scope-card w-100 {{ $currScope === 'periode_pkl' ? 'is-selected' : '' }}" for="scope_periode">
+                                                            <div class="d-flex align-items-center mb-1">
+                                                                <input type="radio" id="scope_periode" name="pkl_lock_scope" value="periode_pkl" class="mr-2" {{ $currScope === 'periode_pkl' ? 'checked' : '' }} onchange="updatePklScopeSelection()">
+                                                                <span class="font-weight-bold text-dark" style="font-size: 0.9rem;">Otomatis Selama Masa PKL Siswa</span>
+                                                                <span class="badge badge-success ml-auto font-weight-normal" style="font-size: 0.7rem;">Rekomendasi</span>
+                                                            </div>
+                                                            <small class="text-muted d-block" style="font-size: 0.78rem; line-height: 1.4;">
+                                                                Kuncian HP hanya aktif mulai dari <code>tanggal_mulai</code> sampai <code>tanggal_selesai</code> penempatan PKL masing-masing siswa. Di luar tanggal tersebut akun bebas login.
+                                                            </small>
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-2">
+                                                        <label class="pkl-card-option pkl-scope-card w-100 {{ $currScope === 'level_pkl' ? 'is-selected' : '' }}" for="scope_level">
+                                                            <div class="d-flex align-items-center mb-1">
+                                                                <input type="radio" id="scope_level" name="pkl_lock_scope" value="level_pkl" class="mr-2" {{ $currScope === 'level_pkl' ? 'checked' : '' }} onchange="updatePklScopeSelection()">
+                                                                <span class="font-weight-bold text-dark" style="font-size: 0.9rem;">Mengikuti Tingkat / Level Kelas PKL</span>
+                                                            </div>
+                                                            <small class="text-muted d-block" style="font-size: 0.78rem; line-height: 1.4;">
+                                                                Berlaku untuk semua siswa yang berada di jenjang kelas yang dicentang aktif PKL pada bagian bawah (misal tingkat XI &amp; XII).
+                                                            </small>
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-2">
+                                                        <label class="pkl-card-option pkl-scope-card w-100 {{ $currScope === 'semua_siswa' ? 'is-selected' : '' }}" for="scope_semua">
+                                                            <div class="d-flex align-items-center mb-1">
+                                                                <input type="radio" id="scope_semua" name="pkl_lock_scope" value="semua_siswa" class="mr-2" {{ $currScope === 'semua_siswa' ? 'checked' : '' }} onchange="updatePklScopeSelection()">
+                                                                <span class="font-weight-bold text-dark" style="font-size: 0.9rem;">Semua Siswa Terdaftar PKL</span>
+                                                            </div>
+                                                            <small class="text-muted d-block" style="font-size: 0.78rem; line-height: 1.4;">
+                                                                Berlaku untuk setiap siswa yang memiliki riwayat data plotting penempatan PKL, tanpa memandang tanggal mulai.
+                                                            </small>
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-2">
+                                                        <label class="pkl-card-option pkl-scope-card w-100 {{ $currScope === 'nonaktif' ? 'is-selected' : '' }}" for="scope_nonaktif">
+                                                            <div class="d-flex align-items-center mb-1">
+                                                                <input type="radio" id="scope_nonaktif" name="pkl_lock_scope" value="nonaktif" class="mr-2" {{ $currScope === 'nonaktif' ? 'checked' : '' }} onchange="updatePklScopeSelection()">
+                                                                <span class="font-weight-bold text-dark" style="font-size: 0.9rem;">Nonaktifkan Fitur Lock Device</span>
+                                                            </div>
+                                                            <small class="text-muted d-block" style="font-size: 0.78rem; line-height: 1.4;">
+                                                                Siswa dapat bebas berganti HP kapan saja tanpa pembatasan ID perangkat.
+                                                            </small>
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Auto-release checkbox -->
+                                                <div class="custom-control custom-checkbox mt-3">
+                                                    <input type="checkbox" class="custom-control-input" id="pkl_auto_release" name="pkl_auto_release" value="1" {{ ($setting->pkl_auto_release ?? true) ? 'checked' : '' }}>
+                                                    <label class="custom-control-label text-dark font-weight-500 cursor-pointer" for="pkl_auto_release" style="font-size: 0.85rem;">
+                                                        <i class="fas fa-user-shield text-info mr-1"></i> Lepas Kuncian Otomatis (Auto-Release): Otomatis reset kuncian perangkat saat siswa menyelesaikan masa PKL.
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <!-- 3. ATURAN FOTO SELFIE -->
+                                            <div class="mb-4 pt-3 border-top" id="section_foto_mode" style="{{ $currMode === 'radius_lock' ? 'display: none;' : '' }}">
+                                                <label class="font-weight-bold text-dark d-block mb-1" style="font-size: 0.95rem;">
+                                                    <i class="fas fa-camera text-warning mr-1"></i> 3. Kebijakan Foto Selfie Presensi
+                                                </label>
+                                                <p class="text-muted small mb-2">Hanya berlaku jika metode presensi yang dipilih menggunakan foto selfie.</p>
+                                                
+                                                @php
+                                                    $currFotoMode = $setting->pkl_foto_mode ?? 'masuk_saja';
+                                                @endphp
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-2">
+                                                        <label class="pkl-card-option pkl-foto-card w-100 {{ $currFotoMode === 'masuk_saja' ? 'is-selected' : '' }}" for="foto_masuk_saja">
+                                                            <div class="d-flex align-items-center mb-1">
+                                                                <input type="radio" id="foto_masuk_saja" name="pkl_foto_mode" value="masuk_saja" class="mr-2" {{ $currFotoMode === 'masuk_saja' ? 'checked' : '' }} onchange="updatePklFotoSelection()">
+                                                                <span class="font-weight-bold text-dark" style="font-size: 0.9rem;">Foto Hanya Saat Masuk</span>
+                                                                <span class="badge badge-info ml-auto font-weight-normal" style="font-size: 0.7rem;">Hemat Storage 50%</span>
+                                                            </div>
+                                                            <small class="text-muted d-block" style="font-size: 0.78rem; line-height: 1.4;">
+                                                                Saat jam pulang siswa cukup memverifikasi radius GPS tanpa perlu upload foto lagi.
+                                                            </small>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-md-6 mb-2">
+                                                        <label class="pkl-card-option pkl-foto-card w-100 {{ $currFotoMode === 'masuk_pulang' ? 'is-selected' : '' }}" for="foto_masuk_pulang">
+                                                            <div class="d-flex align-items-center mb-1">
+                                                                <input type="radio" id="foto_masuk_pulang" name="pkl_foto_mode" value="masuk_pulang" class="mr-2" {{ $currFotoMode === 'masuk_pulang' ? 'checked' : '' }} onchange="updatePklFotoSelection()">
+                                                                <span class="font-weight-bold text-dark" style="font-size: 0.9rem;">Wajib Foto Saat Masuk &amp; Pulang</span>
+                                                            </div>
+                                                            <small class="text-muted d-block" style="font-size: 0.78rem; line-height: 1.4;">
+                                                                Siswa wajib mengambil foto selfie live camera saat jam masuk dan jam pulang.
+                                                            </small>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- 4. TINGKAT / LEVEL KELAS PKL -->
+                                            <div class="mb-3 pt-3 border-top">
+                                                <label class="font-weight-bold text-dark d-block mb-1" style="font-size: 0.95rem;">
+                                                    <i class="fas fa-graduation-cap text-info mr-1"></i> 4. Tingkat / Jenjang Kelas yang Mengikuti PKL
+                                                </label>
+                                                <p class="text-muted small mb-3">Centang jenjang kelas yang aktif mengikuti program magang PKL di sekolah.</p>
+
+                                                <!-- Level Cards Grid -->
+                                                <div class="row">
                                                 @php
                                                     $selectedLevels = $setting->level_pkl ?? ['XI', 'XII'];
                                                     $rawLevels = isset($allLevels) ? $allLevels : \App\Models\Level::all();
@@ -559,11 +755,12 @@
                                                         </label>
                                                     </div>
                                                 @endforeach
+                                                </div>
                                             </div>
 
                                             <div class="d-flex justify-content-end align-items-center mt-3 pt-2 border-top">
                                                 <button type="submit" class="btn btn-info px-4 py-2 font-weight-bold shadow-sm" style="border-radius: 8px;">
-                                                    <i class="fas fa-save mr-1"></i> Simpan Pengaturan Level PKL
+                                                    <i class="fas fa-save mr-1"></i> Simpan Pengaturan PKL
                                                 </button>
                                             </div>
                                         </form>
@@ -571,6 +768,49 @@
                                 </div>
 
                                 <script>
+                                    function updatePklModeSelection() {
+                                        document.querySelectorAll('.pkl-mode-card').forEach(function(card) {
+                                            const radio = card.querySelector('input[type="radio"]');
+                                            if (radio && radio.checked) {
+                                                card.classList.add('is-selected');
+                                            } else {
+                                                card.classList.remove('is-selected');
+                                            }
+                                        });
+
+                                        const selectedMode = document.querySelector('input[name="pkl_attendance_mode"]:checked')?.value;
+                                        const fotoSection = document.getElementById('section_foto_mode');
+                                        if (fotoSection) {
+                                            if (selectedMode === 'radius_lock') {
+                                                fotoSection.style.display = 'none';
+                                            } else {
+                                                fotoSection.style.display = 'block';
+                                            }
+                                        }
+                                    }
+
+                                    function updatePklScopeSelection() {
+                                        document.querySelectorAll('.pkl-scope-card').forEach(function(card) {
+                                            const radio = card.querySelector('input[type="radio"]');
+                                            if (radio && radio.checked) {
+                                                card.classList.add('is-selected');
+                                            } else {
+                                                card.classList.remove('is-selected');
+                                            }
+                                        });
+                                    }
+
+                                    function updatePklFotoSelection() {
+                                        document.querySelectorAll('.pkl-foto-card').forEach(function(card) {
+                                            const radio = card.querySelector('input[type="radio"]');
+                                            if (radio && radio.checked) {
+                                                card.classList.add('is-selected');
+                                            } else {
+                                                card.classList.remove('is-selected');
+                                            }
+                                        });
+                                    }
+
                                     function toggleLevelPklCard(cb) {
                                         const card = cb.closest('.level-pkl-card');
                                         if (!card) return;
@@ -589,6 +829,13 @@
                                             }
                                         }
                                     }
+
+                                    // Inisialisasi visual status saat pertama dimuat
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        updatePklModeSelection();
+                                        updatePklScopeSelection();
+                                        updatePklFotoSelection();
+                                    });
                                 </script>
                             </div>
 

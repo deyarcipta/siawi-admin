@@ -375,11 +375,20 @@ class SettingController extends Controller
         // Cek apakah request mengandung 'pkl_settings'
         if ($request->has('pkl_settings')) {
             $levels = $request->input('level_pkl', []);
+            $attendanceMode = $request->input('pkl_attendance_mode', 'radius_foto_lock');
+            $lockScope = $request->input('pkl_lock_scope', 'periode_pkl');
+            $fotoMode = $request->input('pkl_foto_mode', 'masuk_saja');
+            $autoRelease = $request->has('pkl_auto_release') ? 1 : 0;
+
             $setting->update([
                 'level_pkl' => json_encode($levels),
+                'pkl_attendance_mode' => $attendanceMode,
+                'pkl_lock_scope' => $lockScope,
+                'pkl_foto_mode' => $fotoMode,
+                'pkl_auto_release' => $autoRelease,
             ]);
 
-            return redirect('/admin/setting')->with('success', 'Pengaturan tingkat kelas PKL berhasil diperbarui.');
+            return redirect('/admin/setting')->with('success', 'Pengaturan Presensi & Lock Device PKL berhasil diperbarui.');
         }
 
         // Cek apakah request mengandung 'wa_settings'
