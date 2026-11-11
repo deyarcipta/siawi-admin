@@ -48,6 +48,7 @@ class DashboardController extends Controller
 
         $guruPiketHariIni = \App\Models\GuruPiket::with('guru')
             ->where('hari', $todayDayInd)
+            ->orderBy('waktu_awal', 'asc')
             ->get();
 
         $piketPembiasaanHariIni = \App\Models\PiketPembiasaanPagi::with('guru')
@@ -246,10 +247,18 @@ class DashboardController extends Controller
             $tanggalHariIni = $todayDayInd . ', ' . Carbon::now()->format('d M Y');
         }
 
-        // Menyiapkan data waktu piket jika belum ada field jam_mulai/jam_selesai
+        // Format jam tugas dari field waktu_awal dan waktu_akhir di database
         $defaultPiketSlots = ['06.30 - 10.00', '10.00 - 12.30', '12.30 - 15.00', '15.00 - 17.00'];
         foreach ($guruPiketHariIni as $idx => $piket) {
-            if (empty($piket->jam_tugas)) {
+            if (!empty($piket->waktu_awal) && !empty($piket->waktu_akhir)) {
+                try {
+                    $mulai = Carbon::parse(str_replace('.', ':', $piket->waktu_awal))->format('H.i');
+                    $selesai = Carbon::parse(str_replace('.', ':', $piket->waktu_akhir))->format('H.i');
+                    $piket->jam_tugas = $mulai . ' - ' . $selesai;
+                } catch (\Exception $e) {
+                    $piket->jam_tugas = $piket->waktu_awal . ' - ' . $piket->waktu_akhir;
+                }
+            } elseif (empty($piket->jam_tugas)) {
                 $piket->jam_tugas = $defaultPiketSlots[$idx % count($defaultPiketSlots)];
             }
         }
