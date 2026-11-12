@@ -10,6 +10,7 @@ use App\Models\Absensi;
 use App\Models\Siswa;
 use App\Models\Kelas;
 use App\Models\PointSiswa;
+use App\Models\SiswaPkl;
 use Carbon\Carbon;
 
 class LivePanelController extends Controller
@@ -327,6 +328,9 @@ class LivePanelController extends Controller
                 ];
             });
 
+        // 7. Statistik Kehadiran Seluruh Kelas & Kurva Tren 7 Hari (Khusus Siswa Non-PKL)
+        $classAnalytics = $this->buildNonPklClassAndTrendStats($kelasList, $today);
+
         return [
             'setting' => $setting,
             'greetingHeader' => $greetingHeader,
@@ -335,12 +339,236 @@ class LivePanelController extends Controller
             'tanggalFormatted' => $tanggalFormatted,
             'jamFormatted' => $jamFormatted,
             'videoUrl' => $videoUrl,
+            'panelVideoLoop' => max(1, (int) ($setting->panel_video_loop ?? 2)),
+            'panelDataDuration' => max(15, (int) ($setting->panel_data_duration ?? 120)),
             'topKelasBulanan' => $topKelasBulanan,
             'topSiswaBulanan' => $topSiswaBulanan,
             'topSiswaTercepat' => $topSiswaTercepat,
             'siswaTerlambatList' => $siswaTerlambatList,
             'totalTerlambat' => $siswaTerlambatList->count(),
-            'latestAbsensi' => $latestAbsensi
+            'latestAbsensi' => $latestAbsensi,
+            'allKelasToday' => $classAnalytics['allKelasToday'],
+            'schoolTodaySummary' => $classAnalytics['schoolTodaySummary'],
+            'kehadiranTrend7Days' => $classAnalytics['kehadiranTrend7Days'],
+        ];
+    }
+
+    /**
+     * Hitung tingkat kehadiran hari ini per kelas dan tren 7 hari aktif terakhir
+     * hanya dari siswa yang tidak sedang PKL (non-PKL).
+     */
+    protected function buildNonPklClassAndTrendStats($kelasList, string $today): array
+    {
+        $siswaPklRows = SiswaPkl::where('status', '!=', 'selesai')
+            ->select('id_siswa', 'tanggal_mulai', 'tanggal_selesai')
+            ->get();
+
+        $getPklIdSetForDate = function (string $date) use ($siswaPklRows): array {
+            $set = [];
+            foreach ($siswaPklRows as $row) {
+                $mulai = $row->tanggal_mulai ? substr((string) $row->tanggal_mulai, 0, 10) : null;
+                $selesai = $row->tanggal_selesai ? substr((string) $row->tanggal_selesai, 0, 10) : null;
+                if ($mulai && $date < $mulai) {
+                    continue;
+                }
+                if ($selesai && $date > $selesai) {
+                    continue;
+                }
+                $set[$row->id_siswa] = true;
+            }
+            return $set;
+        };
+
+        $pklTodaySet = $getPklIdSetForDate($today);
+
+        $absensiTodayBySiswa = Absensi::whereDate('tanggal', $today)
+            ->select('id_siswa', 'kehadiran', 'keterangan')
+            ->get()
+            ->keyBy('id_siswa');
+
+        $allKelasToday = [];
+        $kelasFullPkl = [];
+        $totalNonPklAll = 0;
+        $totalHadirAll = 0;
+        $totalTerlambatAll = 0;
+        $totalTidakHadirAll = 0;
+        $totalBelumAbsenAll = 0;
+        $totalPklToday = 0;
+
+        // Kelompokkan siswa per tingkat (X, XI, XII) untuk kurva tren
+        $studentsByLevel = [
+            'X' => [],
+            'XI' => [],
+            'XII' => [],
+        ];
+        $allStudentIds = [];
+
+        $parseTingkat = function (string $namaKelas): string {
+            if (preg_match('/^(XII|XI|X)(?:[- ]|$)/', strtoupper(trim($namaKelas)), $m)) {
+                return $m[1];
+            }
+            return 'LAIN';
+        };
+
+        $sortedKelas = $kelasList->sortBy(function ($kelas) use ($parseTingkat) {
+            $rankMap = ['X' => 1, 'XI' => 2, 'XII' => 3];
+            $tingkat = $parseTingkat((string) $kelas->nama_kelas);
+            $rank = $rankMap[$tingkat] ?? 9;
+            return sprintf('%d-%s', $rank, $kelas->nama_kelas);
+        })->values();
+
+        foreach ($sortedKelas as $kelas) {
+            $tingkat = $parseTingkat((string) $kelas->nama_kelas);
+
+            $nonPklStudents = [];
+            $pklCountInKelas = 0;
+
+            foreach ($kelas->siswa as $siswa) {
+                $allStudentIds[] = $siswa->id_siswa;
+                if (isset($studentsByLevel[$tingkat])) {
+                    $studentsByLevel[$tingkat][] = $siswa->id_siswa;
+                }
+
+                if (isset($pklTodaySet[$siswa->id_siswa])) {
+                    $pklCountInKelas++;
+                    $totalPklToday++;
+                } else {
+                    $nonPklStudents[] = $siswa->id_siswa;
+                }
+            }
+
+            $nonPklCount = count($nonPklStudents);
+            if ($nonPklCount === 0) {
+                if ($pklCountInKelas > 0) {
+                    $kelasFullPkl[] = $kelas->nama_kelas;
+                }
+                continue;
+            }
+
+            $hadir = 0;
+            $terlambat = 0;
+            $tidakHadir = 0;
+            $belumAbsen = 0;
+
+            foreach ($nonPklStudents as $idSiswa) {
+                $absen = $absensiTodayBySiswa->get($idSiswa);
+                if (!$absen) {
+                    $belumAbsen++;
+                    continue;
+                }
+                $status = strtolower(trim((string) $absen->kehadiran));
+                if ($status === 'hadir' || $status === 'masuk') {
+                    $hadir++;
+                    if (stripos((string) $absen->keterangan, 'terlambat') !== false) {
+                        $terlambat++;
+                    }
+                } else {
+                    $tidakHadir++;
+                }
+            }
+
+            $persen = round(($hadir / $nonPklCount) * 100, 1);
+
+            $totalNonPklAll += $nonPklCount;
+            $totalHadirAll += $hadir;
+            $totalTerlambatAll += $terlambat;
+            $totalTidakHadirAll += $tidakHadir;
+            $totalBelumAbsenAll += $belumAbsen;
+
+            $allKelasToday[] = [
+                'id_kelas' => $kelas->id_kelas,
+                'nama_kelas' => $kelas->nama_kelas,
+                'tingkat' => $tingkat,
+                'total_non_pkl' => $nonPklCount,
+                'total_pkl' => $pklCountInKelas,
+                'hadir' => $hadir,
+                'terlambat' => $terlambat,
+                'tidak_hadir' => $tidakHadir,
+                'belum_absen' => $belumAbsen,
+                'persen' => $persen,
+            ];
+        }
+
+        $schoolTodaySummary = [
+            'total_siswa_non_pkl' => $totalNonPklAll,
+            'total_hadir' => $totalHadirAll,
+            'total_terlambat' => $totalTerlambatAll,
+            'total_tidak_hadir' => $totalTidakHadirAll,
+            'total_belum_absen' => $totalBelumAbsenAll,
+            'persen_hadir' => $totalNonPklAll > 0 ? round(($totalHadirAll / $totalNonPklAll) * 100, 1) : 0,
+            'total_siswa_pkl' => $totalPklToday,
+            'jumlah_kelas_aktif' => count($allKelasToday),
+            'kelas_full_pkl' => $kelasFullPkl,
+        ];
+
+        // Kurva Tren 7 Hari Aktif Terakhir
+        $recentDates = Absensi::whereDate('tanggal', '<=', $today)
+            ->select('tanggal')
+            ->distinct()
+            ->orderBy('tanggal', 'desc')
+            ->limit(7)
+            ->pluck('tanggal')
+            ->reverse()
+            ->values();
+
+        $trendLabels = [];
+        $trendAll = [];
+        $trendX = [];
+        $trendXI = [];
+        $trendXII = [];
+
+        if ($recentDates->isNotEmpty()) {
+            $absensiTrendRows = Absensi::whereIn('tanggal', $recentDates)
+                ->whereIn('kehadiran', ['hadir', 'masuk'])
+                ->select('id_siswa', 'tanggal')
+                ->get()
+                ->groupBy(fn ($r) => substr((string) $r->tanggal, 0, 10));
+
+            foreach ($recentDates as $tgl) {
+                $tglStr = substr((string) $tgl, 0, 10);
+                $pklSetOnDate = $getPklIdSetForDate($tglStr);
+                $hadirSet = [];
+                foreach ($absensiTrendRows->get($tglStr, collect()) as $r) {
+                    $hadirSet[$r->id_siswa] = true;
+                }
+
+                $calcPct = function (array $studentIds) use ($pklSetOnDate, $hadirSet): ?float {
+                    $nonPkl = 0;
+                    $hadir = 0;
+                    foreach ($studentIds as $sid) {
+                        if (isset($pklSetOnDate[$sid])) {
+                            continue;
+                        }
+                        $nonPkl++;
+                        if (isset($hadirSet[$sid])) {
+                            $hadir++;
+                        }
+                    }
+                    return $nonPkl > 0 ? round(($hadir / $nonPkl) * 100, 1) : null;
+                };
+
+                try {
+                    $trendLabels[] = Carbon::parse($tglStr)->locale('id')->isoFormat('ddd, D/M');
+                } catch (\Exception $e) {
+                    $trendLabels[] = $tglStr;
+                }
+                $trendAll[] = $calcPct($allStudentIds);
+                $trendX[] = $calcPct($studentsByLevel['X']);
+                $trendXI[] = $calcPct($studentsByLevel['XI']);
+                $trendXII[] = $calcPct($studentsByLevel['XII']);
+            }
+        }
+
+        return [
+            'allKelasToday' => $allKelasToday,
+            'schoolTodaySummary' => $schoolTodaySummary,
+            'kehadiranTrend7Days' => [
+                'labels' => $trendLabels,
+                'all' => $trendAll,
+                'X' => $trendX,
+                'XI' => $trendXI,
+                'XII' => $trendXII,
+            ],
         ];
     }
 }

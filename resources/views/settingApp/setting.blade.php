@@ -210,6 +210,28 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <div class="row mt-3 pt-3 border-top">
+                                                        <div class="col-sm-6 form-group mb-2 mb-sm-0">
+                                                            <label for="panel_video_loop">Putar Video Sebelum Grafik (Kali)</label>
+                                                            <div class="input-group">
+                                                                <input type="number" class="form-control" name="panel_video_loop" id="panel_video_loop" min="1" max="20" value="{{ old('panel_video_loop', $setting->panel_video_loop ?? 2) }}">
+                                                                <div class="input-group-append">
+                                                                    <span class="input-group-text">x putar</span>
+                                                                </div>
+                                                            </div>
+                                                            <small class="text-muted">Jumlah ulang video sebelum berganti ke grafik kelas (default 2x).</small>
+                                                        </div>
+                                                        <div class="col-sm-6 form-group mb-0">
+                                                            <label for="panel_data_duration">Durasi Tampil Grafik Kehadiran</label>
+                                                            <div class="input-group">
+                                                                <input type="number" class="form-control" name="panel_data_duration" id="panel_data_duration" min="15" max="1800" step="5" value="{{ old('panel_data_duration', $setting->panel_data_duration ?? 120) }}">
+                                                                <div class="input-group-append">
+                                                                    <span class="input-group-text">detik</span>
+                                                                </div>
+                                                            </div>
+                                                            <small class="text-muted">Lama tampil slide data sebelum kembali ke video (120 detik = 2 menit).</small>
+                                                        </div>
+                                                    </div>
                                                     <button type="submit" class="btn btn-primary btn-block font-weight-bold mt-3" id="btnSimpanIdentitas">
                                                         <i class="fas fa-save mr-1"></i> Simpan Identitas & Media Sekolah
                                                     </button>

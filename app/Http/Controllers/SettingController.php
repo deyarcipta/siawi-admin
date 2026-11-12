@@ -145,6 +145,16 @@ class SettingController extends Controller
                     $table->string('semester_aktif', 20)->default('Ganjil')->nullable()->after('tahun_ajaran');
                 });
             }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('setting', 'panel_video_loop')) {
+                \Illuminate\Support\Facades\Schema::table('setting', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->integer('panel_video_loop')->default(2)->after('video_panel');
+                });
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('setting', 'panel_data_duration')) {
+                \Illuminate\Support\Facades\Schema::table('setting', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->integer('panel_data_duration')->default(120)->after('panel_video_loop');
+                });
+            }
         } catch (\Exception $e) {}
 
         // Cek apakah request mengandung data yang perlu diproses dari settingDasar
@@ -161,6 +171,8 @@ class SettingController extends Controller
                 'kec' => 'required',
                 'prov' => 'required',
                 'kota' => 'required',
+                'panel_video_loop' => 'nullable|integer|min:1|max:20',
+                'panel_data_duration' => 'nullable|integer|min:15|max:1800',
             ]);
 
             try {
@@ -277,7 +289,9 @@ class SettingController extends Controller
                     'prov' => $request->prov,
                     'kota' => $request->kota,
                     'logo' => $nama_file,
-                    'video_panel' => $setting->video_panel
+                    'video_panel' => $setting->video_panel,
+                    'panel_video_loop' => (int) ($request->input('panel_video_loop') ?: ($setting->panel_video_loop ?: 2)),
+                    'panel_data_duration' => (int) ($request->input('panel_data_duration') ?: ($setting->panel_data_duration ?: 120)),
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {

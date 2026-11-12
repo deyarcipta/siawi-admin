@@ -16,6 +16,9 @@
   <!-- Bootstrap 4.6 CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 
+  <!-- Chart.js v2.9.4 -->
+  <script src="{{ asset('lte/plugins/chart.js/Chart.min.js') }}"></script>
+
   <style>
     :root {
       --bg-dark: #050811;
@@ -222,6 +225,239 @@
       padding: 10px 18px 14px;
       text-align: center;
       border-top: 1px solid rgba(0, 210, 255, 0.22);
+    }
+
+    /* Stage Layering Inside Video Box */
+    .stage-layer {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.55s ease;
+      z-index: 1;
+    }
+
+    .stage-layer.is-active {
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 5;
+    }
+
+    .video-stage-inner {
+      justify-content: flex-end;
+      background: #020409;
+    }
+
+    /* Subtle Top Stage Controls */
+    .stage-top-hud {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      right: 12px;
+      z-index: 25;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .stage-mode-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(5, 11, 24, 0.78);
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      color: #cbd5e1;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      backdrop-filter: blur(6px);
+    }
+
+    .stage-switch-btn {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(5, 11, 24, 0.82);
+      border: 1px solid rgba(0, 210, 255, 0.35);
+      color: #e2e8f0;
+      border-radius: 999px;
+      padding: 4px 11px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      opacity: 0.28;
+      transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      backdrop-filter: blur(6px);
+    }
+
+    .video-screen-frame:hover .stage-switch-btn,
+    .stage-switch-btn:focus-visible {
+      opacity: 1;
+      outline: none;
+    }
+
+    .stage-switch-btn:hover {
+      background: rgba(0, 168, 255, 0.22);
+      border-color: rgba(0, 210, 255, 0.65);
+      color: #ffffff;
+    }
+
+    /* Data Visualization Stage Panel */
+    .data-stage-panel {
+      background: #070d1c;
+      padding: 42px 20px 14px;
+      gap: 10px;
+    }
+
+    .data-stage-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+      padding-bottom: 8px;
+    }
+
+    .data-stage-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0 0 2px;
+      line-height: 1.25;
+    }
+
+    .data-stage-subtitle {
+      font-size: 0.74rem;
+      color: #94a3b8;
+      margin: 0;
+    }
+
+    .data-stage-datetime {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .data-kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .data-kpi-card {
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      border-radius: 10px;
+      padding: 7px 12px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .data-kpi-label {
+      font-size: 0.73rem;
+      color: #94a3b8;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .data-kpi-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: #f8fafc;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .data-chart-wrap {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      background: rgba(10, 18, 36, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 10px;
+      padding: 10px 12px 6px;
+    }
+
+    .data-empty-state {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 16px;
+      color: #94a3b8;
+      font-size: 0.85rem;
+    }
+
+    .data-scope-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.71rem;
+      color: #94a3b8;
+      min-height: 16px;
+    }
+
+    .stage-legend-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .stage-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: #cbd5e1;
+    }
+
+    .stage-legend-swatch {
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .stage-progress-track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background: rgba(148, 163, 184, 0.16);
+      z-index: 30;
+    }
+
+    .stage-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #00d2ff;
+      transition: width 0.25s linear;
     }
 
     .greeting-title {
@@ -852,39 +1088,148 @@
     <!-- Row 1: Central Media + Sidebar Top 5 Rankings -->
     <div class="main-grid-row">
       
-      <!-- Central Video Frame with Ambient Backdrop -->
-      <div class="video-screen-frame">
-        @if($videoUrl)
-          <!-- Ambient blurred background for non-16:9 videos -->
-          <video class="video-ambient-backdrop" autoplay muted loop playsinline>
-            <source src="{{ $videoUrl }}" type="video/mp4">
-          </video>
-          <!-- Sharp foreground main video -->
-          <video class="video-element-main" id="mainVideoPlayer" autoplay muted loop playsinline>
-            <source src="{{ $videoUrl }}" type="video/mp4">
-            Video format tidak didukung browser.
-          </video>
-        @else
-          <!-- Default Animated School Display if no custom MP4 uploaded -->
-          <div class="video-element-main d-flex align-items-center justify-content-center" style="background: radial-gradient(circle at center, #0f1f3d 0%, #050b18 100%);">
-            <div class="text-center p-4">
-              <div class="mb-3">
-                <i class="fas fa-school text-primary" style="font-size: 4rem; filter: drop-shadow(0 0 20px rgba(0, 168, 255, 0.6));"></i>
+      <!-- Central Multi-Stage Box: Video + Non-PKL Attendance Bar & Curve -->
+      <div class="video-screen-frame" id="wallboardRotatorFrame">
+        <!-- Top Subtle Stage HUD -->
+        <div class="stage-top-hud">
+          <div class="stage-mode-pill" id="stageModePill">VIDEO 1 / {{ $panelVideoLoop ?? 2 }}</div>
+          <button type="button" class="stage-switch-btn" id="btnStageSwitch" title="Ganti tampilan Video / Data Kelas">
+            <i class="fas fa-exchange-alt"></i>
+            <span id="btnStageSwitchLabel">Lihat Data Kelas</span>
+          </button>
+        </div>
+
+        <!-- Stage 1: Video Player -->
+        <div class="stage-layer video-stage-inner is-active" id="stageVideo">
+          @if($videoUrl)
+            <!-- Ambient blurred background for non-16:9 videos -->
+            <video class="video-ambient-backdrop" id="backdropVideoPlayer" autoplay muted playsinline>
+              <source src="{{ $videoUrl }}" type="video/mp4">
+            </video>
+            <!-- Sharp foreground main video -->
+            <video class="video-element-main" id="mainVideoPlayer" autoplay muted playsinline>
+              <source src="{{ $videoUrl }}" type="video/mp4">
+              Video format tidak didukung browser.
+            </video>
+          @else
+            <!-- Default School Display if no custom MP4 uploaded -->
+            <div class="video-element-main d-flex align-items-center justify-content-center" style="background: radial-gradient(circle at center, #0f1f3d 0%, #050b18 100%);">
+              <div class="text-center p-4">
+                <div class="mb-3">
+                  <i class="fas fa-school text-primary" style="font-size: 4rem;"></i>
+                </div>
+                <h2 class="font-weight-bold text-white mb-1" style="font-family: 'Outfit'; letter-spacing: 0.05em;">{{ $setting->nama_sekolah ?? 'SMK WISATA INDONESIA' }}</h2>
+                <p class="text-muted small mb-0">Video belum diunggah. Unggah melalui menu Pengaturan Aplikasi.</p>
               </div>
-              <h2 class="font-weight-bold text-white mb-1" style="font-family: 'Outfit'; letter-spacing: 0.05em;">{{ $setting->nama_sekolah ?? 'SMK WISATA INDONESIA' }}</h2>
-              <p class="text-muted small mb-0">Video dapat diunggah melalui menu Pengaturan Aplikasi</p>
+            </div>
+          @endif
+
+          <!-- Floating Glass Banner at Bottom of Video -->
+          <div class="video-overlay-banner">
+            <div class="greeting-title" id="liveGreetingText">{{ $greetingHeader }}</div>
+            <div class="greeting-subtitle">
+              <span><i class="far fa-calendar-alt mr-1"></i> <span id="liveDateText">{{ $tanggalFormatted }}</span></span>
+              <span style="opacity: 0.4;">|</span>
+              <span><i class="far fa-clock mr-1"></i> <span id="liveClockText">{{ $jamFormatted }}</span></span>
             </div>
           </div>
-        @endif
+        </div>
 
-        <!-- Floating Glass Banner at Bottom of Video -->
-        <div class="video-overlay-banner">
-          <div class="greeting-title" id="liveGreetingText">{{ $greetingHeader }}</div>
-          <div class="greeting-subtitle">
-            <span><i class="far fa-calendar-alt mr-1"></i> <span id="liveDateText">{{ $tanggalFormatted }}</span></span>
-            <span style="opacity: 0.4;">|</span>
-            <span><i class="far fa-clock mr-1"></i> <span id="liveClockText">{{ $jamFormatted }}</span></span>
+        <!-- Stage 2: Bar Chart Kehadiran Semua Kelas Hari Ini -->
+        <div class="stage-layer data-stage-panel" id="stageBarKelas">
+          <div class="data-stage-header">
+            <div>
+              <h2 class="data-stage-title">Tingkat Kehadiran Siswa Hari Ini per Kelas</h2>
+              <p class="data-stage-subtitle" id="barStageSubtitle">
+                Rekap kehadiran real-time ({{ $schoolTodaySummary['jumlah_kelas_aktif'] ?? 0 }} kelas aktif)
+              </p>
+            </div>
+            <div class="data-stage-datetime">
+              <span id="dataBarDateText">{{ $tanggalFormatted }}</span>
+              <span style="opacity: 0.4;">|</span>
+              <span id="dataBarClockText">{{ $jamFormatted }}</span>
+            </div>
           </div>
+
+          <div class="data-kpi-strip">
+            <div class="data-kpi-card">
+              <span class="data-kpi-label">Total Siswa</span>
+              <span class="data-kpi-value" id="kpiTotalNonPkl">{{ $schoolTodaySummary['total_siswa_non_pkl'] ?? 0 }}</span>
+            </div>
+            <div class="data-kpi-card">
+              <span class="data-kpi-label">Hadir Hari Ini</span>
+              <span class="data-kpi-value" style="color: #10b981;" id="kpiHadirNonPkl">{{ $schoolTodaySummary['total_hadir'] ?? 0 }} ({{ number_format($schoolTodaySummary['persen_hadir'] ?? 0, 1) }}%)</span>
+            </div>
+            <div class="data-kpi-card">
+              <span class="data-kpi-label">Terlambat / Belum Absen</span>
+              <span class="data-kpi-value" style="color: #f59e0b;" id="kpiTerlambatBelum">{{ $schoolTodaySummary['total_terlambat'] ?? 0 }} / {{ $schoolTodaySummary['total_belum_absen'] ?? 0 }}</span>
+            </div>
+          </div>
+
+          <div class="data-chart-wrap">
+            <canvas id="barKelasChart"></canvas>
+            <div class="data-empty-state" id="barKelasEmpty">
+              <i class="fas fa-chart-bar mb-2" style="font-size: 1.8rem; color: #64748b;"></i>
+              <span>Belum ada data kelas yang aktif untuk ditampilkan hari ini.</span>
+            </div>
+          </div>
+
+          <div class="data-scope-footer">
+            <div class="stage-legend-inline">
+              <span class="stage-legend-item"><span class="stage-legend-swatch" style="background: #10b981;"></span> &ge; 90%</span>
+              <span class="stage-legend-item"><span class="stage-legend-swatch" style="background: #f59e0b;"></span> 75% - 89%</span>
+              <span class="stage-legend-item"><span class="stage-legend-swatch" style="background: #ef4444;"></span> &lt; 75%</span>
+            </div>
+            <span id="barFullPklNote">Pembaruan otomatis setiap 15 detik</span>
+          </div>
+        </div>
+
+        <!-- Stage 3: Kurva Tren Kehadiran 7 Hari Aktif Terakhir -->
+        <div class="stage-layer data-stage-panel" id="stageCurveTrend">
+          <div class="data-stage-header">
+            <div>
+              <h2 class="data-stage-title">Kurva Tren Kehadiran 7 Hari Aktif Terakhir</h2>
+              <p class="data-stage-subtitle">Perbandingan persentase hadir siswa berdasarkan tingkat kelas</p>
+            </div>
+            <div class="data-stage-datetime">
+              <span id="dataCurveDateText">{{ $tanggalFormatted }}</span>
+              <span style="opacity: 0.4;">|</span>
+              <span id="dataCurveClockText">{{ $jamFormatted }}</span>
+            </div>
+          </div>
+
+          <div class="data-kpi-strip">
+            <div class="data-kpi-card">
+              <span class="data-kpi-label">Tingkat X (Hari Terakhir)</span>
+              <span class="data-kpi-value" style="color: #38bdf8;" id="kpiLevelX">-</span>
+            </div>
+            <div class="data-kpi-card">
+              <span class="data-kpi-label">Tingkat XI (Hari Terakhir)</span>
+              <span class="data-kpi-value" style="color: #10b981;" id="kpiLevelXI">-</span>
+            </div>
+            <div class="data-kpi-card">
+              <span class="data-kpi-label">Tingkat XII (Hari Terakhir)</span>
+              <span class="data-kpi-value" style="color: #f59e0b;" id="kpiLevelXII">-</span>
+            </div>
+          </div>
+
+          <div class="data-chart-wrap">
+            <canvas id="curveTrendChart"></canvas>
+            <div class="data-empty-state" id="curveTrendEmpty">
+              <i class="fas fa-chart-line mb-2" style="font-size: 1.8rem; color: #64748b;"></i>
+              <span>Belum tersedia histori presensi untuk 7 hari aktif terakhir.</span>
+            </div>
+          </div>
+
+          <div class="data-scope-footer">
+            <span>Basis: Persentase hadir (tepat waktu + terlambat)</span>
+            <span id="curveNextCycleNote">Kembali ke video setelah durasi data selesai</span>
+          </div>
+        </div>
+
+        <!-- Progress Countdown Bar -->
+        <div class="stage-progress-track">
+          <div class="stage-progress-fill" id="stageProgressBar"></div>
         </div>
       </div>
 
@@ -1032,11 +1377,12 @@
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const seconds = String(now.getSeconds()).padStart(2, '0');
-      
-      const clockEl = document.getElementById('liveClockText');
-      if (clockEl) {
-        clockEl.textContent = `${hours}:${minutes}:${seconds} WIB`;
-      }
+      const formatted = `${hours}:${minutes}:${seconds} WIB`;
+
+      ['liveClockText', 'dataBarClockText', 'dataCurveClockText'].forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = formatted;
+      });
     }
     setInterval(updateLiveClock, 1000);
     updateLiveClock();
@@ -1143,8 +1489,16 @@
 
         // Update Greeting & Tanggal
         if (d.greetingHeader) document.getElementById('liveGreetingText').textContent = d.greetingHeader;
-        if (d.tanggalFormatted) document.getElementById('liveDateText').textContent = d.tanggalFormatted;
+        if (d.tanggalFormatted) {
+          ['liveDateText', 'dataBarDateText', 'dataCurveDateText'].forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = d.tanggalFormatted;
+          });
+        }
         if (d.totalTerlambat !== undefined) document.getElementById('totalLateCount').textContent = d.totalTerlambat;
+        if (typeof updateWallboardAnalytics === 'function') {
+          updateWallboardAnalytics(d);
+        }
 
         // Update Top Kelas Bulanan
         const topKelasEl = document.getElementById('topKelasListContainer');
@@ -1422,12 +1776,570 @@
       requestAnimationFrame(tickerStep);
     }
 
+    // 5. Analytics Charts (Non-PKL) & Multi-Stage Video/Data Rotator
+    let configVideoLoop = Math.max(1, Number({{ (int) ($panelVideoLoop ?? 2) }}));
+    let configDataDuration = Math.max(15, Number({{ (int) ($panelDataDuration ?? 120) }}));
+    let analyticsState = {
+      allKelasToday: {{ \Illuminate\Support\Js::from($allKelasToday ?? []) }},
+      schoolTodaySummary: {{ \Illuminate\Support\Js::from($schoolTodaySummary ?? []) }},
+      kehadiranTrend7Days: {{ \Illuminate\Support\Js::from($kehadiranTrend7Days ?? ['labels' => [], 'all' => [], 'X' => [], 'XI' => [], 'XII' => []]) }}
+    };
+
+    let barKelasChartInstance = null;
+    let curveTrendChartInstance = null;
+
+    const rotatorState = {
+      currentStage: 'video', // 'video' | 'bar' | 'curve'
+      videoPlayCount: 1,
+      dataElapsedMs: 0,
+      dataIntervalId: null,
+      fallbackTimerId: null
+    };
+
+    function getBarColor(pct) {
+      if (pct >= 90) return '#10b981';
+      if (pct >= 75) return '#f59e0b';
+      return '#ef4444';
+    }
+
+    function formatPct(val) {
+      if (val === null || val === undefined || isNaN(val)) return '-';
+      return Number(val).toFixed(1) + '%';
+    }
+
+    function latestNonNull(arr) {
+      if (!Array.isArray(arr)) return null;
+      for (let i = arr.length - 1; i >= 0; i--) {
+        if (arr[i] !== null && arr[i] !== undefined) return arr[i];
+      }
+      return null;
+    }
+
+    function renderAnalyticsSummary(summary, trend) {
+      const s = summary || {};
+      const t = trend || {};
+
+      const elTotal = document.getElementById('kpiTotalNonPkl');
+      const elHadir = document.getElementById('kpiHadirNonPkl');
+      const elTerlambatBelum = document.getElementById('kpiTerlambatBelum');
+      const elSub = document.getElementById('barStageSubtitle');
+      const elFullPkl = document.getElementById('barFullPklNote');
+
+      if (elTotal) elTotal.textContent = s.total_siswa_non_pkl ?? 0;
+      if (elHadir) elHadir.textContent = `${s.total_hadir ?? 0} (${Number(s.persen_hadir ?? 0).toFixed(1)}%)`;
+      if (elTerlambatBelum) elTerlambatBelum.textContent = `${s.total_terlambat ?? 0} / ${s.total_belum_absen ?? 0}`;
+      if (elSub) {
+        elSub.textContent = `Rekap kehadiran real-time (${s.jumlah_kelas_aktif ?? 0} kelas aktif)`;
+      }
+      if (elFullPkl) {
+        elFullPkl.textContent = 'Pembaruan otomatis setiap 15 detik';
+      }
+
+      const elX = document.getElementById('kpiLevelX');
+      const elXI = document.getElementById('kpiLevelXI');
+      const elXII = document.getElementById('kpiLevelXII');
+      if (elX) elX.textContent = formatPct(latestNonNull(t.X));
+      if (elXI) elXI.textContent = formatPct(latestNonNull(t.XI));
+      if (elXII) elXII.textContent = formatPct(latestNonNull(t.XII));
+    }
+
+    const barValueLabelPlugin = {
+      afterDatasetsDraw: function(chart) {
+        if (!chart || chart.canvas.id !== 'barKelasChart') return;
+        const ctx = chart.ctx;
+        const dataset = chart.data.datasets[0];
+        const meta = chart.getDatasetMeta(0);
+        if (!meta || !meta.data) return;
+
+        ctx.save();
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = (meta.data.length > 14 ? '600 9.5px' : '600 10.5px') + " 'Outfit', sans-serif";
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+
+        meta.data.forEach(function(bar, idx) {
+          const val = dataset.data[idx];
+          if (val === null || val === undefined) return;
+          const label = Math.round(Number(val)) + '%';
+          ctx.fillText(label, bar._model.x, bar._model.y - 4);
+        });
+        ctx.restore();
+      }
+    };
+
+    function renderBarKelasChart(kelasData) {
+      const canvas = document.getElementById('barKelasChart');
+      const emptyEl = document.getElementById('barKelasEmpty');
+      if (!canvas) return;
+
+      const list = Array.isArray(kelasData) ? kelasData : [];
+      if (list.length === 0) {
+        canvas.style.display = 'none';
+        if (emptyEl) emptyEl.style.display = 'flex';
+        if (barKelasChartInstance) {
+          barKelasChartInstance.destroy();
+          barKelasChartInstance = null;
+        }
+        return;
+      }
+
+      canvas.style.display = 'block';
+      if (emptyEl) emptyEl.style.display = 'none';
+      if (typeof Chart === 'undefined') return;
+
+      const labels = list.map(k => k.nama_kelas);
+      const values = list.map(k => Number(k.persen ?? 0));
+      const colors = values.map(getBarColor);
+
+      if (barKelasChartInstance) {
+        barKelasChartInstance.data.labels = labels;
+        barKelasChartInstance.data.datasets[0].data = values;
+        barKelasChartInstance.data.datasets[0].backgroundColor = colors;
+        barKelasChartInstance.data.datasets[0].borderColor = colors;
+        barKelasChartInstance._kelasMetaList = list;
+        barKelasChartInstance.update();
+        return;
+      }
+
+      barKelasChartInstance = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Kehadiran (%)',
+            data: values,
+            backgroundColor: colors,
+            borderColor: colors,
+            borderWidth: 1,
+            maxBarThickness: 42
+          }]
+        },
+        plugins: [barValueLabelPlugin],
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 400 },
+          layout: { padding: { top: 20, right: 6, left: 2, bottom: 0 } },
+          legend: { display: false },
+          tooltips: {
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            borderColor: 'rgba(0, 210, 255, 0.35)',
+            borderWidth: 1,
+            titleFontColor: '#f8fafc',
+            bodyFontColor: '#cbd5e1',
+            callbacks: {
+              label: function(tooltipItem, data) {
+                const idx = tooltipItem.index;
+                const item = (barKelasChartInstance && barKelasChartInstance._kelasMetaList)
+                  ? barKelasChartInstance._kelasMetaList[idx]
+                  : null;
+                if (!item) return ` Kehadiran: ${tooltipItem.yLabel}%`;
+                return [
+                  ` Hadir: ${item.hadir} / ${item.total_non_pkl} siswa (${item.persen}%)`,
+                  ` Terlambat: ${item.terlambat} | Belum Absen: ${item.belum_absen}`
+                ];
+              }
+            }
+          },
+          scales: {
+            xAxes: [{
+              gridLines: { display: false, drawBorder: true, color: 'rgba(148, 163, 184, 0.16)' },
+              ticks: {
+                fontColor: '#cbd5e1',
+                fontSize: list.length > 14 ? 9.5 : 11,
+                autoSkip: false,
+                maxRotation: list.length > 10 ? 35 : 0,
+                minRotation: 0
+              }
+            }],
+            yAxes: [{
+              gridLines: { color: 'rgba(148, 163, 184, 0.14)', zeroLineColor: 'rgba(148, 163, 184, 0.25)' },
+              ticks: {
+                min: 0,
+                max: 100,
+                stepSize: 25,
+                fontColor: '#94a3b8',
+                fontSize: 11,
+                callback: function(value) { return value + '%'; }
+              }
+            }]
+          }
+        }
+      });
+      barKelasChartInstance._kelasMetaList = list;
+    }
+
+    function renderCurveTrendChart(trendData) {
+      const canvas = document.getElementById('curveTrendChart');
+      const emptyEl = document.getElementById('curveTrendEmpty');
+      if (!canvas) return;
+
+      const t = trendData || {};
+      const labels = Array.isArray(t.labels) ? t.labels : [];
+      if (labels.length === 0) {
+        canvas.style.display = 'none';
+        if (emptyEl) emptyEl.style.display = 'flex';
+        if (curveTrendChartInstance) {
+          curveTrendChartInstance.destroy();
+          curveTrendChartInstance = null;
+        }
+        return;
+      }
+
+      canvas.style.display = 'block';
+      if (emptyEl) emptyEl.style.display = 'none';
+      if (typeof Chart === 'undefined') return;
+
+      const candidates = [
+        {
+          key: 'all',
+          label: 'Semua Kelas',
+          borderColor: '#00d2ff',
+          backgroundColor: 'rgba(0, 210, 255, 0.10)',
+          borderWidth: 3,
+          pointRadius: 3.5,
+          fill: true,
+          lineTension: 0.3,
+          spanGaps: true
+        },
+        {
+          key: 'X',
+          label: 'Tingkat X',
+          borderColor: '#38bdf8',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          borderDash: [5, 4],
+          pointRadius: 3,
+          fill: false,
+          lineTension: 0.3,
+          spanGaps: true
+        },
+        {
+          key: 'XI',
+          label: 'Tingkat XI',
+          borderColor: '#10b981',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 3,
+          fill: false,
+          lineTension: 0.3,
+          spanGaps: true
+        },
+        {
+          key: 'XII',
+          label: 'Tingkat XII',
+          borderColor: '#f59e0b',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 3,
+          fill: false,
+          lineTension: 0.3,
+          spanGaps: true
+        }
+      ];
+
+      const datasets = [];
+      candidates.forEach(function(cfg) {
+        const series = Array.isArray(t[cfg.key]) ? t[cfg.key] : [];
+        const hasAnyValue = series.some(v => v !== null && v !== undefined);
+        if (!hasAnyValue) return;
+        datasets.push({
+          label: cfg.label,
+          data: series,
+          borderColor: cfg.borderColor,
+          backgroundColor: cfg.backgroundColor,
+          borderWidth: cfg.borderWidth,
+          borderDash: cfg.borderDash || [],
+          pointRadius: cfg.pointRadius,
+          pointBackgroundColor: cfg.borderColor,
+          fill: cfg.fill,
+          lineTension: cfg.lineTension,
+          spanGaps: cfg.spanGaps
+        });
+      });
+
+      if (curveTrendChartInstance) {
+        curveTrendChartInstance.data.labels = labels;
+        curveTrendChartInstance.data.datasets = datasets;
+        curveTrendChartInstance.update();
+        return;
+      }
+
+      curveTrendChartInstance = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: { labels: labels, datasets: datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 400 },
+          layout: { padding: { top: 6, right: 8, left: 2, bottom: 0 } },
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              fontColor: '#cbd5e1',
+              fontSize: 11,
+              boxWidth: 14,
+              padding: 12
+            }
+          },
+          tooltips: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            borderColor: 'rgba(0, 210, 255, 0.35)',
+            borderWidth: 1,
+            callbacks: {
+              label: function(tooltipItem, data) {
+                const dsLabel = data.datasets[tooltipItem.datasetIndex].label || '';
+                const val = tooltipItem.yLabel;
+                return ` ${dsLabel}: ${val !== null && val !== undefined ? val + '%' : '-'}`;
+              }
+            }
+          },
+          scales: {
+            xAxes: [{
+              gridLines: { color: 'rgba(148, 163, 184, 0.10)' },
+              ticks: { fontColor: '#cbd5e1', fontSize: 11 }
+            }],
+            yAxes: [{
+              gridLines: { color: 'rgba(148, 163, 184, 0.14)', zeroLineColor: 'rgba(148, 163, 184, 0.25)' },
+              ticks: {
+                min: 0,
+                max: 100,
+                stepSize: 25,
+                fontColor: '#94a3b8',
+                fontSize: 11,
+                callback: function(value) { return value + '%'; }
+              }
+            }]
+          }
+        }
+      });
+    }
+
+    function updateWallboardAnalytics(d) {
+      if (!d) return;
+      if (d.panelVideoLoop !== undefined) {
+        configVideoLoop = Math.max(1, Number(d.panelVideoLoop));
+        if (rotatorState.currentStage === 'video' && document.getElementById('mainVideoPlayer')) {
+          updateHudPill();
+        }
+      }
+      if (d.panelDataDuration !== undefined) {
+        configDataDuration = Math.max(15, Number(d.panelDataDuration));
+      }
+      if (d.allKelasToday !== undefined) analyticsState.allKelasToday = d.allKelasToday;
+      if (d.schoolTodaySummary !== undefined) analyticsState.schoolTodaySummary = d.schoolTodaySummary;
+      if (d.kehadiranTrend7Days !== undefined) analyticsState.kehadiranTrend7Days = d.kehadiranTrend7Days;
+
+      renderAnalyticsSummary(analyticsState.schoolTodaySummary, analyticsState.kehadiranTrend7Days);
+      renderBarKelasChart(analyticsState.allKelasToday);
+      renderCurveTrendChart(analyticsState.kehadiranTrend7Days);
+    }
+
+    function clearRotatorTimers() {
+      if (rotatorState.dataIntervalId) {
+        clearInterval(rotatorState.dataIntervalId);
+        rotatorState.dataIntervalId = null;
+      }
+      if (rotatorState.fallbackTimerId) {
+        clearTimeout(rotatorState.fallbackTimerId);
+        rotatorState.fallbackTimerId = null;
+      }
+    }
+
+    function setStageProgress(pct) {
+      const fill = document.getElementById('stageProgressBar');
+      if (fill) {
+        const clamped = Math.max(0, Math.min(100, Number(pct) || 0));
+        fill.style.width = clamped + '%';
+      }
+    }
+
+    function activateStageDom(stageName) {
+      const map = {
+        video: document.getElementById('stageVideo'),
+        bar: document.getElementById('stageBarKelas'),
+        curve: document.getElementById('stageCurveTrend')
+      };
+      Object.keys(map).forEach(function(key) {
+        if (map[key]) {
+          map[key].classList.toggle('is-active', key === stageName);
+        }
+      });
+      rotatorState.currentStage = stageName;
+      updateHudPill();
+
+      if (stageName === 'bar' && barKelasChartInstance) {
+        setTimeout(() => barKelasChartInstance.resize(), 60);
+      } else if (stageName === 'curve' && curveTrendChartInstance) {
+        setTimeout(() => curveTrendChartInstance.resize(), 60);
+      }
+    }
+
+    function updateHudPill() {
+      const pill = document.getElementById('stageModePill');
+      const btnLabel = document.getElementById('btnStageSwitchLabel');
+      const mainVid = document.getElementById('mainVideoPlayer');
+
+      if (rotatorState.currentStage === 'video') {
+        if (pill) {
+          pill.textContent = mainVid
+            ? `VIDEO ${rotatorState.videoPlayCount} / ${configVideoLoop}`
+            : 'INFO SEKOLAH';
+        }
+        if (btnLabel) btnLabel.textContent = 'Lihat Data Kelas';
+      } else if (rotatorState.currentStage === 'bar') {
+        if (pill) pill.textContent = 'DATA 1 / 2 • PER KELAS';
+        if (btnLabel) btnLabel.textContent = 'Ke Kurva Tren';
+      } else {
+        if (pill) pill.textContent = 'DATA 2 / 2 • KURVA TREN';
+        if (btnLabel) btnLabel.textContent = 'Kembali ke Video';
+      }
+    }
+
+    function pauseAllVideos() {
+      const mainVid = document.getElementById('mainVideoPlayer');
+      const bgVid = document.getElementById('backdropVideoPlayer');
+      if (mainVid && !mainVid.paused) mainVid.pause();
+      if (bgVid && !bgVid.paused) bgVid.pause();
+    }
+
+    function replayVideosFromStart() {
+      const mainVid = document.getElementById('mainVideoPlayer');
+      const bgVid = document.getElementById('backdropVideoPlayer');
+      if (bgVid) {
+        bgVid.currentTime = 0;
+        bgVid.play().catch(() => {});
+      }
+      if (mainVid) {
+        mainVid.currentTime = 0;
+        mainVid.play().catch(() => {});
+      }
+    }
+
+    function startVideoStage() {
+      clearRotatorTimers();
+      rotatorState.videoPlayCount = 1;
+      activateStageDom('video');
+      setStageProgress(0);
+
+      const mainVid = document.getElementById('mainVideoPlayer');
+      if (mainVid) {
+        replayVideosFromStart();
+      } else {
+        const bannerSec = 12;
+        const startedAt = Date.now();
+        rotatorState.dataIntervalId = setInterval(function() {
+          const elapsed = (Date.now() - startedAt) / 1000;
+          setStageProgress((elapsed / bannerSec) * 100);
+          if (elapsed >= bannerSec) {
+            startDataStage('bar');
+          }
+        }, 250);
+      }
+    }
+
+    function startDataStage(initialSlide) {
+      clearRotatorTimers();
+      pauseAllVideos();
+
+      const totalMs = configDataDuration * 1000;
+      const barMs = Math.ceil(totalMs / 2);
+      rotatorState.dataElapsedMs = initialSlide === 'curve' ? barMs : 0;
+      activateStageDom(initialSlide === 'curve' ? 'curve' : 'bar');
+
+      let lastTick = Date.now();
+      const noteEl = document.getElementById('curveNextCycleNote');
+
+      function updateDataTick() {
+        const now = Date.now();
+        rotatorState.dataElapsedMs += (now - lastTick);
+        lastTick = now;
+
+        const pct = (rotatorState.dataElapsedMs / totalMs) * 100;
+        setStageProgress(pct);
+
+        if (rotatorState.dataElapsedMs >= totalMs) {
+          startVideoStage();
+          return;
+        }
+
+        if (rotatorState.dataElapsedMs >= barMs && rotatorState.currentStage === 'bar') {
+          activateStageDom('curve');
+        }
+
+        const remainingSec = Math.max(0, Math.ceil((totalMs - rotatorState.dataElapsedMs) / 1000));
+        if (noteEl && rotatorState.currentStage === 'curve') {
+          noteEl.textContent = `Kembali ke video dalam ${remainingSec} detik`;
+        }
+      }
+
+      updateDataTick();
+      rotatorState.dataIntervalId = setInterval(updateDataTick, 250);
+    }
+
+    function initWallboardRotator() {
+      const mainVid = document.getElementById('mainVideoPlayer');
+      const btnSwitch = document.getElementById('btnStageSwitch');
+
+      if (btnSwitch) {
+        btnSwitch.addEventListener('click', function() {
+          if (rotatorState.currentStage === 'video') {
+            startDataStage('bar');
+          } else if (rotatorState.currentStage === 'bar') {
+            startDataStage('curve');
+          } else {
+            startVideoStage();
+          }
+        });
+      }
+
+      if (mainVid) {
+        mainVid.addEventListener('timeupdate', function() {
+          if (rotatorState.currentStage !== 'video') return;
+          if (!mainVid.duration || isNaN(mainVid.duration)) return;
+          const progress = ((rotatorState.videoPlayCount - 1) + (mainVid.currentTime / mainVid.duration)) / configVideoLoop;
+          setStageProgress(progress * 100);
+        });
+
+        mainVid.addEventListener('ended', function() {
+          if (rotatorState.currentStage !== 'video') return;
+          if (rotatorState.videoPlayCount < configVideoLoop) {
+            rotatorState.videoPlayCount += 1;
+            updateHudPill();
+            replayVideosFromStart();
+          } else {
+            startDataStage('bar');
+          }
+        });
+
+        mainVid.addEventListener('error', function() {
+          if (rotatorState.currentStage !== 'video') return;
+          clearRotatorTimers();
+          rotatorState.fallbackTimerId = setTimeout(function() {
+            startDataStage('bar');
+          }, 5000);
+        });
+      }
+
+      document.addEventListener('fullscreenchange', function() {
+        setTimeout(function() {
+          if (barKelasChartInstance) barKelasChartInstance.resize();
+          if (curveTrendChartInstance) curveTrendChartInstance.resize();
+        }, 120);
+      });
+
+      startVideoStage();
+    }
+
     // Inisialisasi saat halaman selesai dimuat
     window.addEventListener('DOMContentLoaded', function() {
-      const vid = document.getElementById('mainVideoPlayer');
-      if (vid) {
-        vid.play().catch(e => console.log('Autoplay handled:', e));
-      }
+      renderAnalyticsSummary(analyticsState.schoolTodaySummary, analyticsState.kehadiranTrend7Days);
+      renderBarKelasChart(analyticsState.allKelasToday);
+      renderCurveTrendChart(analyticsState.kehadiranTrend7Days);
+      initWallboardRotator();
       initAutoScrollLateCards();
     });
   </script>
