@@ -284,6 +284,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin.'], 
     // =========================================================================
     Route::group(['middleware' => ['role:admin,hubin,bkk,tata_usaha,kesiswaan,wali_kelas']], function () {
         Route::resource('siswaPkl', SiswaPklController::class);
+        Route::get('absensi-pkl/export-harian', [AbsensiPklAdminController::class, 'exportHarian'])->name('absensi-pkl.export-harian');
+        Route::get('absensi-pkl/export-rekap', [AbsensiPklAdminController::class, 'exportRekap'])->name('absensi-pkl.export-rekap');
         Route::post('absensi-pkl/reset-device/{id_siswa}', [AbsensiPklAdminController::class, 'resetDevice'])->name('absensi-pkl.reset-device');
         Route::resource('absensi-pkl', AbsensiPklAdminController::class);
     });

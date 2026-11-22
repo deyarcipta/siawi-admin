@@ -139,6 +139,24 @@
               </div>
             </div>
             <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+              <!-- Export Buttons -->
+              <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-success dropdown-toggle font-weight-bold shadow-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius: 8px;">
+                  <i class="fas fa-file-excel mr-1"></i> Download Laporan
+                </button>
+                <div class="dropdown-menu dropdown-menu-right shadow border-0 py-2" style="border-radius: 10px; font-size: 0.85rem; min-width: 250px;">
+                  <a class="dropdown-item py-2" href="{{ route('admin.absensi-pkl.export-harian', request()->query()) }}">
+                    <div class="font-weight-bold text-dark"><i class="fas fa-calendar-day text-success mr-2"></i> Laporan Harian (Excel)</div>
+                    <div class="text-muted small ml-4">Sesuai tanggal & filter yang dipilih</div>
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item py-2" href="#" data-toggle="modal" data-target="#modalExportRekapPkl">
+                    <div class="font-weight-bold text-dark"><i class="fas fa-calendar-week text-primary mr-2"></i> Rekap Periode / Rentang (Excel)</div>
+                    <div class="text-muted small ml-4">Matriks kehadiran multi-hari</div>
+                  </a>
+                </div>
+              </div>
+
               @php
                 $mode = $setting->pkl_attendance_mode ?? 'radius_foto_lock';
               @endphp
@@ -296,6 +314,74 @@
 
   </div><!-- /.container-fluid -->
 </div><!-- /.content -->
+
+<!-- Modal Export Rekap Periode PKL -->
+<div class="modal fade" id="modalExportRekapPkl" tabindex="-1" role="dialog" aria-labelledby="modalExportRekapPklLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content shadow border-0" style="border-radius: 16px;">
+      <div class="modal-header border-0 pb-0 pt-3 px-4">
+        <div class="d-flex align-items-center">
+          <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 42px; height: 42px;">
+            <i class="fas fa-file-excel" style="font-size: 1.2rem;"></i>
+          </div>
+          <div>
+            <h5 class="modal-title font-weight-bold text-dark mb-0" id="modalExportRekapPklLabel">Download Rekap Presensi PKL</h5>
+            <small class="text-muted">Unduh rekapitulasi kehadiran matriks rentang tanggal ke Excel</small>
+          </div>
+        </div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="{{ route('admin.absensi-pkl.export-rekap') }}" method="GET">
+        <div class="modal-body px-4 pt-3 pb-2">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold small text-dark mb-1">
+                <i class="fas fa-calendar-alt text-primary mr-1"></i> Tanggal Awal
+              </label>
+              <input type="date" name="tanggal_awal" class="form-control form-control-sm" value="{{ now()->startOfMonth()->toDateString() }}" required style="border-radius: 6px;">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold small text-dark mb-1">
+                <i class="fas fa-calendar-check text-success mr-1"></i> Tanggal Akhir
+              </label>
+              <input type="date" name="tanggal_akhir" class="form-control form-control-sm" value="{{ now()->toDateString() }}" required style="border-radius: 6px;">
+            </div>
+          </div>
+          <div class="form-group mb-3">
+            <label class="font-weight-bold small text-dark mb-1">
+              <i class="fas fa-building text-info mr-1"></i> Mitra DU/DI (Opsional)
+            </label>
+            <select name="id_perusahaan" class="form-control form-control-sm" style="border-radius: 6px; width: 100%;">
+              <option value="">-- Semua Mitra DU/DI --</option>
+              @foreach($perusahaanList as $p)
+                <option value="{{ $p->id_perusahaan }}">{{ $p->nama_perusahaan }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="form-group mb-2">
+            <label class="font-weight-bold small text-dark mb-1">
+              <i class="fas fa-chalkboard text-secondary mr-1"></i> Kelas (Opsional)
+            </label>
+            <select name="id_kelas" class="form-control form-control-sm" style="border-radius: 6px; width: 100%;">
+              <option value="">-- Semua Kelas --</option>
+              @foreach($kelasList as $k)
+                <option value="{{ $k->id_kelas }}">{{ $k->nama_kelas }}</option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer border-0 px-4 pb-3 pt-2">
+          <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-dismiss="modal" style="border-radius: 6px;">Batal</button>
+          <button type="submit" class="btn btn-success btn-sm px-4 font-weight-bold shadow-sm" style="border-radius: 6px;">
+            <i class="fas fa-download mr-1"></i> Download Excel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <!-- Modal Preview Foto Selfie -->
 <div class="modal fade" id="modalPreviewFoto" tabindex="-1" role="dialog" aria-hidden="true">

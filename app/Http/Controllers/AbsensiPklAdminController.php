@@ -11,6 +11,9 @@ use App\Models\Perusahaan;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\AbsensiPklHarianExport;
+use App\Exports\AbsensiPklRekapExport;
 
 class AbsensiPklAdminController extends Controller
 {
@@ -78,6 +81,42 @@ class AbsensiPklAdminController extends Controller
             'totalSiswaPkl', 'totalHadir', 'totalBelumAbsen',
             'perusahaanList', 'kelasList'
         ));
+    }
+
+    /**
+     * Export laporan harian presensi siswa PKL ke Excel.
+     */
+    public function exportHarian(Request $request)
+    {
+        $tanggal = $request->query('tanggal', now()->toDateString());
+        $idPerusahaan = $request->query('id_perusahaan');
+        $idKelas = $request->query('id_kelas');
+        $filterStatus = $request->query('status');
+
+        $fileName = 'Laporan_Presensi_PKL_' . $tanggal . '.xlsx';
+
+        return Excel::download(
+            new AbsensiPklHarianExport($tanggal, $idPerusahaan, $idKelas, $filterStatus),
+            $fileName
+        );
+    }
+
+    /**
+     * Export rekapitulasi rentang tanggal presensi siswa PKL ke Excel.
+     */
+    public function exportRekap(Request $request)
+    {
+        $tanggalAwal = $request->query('tanggal_awal', now()->startOfMonth()->toDateString());
+        $tanggalAkhir = $request->query('tanggal_akhir', now()->toDateString());
+        $idPerusahaan = $request->query('id_perusahaan');
+        $idKelas = $request->query('id_kelas');
+
+        $fileName = 'Rekap_Presensi_PKL_' . $tanggalAwal . '_sd_' . $tanggalAkhir . '.xlsx';
+
+        return Excel::download(
+            new AbsensiPklRekapExport($tanggalAwal, $tanggalAkhir, $idPerusahaan, $idKelas),
+            $fileName
+        );
     }
 
     /**
